@@ -1,0 +1,53 @@
+/*
+ * LocalFilesystemDriverID.h
+ *
+ *  Created on: 27.04.2009
+ *      Author: vedenko
+ */
+
+#ifndef SDLDRIVERID_H_
+#define SDLDRIVERID_H_
+
+#include "core/drivermodel/DriverID.h"
+#include "windowmanager/Drivers/SDL/SDLManagerDriver.h"
+/*
+ *
+ */
+namespace windowmanager
+{
+
+class WindowManagerFactory;
+namespace drivers
+{
+
+namespace sdl
+{
+
+class SDLDriverID : public core::drivermodel::DriverID
+{
+	friend class windowmanager::WindowManagerFactory;
+	SDLDriverID()
+	{
+	}
+	virtual ~SDLDriverID()
+	{
+	}
+
+public:
+	virtual core::drivermodel::Driver*		create()
+	{
+		return new SDLManagerDriver();
+	}
+
+	virtual EString							id()
+	{
+		return "SDL";
+	}
+};
+
+}
+
+}
+
+}
+#endif /* LOCALFILESYSTEMDRIVERID_H_ */

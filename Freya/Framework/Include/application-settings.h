@@ -1,0 +1,9 @@
+#ifndef APPLICATIONSETTINGS_H_
+#define APPLICATIONSETTINGS_H_
+namespace settings
+{
+	extern const char	application_name[];
+	extern const char	application_company[];
+	extern const char	config_file_name[];
+}
+#endif /*APPLICATIONSETTING_H_*/

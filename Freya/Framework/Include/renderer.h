@@ -1,0 +1,11 @@
+#ifndef RENDERER_H_
+#define RENDERER_H_
+#include "renderer/3DConstants.h"
+#include "renderer/DriverException.h"
+#include "renderer/RenderingAPIDriver.h"
+#include "renderer/DriverSubsystems/Framebuffer.h"
+#include "renderer/DriverSubsystems/Shader.h"
+#include "renderer/DriverSubsystems/ShaderException.h"
+#include "renderer/DriverSubsystems/Texture.h"
+#include "renderer/DriverSubsystems/VertexBufferObject.h"
+#endif /*RENDERER_H_*/
