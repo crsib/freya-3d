@@ -23,14 +23,6 @@ class EngineCore;
 namespace windowmanager
 {
 
-namespace multithreading
-{
-class Thread;
-class Mutex;
-class Semaphore;
-class Condition;
-}
-
 class RenderingAPIInitialization;
 
 namespace input
@@ -74,23 +66,6 @@ public:
 	//Window part
 	virtual void		createWindow(unsigned Width,unsigned Height,const EString& Caption,bool Fullscreen,const RenderingAPIInitialization* API = 0) = 0;
 	virtual void    	destroyWindow() = 0;
-
-	//Multithreading part
-	//Threads
-	virtual windowmanager::multithreading::Thread*	   	createThread(int (*fn)(void*),void* param) = 0; //Creates thread of execution
-	virtual void	 	destroyThread(windowmanager::multithreading::Thread* thrd) = 0; //Will wait until thread finishes and destroy object
-	//Mutexes/conditions
-	virtual windowmanager::multithreading::Mutex*	  	createMutex() = 0;
-	virtual void	  	destroyMutex(windowmanager::multithreading::Mutex* mut) = 0;
-
-	virtual windowmanager::multithreading::Condition*	createCondidtion() = 0;
-	virtual void		destroyCondition(windowmanager::multithreading::Condition* cond) = 0;
-	//Semaphores
-	virtual windowmanager::multithreading::Semaphore*	createSemaphore(unsigned initial) = 0;
-	virtual void		destroySemaphore(windowmanager::multithreading::Semaphore* sem) = 0;
-protected:
-	virtual unsigned    getThreadID() = 0;
-public:
 	//Time
 	virtual unsigned	getTickCount() = 0;
 	//Input

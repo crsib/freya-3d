@@ -9,14 +9,14 @@
 
 #include "core/EngineCore.h"
 #include "windowmanager/WindowManagerDriver.h"
-#include "windowmanager/DriverSubsystems/Multithreading/Mutex.h"
+#include "core/multithreading/Mutex.h"
 
 namespace resources
 {
 
 Resource::Resource()
 {
-	m_Mutex = core::EngineCore::getWindowManager()->createMutex();
+	m_Mutex = core::EngineCore::createMutex();
 	m_Ready = 0;
 	m_Resource = NULL;
 }
@@ -24,7 +24,7 @@ Resource::Resource()
 Resource::~Resource()
 {
 	m_Mutex->unlock();
-	core::EngineCore::getWindowManager()->destroyMutex(m_Mutex);
+	core::EngineCore::destroyMutex(m_Mutex);
 	m_Ready = 0;
 }
 

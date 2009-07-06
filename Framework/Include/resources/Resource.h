@@ -14,7 +14,7 @@
 #include "core/EngineSubsystem.h"
 #include "resources/ResourceException.h"
 
-namespace windowmanager
+namespace core
 {
 namespace multithreading
 {
@@ -80,7 +80,7 @@ protected:
 private:
 	//data
 	void* 											m_Resource;
-	windowmanager::multithreading::Mutex*		m_Mutex;//This mutex is locked, while m_Ready is null
+	core::multithreading::Mutex*					m_Mutex;//This mutex is locked, while m_Ready is null
 	unsigned 										m_Ready;
 	EString											m_ResourceID;
 };

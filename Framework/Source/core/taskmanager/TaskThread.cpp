@@ -10,8 +10,9 @@
 #include "core/EngineCore.h"
 #include "core/taskmanager/Task.h"
 #include "core/taskmanager/TaskManager.h"
-#include "windowmanager/DriverSubsystems/Multithreading/Thread.h"
-#include "core/multithreading/HardwarePrimitives.h"
+#include "core/multithreading/Thread.h"
+#include "core/multithreading/Runnable.h"
+#include "core/multithreading/ThreadBlocks.h"
 #include "core/EngineException.h"
 #include <iostream>
 namespace core
@@ -32,43 +33,48 @@ public:
 	}
 };
 
-int __thread_function(void* p)
+class __thread_function : public core::multithreading::Runnable
 {
-	core::multithreading::RingBuffer<core::taskmanager::Task*,32>* rb = reinterpret_cast<core::multithreading::RingBuffer<core::taskmanager::Task*,32>*>(p);
-	while(TaskThread::m_Active)
+public:
+	core::multithreading::RingBuffer<core::taskmanager::Task*,32>* rb;
+	virtual int operator () ()
 	{
-		try
+		while(TaskThread::m_Active)
 		{
-			core::taskmanager::Task*	task = rb->fetch();
-			switch((*task)())
+			try
 			{
-			case core::taskmanager::Task::MAIN_THREAD:
-				core::EngineCore::getTaskManager()->addTask(task);
-				break;
-			case core::taskmanager::Task::SECONDARY_THREAD:
-				core::EngineCore::getTaskManager()->addAsynchronousTask(task);
-				break;
-			default:
-				delete task;
+				core::taskmanager::Task*	task = rb->fetch();
+				switch((*task)())
+				{
+				case core::taskmanager::Task::MAIN_THREAD:
+					core::EngineCore::getTaskManager()->addTask(task);
+					break;
+				case core::taskmanager::Task::SECONDARY_THREAD:
+					core::EngineCore::getTaskManager()->addAsynchronousTask(task);
+					break;
+				default:
+					delete task;
+				}
 			}
-		}
-		catch(const ::EngineException& ex)
-		{
-			std::cout << "Sub thread " << ex.message() << std::endl;
-		}
+			catch(const ::EngineException& ex)
+			{
+				std::cout << "Sub thread " << ex.message() << std::endl;
+			}
 
-		YIELD
+			core::multithreading::yield();
+		}
+		return 0;
 	}
-	return 0;
-}
-
+};
 unsigned	TaskThread::m_Active = 0;
 
 TaskThread::TaskThread()
 {
 	m_Active = 1;
 	m_Buffer = new core::multithreading::RingBuffer<core::taskmanager::Task*,32>();
-	m_Thread = core::EngineCore::getWindowManager()->createThread(__thread_function,m_Buffer);
+	m_Func = new __thread_function();
+	m_Func->rb = m_Buffer;
+	m_Thread = core::EngineCore::createThread(*m_Func);
 }
 
 TaskThread::~TaskThread()
@@ -85,9 +91,10 @@ TaskThread::~TaskThread()
 		m_Buffer->fetch();
 	}
 	std::cout << "Awaiting sub thread " << std::endl;
-	m_Thread->waitThread();
+	m_Thread->wait();
 	std::cout << "Returning sub thread " << std::endl;
-	core::EngineCore::getWindowManager()->destroyThread(m_Thread);
+	core::EngineCore::destroyThread(m_Thread);
+	delete m_Func;
 	delete m_Buffer;
 }
 

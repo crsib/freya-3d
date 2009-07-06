@@ -66,7 +66,7 @@ public:
 
 	Condition*	createCondition()
 	{
-		return m_Impl->createMutex();
+		return m_Impl->createCondition();
 	}
 
 	void		destroyCondition(Condition* cond)

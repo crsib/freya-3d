@@ -34,7 +34,7 @@ public:
 	 * Return the engine specific id of a thread.
 	 * \return thread ID
 	 */
-	virtual ThreadID&  threadID() const = 0;
+	virtual const ThreadID&  threadID() const = 0;
 	//! Waits a thread of execution to be finished
 	virtual void	  wait() = 0;
 	//! Waits a thread of execution to be finished for a period of time

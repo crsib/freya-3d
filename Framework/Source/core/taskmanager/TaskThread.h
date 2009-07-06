@@ -15,15 +15,13 @@
 #include "core/multithreading/RingBuffer.h"
 
 
-namespace windowmanager
+namespace core
 {
 namespace multithreading
 {
 class Thread;
 }
-}
-namespace core
-{
+
 namespace taskmanager
 {
 class TaskManager;
@@ -31,12 +29,12 @@ class Task;
 
 namespace __internal
 {
-int __thread_function(void* p);
+class __thread_function;
 
 class TaskThread: virtual public ::EngineSubsystem
 {
 	friend class core::taskmanager::TaskManager;
-	friend int __thread_function(void* p);
+	friend class __thread_function;
 private:
 	TaskThread();
 
@@ -47,8 +45,9 @@ public:
 	bool operator < (const TaskThread& other) const;
 private:
 	core::multithreading::RingBuffer<Task*,32>*		m_Buffer;
-	windowmanager::multithreading::Thread*			m_Thread;
+	core::multithreading::Thread*					m_Thread;
 	static unsigned									m_Active;
+	__thread_function*								m_Func;
 };
 
 }

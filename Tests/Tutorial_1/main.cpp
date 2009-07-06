@@ -121,8 +121,8 @@ int main(int argC,char** argV)
 		std::cout << "Loading textures..." << std::endl;
 		unsigned tex_load_start = wm->getTickCount();
 		std::cout << "Loading diffuse texture" << std::endl;
-		//renderer::Texture* diffuse = images::TGALoader::load("/Textures/diffuse.tga");
-		renderer::Texture* diffuse = images::TGALoader::load("/earthmap.tga");
+		renderer::Texture* diffuse = images::TGALoader::load("/Textures/diffuse.tga");
+		//renderer::Texture* diffuse = images::TGALoader::load("/earthmap.tga");
 		diffuse->setMinFilter(renderer::TextureFiltering::LINEAR_MIPMAP_LINEAR);
 		//Specular texture (used to achieve more correct information about material specular propeties)
 		std::cout << "Loading specular map" << std::endl;
@@ -300,7 +300,7 @@ int main(int argC,char** argV)
 			//Swap time values
 			oldTime = newTime;
 			frames++;
-			PAUSE;
+
 		}
 		std::cout << "FPS: " << (float)frames/((wm->getTickCount() - start)*0.001f) << std::endl;
 	}

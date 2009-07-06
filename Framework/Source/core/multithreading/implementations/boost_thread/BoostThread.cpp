@@ -7,6 +7,7 @@
 
 #include "BoostThread.h"
 
+
 namespace core
 {
 
@@ -19,15 +20,23 @@ namespace implementations
 namespace boost_thread
 {
 
-BoostThread::BoostThread()
-{
-	// TODO Auto-generated constructor stub
-
-}
-
 BoostThread::~BoostThread()
 {
-	// TODO Auto-generated destructor stub
+	delete m_Thread;
+}
+
+const ThreadID&  	BoostThread::threadID() const
+{
+	return *m_ID;
+}
+void	  	BoostThread::wait()
+{
+	m_Thread->join();
+}
+
+bool	 	BoostThread::timedWait(size_t ms)
+{
+	return m_Thread->timed_join(boost::posix_time::millisec(ms));
 }
 
 }

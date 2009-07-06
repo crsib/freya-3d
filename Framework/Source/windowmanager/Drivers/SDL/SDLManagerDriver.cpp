@@ -7,10 +7,6 @@
 
 #include "SDLManagerDriver.h"
 #include "windowmanager/Drivers/SDL/InputDeviceFactory.h"
-#include "windowmanager/Drivers/SDL/Multithreading/SDLThread.h"
-#include "windowmanager/Drivers/SDL/Multithreading/SDLMutex.h"
-#include "windowmanager/Drivers/SDL/Multithreading/SDLSemaphore.h"
-#include "windowmanager/Drivers/SDL/Multithreading/SDLCondition.h"
 
 #include "windowmanager/Drivers/SDL/OpenGLSDLAPIInit.h"
 
@@ -35,7 +31,6 @@ namespace drivers
 namespace sdl
 {
 using namespace windowmanager::input;
-using namespace windowmanager::multithreading;
 SDLManagerDriver::SDLManagerDriver()
 {
 	clog << "Starting SDL window manager" << endl;
@@ -46,24 +41,6 @@ SDLManagerDriver::SDLManagerDriver()
 
 SDLManagerDriver::~SDLManagerDriver()
 {
-	for(ThreadListIterator it = m_ThreadList.begin();it != m_ThreadList.end();it++)
-	{
-		(*it)->killThread();
-		delete static_cast<windowmanager::multithreading::drivers::sdl::SDLThread*>(*it);
-	}
-	for(MutexListIterator it = m_MutexList.begin();it != m_MutexList.end();it++)
-	{
-		delete static_cast<windowmanager::multithreading::drivers::sdl::SDLMutex*>(*it);
-	}
-	for(SemaphoreListIterator it = m_SemaphoreList.begin();it != m_SemaphoreList.end();it++)
-	{
-		delete static_cast<windowmanager::multithreading::drivers::sdl::SDLSemaphore*>(*it);
-	}
-	for(ConditionListIterator it = m_ConditionList.begin();it != m_ConditionList.end();it++)
-	{
-		delete static_cast<windowmanager::multithreading::drivers::sdl::SDLCondition*>(*it);
-	}
-
 	for(KeyDrivenDeviceListIterator it = m_KeyDrivenDeviceList.begin();it != m_KeyDrivenDeviceList.end();it++)
 	{
 		delete (*it);
@@ -114,70 +91,6 @@ void    	SDLManagerDriver::destroyWindow()
 {
 	if(m_Screen)
 		SDL_FreeSurface(m_Screen);
-}
-
-//Multithreading part
-//Threads
-Thread*	   	SDLManagerDriver::createThread(int (*fn)(void*),void* param) //Creates thread of execution
-{
-	Thread*	th	=  new windowmanager::multithreading::drivers::sdl::SDLThread(fn,param);
-	m_ThreadList.push_back(th);
-	return th;
-}
-
-void	 	SDLManagerDriver::destroyThread(Thread* thrd) //Will wait until thread finishes and destroy object
-{
-	ThreadListIterator it = std::find(m_ThreadList.begin(),m_ThreadList.end(),thrd);
-	if(it == m_ThreadList.end()) return; //No actual thread exists
-	m_ThreadList.erase(it);
-	delete static_cast<windowmanager::multithreading::drivers::sdl::SDLThread*>(thrd);
-}
-
-//Mutexes/conditions
-Mutex*	  	SDLManagerDriver::createMutex()
-{
-	Mutex*  mut = new windowmanager::multithreading::drivers::sdl::SDLMutex();
-	m_MutexList.push_back(mut);
-	return mut;
-}
-
-void	  	SDLManagerDriver::destroyMutex(Mutex* mut)
-{
-	MutexListIterator it = std::find(m_MutexList.begin(),m_MutexList.end(),mut);
-	if(it == m_MutexList.end()) return; //No actual mutex exists
-	m_MutexList.erase(it);
-	delete static_cast<windowmanager::multithreading::drivers::sdl::SDLMutex*>(mut);
-}
-
-Condition*	SDLManagerDriver::createCondidtion()
-{
-	Condition* cond = new windowmanager::multithreading::drivers::sdl::SDLCondition();
-	m_ConditionList.push_back(cond);
-	return cond;
-}
-
-void		SDLManagerDriver::destroyCondition(Condition* cond)
-{
-	ConditionListIterator it = std::find(m_ConditionList.begin(),m_ConditionList.end(),cond);
-	if(it == m_ConditionList.end()) return; //No actual condition exists
-	m_ConditionList.erase(it);
-	delete static_cast<windowmanager::multithreading::drivers::sdl::SDLCondition*>(cond);
-}
-
-//Semaphores
-Semaphore*	SDLManagerDriver::createSemaphore(unsigned initial)
-{
-	Semaphore*	sem = new windowmanager::multithreading::drivers::sdl::SDLSemaphore(initial);
-	m_SemaphoreList.push_back(sem);
-	return sem;
-}
-
-void		SDLManagerDriver::destroySemaphore(Semaphore* sem)
-{
-	SemaphoreListIterator it = std::find(m_SemaphoreList.begin(),m_SemaphoreList.end(),sem);
-	if(it == m_SemaphoreList.end()) return; //No actual semaphore exists
-	m_SemaphoreList.erase(it);
-	delete static_cast<windowmanager::multithreading::drivers::sdl::SDLSemaphore*>(sem);
 }
 
 //Time
@@ -282,11 +195,6 @@ void		SDLManagerDriver::postUserEvent(unsigned uid, void* arg1, void* arg2)
 	event.user.data1 = arg1;
 	event.user.data2 = arg2;
 	SDL_PushEvent(&event);
-}
-
-unsigned	SDLManagerDriver::getThreadID()
-{
-	return SDL_ThreadID();
 }
 
 }
