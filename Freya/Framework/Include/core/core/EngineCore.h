@@ -31,6 +31,7 @@ namespace multithreading
 class Thread;
 class Mutex;
 class Condition;
+class ThreadID;
 THREAD_IMPLEMENTATION_PREDEF;
 }
 
@@ -200,45 +201,29 @@ public:
 
 	//Multithreading part
 
-	//!Retrieve the current thread ID.
-	/*!
-	 * Retrieves the current thread ID. This function can only be called after the WindowManagerDriver
-	 * is loaded, because the platform specific multithreading support is one of the WMD tasks.
-	 * Yet, WindowManagerDriver does not provide direct access to current thread ID.
-	 * \return current thread ID
-	 */
-	static unsigned		getCurrentThreadID();
-	//!Retrieve main thread ID
-	/*!
-	 * Retrieves the current thread ID. This function can only be called after the WindowManagerDriver
-	 * is loaded.
-	 * \return main thread ID
-	 */
-	static unsigned		getMainThreadID();
 private:
 	//Memory subsystem
-	static core::memory::MemoryArena*						m_MemoryArena;
+	static core::memory::MemoryArena*					m_MemoryArena;
 	//Logging subsystem
-	std::ofstream*							m_LogStream;
-	std::streambuf*  						m_OldLogStream;
+	std::ofstream*										m_LogStream;
+	std::streambuf*  									m_OldLogStream;
 	//Filesystem subsystem :)
-	static core::filesystem::Filesystem*	m_Filesystem;
+	static core::filesystem::Filesystem*				m_Filesystem;
 	//Window management
-	static windowmanager::WindowManagerDriver*				m_WindowManager;
+	static windowmanager::WindowManagerDriver*			m_WindowManager;
 	//Rendering driver
-	static renderer::RenderingAPIDriver*	m_RenderingDriver;
+	static renderer::RenderingAPIDriver*				m_RenderingDriver;
 	//Lua
 	//static Settings*						m_Settings;
 
 	//Loop and app control
-	static unsigned								m_Running;
-	static EngineCore*							m_Instance;
-	static windowmanager::WindowManagerFactory* 	m_WMFactory;
+	static unsigned										m_Running;
+	static EngineCore*									m_Instance;
+	static windowmanager::WindowManagerFactory* 		m_WMFactory;
 	static renderer::RenderingAPIFactory*				m_RAPIFactory;
 	static core::taskmanager::TaskManager*				m_TaskManager;
 	static resources::ResourceManager*					m_ResourceManager;
-	THREAD_IMPLEMENTATION			*					m_ThreadImplementation;
-	static unsigned										m_MainThreadID;
+	static THREAD_IMPLEMENTATION			*			m_ThreadImplementation;
 };
 
 }

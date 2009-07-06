@@ -28,7 +28,7 @@ public:
 	//! Block the current thread and release previously acquired mutex
 	/*!
 	 * Block the current thread and release previously acquired mutex until the one of signal or broadcast is called
-	 * The mutex  <STRONG>must<STRONG> be previously locked
+	 * The mutex  <STRONG>must</STRONG> be previously locked
 	 */
 	virtual void wait(Mutex* mut) = 0;
 	//! Notify one of the waiting threads to continue its job
