@@ -23,11 +23,19 @@
 
 #include "core/taskmanager/Task.h"
 #include "renderer/DriverException.h"
+
 #include "core/multithreading/ImplementationFactory.h"
+#include "core/multithreading/ThreadID.h"
+#include "core/multithreading/Thread.h"
+#include "core/multithreading/Condition.h"
+#include "core/multithreading/Mutex.h"
+#include THREAD_IMPLEMENTATION_INCLUDE
+
 
 #include <iostream>
 
 using namespace renderer;
+
 
 namespace core
 {
@@ -41,11 +49,12 @@ renderer::RenderingAPIDriver*				EngineCore::m_RenderingDriver = NULL;
 
 unsigned									EngineCore::m_Running = false;
 EngineCore*									EngineCore::m_Instance = NULL;
-windowmanager::WindowManagerFactory* 	EngineCore::m_WMFactory = NULL;
+windowmanager::WindowManagerFactory* 		EngineCore::m_WMFactory = NULL;
 renderer::RenderingAPIFactory*			 	EngineCore::m_RAPIFactory = NULL;
 core::taskmanager::TaskManager*				EngineCore::m_TaskManager = NULL;
 resources::ResourceManager*					EngineCore::m_ResourceManager = NULL;
-unsigned									EngineCore::m_MainThreadID = 0;
+
+THREAD_IMPLEMENTATION	*					EngineCore::m_ThreadImplementation = 0;
 //Memory allocation function
 namespace memory
 {
@@ -82,10 +91,10 @@ EngineCore::EngineCore()
 	m_MemoryArena->addPool(10*1024*1024,4);//Math pool
 	m_MemoryArena->addPool(30*1024*1024,4);//Generic pool
 	m_MemoryArena->addPool(1024*1024,4);//Generic class pool
+	m_ThreadImplementation = new THREAD_IMPLEMENTATION;
 	//start filesystem
 	std::cout << "Starting filesystem subsystem" << std::endl;
 	m_Filesystem  = new core::filesystem::Filesystem();
-
 
 	//m_Settings  = new Settings();
 
@@ -93,6 +102,7 @@ EngineCore::EngineCore()
 	m_Instance = this;
 	m_RenderingDriver = NULL;
 	m_WindowManager	  = NULL;
+	m_TaskManager = new core::taskmanager::TaskManager;
 	std::cout << "Creating factories" << std::endl;
 	m_WMFactory	=	new windowmanager::WindowManagerFactory();
 	m_RAPIFactory = new renderer::RenderingAPIFactory();
@@ -107,6 +117,8 @@ EngineCore::~EngineCore()
 	delete m_RAPIFactory;
 	std::cout << "Destroying filesystem" << std::endl;
 	delete m_Filesystem;
+
+	delete m_ThreadImplementation;
 	std::cout << "Switching allocation mode" << std::endl;
 	delete m_MemoryArena;
 	std::cout << "Stopping log subsystem" << std::endl;
@@ -125,13 +137,9 @@ void EngineCore::createWindowManager(const EString& type)
 	{
 		delete m_RenderingDriver;
 		m_RenderingDriver = NULL;
-		m_MainThreadID = 0;
-		delete m_TaskManager;
 		delete m_WindowManager;
 	}
 	m_WindowManager = static_cast<windowmanager::WindowManagerDriver*>(m_WMFactory->createDriver(type));
-	m_MainThreadID = m_WindowManager->getThreadID();
-	m_TaskManager = new core::taskmanager::TaskManager;
 }
 
 void EngineCore::createRenderingDriver(const EString& type)
@@ -200,15 +208,6 @@ void 		EngineCore::registerRenderingDriver(core::drivermodel::DriverID* driverID
 	m_RAPIFactory->registerDriver(driverID);
 }
 
-unsigned		EngineCore::getCurrentThreadID()
-{
-	return m_WindowManager->getThreadID();
-}
-
-unsigned		EngineCore::getMainThreadID()
-{
-	return m_MainThreadID;
-}
 
 windowmanager::WindowManagerDriver *EngineCore::getWindowManager()
 {
@@ -254,4 +253,47 @@ EngineCore*		EngineCore::getInstance()
 {
 	return m_Instance;
 }
+
+struct __internal_runnable
+{
+	__internal_runnable(const core::multithreading::Runnable* __rn) : run(const_cast<core::multithreading::Runnable*>(__rn)){}
+	int operator () ()
+	{
+		return run->operator()();
+	}
+
+	core::multithreading::Runnable* run;
+};
+
+core::multithreading::Thread*		EngineCore::createThread(const core::multithreading::Runnable& proc)
+{
+
+	return m_ThreadImplementation->createThread(__internal_runnable(&proc));
+}
+
+void								EngineCore::destroyThread(core::multithreading::Thread* thrd)
+{
+	m_ThreadImplementation->destroyThread(thrd);
+}
+
+core::multithreading::Mutex*		EngineCore::createMutex()
+{
+	return m_ThreadImplementation->createMutex();
+}
+
+void								EngineCore::destroyMutex(core::multithreading::Mutex*  mutex)
+{
+	m_ThreadImplementation->destroyMutex(mutex);
+}
+
+core::multithreading::Condition*	EngineCore::createCondition()
+{
+	return m_ThreadImplementation->createCondition();
+}
+
+void								EngineCore::destroyCondition(core::multithreading::Condition* cond)
+{
+	m_ThreadImplementation->destroyCondition(cond);
+}
+
 }

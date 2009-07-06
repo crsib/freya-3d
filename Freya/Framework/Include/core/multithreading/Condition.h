@@ -12,6 +12,7 @@
  *
  */
 #include "core/drivermodel/Driver.h"
+#include <cstdlib>
 
 namespace core
 {
@@ -29,6 +30,7 @@ public:
 	/*!
 	 * Block the current thread and release previously acquired mutex until the one of signal or broadcast is called
 	 * The mutex  <STRONG>must</STRONG> be previously locked
+	 * \param mut is a mutex to wait on
 	 */
 	virtual void wait(Mutex* mut) = 0;
 	//! Notify one of the waiting threads to continue its job

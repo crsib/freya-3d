@@ -64,18 +64,6 @@ protected:
 	~SDLManagerDriver();
 public:
 	//Typedefs
-	typedef std::list<windowmanager::multithreading::Thread*,core::memory::MemoryAllocator<windowmanager::multithreading::Thread*> > ThreadList;
-	typedef std::list<windowmanager::multithreading::Thread*,core::memory::MemoryAllocator<windowmanager::multithreading::Thread*> >::iterator ThreadListIterator;
-
-	typedef std::list<windowmanager::multithreading::Mutex*,core::memory::MemoryAllocator<windowmanager::multithreading::Mutex*> > MutexList;
-	typedef std::list<windowmanager::multithreading::Mutex*,core::memory::MemoryAllocator<windowmanager::multithreading::Mutex*> >::iterator MutexListIterator;
-
-	typedef std::list<windowmanager::multithreading::Semaphore*,core::memory::MemoryAllocator<windowmanager::multithreading::Semaphore*> > SemaphoreList;
-	typedef std::list<windowmanager::multithreading::Semaphore*,core::memory::MemoryAllocator<windowmanager::multithreading::Semaphore*> >::iterator SemaphoreListIterator;
-
-	typedef std::list<windowmanager::multithreading::Condition*,core::memory::MemoryAllocator<windowmanager::multithreading::Condition*> > ConditionList;
-	typedef std::list<windowmanager::multithreading::Condition*,core::memory::MemoryAllocator<windowmanager::multithreading::Condition*> >::iterator ConditionListIterator;
-
 	typedef std::list<windowmanager::input::KeyDrivenDevice*,core::memory::MemoryAllocator<windowmanager::input::KeyDrivenDevice*> > KeyDrivenDeviceList;
 	typedef std::list<windowmanager::input::KeyDrivenDevice*,core::memory::MemoryAllocator<windowmanager::input::KeyDrivenDevice*> >::iterator KeyDrivenDeviceListIterator;
 
@@ -88,22 +76,6 @@ public:
 	virtual void		createWindow(unsigned Width,unsigned Height,const EString& Caption,bool Fullscreen = false,const RenderingAPIInitialization* API = 0);
 	virtual void    	destroyWindow();
 
-	//Multithreading part
-	//Threads
-	virtual windowmanager::multithreading::Thread*	   	createThread(int (*fn)(void*),void* param); //Creates thread of execution
-	virtual void	 	destroyThread(windowmanager::multithreading::Thread* thrd); //Will wait until thread finishes and destroy object
-	//Mutexes/conditions
-	virtual windowmanager::multithreading::Mutex*	  	createMutex();
-	virtual void	  	destroyMutex(windowmanager::multithreading::Mutex* mut);
-
-	virtual windowmanager::multithreading::Condition*	createCondidtion();
-	virtual void		destroyCondition(windowmanager::multithreading::Condition* cond);
-	//Semaphores
-	virtual windowmanager::multithreading::Semaphore*	createSemaphore(unsigned initial);
-	virtual void		destroySemaphore(windowmanager::multithreading::Semaphore* sem);
-protected:
-	virtual unsigned    getThreadID() ;
-public:
 	//Time
 	virtual unsigned		getTickCount();
 	//Input
@@ -130,11 +102,6 @@ public:
 	virtual void		swapBuffers();
 private:
 	//resource managment system
-	ThreadList					m_ThreadList;
-	MutexList					m_MutexList;
-	SemaphoreList				m_SemaphoreList;
-	ConditionList				m_ConditionList;
-
 	KeyDrivenDeviceList 		m_KeyDrivenDeviceList;
 	MovementDrivenDeviceList 	m_MovementDrivenDeviceList;
 

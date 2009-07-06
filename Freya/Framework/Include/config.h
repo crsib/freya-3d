@@ -8,7 +8,8 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 //Multithreading
-
+#define USE_BOOST_THREADS 1
+#ifdef  USE_BOOST_THREADS
 #define THREAD_IMPLEMENTATION_CLASS core::multithreading::implementations::boost_thread::ImplementationFactory
 
 #define THREAD_IMPLEMENTATION_PREDEF namespace implementations\
@@ -20,5 +21,9 @@
 }
 
 #define THREAD_IMPLEMENTATION core::multithreading::ImplementationFactory< THREAD_IMPLEMENTATION_CLASS >
+
+#define THREAD_IMPLEMENTATION_INCLUDE "core/multithreading/implementations/boost_thread/ImplementationFactory.h"
+
+#endif //USE_BOOST_THREADS 1
 
 #endif /* CONFIG_H_ */

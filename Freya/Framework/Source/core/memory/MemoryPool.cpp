@@ -11,9 +11,12 @@
 #include "core/taskmanager/Task.h"
 #include "core/taskmanager/TaskManager.h"
 #include "core/EngineCore.h"
-#include "core/multithreading/HardwarePrimitives.h"
+#include "core/multithreading/ThreadBlocks.h"
+#include "core/multithreading/ThreadID.h"
 #include "windowmanager/WindowManagerDriver.h"
 
+//TODO: DBG
+#include <iostream>
 namespace core
 {
 
@@ -124,18 +127,20 @@ void* 	MemoryPool::allocate(size_t sz)
 		try
 		{
 			m_Last->Next = new MemoryPool::MemoryBufferListItem;
-
-			unsigned id = core::EngineCore::getMainThreadID();
-			if((id == 0) || (core::EngineCore::getCurrentThreadID() == id))
+			const core::multithreading::ThreadID& id =  core::multithreading::getMainThreadID();
+			const core::multithreading::ThreadID& cid = core::multithreading::getCurrentThreadID();
+			if((cid == id))
 			{
+				std::cout  << "Pre-Allocating memory: inside" << std::endl;
 				m_Last->Next->This = new MemoryBuffer((sz < m_AllocSize) ?  m_AllocSize : sz,m_Alligment);
 			}
 			else
 			{
+				std::cout  << "Pre-Allocating memory: outside" << std::endl;
 			spin_wait:
 				if(m_Blocked)
 				{
-					YIELD
+					core::multithreading::yield();
 					goto spin_wait;
 				}
 				else
@@ -145,7 +150,7 @@ void* 	MemoryPool::allocate(size_t sz)
 				__Result* result = task->Result;
 				core::EngineCore::getTaskManager()->addTask(task);
 				while(result->Ready == 0)
-					YIELD;
+					core::multithreading::yield();
 				m_Last->Next->This = result->Buffer;
 				delete result;
 				m_Blocked = 0;

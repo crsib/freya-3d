@@ -9,6 +9,7 @@
 #define THREADBLOCKS_H_
 
 #include <cstdlib>
+#include "core/multithreading/ThreadID.h"
 
 namespace core
 {
@@ -41,14 +42,14 @@ unsigned	numHardwareThreads();
  * Retrieve the current thread ID
  * @return the ID of a current thread
  */
-ThreadID&	getCurrentThreadID();
+const ThreadID&	getCurrentThreadID();
 
 //! Get the main thread ID
 /*!
  * Retrieves the ID of the main thread of the application
  * @return the ID of the main thread. Data might be unavailable without core::EngineCore created
  */
-ThreadID&	getMainThreadID();
+const ThreadID&	getMainThreadID();
 //! Pause the spin-wait loop
 /*!
  *  Pauses the spin-wait loop for a short amount of time, reducing the cpu usage by a thread to improve the performance of other threads

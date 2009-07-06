@@ -9,7 +9,7 @@
 #define RUNNABLE_H_
 
 #include "core/EngineSubsystem.h"
-
+#include <iostream>
 /*
  *
  */
@@ -27,6 +27,7 @@ class Runnable : virtual public ::EngineSubsystem
 public:
 	//! Overload this function in subclass to implement the behavior of runnable object
 	virtual int operator () () = 0;
+
 };
 
 }

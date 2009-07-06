@@ -16,20 +16,16 @@
  *
  */
 
-
-namespace windowmanager
+namespace core
 {
+
+class EngineCore;
+
 namespace multithreading
 {
 class Thread;
 class Mutex;
 }
-}
-
-namespace core
-{
-
-class EngineCore;
 
 namespace taskmanager
 {
@@ -37,7 +33,7 @@ namespace taskmanager
 namespace __internal
 {
 class TaskThread;
-int _aux_thread_func(void*);
+class __aux_thread_func;
 }
 
 class Task;
@@ -53,7 +49,7 @@ class Task;
 class TaskManager : virtual public ::EngineSubsystem
 {
 	friend class core::EngineCore;
-	friend int core::taskmanager::__internal::_aux_thread_func(void*);
+	friend class core::taskmanager::__internal::__aux_thread_func;
 private:
 	TaskManager();
 	virtual ~TaskManager();
@@ -89,9 +85,10 @@ private:
 	std::queue<Task*,std::deque<Task*,core::memory::MemoryAllocator<Task* > > >		m_SecThreadSchedule;
 	std::list<core::taskmanager::__internal::TaskThread*,core::memory::MemoryAllocator<core::taskmanager::__internal::TaskThread*> > m_Threads;
 	size_t														m_ThreadNumber;
-	windowmanager::multithreading::Thread*						m_Thread;
-	windowmanager::multithreading::Mutex*						m_Mutex;
+	core::multithreading::Thread*								m_Thread;
+	core::multithreading::Mutex*								m_Mutex;
 	unsigned													m_ThreadActive;
+	__internal::__aux_thread_func*								m_Func;
 };
 
 }

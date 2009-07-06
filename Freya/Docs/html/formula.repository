@@ -1,0 +1,21 @@
+\form#0:$ dest = source*f_s + dest*f_d, (x_1,x_2,x_3,x_4) (y_1,y_2,y_3,y_4) = (x_1 y_1,x_2 y_2,x_3 y_3, x_4 y_4) $
+\form#1:$a<b$
+\form#2:$a>b$
+\form#3:$a=b$
+\form#4:$a \ge b$
+\form#5:$a \le b$
+\form#6:$a \ne b$
+\form#7:$ f_i = (0,0,0,0) $
+\form#8:$ f_i = (1,1,1,1) $
+\form#9:$ f_i = (r_d,g_d,b_d,a_d) $
+\form#10:$ f_i = (1,1,1,1) - (r_d,g_d,b_d,a_d) $
+\form#11:$ f_i = (a_d,a_d,a_d,a_d) $
+\form#12:$ f_i = (1,1,1,1) - (a_d,a_d,a_d,a_d) $
+\form#13:$ f_i = (r_s,g_s,b_s,a_s) $
+\form#14:$ f_i = (1,1,1,1)-(r_s,g_s,b_s,a_s) $
+\form#15:$ f_i = (a_s,a_s,a_s,a_s) $
+\form#16:$ f_i = (1,1,1,1)-(a_s,a_s,a_s,a_s) $
+\form#17:$ f_i = (a,a,a,a), a = \min (a_s,1-a_s)$
+\form#18:$ f=\frac{end - c}{end-start}$
+\form#19:$ f= e^{-density \cdot c} $
+\form#20:$ f= e^{-(density \cdot c)^2} $

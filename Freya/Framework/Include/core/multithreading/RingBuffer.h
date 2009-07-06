@@ -10,9 +10,8 @@
 
 #include "core/EngineCore.h"
 
-#include "windowmanager/WindowManagerDriver.h"
-#include "windowmanager/DriverSubsystems/Multithreading/Mutex.h"
-#include "windowmanager/DriverSubsystems/Multithreading/Condition.h"
+#include "core/multithreading/Mutex.h"
+#include "core/multithreading/Condition.h"
 
 
 namespace core
@@ -68,9 +67,9 @@ public:
 	//==== Private sections ====================================
 	//==========================================================
 private:
-	windowmanager::multithreading::Mutex*		m_Mutex;
-	windowmanager::multithreading::Condition* m_NotFull;
-	windowmanager::multithreading::Condition* m_NotEmpty;
+	core::multithreading::Mutex*		m_Mutex;
+	core::multithreading::Condition* m_NotFull;
+	core::multithreading::Condition* m_NotEmpty;
 
 	size_t											m_Front;
 	size_t											m_Rear;
@@ -86,10 +85,9 @@ private:
 template <typename T,size_t sz>
 RingBuffer<T,sz>::RingBuffer()
 {
-	windowmanager::WindowManagerDriver*	wm = core::EngineCore::getWindowManager();
-	m_Mutex = wm->createMutex();
-	m_NotFull = wm->createCondidtion();
-	m_NotEmpty = wm->createCondidtion();
+	m_Mutex = core::EngineCore::createMutex();
+	m_NotFull = core::EngineCore::createCondition();
+	m_NotEmpty = core::EngineCore::createCondition();
 	m_Count = m_Front = m_Rear = 0;
 	//std::cout << "Created a boundede buffer of size: " << sz << " " << (void*)this << " " << (void*)m_Mutex <<std::endl;
 }
@@ -98,11 +96,9 @@ RingBuffer<T,sz>::RingBuffer()
 template <typename T,size_t sz>
 RingBuffer<T,sz>::~RingBuffer()
 {
-	//std::cout << "Destroyed a boundede buffer of size: " << sz << " " << (void*)this << " " << (void*)m_Mutex <<std::endl;
-	windowmanager::WindowManagerDriver*	wm = core::EngineCore::getWindowManager();
-	wm->destroyMutex(m_Mutex);
-	wm->destroyCondition(m_NotFull);
-	wm->destroyCondition(m_NotEmpty);
+	core::EngineCore::destroyMutex(m_Mutex);
+	core::EngineCore::destroyCondition(m_NotFull);
+	core::EngineCore::destroyCondition(m_NotEmpty);
 }
 
 //==========================================================
@@ -128,9 +124,7 @@ T		RingBuffer<T,sz>::fetch()
 template <typename T, size_t sz>
 void	RingBuffer<T,sz>::deposit(const T& val)
 {
-	//std::cout << "Deposit a boundede buffer of size: " << sz << " " << (void*)this << " " << (void*)m_Mutex <<std::endl;
 	m_Mutex->lock();
-	//std::cout << "Deposit 1 a boundede buffer of size: " << sz << " " << (void*)this << " " << (void*)m_Mutex <<std::endl;
 	while(m_Count == sz)
 	{
 		m_NotFull->wait(m_Mutex);

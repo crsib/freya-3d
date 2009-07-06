@@ -19,7 +19,8 @@
 #include "core/multithreading/Mutex.h"
 #include "core/multithreading/Condition.h"
 #include "core/multithreading/RingBuffer.h"
-#include "core/multithreading/HardwarePrimitives.h"
+#include "core/multithreading/ThreadBlocks.h"
+#include "core/multithreading/Runnable.h"
 //Task managemet
 #include "core/taskmanager/Task.h"
 #include "core/taskmanager/TaskManager.h"
