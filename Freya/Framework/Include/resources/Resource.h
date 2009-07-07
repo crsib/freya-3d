@@ -26,9 +26,15 @@ class Mutex;
 //! This namespace contains a various routines for maintaining resource management tasks
 namespace resources
 {
+class Resource;
 namespace __internal
 {
 class ResourceLibrary;
+template<typename T>
+resources::Resource* 	createResource(T*	res);
+// Sets resource as ready
+void					finalizeResource(resources::Resource*);
+void					destroyResource(resources::Resource*);
 }
 //! This class provides a general abstraction of resource
 /*!
@@ -39,7 +45,11 @@ class ResourceLibrary;
 class Resource: virtual public ::EngineSubsystem
 {
 	friend class __internal::ResourceLibrary;
-public://TODO: make this private
+	template<typename T>
+	friend resources::Resource* 	__internal::createResource(T*);
+	friend void						__internal::destroyResource(resources::Resource*);
+	friend void						__internal::finalizeResource(resources::Resource*);
+private://TODO: make this private
 	Resource();
 	virtual ~Resource();
 public:
@@ -79,7 +89,7 @@ protected:
 	//methods
 private:
 	//data
-	void* 											m_Resource;
+	::EngineSubsystem* 											m_Resource;
 	core::multithreading::Mutex*					m_Mutex;//This mutex is locked, while m_Ready is null
 	unsigned 										m_Ready;
 	EString											m_ResourceID;

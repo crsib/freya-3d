@@ -119,23 +119,28 @@ int main(int argC,char** argV)
 		//Create desired textures and set their filtering to LINEAR_MIPMAP_LINEAR
 		//Diffuse texture
 		std::cout << "Loading textures..." << std::endl;
+		//Get the resource manager
+		//All loading are going to be synchronous so far
+		//Also, this example is to primitive to manage resources fully and manually.
+		resources::ResourceManager*	rm = core::EngineCore::getResourceManager();
+
 		unsigned tex_load_start = wm->getTickCount();
 		std::cout << "Loading diffuse texture" << std::endl;
-		renderer::Texture* diffuse = images::TGALoader::load("/Textures/diffuse.tga");
+		renderer::Texture* diffuse = rm->load(":tga:/Textures/diffuse.tga:mipmaps",resources::ResourceManager::IMMEDIATELY)->get<renderer::Texture*>();
 		//renderer::Texture* diffuse = images::TGALoader::load("/earthmap.tga");
 		diffuse->setMinFilter(renderer::TextureFiltering::LINEAR_MIPMAP_LINEAR);
 		//Specular texture (used to achieve more correct information about material specular propeties)
 		std::cout << "Loading specular map" << std::endl;
-		renderer::Texture* specular = images::TGALoader::load("/Textures/specular.tga");
+		renderer::Texture* specular = rm->load(":tga:/Textures/specular.tga:mipmaps",resources::ResourceManager::IMMEDIATELY)->get<renderer::Texture*>();
 		specular->setMinFilter(renderer::TextureFiltering::LINEAR_MIPMAP_LINEAR);
 		//Normal texture. Used to achieve the bumpmapping technique
 		std::cout << "Loading normal map" << std::endl;
-		renderer::Texture* bump = images::TGALoader::load("/Textures/normal.tga");
+		renderer::Texture* bump = rm->load(":tga:/Textures/normal.tga:mipmaps",resources::ResourceManager::IMMEDIATELY)->get<renderer::Texture*>();
 		//renderer::Texture* bump = images::TGALoader::load("/earthbump.tga");
 		bump->setMinFilter(renderer::TextureFiltering::LINEAR_MIPMAP_LINEAR);
 		//Fake texture. Used to show rendering without bumpmapping. Contains value, corresponding to (0,0,1) normal in tangent space
 		std::cout << "Loading fake normal map" << std::endl;
-		renderer::Texture* fake = images::TGALoader::load("/Textures/fake_normal.tga");
+		renderer::Texture* fake = rm->load(":tga:/Textures/fake_normal.tga:mipmaps",resources::ResourceManager::IMMEDIATELY)->get<renderer::Texture*>();
 		fake->setMinFilter(renderer::TextureFiltering::LINEAR_MIPMAP_LINEAR);
 		std::cout << "Textures loaded in " << (wm->getTickCount() - tex_load_start)*0.001 << " seconds" << std::endl;
 		//Are we using bumpmapping technique?

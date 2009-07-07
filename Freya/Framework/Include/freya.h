@@ -8,7 +8,6 @@
 #include "windowmanager.h"
 
 #include "primitives/Cube.h"
-#include "images/TGALoader.h"
 #include "camera/BasicCamera.h"
 #include "camera/FlyCamera.h"
 #include "camera/RotateCamera.h"

@@ -10,5 +10,6 @@
 
 #include "resources/Resource.h"
 #include "resources/ResourceException.h"
+#include "resources/ResourceManager.h"
 
 #endif /* RESOURCES_H_ */

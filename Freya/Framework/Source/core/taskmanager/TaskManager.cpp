@@ -129,7 +129,7 @@ size_t TaskManager::getThreadNumber()
 
 void TaskManager::enterMainLoop()
 {
-	while(!m_MainThreadSchedule.empty())
+	while((!m_MainThreadSchedule.empty())&&core::EngineCore::isRunning())
 	{
 		core::taskmanager::Task*	task = m_MainThreadSchedule.front();
 		switch((*task)())

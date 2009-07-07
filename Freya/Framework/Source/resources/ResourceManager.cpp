@@ -10,6 +10,9 @@
 #include "resources/ResourceManagerDriver.h"
 
 //Default drivers
+#include "resources/drivers/TGADriver.h"
+//TODO: DBG
+#include <iostream>
 
 namespace resources
 {
@@ -18,6 +21,7 @@ ResourceManager::ResourceManager()
 {
 	m_ResourceLibrary = new __internal::ResourceLibrary;
 	//Default drivers registration
+	registerDriver(new resources::drivers::TGADriverID());
 }
 
 ResourceManager::~ResourceManager()
@@ -25,7 +29,8 @@ ResourceManager::~ResourceManager()
 	Resource* res;
 	while((res = m_ResourceLibrary->pop()) != NULL)
 	{
-		free(res);
+		ResourceManagerDriver*	drv = __findDriver(res->id());
+		drv->destroy(res);
 	}
 	delete m_ResourceLibrary;
 	for(__DriverLibrary::iterator it = m_Drivers.begin();it != m_Drivers.end(); it++)
