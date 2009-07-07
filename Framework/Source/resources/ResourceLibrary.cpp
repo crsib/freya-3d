@@ -6,12 +6,23 @@
  */
 
 #include "ResourceLibrary.h"
-
+#include "core/multithreading/Mutex.h"
 namespace resources
 {
 
 namespace __internal
 {
+
+void					destroyResource(resources::Resource* res)
+{
+	delete res;
+}
+
+void					finalizeResource(resources::Resource* res)
+{
+	res->m_Mutex->unlock();
+	res->m_Ready = true;
+}
 
 ResourceLibrary::ResourceLibrary()
 {
@@ -62,7 +73,8 @@ size_t		ResourceLibrary::count()
 Resource*	ResourceLibrary::pop()
 {
 	Resource* res = m_Library.begin()->second.first;
-	m_Library.erase(m_Library.begin());
+	if(res != NULL)
+		m_Library.erase(m_Library.begin());
 	return res;
 }
 

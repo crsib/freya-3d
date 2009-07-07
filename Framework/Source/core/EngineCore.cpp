@@ -31,6 +31,7 @@
 #include "core/multithreading/Mutex.h"
 #include THREAD_IMPLEMENTATION_INCLUDE
 
+#include "resources/ResourceManager.h"
 
 #include <iostream>
 
@@ -103,6 +104,7 @@ EngineCore::EngineCore()
 	m_RenderingDriver = NULL;
 	m_WindowManager	  = NULL;
 	m_TaskManager = new core::taskmanager::TaskManager;
+	m_ResourceManager = new resources::ResourceManager;
 	std::cout << "Creating factories" << std::endl;
 	m_WMFactory	=	new windowmanager::WindowManagerFactory();
 	m_RAPIFactory = new renderer::RenderingAPIFactory();
@@ -110,9 +112,13 @@ EngineCore::EngineCore()
 
 EngineCore::~EngineCore()
 {
-	std::cout << "Destroying core" << std::endl;
-	delete m_RenderingDriver;
+	std::cout << "Destroying resource manager" << std::endl;
+	delete m_ResourceManager;
+	std::cout << "Destroying task manager" << std::endl;
 	delete m_TaskManager;
+	std::cout << "Destroying rendering driver" << std::endl;
+	delete m_RenderingDriver;
+	std::cout << "Destroying window manager" << std::endl;
 	delete m_WindowManager;
 	delete m_RAPIFactory;
 	std::cout << "Destroying filesystem" << std::endl;

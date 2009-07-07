@@ -38,14 +38,16 @@ void MemoryHeaderList::__remove(MemoryHeader*  header)
 	else
 	{
 		m_First = header->next();
-		m_First->m_Prev = NULL;
+		if(header->next())
+			m_First->m_Prev = NULL;
 	}
 	if(header->next() )
 		header->next()->m_Prev = header->prev();
 	else
 	{
 		m_Last = header->prev();
-		m_Last->m_Next = NULL;
+		if(header->prev())
+			m_Last->m_Next = NULL;
 	}
 	header->m_Magic = MemoryHeader::ALLOCATED;
 }
