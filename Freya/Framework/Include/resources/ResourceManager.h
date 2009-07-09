@@ -17,7 +17,7 @@
 #include "core/drivermodel/DriverID.h"
 
 #include "core/memory/MemoryAllocator.h"
-#include <map>;
+#include <map>
 
 namespace core
 {

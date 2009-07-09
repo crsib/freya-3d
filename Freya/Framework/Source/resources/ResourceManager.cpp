@@ -8,7 +8,7 @@
 #include "resources/ResourceManager.h"
 #include "resources/ResourceLibrary.h"
 #include "resources/ResourceManagerDriver.h"
-
+#include "core/multithreading/Mutex.h"
 //Default drivers
 #include "resources/drivers/TGADriver.h"
 //TODO: DBG
@@ -30,6 +30,8 @@ ResourceManager::~ResourceManager()
 	while((res = m_ResourceLibrary->pop()) != NULL)
 	{
 		ResourceManagerDriver*	drv = __findDriver(res->id());
+		if(!res->ready())
+			res->m_Mutex->unlock();
 		drv->destroy(res);
 	}
 	delete m_ResourceLibrary;

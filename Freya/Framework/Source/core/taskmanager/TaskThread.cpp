@@ -80,6 +80,7 @@ TaskThread::TaskThread()
 TaskThread::~TaskThread()
 {
 	m_Active = 0;
+#if 1
 	if(m_Buffer->empty())
 	{
 		std::cout << "Unloking sub thread [empty] " << std::endl;
@@ -90,12 +91,15 @@ TaskThread::~TaskThread()
 		std::cout << "Unloking sub thread [full]" << std::endl;
 		m_Buffer->fetch();
 	}
-	std::cout << "Awaiting sub thread " << std::endl;
+#endif
+	std::cout << "Awaiting sub thread " << m_Thread << std::endl;
 	m_Thread->wait();
 	std::cout << "Returning sub thread " << std::endl;
 	core::EngineCore::destroyThread(m_Thread);
-	delete m_Func;
+	std::cout << "Destroying connection buffer " << std::endl;
 	delete m_Buffer;
+	delete m_Func;
+
 }
 
 void TaskThread::addTask(Task* task)
