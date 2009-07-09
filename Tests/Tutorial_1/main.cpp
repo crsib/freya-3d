@@ -71,7 +71,7 @@ int main(int argC,char** argV)
 		fs->mount("lzma","Textures.7z");
 
 		//Create window
-		wm->createWindow(winWidth,winHeight,"Tutorial 1: Bump mapping",false,NULL);
+		wm->createWindow(winWidth,winHeight,"Tutorial 1: Bump mapping",false ,NULL);
 		//Start rendering subsystem
 		Core.createRenderingDriver(renderer::futures::MULTITEXTURE | renderer::futures::AUTO_TRANSPOSE_MATIRIX |
 				renderer::futures::VERTEX_BUFFER | renderer::futures::TEXTURE_BUFFER |

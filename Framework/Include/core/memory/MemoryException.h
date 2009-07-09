@@ -22,7 +22,7 @@ namespace memory
 class MemoryException : public EngineException
 {
 public:
-	MemoryException(const EString& mesg = "Memory exception") : m_Msg(mesg)
+	MemoryException(const EString& mesg = "Memory exception") : m_Msg(EString("[Memory]: ") + mesg)
 	{
 	}
 	virtual ~MemoryException()
