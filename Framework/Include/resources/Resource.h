@@ -27,6 +27,7 @@ class Mutex;
 namespace resources
 {
 class Resource;
+class ResourceManager;
 namespace __internal
 {
 class ResourceLibrary;
@@ -44,6 +45,7 @@ void					destroyResource(resources::Resource*);
  */
 class Resource: virtual public ::EngineSubsystem
 {
+	friend class resources::ResourceManager;
 	friend class __internal::ResourceLibrary;
 	template<typename T>
 	friend resources::Resource* 	__internal::createResource(T*);

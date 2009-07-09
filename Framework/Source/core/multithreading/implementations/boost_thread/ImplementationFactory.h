@@ -55,11 +55,11 @@ class ImplementationFactory: public EngineSubsystem
 	{
 		for(std::map<boost::thread::id,BoostThreadID*>::iterator it = ThreadMap.begin();it!=ThreadMap.end();it++)
 			delete it->second;
-		for(ThreadList::iterator it = m_Threads.begin();it != m_Threads.end();it++)
+		for(ConditionList::iterator it = m_Conds.begin();it != m_Conds.end();it++)
 			delete (*it);
 		for(MutexList::iterator it = m_Muticies.begin();it != m_Muticies.end();it++)
 			delete (*it);
-		for(ConditionList::iterator it = m_Conds.begin();it != m_Conds.end();it++)
+		for(ThreadList::iterator it = m_Threads.begin();it != m_Threads.end();it++)
 			delete (*it);
 	}
 public:

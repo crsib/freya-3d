@@ -72,10 +72,13 @@ size_t		ResourceLibrary::count()
 
 Resource*	ResourceLibrary::pop()
 {
-	Resource* res = m_Library.begin()->second.first;
-	if(res != NULL)
+	if(m_Library.size() > 0)
+	{
+		Resource* res = m_Library.begin()->second.first;
 		m_Library.erase(m_Library.begin());
-	return res;
+		return res;
+	}
+	return NULL;
 }
 
 }

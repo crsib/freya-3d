@@ -40,17 +40,18 @@ public:
 		{
 			try
 			{
-				if(man->m_SecThreadSchedule.size())
+				while((man->m_SecThreadSchedule.size() > 0) && man->m_ThreadActive)
 				{
 					man->m_Mutex->lock();
 					core::taskmanager::Task* task = man->m_SecThreadSchedule.front();
-					man->m_Mutex->unlock();
 					man->m_SecThreadSchedule.pop();
+					man->m_Mutex->unlock();
 					if(task)
 					{
 						man->m_Threads.front()->addTask(task);
 						man->m_Threads.sort(_compare);
 					}
+					core::multithreading::yield();
 				}
 			}
 			catch(const ::EngineException& ex)
@@ -89,13 +90,13 @@ TaskManager::~TaskManager()
 	m_Thread->wait();
 	delete m_Func;
 	std::cout << "Returning AUX thread" << std::endl;
+	core::EngineCore::destroyMutex(m_Mutex);
+	core::EngineCore::destroyThread(m_Thread);
 	std::list<core::taskmanager::__internal::TaskThread*,core::memory::MemoryAllocator<core::taskmanager::__internal::TaskThread*> >::iterator it;
 	for(it = m_Threads.begin(); it != m_Threads.end();++it)
 	{
 		delete *it;
 	}
-	core::EngineCore::destroyThread(m_Thread);
-	core::EngineCore::destroyMutex(m_Mutex);
 }
 
 void TaskManager::addTask(Task* task)
@@ -106,9 +107,12 @@ void TaskManager::addTask(Task* task)
 
 void TaskManager::addAsynchronousTask(Task* task)
 {
-	m_Mutex->lock();
-	m_SecThreadSchedule.push(task);
-	m_Mutex->unlock();
+	if(m_ThreadActive)
+	{
+		m_Mutex->lock();
+		m_SecThreadSchedule.push(task);
+		m_Mutex->unlock();
+	}
 }
 
 void TaskManager::setThreadNumber(size_t n)

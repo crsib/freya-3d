@@ -123,7 +123,7 @@ EngineCore::~EngineCore()
 	delete m_RAPIFactory;
 	std::cout << "Destroying filesystem" << std::endl;
 	delete m_Filesystem;
-
+	std::cout << "Destroying thread subsystem" << std::endl;
 	delete m_ThreadImplementation;
 	std::cout << "Switching allocation mode" << std::endl;
 	delete m_MemoryArena;

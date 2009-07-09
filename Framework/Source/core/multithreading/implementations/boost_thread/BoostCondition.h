@@ -38,6 +38,7 @@ private:
 	}
 	virtual ~BoostCondition()
 	{
+		m_Cond->notify_all();
 		delete m_Cond;
 	}
 

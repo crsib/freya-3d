@@ -32,28 +32,42 @@ class BoostMutex: public core::multithreading::Mutex
 	friend class ImplementationFactory;
 	friend class BoostCondition;
 private:
-	BoostMutex() : m_Mutex (new boost::mutex()){}
+	BoostMutex() : m_Mutex (new boost::mutex()), m_Locked(0){}
 	virtual ~BoostMutex()
 	{
-		unlock();
+		if(m_Locked)
+			unlock();
 		delete m_Mutex;
 	}
 
 	boost::mutex*		m_Mutex;
+	unsigned			m_Locked;
 public:
 	virtual void	lock()
 	{
-		m_Mutex->lock();
+		if(m_Locked == 0)
+		{
+			m_Locked = 1;
+			m_Mutex->lock();
+		}
 	}
 
 	virtual bool    tryLock()
 	{
-		return m_Mutex->try_lock();
+		if(m_Locked == 0)
+		{
+			m_Locked = m_Mutex->try_lock();
+		}
+		return m_Locked;
 	}
 
 	virtual void    unlock()
 	{
-		m_Mutex->unlock();
+		if(m_Locked)
+		{
+			m_Locked = 0;
+			m_Mutex->unlock();
+		}
 	}
 };
 

@@ -7,7 +7,8 @@
 #include "freya.h"
 #include <iostream>
 
-const int winWidth = 512,winHeight = 512;
+const int winWidth = 640,winHeight = 640;
+const bool	fullscreen = false;
 
 void	_quit() //Quit callback
 {
@@ -24,7 +25,7 @@ public:
 	}
 	virtual int operator () ()
 	{
-		for(int k = 0; k<1000000;k++)
+		for(int k = 0; k<100;k++)
 			j = sin(j);
 		return core::taskmanager::Task::SECONDARY_THREAD;
 	}
@@ -58,9 +59,9 @@ int main(int argC,char** argV)
 		//Get the address of WindowManger instance
 		Core.createWindowManager("SDL");
 		Core.getTaskManager()->addTask(new MainTask);
-		Core.getTaskManager()->addTask(new MainTask);
-		Core.getTaskManager()->addTask(new MainTask);
-		Core.getTaskManager()->addTask(new MainTask);
+		//Core.getTaskManager()->addTask(new MainTask);
+		//Core.getTaskManager()->addTask(new MainTask);
+		//Core.getTaskManager()->addTask(new MainTask);
 		Core.getTaskManager()->enterMainLoop();
 
 		windowmanager::WindowManagerDriver* wm = Core.getWindowManager();
@@ -71,7 +72,7 @@ int main(int argC,char** argV)
 		fs->mount("lzma","Textures.7z");
 
 		//Create window
-		wm->createWindow(winWidth,winHeight,"Tutorial 1: Bump mapping",false ,NULL);
+		wm->createWindow(winWidth,winHeight,"Tutorial 1: Bump mapping",fullscreen ,NULL);
 		//Start rendering subsystem
 		Core.createRenderingDriver(renderer::futures::MULTITEXTURE | renderer::futures::AUTO_TRANSPOSE_MATIRIX |
 				renderer::futures::VERTEX_BUFFER | renderer::futures::TEXTURE_BUFFER |
@@ -88,7 +89,7 @@ int main(int argC,char** argV)
 		unsigned oldTime = wm->getTickCount(),newTime;
 		float secs;
 		//Set up view parameters.
-		rapi->setViewport(winHeight,winWidth);
+		rapi->setViewport(winWidth,winHeight);
 
 		//Create two cameras (fly and rotate)
 		unsigned camMode = 0;//Rotate camera by default
@@ -164,7 +165,7 @@ int main(int argC,char** argV)
 		//Cube for visualation of light position
 		primitives::Cube lightSource;
 		//Instance of light position source
-		//Please NOTE: we create to different cubes (and thus instances, belonging to different cubes) because cubes have different textures and shaders
+		//Please NOTE: we create two different cubes (and thus instances, belonging to different cubes) because cubes have different textures and shaders
 		lightSource.addInstance(renderer::InstanceData());
 		//Let's load shader sources
 		//First, create a shader container

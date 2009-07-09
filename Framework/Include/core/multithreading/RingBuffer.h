@@ -67,9 +67,9 @@ public:
 	//==== Private sections ====================================
 	//==========================================================
 private:
-	core::multithreading::Mutex*		m_Mutex;
-	core::multithreading::Condition* m_NotFull;
-	core::multithreading::Condition* m_NotEmpty;
+	core::multithreading::Mutex*					m_Mutex;
+	core::multithreading::Condition* 				m_NotFull;
+	core::multithreading::Condition* 				m_NotEmpty;
 
 	size_t											m_Front;
 	size_t											m_Rear;
@@ -85,9 +85,9 @@ private:
 template <typename T,size_t sz>
 RingBuffer<T,sz>::RingBuffer()
 {
-	m_Mutex = core::EngineCore::createMutex();
 	m_NotFull = core::EngineCore::createCondition();
 	m_NotEmpty = core::EngineCore::createCondition();
+	m_Mutex = core::EngineCore::createMutex();
 	m_Count = m_Front = m_Rear = 0;
 	//std::cout << "Created a boundede buffer of size: " << sz << " " << (void*)this << " " << (void*)m_Mutex <<std::endl;
 }
@@ -105,7 +105,7 @@ RingBuffer<T,sz>::~RingBuffer()
 template <typename T, size_t sz>
 T		RingBuffer<T,sz>::fetch()
 {
-	//std::cout << "fetch a boundede buffer of size: " << sz << " " << (void*)this << " " << (void*)m_Mutex <<std::endl;
+	//std::cout << "fetch a bounded buffer of size: " << sz << " " << (void*)this << " " << (void*)m_Mutex <<std::endl;
 	m_Mutex->lock();
 	while(m_Count == 0)
 	{

@@ -148,6 +148,8 @@ void* 	MemoryPool::allocate(size_t sz)
 
 				__UpdatePools* task = new(m_TaskControl) __UpdatePools;
 				__Result* result = task->Result;
+				task->Size = (sz < m_AllocSize) ?  m_AllocSize : sz;
+				task->Alligment = m_Alligment;
 				core::EngineCore::getTaskManager()->addTask(task);
 				while(result->Ready == 0)
 					core::multithreading::yield();
