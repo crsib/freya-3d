@@ -160,7 +160,10 @@ void* 	MemoryPool::allocate(size_t sz)
 			if((p = m_Last->This->allocate(sz)) != NULL)
 				return p;
 			else
+			{
+				std::cout << "[MemoryPool]: allocation failed" << std::endl;
 				throw core::memory::MemoryException("[MemoryPool]: allocation failed");
+			}
 		}
 		catch(...)
 		{
@@ -175,7 +178,10 @@ void	MemoryPool::free(void* p)
 	while((_start)&&(_start->This->dispose(p) == false))
 		_start = _start->Next;
 	if(_start == NULL)
+	{
+		std::cout << "[MemoryPool]: deallocation failed" << std::endl;
 		throw core::memory::MemoryException("[MemoryPool]: failed to deallocate memory");
+	}
 }
 
 }
