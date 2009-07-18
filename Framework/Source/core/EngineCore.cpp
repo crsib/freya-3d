@@ -103,7 +103,9 @@ EngineCore::EngineCore()
 	m_Instance = this;
 	m_RenderingDriver = NULL;
 	m_WindowManager	  = NULL;
+	std::cout << "Creating task manager" << std::endl;
 	m_TaskManager = new core::taskmanager::TaskManager;
+	std::cout << "Creating resource manager" << std::endl;
 	m_ResourceManager = new resources::ResourceManager;
 	std::cout << "Creating factories" << std::endl;
 	m_WMFactory	=	new windowmanager::WindowManagerFactory();

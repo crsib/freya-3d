@@ -81,6 +81,7 @@ TaskThread::~TaskThread()
 {
 	m_Active = 0;
 #if 1
+	std::cout << "Buffered tasks: " << m_Buffer->count() << std::endl;
 	if(m_Buffer->empty())
 	{
 		std::cout << "Unloking sub thread [empty] " << std::endl;

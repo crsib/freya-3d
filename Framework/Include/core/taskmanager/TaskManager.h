@@ -86,7 +86,8 @@ private:
 	std::list<core::taskmanager::__internal::TaskThread*,core::memory::MemoryAllocator<core::taskmanager::__internal::TaskThread*> > m_Threads;
 	size_t														m_ThreadNumber;
 	core::multithreading::Thread*								m_Thread;
-	core::multithreading::Mutex*								m_Mutex;
+	core::multithreading::Mutex*								m_MutexAux;
+	core::multithreading::Mutex*								m_MutexPri;
 	unsigned													m_ThreadActive;
 	__internal::__aux_thread_func*								m_Func;
 };
