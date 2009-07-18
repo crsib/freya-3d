@@ -4,6 +4,11 @@
  *  Created on: 18.07.2009
  *      Author: vedenko
  */
+#include "renderer/DriverSubsystems/Texture.h"
+#include "core/EngineException.h"
+#include "core/EngineCore.h"
+#include "renderer/RenderingAPIDriver.h"
+#include "core/filesystem/Filesystem.h"
 
 namespace drivers {
 
@@ -80,19 +85,19 @@ private:
 };//struct _S_DDS_Header
 
 //static member initialization
-const unsigned int _S_DDS_header::header_size = 124;
+const unsigned int _S_DDS_Header::header_size = 124;
 
 renderer::Texture* __sync_load_dds(const EString& path) throw(EngineException) {
 	unsigned char* __file = reinterpret_cast<unsigned char*>(core::EngineCore::getFilesystem()->read(path));
 	_S_DDS_Header* __header = reinterpret_cast<_S_DDS_Header*>(__file);
 	renderer::Texture* __ret_tex;
 
-	if(__header->mSize != _S_DDS_header::header_size)
+	if(__header->mSize != _S_DDS_Header::header_size)
 		throw EngineException();
 	//checking valid flags
 	if(!((__header->mFlags | HEIGHT) && (__header->mFlags | WIDTH) &&
 		(__header->mFlags | CAPS) && (__header->mFlags | PIXELFORMAT)) &&
-		(__header->mCaps->mCaps1 | TEXTURE))
+		(__header->mCaps.mCaps1 | TEXTURE))
 		throw EngineException();
 
 	__ret_tex = core::EngineCore::getRenderingDriver()->createTexture();
