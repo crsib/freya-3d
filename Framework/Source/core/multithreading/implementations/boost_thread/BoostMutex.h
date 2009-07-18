@@ -34,12 +34,15 @@ class BoostMutex: public core::multithreading::Mutex
 	friend class ImplementationFactory;
 	friend class BoostCondition;
 private:
-	BoostMutex() : m_Mutex (new boost::mutex()), m_Locked(0){}
+	BoostMutex() : m_Mutex (new boost::mutex()), m_Locked(0)
+	{
+		std::cout << "Mutex " << this << " is created from " << &core::multithreading::getCurrentThreadID() << std::endl;
+	}
 	virtual ~BoostMutex()
 	{
-		std::cout << "Mutex " << m_Mutex << " is destroying from " << &core::multithreading::getCurrentThreadID() << std::endl;
-		if(m_Locked)
-			unlock();
+		std::cout << "Mutex " << this << " is destroying from " << &core::multithreading::getCurrentThreadID() << std::endl;
+		/*if(m_Locked)
+			unlock();*/
 		delete m_Mutex;
 	}
 
@@ -65,7 +68,7 @@ public:
 
 	virtual void    unlock()
 	{
-		m_Mutex->unlock();
+			m_Mutex->unlock();
 		/*if(*m_Owner != core::multithreading::getCurrentThreadID())
 			std::cout << "WTF Mutex " << m_Mutex << " is unlocked by " << &core::multithreading::getCurrentThreadID() << " owned by " << m_Owner << std::endl;*/
 	}

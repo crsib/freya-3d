@@ -14,8 +14,10 @@
 #include "core/multithreading/Thread.h"
 #include "core/multithreading/Mutex.h"
 #include "core/multithreading/Runnable.h"
+#include "core/multithreading/Lock.h"
 #include "core/EngineException.h"
 #include <iostream>
+
 namespace core
 {
 
@@ -42,10 +44,12 @@ public:
 			{
 				if(man->m_SecThreadSchedule.size())
 				{
-					man->m_MutexAux->lock();
-					core::taskmanager::Task* task = man->m_SecThreadSchedule.front();
-					man->m_SecThreadSchedule.pop();
-					man->m_MutexAux->unlock();
+					core::taskmanager::Task*	task;
+					SYNCHRONIZE(man->m_MutexAux);
+					task = man->m_SecThreadSchedule.back();
+					man->m_SecThreadSchedule.pop_back();
+					//TODO: DBG
+					ENDSYNC;
 					if(task)
 					{
 						man->m_Threads.front()->addTask(task);
@@ -105,9 +109,9 @@ void TaskManager::addTask(Task* task)
 {
 	if(core::EngineCore::isRunning())
 	{
-		m_MutexPri->lock();
-		m_MainThreadSchedule.push(task);
-		m_MutexPri->unlock();
+		SYNCHRONIZE(m_MutexPri);
+		m_MainThreadSchedule.push_back(task);
+		ENDSYNC;
 	}
 }
 
@@ -115,9 +119,9 @@ void TaskManager::addAsynchronousTask(Task* task)
 {
 	if(m_ThreadActive)
 	{
-		m_MutexAux->lock();
-		m_SecThreadSchedule.push(task);
-		m_MutexAux->unlock();
+		SYNCHRONIZE(m_MutexAux);
+		m_SecThreadSchedule.push_back(task);
+		ENDSYNC;
 	}
 }
 
@@ -139,19 +143,20 @@ size_t TaskManager::getThreadNumber()
 
 void TaskManager::enterMainLoop()
 {
-	while(!m_MainThreadSchedule.empty())
+	while(!m_MainThreadSchedule.empty()&&core::EngineCore::isRunning())
 	{
-		m_MutexPri->lock();
-		core::taskmanager::Task*	task = m_MainThreadSchedule.front();
-		m_MainThreadSchedule.pop();
-		m_MutexPri->unlock();
+		core::taskmanager::Task*	task;
+		SYNCHRONIZE(m_MutexPri);
+		task = m_MainThreadSchedule.back();
+		m_MainThreadSchedule.pop_back();
+		ENDSYNC;
 		switch((*task)())
 		{
 		case core::taskmanager::Task::MAIN_THREAD:
-			m_MainThreadSchedule.push(task);
+			m_MainThreadSchedule.push_back(task);
 			break;
 		case core::taskmanager::Task::SECONDARY_THREAD:
-			m_SecThreadSchedule.push(task);
+			m_SecThreadSchedule.push_back(task);
 			break;
 		default:
 			delete task;
