@@ -89,7 +89,6 @@ RingBuffer<T,sz>::RingBuffer()
 	m_NotEmpty = core::EngineCore::createCondition();
 	m_Mutex = core::EngineCore::createMutex();
 	m_Count = m_Front = m_Rear = 0;
-	//std::cout << "Created a boundede buffer of size: " << sz << " " << (void*)this << " " << (void*)m_Mutex <<std::endl;
 }
 
 //===========================================================
@@ -105,7 +104,6 @@ RingBuffer<T,sz>::~RingBuffer()
 template <typename T, size_t sz>
 T		RingBuffer<T,sz>::fetch()
 {
-	//std::cout << "fetch a bounded buffer of size: " << sz << " " << (void*)this << " " << (void*)m_Mutex <<std::endl;
 	m_Mutex->lock();
 	while(m_Count == 0)
 	{
@@ -114,8 +112,8 @@ T		RingBuffer<T,sz>::fetch()
 	size_t tmp = m_Front;
 	m_Front = (++m_Front) % sz;
 	--m_Count;
-	m_Mutex->unlock();
 	m_NotFull->signal();
+	m_Mutex->unlock();
 	return m_Buffer[tmp]; //To activate RVO
 
 }
@@ -132,8 +130,8 @@ void	RingBuffer<T,sz>::deposit(const T& val)
 	m_Buffer[m_Rear] = val;
 	m_Rear = (++m_Rear) % sz;
 	++m_Count;
-	m_Mutex->unlock();
 	m_NotEmpty->signal();
+	m_Mutex->unlock();
 }
 
 //==========================================================

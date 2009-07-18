@@ -40,12 +40,12 @@ public:
 		{
 			try
 			{
-				while((man->m_SecThreadSchedule.size() > 0) && man->m_ThreadActive)
+				if(man->m_SecThreadSchedule.size())
 				{
-					man->m_Mutex->lock();
+					man->m_MutexAux->lock();
 					core::taskmanager::Task* task = man->m_SecThreadSchedule.front();
 					man->m_SecThreadSchedule.pop();
-					man->m_Mutex->unlock();
+					man->m_MutexAux->unlock();
 					if(task)
 					{
 						man->m_Threads.front()->addTask(task);
@@ -75,7 +75,8 @@ TaskManager::TaskManager()
 	m_ThreadActive = 1;
 	m_Threads.push_front(new core::taskmanager::__internal::TaskThread());
 
-	m_Mutex  = core::EngineCore::createMutex();
+	m_MutexPri  = core::EngineCore::createMutex();
+	m_MutexAux  = core::EngineCore::createMutex();
 	m_Func = new __internal::__aux_thread_func();
 	m_Func->man = this;
 	m_Thread = core::EngineCore::createThread(*m_Func);
@@ -83,14 +84,15 @@ TaskManager::TaskManager()
 
 TaskManager::~TaskManager()
 {
-	m_Mutex->lock();
+	m_MutexAux->lock();
 	m_ThreadActive = 0;
-	m_Mutex->unlock();
-	std::cout << "Awaiting AUX thread" << std::endl;
+	m_MutexAux->unlock();
+	std::cout << "Awaiting AUX thread " << m_Thread << std::endl;
 	m_Thread->wait();
 	delete m_Func;
 	std::cout << "Returning AUX thread" << std::endl;
-	core::EngineCore::destroyMutex(m_Mutex);
+	core::EngineCore::destroyMutex(m_MutexAux);
+	core::EngineCore::destroyMutex(m_MutexPri);
 	core::EngineCore::destroyThread(m_Thread);
 	std::list<core::taskmanager::__internal::TaskThread*,core::memory::MemoryAllocator<core::taskmanager::__internal::TaskThread*> >::iterator it;
 	for(it = m_Threads.begin(); it != m_Threads.end();++it)
@@ -102,16 +104,20 @@ TaskManager::~TaskManager()
 void TaskManager::addTask(Task* task)
 {
 	if(core::EngineCore::isRunning())
+	{
+		m_MutexPri->lock();
 		m_MainThreadSchedule.push(task);
+		m_MutexPri->unlock();
+	}
 }
 
 void TaskManager::addAsynchronousTask(Task* task)
 {
 	if(m_ThreadActive)
 	{
-		m_Mutex->lock();
+		m_MutexAux->lock();
 		m_SecThreadSchedule.push(task);
-		m_Mutex->unlock();
+		m_MutexAux->unlock();
 	}
 }
 
@@ -133,9 +139,12 @@ size_t TaskManager::getThreadNumber()
 
 void TaskManager::enterMainLoop()
 {
-	while((!m_MainThreadSchedule.empty())&&core::EngineCore::isRunning())
+	while(!m_MainThreadSchedule.empty())
 	{
+		m_MutexPri->lock();
 		core::taskmanager::Task*	task = m_MainThreadSchedule.front();
+		m_MainThreadSchedule.pop();
+		m_MutexPri->unlock();
 		switch((*task)())
 		{
 		case core::taskmanager::Task::MAIN_THREAD:
@@ -147,7 +156,6 @@ void TaskManager::enterMainLoop()
 		default:
 			delete task;
 		}
-		m_MainThreadSchedule.pop();
 		//This thread must have the highest priority.
 		//Thus, we will not force it to return control
 		core::multithreading::pause();

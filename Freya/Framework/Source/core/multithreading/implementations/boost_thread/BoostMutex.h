@@ -14,6 +14,8 @@
 #include "core/multithreading/Mutex.h"
 #include <boost/thread/mutex.hpp>
 
+//TODO: Debug
+#include <iostream>
 namespace core
 {
 
@@ -35,39 +37,37 @@ private:
 	BoostMutex() : m_Mutex (new boost::mutex()), m_Locked(0){}
 	virtual ~BoostMutex()
 	{
+		std::cout << "Mutex " << m_Mutex << " is destroying from " << &core::multithreading::getCurrentThreadID() << std::endl;
 		if(m_Locked)
 			unlock();
 		delete m_Mutex;
 	}
 
 	boost::mutex*		m_Mutex;
+	ThreadID*			m_Owner;
 	unsigned			m_Locked;
 public:
 	virtual void	lock()
 	{
-		if(m_Locked == 0)
-		{
-			m_Locked = 1;
-			m_Mutex->lock();
-		}
+		m_Locked = 1;
+		m_Mutex->lock();
+		m_Owner = const_cast<core::multithreading::ThreadID*>(&core::multithreading::getCurrentThreadID());
 	}
 
 	virtual bool    tryLock()
 	{
-		if(m_Locked == 0)
-		{
-			m_Locked = m_Mutex->try_lock();
-		}
+		m_Locked = m_Mutex->try_lock();
+
+		if(m_Locked)
+			m_Owner = const_cast<core::multithreading::ThreadID*>(&core::multithreading::getCurrentThreadID());
 		return m_Locked;
 	}
 
 	virtual void    unlock()
 	{
-		if(m_Locked)
-		{
-			m_Locked = 0;
-			m_Mutex->unlock();
-		}
+		m_Mutex->unlock();
+		/*if(*m_Owner != core::multithreading::getCurrentThreadID())
+			std::cout << "WTF Mutex " << m_Mutex << " is unlocked by " << &core::multithreading::getCurrentThreadID() << " owned by " << m_Owner << std::endl;*/
 	}
 };
 
