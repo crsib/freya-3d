@@ -13,16 +13,6 @@ namespace resources
 namespace __internal
 {
 
-void					destroyResource(resources::Resource* res)
-{
-	delete res;
-}
-
-void					finalizeResource(resources::Resource* res)
-{
-	res->m_Mutex->unlock();
-	res->m_Ready = true;
-}
 
 ResourceLibrary::ResourceLibrary()
 {

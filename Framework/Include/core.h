@@ -21,6 +21,7 @@
 #include "core/multithreading/RingBuffer.h"
 #include "core/multithreading/ThreadBlocks.h"
 #include "core/multithreading/Runnable.h"
+#include "core/multithreading/Lock.h"
 //Task managemet
 #include "core/taskmanager/Task.h"
 #include "core/taskmanager/TaskManager.h"

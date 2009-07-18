@@ -95,10 +95,13 @@ TaskThread::~TaskThread()
 #endif
 	std::cout << "Awaiting sub thread " << m_Thread << std::endl;
 	m_Thread->wait();
+	std::cout << "Destroying connection buffer " << std::endl;
+	m_Buffer->deposit(new __Task);
+	while(!m_Buffer->empty())
+		delete m_Buffer->fetch();
+	delete m_Buffer;
 	std::cout << "Returning sub thread " << std::endl;
 	core::EngineCore::destroyThread(m_Thread);
-	std::cout << "Destroying connection buffer " << std::endl;
-	delete m_Buffer;
 	delete m_Func;
 
 }
