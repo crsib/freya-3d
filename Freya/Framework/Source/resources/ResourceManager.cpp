@@ -30,8 +30,6 @@ ResourceManager::~ResourceManager()
 	while((res = m_ResourceLibrary->pop()) != NULL)
 	{
 		ResourceManagerDriver*	drv = __findDriver(res->id());
-		if(!res->ready())
-			res->m_Mutex->unlock();
 		drv->destroy(res);
 	}
 	delete m_ResourceLibrary;

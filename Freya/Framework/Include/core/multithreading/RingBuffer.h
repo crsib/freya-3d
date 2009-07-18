@@ -12,6 +12,7 @@
 
 #include "core/multithreading/Mutex.h"
 #include "core/multithreading/Condition.h"
+#include "core/multithreading/Lock.h"
 
 
 namespace core
@@ -95,34 +96,39 @@ RingBuffer<T,sz>::RingBuffer()
 template <typename T,size_t sz>
 RingBuffer<T,sz>::~RingBuffer()
 {
-	core::EngineCore::destroyMutex(m_Mutex);
 	core::EngineCore::destroyCondition(m_NotFull);
 	core::EngineCore::destroyCondition(m_NotEmpty);
+	m_Mutex->lock();
+	m_Mutex->unlock();
+	core::EngineCore::destroyMutex(m_Mutex);
+
 }
 
 //==========================================================
 template <typename T, size_t sz>
 T		RingBuffer<T,sz>::fetch()
 {
-	m_Mutex->lock();
+	size_t tmp;
+	SYNCHRONIZE(m_Mutex);
 	while(m_Count == 0)
 	{
 		m_NotEmpty->wait(m_Mutex);
 	}
-	size_t tmp = m_Front;
+	tmp = m_Front;
 	m_Front = (++m_Front) % sz;
 	--m_Count;
 	m_NotFull->signal();
-	m_Mutex->unlock();
-	return m_Buffer[tmp]; //To activate RVO
 
+	return m_Buffer[tmp]; //To activate RVO
+	ENDSYNC;
+	return reinterpret_cast<T>(NULL);
 }
 
 //==========================================================
 template <typename T, size_t sz>
 void	RingBuffer<T,sz>::deposit(const T& val)
 {
-	m_Mutex->lock();
+	SYNCHRONIZE(m_Mutex);
 	while(m_Count == sz)
 	{
 		m_NotFull->wait(m_Mutex);
@@ -130,8 +136,9 @@ void	RingBuffer<T,sz>::deposit(const T& val)
 	m_Buffer[m_Rear] = val;
 	m_Rear = (++m_Rear) % sz;
 	++m_Count;
+
 	m_NotEmpty->signal();
-	m_Mutex->unlock();
+	ENDSYNC;
 }
 
 //==========================================================

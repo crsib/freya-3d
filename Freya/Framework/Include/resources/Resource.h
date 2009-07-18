@@ -91,8 +91,7 @@ protected:
 	//methods
 private:
 	//data
-	::EngineSubsystem* 											m_Resource;
-	core::multithreading::Mutex*					m_Mutex;//This mutex is locked, while m_Ready is null
+	::EngineSubsystem* 								m_Resource;
 	unsigned 										m_Ready;
 	EString											m_ResourceID;
 };
