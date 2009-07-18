@@ -13,6 +13,7 @@
  */
 #include "core/EngineSubsystem.h"
 #include "core/multithreading/RingBuffer.h"
+#include "core/multithreading/Lock.h"
 
 
 namespace core

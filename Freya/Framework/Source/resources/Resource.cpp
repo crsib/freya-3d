@@ -10,21 +10,34 @@
 #include "core/EngineCore.h"
 #include "windowmanager/WindowManagerDriver.h"
 #include "core/multithreading/Mutex.h"
+#include "core/multithreading/ThreadBlocks.h"
 
 namespace resources
 {
 
+namespace __internal
+{
+
+void					destroyResource(resources::Resource* res)
+{
+	delete res;
+}
+
+void					finalizeResource(resources::Resource* res)
+{
+	res->m_Ready = true;
+}
+
+}
+
 Resource::Resource()
 {
-	m_Mutex = core::EngineCore::createMutex();
 	m_Ready = 0;
 	m_Resource = NULL;
 }
 
 Resource::~Resource()
 {
-	m_Mutex->unlock();
-	core::EngineCore::destroyMutex(m_Mutex);
 	m_Ready = 0;
 }
 
@@ -37,8 +50,7 @@ void	Resource::waitForResource()
 {
 	while(m_Ready == 0)
 	{
-		m_Mutex->lock();
-		m_Mutex->unlock();
+		core::multithreading::yield();
 	}
 }
 

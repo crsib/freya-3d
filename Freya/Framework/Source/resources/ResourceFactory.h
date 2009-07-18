@@ -21,7 +21,6 @@ resources::Resource* 	createResource(T*	resource)
 	res->m_Resource = dynamic_cast<EngineSubsystem*>(resource);
 	if(res->m_Resource == NULL)
 		throw resources::ResourceException ("Failed to create resource");
-	res->m_Mutex->lock();
 	return res;
 }
 

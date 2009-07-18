@@ -181,7 +181,7 @@ void	MemoryPool::free(void* p)
 		_start = _start->Next;
 	if(_start == NULL)
 	{
-		std::cout << "[MemoryPool]: deallocation failed" << std::endl;
+		std::cout << "[MemoryPool]: deallocation failed std" << std::endl;
 		throw core::memory::MemoryException("[MemoryPool]: failed to deallocate memory");
 	}
 }
