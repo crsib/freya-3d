@@ -43,17 +43,24 @@ public:
 		{
 			try
 			{
+				//std::cout << "Fetching task " << std::endl;
 				core::taskmanager::Task*	task = rb->fetch();
-				switch((*task)())
+				//std::cout << "task is " << task << std::endl;
+				if(task)
 				{
-				case core::taskmanager::Task::MAIN_THREAD:
-					core::EngineCore::getTaskManager()->addTask(task);
-					break;
-				case core::taskmanager::Task::SECONDARY_THREAD:
-					core::EngineCore::getTaskManager()->addAsynchronousTask(task);
-					break;
-				default:
-					delete task;
+					switch((*task)())
+					{
+					case core::taskmanager::Task::MAIN_THREAD:
+						core::EngineCore::getTaskManager()->addTask(task);
+						//task->release();
+						break;
+					case core::taskmanager::Task::SECONDARY_THREAD:
+						core::EngineCore::getTaskManager()->addAsynchronousTask(task);
+						break;
+						//default:
+						//task->release();
+					}
+					task->release();
 				}
 			}
 			catch(const ::EngineException& ex)
@@ -82,23 +89,25 @@ TaskThread::~TaskThread()
 	m_Active = 0;
 #if 1
 	std::cout << "Buffered tasks: " << m_Buffer->count() << std::endl;
-	if(m_Buffer->empty())
+	while(m_Buffer->empty())
 	{
 		std::cout << "Unloking sub thread [empty] " << std::endl;
 		m_Buffer->deposit(new __Task);
+		std::cout << "Re-buffered tasks: " <<  m_Buffer->count() << std::endl;
 	}
-	if(m_Buffer->full())
+	while(m_Buffer->full())
 	{
 		std::cout << "Unloking sub thread [full]" << std::endl;
-		m_Buffer->fetch();
+		m_Buffer->fetch()->release();
+		std::cout << "Re-buffered tasks: " <<  m_Buffer->count() << std::endl;
 	}
 #endif
 	std::cout << "Awaiting sub thread " << m_Thread << std::endl;
 	m_Thread->wait();
 	std::cout << "Destroying connection buffer " << std::endl;
-	m_Buffer->deposit(new __Task);
+	//m_Buffer->deposit(new __Task);
 	while(!m_Buffer->empty())
-		delete m_Buffer->fetch();
+		m_Buffer->fetch()->release();
 	delete m_Buffer;
 	std::cout << "Returning sub thread " << std::endl;
 	core::EngineCore::destroyThread(m_Thread);

@@ -11,6 +11,10 @@
 /*
  *
  */
+
+
+#include <boost/thread/mutex.hpp>
+
 namespace core
 {
 namespace memory
@@ -35,6 +39,8 @@ private:
 	void*				m_Memory;
 	size_t				m_Alligment;
 	size_t				m_Size;
+
+	boost::mutex		m_Mutex;
 };
 }
 }

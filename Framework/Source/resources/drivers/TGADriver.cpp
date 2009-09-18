@@ -22,6 +22,9 @@
 #include "core/taskmanager/Task.h"
 #include "core/taskmanager/TaskManager.h"
 #include <cmath>
+
+#include <iostream>
+
 namespace resources
 {
 
@@ -236,6 +239,7 @@ public:
 		{
 		case	LOADING:
 		{
+			//std::cout << "Loading tga texture" << std::endl;
 			unsigned char*	file = reinterpret_cast<unsigned char*> (core::EngineCore::getFilesystem()->read(path));
 			unsigned char*  data = file + sizeof(TGAHeader);
 			//BYTES per pixel
@@ -343,11 +347,13 @@ public:
 			maxlevel = ceil(log2(maxlevel));
 			w = width;
 			h = height;
+			//std::cout << "Switching to main thread" << std::endl;
 			return ASyncTGALoader::MAIN_THREAD;
 		}
 		break;
 		case 	MIPMAP:
 		{
+			//std::cout << "Creating mipmap " << level << std::endl;
 			w = width >> level;
 			if(w == 0)
 				w = 1;
@@ -378,11 +384,13 @@ public:
 					}
 				}
 			mode = TEXTUREFILL;
+			//std::cout << "Switching to main thread" << std::endl;
 			return ASyncTGALoader::MAIN_THREAD;
 		}
 		break;
 		case	TEXTUREFILL:
 		{
+			//std::cout << "Uploading texture to accelerator " << level << std::endl;
 			if(level <= maxlevel)
 			{
 				if(Bpp == 3)
@@ -397,6 +405,7 @@ public:
 					core::memory::Free(nmem);
 				level++;
 				mode = MIPMAP;
+				//std::cout << "Switching to sec thread" << std::endl;
 				if(level <= maxlevel)
 					return ASyncTGALoader::SECONDARY_THREAD;
 			}
@@ -405,6 +414,7 @@ public:
 		}
 		core::memory::Free(memory);
 		resources::__internal::finalizeResource(res);
+		//std::cout << "Texture loaded" << std::endl;
 		return ASyncTGALoader::DONE;
 	}
 
@@ -525,6 +535,8 @@ Resource*	TGADriver::loadAsynchronous(const EString& ID)
 
 void 		TGADriver::destroy(Resource* res)
 {
+	if(!res->ready())
+		return; //It will never finish then))
 	renderer::Texture* tex = res->get<renderer::Texture*>();
 	core::EngineCore::getRenderingDriver()->destroyTexture(tex);
 	resources::__internal::destroyResource(res);

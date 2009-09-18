@@ -8,6 +8,7 @@
 #include "core/memory/MemoryArena.h"
 #include "core/memory/MemoryPool.h"
 #include "core/memory/MemoryException.h"
+
 namespace core
 {
 namespace memory
@@ -43,8 +44,8 @@ void*		MemoryArena::allocate(size_t sz,unsigned id)
 {
 	try
 	{
-		//return m_Pools[id]->allocate(sz);
-		return malloc(sz);
+		return m_Pools[id]->allocate(sz);;
+		//return malloc(sz);
 	}
 	catch(...)
 	{
@@ -56,8 +57,8 @@ void		MemoryArena::free(void* p,unsigned id)
 {
 	try
 	{
-		//m_Pools[id]->free(p);
-		::free(p);
+		m_Pools[id]->free(p);
+		//::free(p);
 	}
 	catch(...)
 	{
