@@ -20,6 +20,11 @@ namespace taskmanager
 //! This class is a base class for a task
 class Task : public core::multithreading::Runnable
 {
+private:
+	unsigned m_TaskCounter;
+protected:
+	Task() : m_TaskCounter(0) {}
+	virtual ~Task();
 public:
 	virtual int operator () () = 0;
 
@@ -33,6 +38,11 @@ public:
 		//!Add to the secondary thread queue end
 		SECONDARY_THREAD = -1
 	};
+
+	//!This function increments task counter by 1 and return this
+	Task*	retain();
+	//!This function decrements task counter by 1 and destoys it when counter is 0
+	void	release();
 };
 
 }

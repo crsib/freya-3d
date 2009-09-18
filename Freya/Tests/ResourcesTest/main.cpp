@@ -22,6 +22,7 @@ public:
 		rapi->clearColor();
 
 		wm->swapBuffers();
+		//std::cout << "Render task " << std::endl;
 		return core::taskmanager::Task::MAIN_THREAD;
 	}
 	windowmanager::WindowManagerDriver* wm;
@@ -51,7 +52,10 @@ public:
 					firstnotify = false;
 				}
 		}
+		//std::cout << "Update task" << std::endl;
+		//sleep(3);
 		return core::taskmanager::Task::MAIN_THREAD;
+		//return core::taskmanager::Task::DONE;
 	}
 	windowmanager::WindowManagerDriver* wm;
 	windowmanager::input::KeyDrivenDevice*		kbd;
@@ -92,13 +96,13 @@ int main()
 		//Create keyboard
 		windowmanager::input::KeyDrivenDevice*		kbd = wm->createKeyDrivenDevice("keyboard");
 		//Create tasks
-		SimpleUpdate  updT;
-		updT.wm = wm;
-		updT.kbd = kbd;
+		SimpleUpdate*  updT = new SimpleUpdate;
+		updT->wm = wm;
+		updT->kbd = kbd;
 
-		SimpleRenderer renT;
-		renT.wm = wm;
-		renT.rapi = rapi;
+		SimpleRenderer* renT = new SimpleRenderer;
+		renT->wm = wm;
+		renT->rapi = rapi;
 
 		//Resource management task here
 		size_t old_time, new_time;
@@ -120,10 +124,10 @@ int main()
 		rm->load(":tga:mipmaps:/Base/Textures/dno.tga",resources::ResourceManager::IMMEDIATELY);
 		res->get<renderer::Texture*>();
 		new_time = wm->getTickCount();
-		std::cout << "Resource loading: (a)synchronous : " << (new_time - old_time)*0.001 << " secs" << std::endl;
+		std::cout << "Resource loading: synchronous (4) : " << (new_time - old_time)*0.001 << " secs" << std::endl;
 
-		core.getTaskManager()->addTask(&updT);
-		core.getTaskManager()->addTask(&renT);
+		core.getTaskManager()->addTask(updT);
+		core.getTaskManager()->addTask(renT);
 		core.getTaskManager()->enterMainLoop();
 	}
 	catch(EngineException& ex)

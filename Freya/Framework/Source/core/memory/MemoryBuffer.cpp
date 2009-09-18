@@ -10,8 +10,10 @@
 #include "core/memory/MemoryHeader.h"
 #include "core/memory/MemoryHeaderList.h"
 
+
 #include <cstdlib>
 
+#include <iostream>
 
 namespace core
 {
@@ -63,12 +65,22 @@ MemoryBuffer::~MemoryBuffer()
 
 void *		MemoryBuffer::allocate(size_t size)
 {
-	return m_List->allocate(size,m_Alligment);
+	boost::mutex::scoped_lock lock(m_Mutex);
+	void * p = m_List->allocate(size,m_Alligment);
+	return p;
 }
 
 bool		MemoryBuffer::dispose (void* p)
 {
-	return m_List->dispose(p);
+	boost::mutex::scoped_lock lock(m_Mutex);
+	bool r = m_List->dispose(p);
+	//TODO: TEMPORARY WORKAROUND
+	if(!r)
+	{
+		std::cout << "[!!!ERROR!!!]MemoryBuffer::dispose( p = " << p << " ) failed. Continuing gracelessly" << std::endl;
+		r = true;
+	}
+	return r;
 }
 
 }
