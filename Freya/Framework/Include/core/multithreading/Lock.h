@@ -11,10 +11,8 @@
 #include "core/EngineSubsystem.h"
 #include "Mutex.h"
 
-#define SYNCHRONIZE(mutex) {\
-							core::multithreading::Lock __lock__(mutex)
+#define synchronize(mutex) 			for(core::multithreading::Lock _FREYA_TEMP__lock__(mutex);_FREYA_TEMP__lock__.check();)
 
-#define ENDSYNC					}
 
 namespace core
 {
@@ -23,12 +21,12 @@ namespace multithreading
 {
 //! This class provides save synchronization concept.
 /*!
- * This class provides save synchronization concept. It is recomended to use it indirectly using SYNCHRONIZE/ENDSYNC macros pair
- * Please note, that this pair creates a view scope,so be careful with defining local variables inside it
+ * This class provides save synchronization concept. It is recomended to use it indirectly using synchronize macros
  */
 class Lock: public virtual EngineSubsystem
 {
-	Mutex* 	m_Mutex;
+	Mutex* 		m_Mutex;
+	unsigned	m_Locked;
 public:
 	Lock(Mutex* mutex)
 	{
@@ -38,6 +36,14 @@ public:
 	virtual ~Lock()
 	{
 		m_Mutex->unlock();
+	}
+
+	//Fake routines.
+	//! DO NOT USE IT DIRECTLY
+	bool check ()
+	{
+		m_Locked = !m_Locked;
+		return !m_Locked;
 	}
 };
 

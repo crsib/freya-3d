@@ -10,6 +10,7 @@
 
 namespace math
 {
+	
 	class vector2d;
     class vector3d;
     class vector4d;

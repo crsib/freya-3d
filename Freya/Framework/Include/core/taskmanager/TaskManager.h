@@ -81,8 +81,8 @@ public:
 	 */
 	void enterMainLoop();
 private:
-	std::vector<Task*,core::memory::MemoryAllocator<Task* > >	m_MainThreadSchedule;
-	std::vector<Task*,core::memory::MemoryAllocator<Task* > > 	m_SecThreadSchedule;
+	std::deque<Task*,core::memory::MemoryAllocator<Task* > >	m_MainThreadSchedule;
+	std::deque<Task*,core::memory::MemoryAllocator<Task* > > 	m_SecThreadSchedule;
 	std::list<core::taskmanager::__internal::TaskThread*,core::memory::MemoryAllocator<core::taskmanager::__internal::TaskThread*> > m_Threads;
 	size_t														m_ThreadNumber;
 	core::multithreading::Thread*								m_Thread;

@@ -58,11 +58,12 @@ int main(int argC,char** argV)
 		std::cout << "Starting engine" << std::endl;
 		//Get the address of WindowManger instance
 		Core.createWindowManager("SDL");
+		//*
 		Core.getTaskManager()->addTask(new MainTask);
 		Core.getTaskManager()->addTask(new MainTask);
 		Core.getTaskManager()->addTask(new MainTask);
 		Core.getTaskManager()->addTask(new MainTask);
-		Core.getTaskManager()->enterMainLoop();
+		Core.getTaskManager()->enterMainLoop();//*/
 
 		windowmanager::WindowManagerDriver* wm = Core.getWindowManager();
 		wm->setQuitCallback(windowmanager::Callback(_quit));

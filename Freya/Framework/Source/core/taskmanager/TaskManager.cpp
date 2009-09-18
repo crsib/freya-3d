@@ -45,17 +45,20 @@ public:
 				if(man->m_SecThreadSchedule.size())
 				{
 					core::taskmanager::Task*	task;
-					SYNCHRONIZE(man->m_MutexAux);
-					task = man->m_SecThreadSchedule.back();
-					man->m_SecThreadSchedule.pop_back();
-					//TODO: DBG
-					ENDSYNC;
+					synchronize(man->m_MutexAux)
+					{
+						task = man->m_SecThreadSchedule.front();
+						man->m_SecThreadSchedule.pop_front();
+						//TODO: DBG
+					}
 					if(task)
 					{
 						man->m_Threads.front()->addTask(task);
 						man->m_Threads.sort(_compare);
 					}
+
 					core::multithreading::yield();
+					continue;
 				}
 			}
 			catch(const ::EngineException& ex)
@@ -91,6 +94,11 @@ TaskManager::~TaskManager()
 	m_MutexAux->lock();
 	m_ThreadActive = 0;
 	m_MutexAux->unlock();
+	std::list<core::taskmanager::__internal::TaskThread*,core::memory::MemoryAllocator<core::taskmanager::__internal::TaskThread*> >::iterator it;
+	for(it = m_Threads.begin(); it != m_Threads.end();++it)
+	{
+		delete *it;
+	}
 	std::cout << "Awaiting AUX thread " << m_Thread << std::endl;
 	m_Thread->wait();
 	delete m_Func;
@@ -98,20 +106,20 @@ TaskManager::~TaskManager()
 	core::EngineCore::destroyMutex(m_MutexAux);
 	core::EngineCore::destroyMutex(m_MutexPri);
 	core::EngineCore::destroyThread(m_Thread);
-	std::list<core::taskmanager::__internal::TaskThread*,core::memory::MemoryAllocator<core::taskmanager::__internal::TaskThread*> >::iterator it;
-	for(it = m_Threads.begin(); it != m_Threads.end();++it)
-	{
-		delete *it;
-	}
+
 }
 
 void TaskManager::addTask(Task* task)
 {
 	if(core::EngineCore::isRunning())
 	{
-		SYNCHRONIZE(m_MutexPri);
-		m_MainThreadSchedule.push_back(task);
-		ENDSYNC;
+		synchronize(m_MutexPri)
+		{
+			task->retain();
+			//std::cout << "Adding task to main thread scheduler " << task << std::endl;
+			m_MainThreadSchedule.push_back(task);
+			assert(m_MainThreadSchedule.back() == task);
+		}
 	}
 }
 
@@ -119,9 +127,13 @@ void TaskManager::addAsynchronousTask(Task* task)
 {
 	if(m_ThreadActive)
 	{
-		SYNCHRONIZE(m_MutexAux);
-		m_SecThreadSchedule.push_back(task);
-		ENDSYNC;
+		synchronize(m_MutexAux)
+		{
+			task->retain();
+			//std::cout << "Adding task to sec thread scheduler " << task << std::endl;
+			m_SecThreadSchedule.push_back(task);
+			assert(m_SecThreadSchedule.back() == task);
+		}
 	}
 }
 
@@ -146,20 +158,26 @@ void TaskManager::enterMainLoop()
 	while(!m_MainThreadSchedule.empty()&&core::EngineCore::isRunning())
 	{
 		core::taskmanager::Task*	task;
-		SYNCHRONIZE(m_MutexPri);
-		task = m_MainThreadSchedule.back();
-		m_MainThreadSchedule.pop_back();
-		ENDSYNC;
-		switch((*task)())
+		synchronize(m_MutexPri)
 		{
-		case core::taskmanager::Task::MAIN_THREAD:
-			m_MainThreadSchedule.push_back(task);
-			break;
-		case core::taskmanager::Task::SECONDARY_THREAD:
-			m_SecThreadSchedule.push_back(task);
-			break;
-		default:
-			delete task;
+			task = m_MainThreadSchedule.front();
+			m_MainThreadSchedule.pop_front();
+		}
+		//std::cout << "Running task " << task << std::endl;
+		if(task)
+		{
+			switch((*task)())
+			{
+			case core::taskmanager::Task::MAIN_THREAD:
+				addTask(task);
+				break;
+			case core::taskmanager::Task::SECONDARY_THREAD:
+				addAsynchronousTask(task);
+				break;
+				//default:
+
+			}
+			task->release();
 		}
 		//This thread must have the highest priority.
 		//Thus, we will not force it to return control
