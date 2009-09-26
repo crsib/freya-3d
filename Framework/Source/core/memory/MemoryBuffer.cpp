@@ -50,7 +50,7 @@ MemoryBuffer::MemoryBuffer(size_t size,size_t alligment)
 	m_List = new(reinterpret_cast<char*>(m_Memory) + offset) MemoryHeaderList;
 
 	MemoryHeader* _start =
-		m_List->m_First = m_List->m_Last =	new(reinterpret_cast<char*>(m_Memory) + sizeof(MemoryHeaderList) + offset) MemoryHeader;
+			m_List->m_First = m_List->m_Last =	new(reinterpret_cast<char*>(m_Memory) + sizeof(MemoryHeaderList) + offset) MemoryHeader;
 	_start->m_Magic = MemoryHeader::FREE;
 	_start->m_Prev = _start->m_Next = NULL;
 	_start->m_Size = m_Size - (reinterpret_cast<char*>(_start->pointer()) - reinterpret_cast<char*>(m_Memory));
@@ -65,15 +65,21 @@ MemoryBuffer::~MemoryBuffer()
 
 void *		MemoryBuffer::allocate(size_t size)
 {
-	boost::mutex::scoped_lock lock(m_Mutex);
-	void * p = m_List->allocate(size,m_Alligment);
+	void* p;
+	{//synchronized
+		boost::mutex::scoped_lock lock(m_Mutex);
+		p = m_List->allocate(size,m_Alligment);
+	}
 	return p;
 }
 
 bool		MemoryBuffer::dispose (void* p)
 {
-	boost::mutex::scoped_lock lock(m_Mutex);
-	bool r = m_List->dispose(p);
+	bool r;
+	{//synchronized
+		boost::mutex::scoped_lock lock(m_Mutex);
+		r = m_List->dispose(p);
+	}
 	//TODO: TEMPORARY WORKAROUND
 	if(!r)
 	{

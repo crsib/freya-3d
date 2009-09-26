@@ -94,6 +94,7 @@ TaskManager::~TaskManager()
 	m_MutexAux->lock();
 	m_ThreadActive = 0;
 	m_MutexAux->unlock();
+	std::cout << "Destroying SUB threads" << std::endl;
 	std::list<core::taskmanager::__internal::TaskThread*,core::memory::MemoryAllocator<core::taskmanager::__internal::TaskThread*> >::iterator it;
 	for(it = m_Threads.begin(); it != m_Threads.end();++it)
 	{
