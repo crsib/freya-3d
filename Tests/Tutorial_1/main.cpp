@@ -26,7 +26,7 @@ public:
 	virtual int operator () ()
 	{
 		for(int k = 0; k<100;k++)
-			j = sin(j);
+			j = sin((float)j);
 		return core::taskmanager::Task::SECONDARY_THREAD;
 	}
 private:

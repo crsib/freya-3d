@@ -25,6 +25,10 @@
 
 #include <iostream>
 
+#ifdef _MSC_VER
+#define		log2(x) (log(x)/log(2.0f))
+#endif
+
 namespace resources
 {
 
@@ -344,7 +348,7 @@ public:
 			memory = nmem = mem;
 			mode = TEXTUREFILL;
 			maxlevel = max(width,height);
-			maxlevel = ceil(log2(maxlevel));
+			maxlevel = ceil(log2((float)maxlevel));
 			w = width;
 			h = height;
 			//std::cout << "Switching to main thread" << std::endl;
