@@ -93,13 +93,18 @@ TaskThread::~TaskThread()
 	{
 		std::cout << "Unloking sub thread [empty] " << std::endl;
 		m_Buffer->deposit(new __Task);
+		m_Buffer->deposit(new __Task);
 		std::cout << "Re-buffered tasks: " <<  m_Buffer->count() << std::endl;
+		m_Active = 0;
+		core::multithreading::yield();
 	}
 	while(m_Buffer->full())
 	{
 		std::cout << "Unloking sub thread [full]" << std::endl;
 		m_Buffer->fetch()->release();
 		std::cout << "Re-buffered tasks: " <<  m_Buffer->count() << std::endl;
+		m_Active = 0;
+		core::multithreading::yield();
 	}
 #endif
 	std::cout << "Awaiting sub thread " << m_Thread << std::endl;
