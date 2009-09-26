@@ -18,6 +18,8 @@
 #include "core/EngineException.h"
 #include <iostream>
 
+#include <cassert>
+
 namespace core
 {
 
