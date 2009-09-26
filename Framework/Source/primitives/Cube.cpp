@@ -1,4 +1,5 @@
 #include "primitives/Cube.h"
+#include "core.h"
 
 namespace primitives
 {

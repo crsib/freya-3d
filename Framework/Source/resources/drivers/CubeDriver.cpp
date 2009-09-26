@@ -28,16 +28,17 @@ bool	CubeDriver::unique() const
 
 EString CubeDriver::id() const
 {
-	return "tga";
+	return "cube";
 }
 
 Resource*	CubeDriver::loadSynchronous(const EString& ID)
 {
+	return NULL; 
 }
 
 Resource*	CubeDriver::loadAsynchronous(const EString& ID)
 {
-
+	return NULL;
 }
 
 void 		CubeDriver::destroy(Resource* res)
