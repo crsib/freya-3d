@@ -88,10 +88,10 @@ EngineCore::EngineCore()
 	//Start memory
 	std::cout << "Starting memory subsystem" << std::endl;
 	m_MemoryArena = new core::memory::MemoryArena();
-	m_MemoryArena->addPool(10*1024*1024,4);//STL pool
-	m_MemoryArena->addPool(10*1024*1024,4);//Math pool
-	m_MemoryArena->addPool(30*1024*1024,4);//Generic pool
-	m_MemoryArena->addPool(1024*1024,4);//Generic class pool
+	m_MemoryArena->addPool(10*1024*1024,4);//STL pool 10 mb
+	m_MemoryArena->addPool(10*1024*1024,4);//Math pool 10 mb
+	m_MemoryArena->addPool(30*1024*1024,4);//Generic pool 30 mb
+	m_MemoryArena->addPool(1024*1024,4);//Generic class pool 1mb
 	m_ThreadImplementation = new THREAD_IMPLEMENTATION;
 	//start filesystem
 	std::cout << "Starting filesystem subsystem" << std::endl;

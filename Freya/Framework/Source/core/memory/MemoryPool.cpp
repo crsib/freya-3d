@@ -74,13 +74,16 @@ public:
 	{
 		Result = new(reinterpret_cast<char*>(this) + sizeof(__UpdatePools)) __Result;
 		Result->Ready = 0;
+		std::cout << "Task created" << std::endl;
 	}
 	~__UpdatePools()
 	{
+		std::cout << "Task done" << std::endl;
 		Result->Ready = 1;
 	}
 	virtual int operator() ()
 	{
+		std::cout << "Executing task" << std::endl;
 		Result->Buffer = new MemoryBuffer(Size,Alligment);
 		return core::taskmanager::Task::DONE;
 	}
@@ -129,7 +132,7 @@ void* 	MemoryPool::allocate(size_t sz)
 			m_Last->Next = new MemoryPool::MemoryBufferListItem;
 			const core::multithreading::ThreadID& id =  core::multithreading::getMainThreadID();
 			const core::multithreading::ThreadID& cid = core::multithreading::getCurrentThreadID();
-			if((cid == id))
+			if(1&&(cid == id))
 			{
 				std::cout  << "Pre-Allocating memory: inside" << std::endl;
 				m_Last->Next->This = new MemoryBuffer((sz < m_AllocSize) ?  m_AllocSize : sz,m_Alligment);
@@ -151,11 +154,13 @@ void* 	MemoryPool::allocate(size_t sz)
 				task->Size = (sz < m_AllocSize) ?  m_AllocSize : sz;
 				task->Alligment = m_Alligment;
 				core::EngineCore::getTaskManager()->addTask(task);
+				std::cout << "Allocation task sent. Avaiting" << std::endl;
 				while(result->Ready == 0)
 					core::multithreading::yield();
 				m_Last->Next->This = result->Buffer;
 				delete result;
 				m_Blocked = 0;
+				std::cout << "Successfully allocated pool memory for sec thread task" << std::endl;
 			}
 			m_Last = m_Last->Next;
 			m_Last->Next = NULL;
