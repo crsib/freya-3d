@@ -24,14 +24,14 @@ namespace core
 {
 class EngineCore;
 }
-
+/*
 namespace math
 {
 class vector3d;
 class matrix4x4;
 class quaternion;
 }
-
+*/
 //!This namespace contains all rendering capable functions
 namespace renderer
 {

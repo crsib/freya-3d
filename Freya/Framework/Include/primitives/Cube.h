@@ -2,10 +2,8 @@
 #define _CUBE_H_
 
 #include "core/EngineSubsystem.h"
-#include "core.h"
-#include "renderer.h"
 #include "internal.h"
-
+#include "renderer.h"
 namespace primitives
 {
 

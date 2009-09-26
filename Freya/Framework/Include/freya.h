@@ -2,8 +2,9 @@
 #define FREYA_H_
 #include "application-settings.h"
 
-#include "core.h"
 #include "renderer.h"
+#include "core.h"
+
 #include "resources.h"
 #include "windowmanager.h"
 
