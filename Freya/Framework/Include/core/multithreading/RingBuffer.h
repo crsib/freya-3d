@@ -119,11 +119,10 @@ T		RingBuffer<T,sz>::fetch()
 		tmp = m_Front;
 		m_Front = (++m_Front) % sz;
 		--m_Count;
-		m_NotFull->signal();
-
-		return m_Buffer[tmp]; //To activate RVO
 	}
-	return reinterpret_cast<T>(NULL);
+
+	m_NotFull->signal();
+	return m_Buffer[tmp]; //To activate RVO
 }
 
 //==========================================================
@@ -139,9 +138,8 @@ void	RingBuffer<T,sz>::deposit(const T& val)
 		m_Buffer[m_Rear] = val;
 		m_Rear = (++m_Rear) % sz;
 		++m_Count;
-
-		m_NotEmpty->signal();
 	}
+	m_NotEmpty->signal();
 }
 
 //==========================================================
