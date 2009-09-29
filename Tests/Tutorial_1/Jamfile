@@ -1,3 +1,0 @@
-
-exe Tutorial1 : main.cpp /EnjoyInc/Framework//EnjoyIncFramework/<link>static ;
-install Tutorial_1 : Tutorial1 : <location>. ;

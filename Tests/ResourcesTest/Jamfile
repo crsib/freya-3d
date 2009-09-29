@@ -1,3 +1,0 @@
-
-exe ResTest : main.cpp /EnjoyInc/Framework//EnjoyIncFramework/<link>static ;
-install ResourcesTest : ResTest : <location>. ;
