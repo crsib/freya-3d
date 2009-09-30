@@ -52,7 +52,6 @@ public:
 					firstnotify = false;
 				}
 		}
-		//std::cout << "Update task" << std::endl;
 		//sleep(3);
 		return core::taskmanager::Task::MAIN_THREAD;
 		//return core::taskmanager::Task::DONE;

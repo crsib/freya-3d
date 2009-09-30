@@ -20,7 +20,7 @@ Task::~Task()
 
 Task*	Task::retain()
 {
-	m_TaskCounter++;
+	++m_TaskCounter;
 	return this;
 }
 
@@ -33,6 +33,10 @@ void	Task::release()
 				delete this;
 	}
 }
-
+	
+unsigned Task::retainCount()
+{
+	return m_TaskCounter;
+}
 }
 }
