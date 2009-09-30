@@ -11,7 +11,7 @@
 #include "core/EngineSubsystem.h"
 #include "Mutex.h"
 
-#define synchronize(mutex) 			for(core::multithreading::Lock _FREYA_TEMP__lock__(mutex);_FREYA_TEMP__lock__.check();)
+#define synchronize(mutex) 			for(core::multithreading::Lock _FREYA_TEMP__lock__##__LINE__(mutex);_FREYA_TEMP__lock__##__LINE__.check();)
 
 
 namespace core
