@@ -45,5 +45,5 @@ MESSAGE("Building shared version of core: ${BUILD_SHARED_LIBS}")
 #set multithreaded enviroment for STLport
 SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -D_STLP_THREADS)
 
-ADD_SUBDIRECTORY ( Framework Bin/Core)
-ADD_SUBDIRECTORY ( Tests Bin/Test)
+ADD_SUBDIRECTORY ( Framework Build/Bin/Core)
+ADD_SUBDIRECTORY ( Tests Build/Bin/Test)
