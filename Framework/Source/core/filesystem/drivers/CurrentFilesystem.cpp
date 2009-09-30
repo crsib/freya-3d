@@ -25,6 +25,7 @@ CurrentFilesystem::~CurrentFilesystem()
 void		CurrentFilesystem::setMountPoint(const EString& o)
 {
 	m_MountPoint = fs::current_path();
+	std::cout << "PWD driver mounted at " << m_MountPoint << std::endl;
 }
 
 //==============================~Method: setMountPoint==============================
