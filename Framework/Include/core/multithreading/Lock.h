@@ -32,6 +32,7 @@ public:
 	{
 		m_Mutex = mutex;
 		m_Mutex->lock();
+		m_Locked = true;
 	}
 	virtual ~Lock()
 	{

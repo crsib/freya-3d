@@ -43,6 +43,8 @@ public:
 	Task*	retain();
 	//!This function decrements task counter by 1 and destoys it when counter is 0
 	void	release();
+	
+	unsigned retainCount();
 };
 
 }
