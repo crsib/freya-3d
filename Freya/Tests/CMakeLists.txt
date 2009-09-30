@@ -4,4 +4,4 @@
 #
 
 ADD_SUBDIRECTORY ( ResourcesTest )
-ADD_SUBDIRECTORY ( Tutorial_1 )
+ADD_SUBDIRECTORY ( BumpMapping )
