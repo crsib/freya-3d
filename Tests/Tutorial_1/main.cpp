@@ -70,8 +70,20 @@ int main(int argC,char** argV)
 		//Mount filesystems
 		core::filesystem::Filesystem*	fs = Core.getFilesystem();
 		fs->mount("pwd");
+#ifndef __APPLE__
+		s->mount("pwd");
 		fs->mount("lzma","Textures.7z");
-
+#else
+#warning Building for apple hack
+		EString path = argV[0];
+		//"..../MacOs/BumpMapping - 17 symbols.
+		path.erase(path.length() - 17);
+		path += "Resources";
+		fs->mount("local",path);
+		path += "/Textures.7z";
+		fs->mount("lzma",path);
+		
+#endif
 		//Create window
 		wm->createWindow(winWidth,winHeight,"Tutorial 1: Bump mapping",fullscreen ,NULL);
 		//Start rendering subsystem
