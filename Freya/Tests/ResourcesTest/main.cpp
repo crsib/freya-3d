@@ -64,7 +64,7 @@ public:
 	bool firstnotify;
 };
 
-int main()
+int main(int argc, char** argV)
 {
 	core::EngineCore core;
 	try
@@ -76,8 +76,20 @@ int main()
 		wm->createWindow(winWidth,winHeight,"Resource manager test",false,NULL);
 
 		core::filesystem::Filesystem* fs = core::EngineCore::getFilesystem();
-		fs->mount("pwd");
-		fs->mount("lzma","Base.7z");
+#ifndef __APPLE__
+		s->mount("pwd");
+		fs->mount("lzma","Textures.7z");
+#else
+#warning Building for apple hack
+		EString path = argV[0];
+		//"..../MacOs/ResourcesTest - 19 symbols.
+		path.erase(path.length() - 19);
+		path += "Resources";
+		fs->mount("local",path);
+		path += "/Base.7z";
+		fs->mount("lzma",path);
+		
+#endif
 
 		core.createRenderingDriver(renderer::futures::MULTITEXTURE | renderer::futures::AUTO_TRANSPOSE_MATIRIX |
 				renderer::futures::VERTEX_BUFFER | renderer::futures::TEXTURE_BUFFER |
