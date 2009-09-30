@@ -116,10 +116,11 @@ void TaskManager::addTask(Task* task)
 {
 	if(core::EngineCore::isRunning())
 	{
+		//std::cout << "Entering critical section " << std::endl;
 		synchronize(m_MutexPri)
 		{
 			task->retain();
-			//std::cout << "Adding task to main thread scheduler " << task << std::endl;
+			//std::cout << "Adding task to main thread scheduler " << task << " " << task->retainCount() << std::endl;
 			m_MainThreadSchedule.push_back(task);
 			assert(m_MainThreadSchedule.back() == task);
 		}
@@ -169,17 +170,19 @@ void TaskManager::enterMainLoop()
 		//std::cout << "Running task " << task << std::endl;
 		if(task)
 		{
-			switch((*task)())
+			int retval = (*task)();
+			//retval <<= 2;
+			switch(retval)
 			{
-			case core::taskmanager::Task::MAIN_THREAD:
-				addTask(task);
-				break;
-			case core::taskmanager::Task::SECONDARY_THREAD:
-				addAsynchronousTask(task);
-				break;
-				//default:
-
+				case core::taskmanager::Task::MAIN_THREAD:
+					//std::cout << "Adding task to main queue " << task << std::endl;
+					addTask(task);
+					break;
+				case core::taskmanager::Task::SECONDARY_THREAD:
+					addAsynchronousTask(task);
+					break;					
 			}
+			//std::cout << "Task returned " << retval << " expected " << core::taskmanager::Task::MAIN_THREAD << std::endl;
 			task->release();
 		}
 		//This thread must have the highest priority.
