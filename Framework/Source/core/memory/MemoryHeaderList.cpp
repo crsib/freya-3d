@@ -11,10 +11,15 @@
 
 #include <iostream>
 
+
+
 namespace core
-{
+{	
 namespace memory
 {
+#ifdef _FREYA_DEBUG_MEMORY
+	extern unsigned memory_allocated;
+#endif
 namespace __internal
 {
 //Searches a block with exact pointer
@@ -162,11 +167,17 @@ void*	MemoryHeaderList::allocate(size_t size,size_t alligment)
 			_block->m_Next = _new;
 			_block->m_Size = _desired + _offset - 2*sizeof(MemoryHeader);
 			__remove(_block);
+#ifdef _FREYA_DEBUG_MEMORY
+			memory_allocated += _block->size();
+#endif
 			return _block->pointer();
 		}
 		else	//Trivial case
 		{
 			__remove(_block);
+#ifdef _FREYA_DEBUG_MEMORY
+			memory_allocated += _block->size();
+#endif
 			return _block->pointer();
 		}
 	}
@@ -180,6 +191,9 @@ bool	MemoryHeaderList::dispose(void* p)
 		MemoryHeader* _b = (reinterpret_cast<MemoryHeader*>(p) - 1);
 		if(_b->check(p)&&(_b->m_Magic == MemoryHeader::ALLOCATED))
 		{
+#ifdef _FREYA_DEBUG_MEMORY
+			memory_allocated -= _b->size();
+#endif
 			__insert(_b);
 			return true;
 		}
