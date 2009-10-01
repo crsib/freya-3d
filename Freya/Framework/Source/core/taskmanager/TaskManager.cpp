@@ -46,7 +46,7 @@ public:
 			{
 				if(man->m_SecThreadSchedule.size())
 				{
-					core::taskmanager::Task*	task;
+					core::taskmanager::Task*	task = NULL;
 					synchronize(man->m_MutexAux)
 					{
 						task = man->m_SecThreadSchedule.front();
@@ -161,7 +161,7 @@ void TaskManager::enterMainLoop()
 {
 	while(!m_MainThreadSchedule.empty()&&core::EngineCore::isRunning())
 	{
-		core::taskmanager::Task*	task;
+		core::taskmanager::Task*	task = NULL;
 		synchronize(m_MutexPri)
 		{
 			task = m_MainThreadSchedule.front();
