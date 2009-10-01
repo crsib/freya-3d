@@ -19,6 +19,9 @@ namespace core
 {
 namespace memory
 {
+#ifdef _FREYA_DEBUG_MEMORY
+	extern unsigned allocated_for_buffers;
+#endif
 namespace __internal
 {
 MemoryBuffer::MemoryBuffer(size_t size,size_t alligment)
@@ -55,6 +58,9 @@ MemoryBuffer::MemoryBuffer(size_t size,size_t alligment)
 	_start->m_Prev = _start->m_Next = NULL;
 	_start->m_Size = m_Size - (reinterpret_cast<char*>(_start->pointer()) - reinterpret_cast<char*>(m_Memory));
 	//_start->m_Size
+#ifdef _FREYA_DEBUG_MEMORY
+	allocated_for_buffers += m_Size;
+#endif
 
 }
 

@@ -41,7 +41,15 @@ using namespace renderer;
 namespace core
 {
 
-
+namespace memory {
+#ifdef _FREYA_DEBUG_MEMORY
+	extern unsigned memory_allocated;
+	extern unsigned allocation_count;
+	extern unsigned deallocation_count;
+	extern unsigned alloc_dealloc_dif;
+	extern unsigned allocated_for_buffers;
+#endif
+}
 core::memory::MemoryArena*    				EngineCore::m_MemoryArena = NULL;
 core::filesystem::Filesystem*				EngineCore::m_Filesystem  = NULL;
 windowmanager::WindowManagerDriver*			EngineCore::m_WindowManager = NULL;
@@ -136,6 +144,12 @@ EngineCore::~EngineCore()
 	//m_LogStream->close();
 	std::cout << "Destroying log" << std::endl;
 	//delete m_LogStream;
+	std::cout << "Engine memory usage at shutdown:\n"
+	<< "\tLeaked in internal manager: " << memory::memory_allocated / 1024.f << " Kb\n"
+	<< "\tTotal number of allocations " << memory::allocation_count << "\n"
+	<< "\tTotal number of deallocations: " << memory::deallocation_count << "\n"
+	<< "\tAlloc - Dealloc: " << memory::alloc_dealloc_dif << "\n"
+	<< "\tSystem memory allocation for internal manager: " << memory::allocated_for_buffers / 1024.f / 1024.f << " Mb" << std::endl;
 	std::cout << "Engine shutdown completed" << std::endl;
 }
 
