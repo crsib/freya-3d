@@ -14,6 +14,13 @@ namespace core
 namespace memory
 {
 
+#ifdef _FREYA_DEBUG_MEMORY
+	unsigned memory_allocated = 0;
+	unsigned allocation_count = 0;
+	unsigned deallocation_count = 0;
+	unsigned alloc_dealloc_dif = 0;
+	unsigned allocated_for_buffers = 0;
+#endif
 
 MemoryArena::MemoryArena()
 {
@@ -44,6 +51,10 @@ void*		MemoryArena::allocate(size_t sz,unsigned id)
 {
 	try
 	{
+#ifdef _FREYA_DEBUG_MEMORY
+		allocation_count++;
+		alloc_dealloc_dif++;
+#endif
 		return m_Pools[id]->allocate(sz);;
 		//return malloc(sz);
 	}
@@ -64,6 +75,10 @@ void		MemoryArena::free(void* p,unsigned id)
 	{
 		throw;
 	}
+#ifdef _FREYA_DEBUG_MEMORY
+	deallocation_count++;
+	alloc_dealloc_dif--;
+#endif
 }
 
 }

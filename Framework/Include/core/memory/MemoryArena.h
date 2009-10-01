@@ -27,6 +27,13 @@ namespace __internal
 	class MemoryBuffer;
 }
 
+#ifdef _FREYA_DEBUG_MEMORY
+	extern unsigned memory_allocated;
+	extern unsigned allocation_count;
+	extern unsigned deallocation_count;
+	extern unsigned alloc_dealloc_dif;
+	extern unsigned allocated_for_buffers;
+#endif
 class MemoryArena
 {
 	friend class core::EngineCore;
