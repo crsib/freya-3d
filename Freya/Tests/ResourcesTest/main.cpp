@@ -75,21 +75,9 @@ int main(int argc, char** argV)
 		wm->createWindow(winWidth,winHeight,"Resource manager test",false,NULL);
 
 		core::filesystem::Filesystem* fs = core::EngineCore::getFilesystem();
-#ifndef __APPLE__
-		s->mount("pwd");
-		fs->mount("lzma","Textures.7z");
-#else
-#warning Building for apple hack
-		EString path = argV[0];
-		//"..../MacOs/ResourcesTest - 19 symbols.
-		path.erase(path.length() - 19);
-		path += "Resources";
-		fs->mount("local",path);
-		path += "/Base.7z";
-		fs->mount("lzma",path);
+		fs->mount("pwd");
+		fs->mount("lzma","Base.7z");
 		
-#endif
-
 		core.createRenderingDriver(renderer::futures::MULTITEXTURE | renderer::futures::AUTO_TRANSPOSE_MATIRIX |
 				renderer::futures::VERTEX_BUFFER | renderer::futures::TEXTURE_BUFFER |
 				renderer::futures::VERTEX_SHADER | renderer::futures::FRAGMENT_SHADER);
