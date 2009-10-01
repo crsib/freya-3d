@@ -2,6 +2,9 @@
 #include "core/filesystem/FilesystemException.h"
 #include "application-settings.h"
 
+#ifdef __APPLE__
+#include "CoreFoundation/CoreFoundation.h"
+#endif
 #include <iostream>
 namespace core
 {
@@ -24,8 +27,21 @@ CurrentFilesystem::~CurrentFilesystem()
 
 void		CurrentFilesystem::setMountPoint(const EString& o)
 {
+#ifndef	__APPLE__
 	m_MountPoint = fs::current_path();
-	std::cout << "PWD driver mounted at " << m_MountPoint << std::endl;
+#else
+	//We are going to mount "Resource path"
+	CFBundleRef mainBundle = CFBundleGetMainBundle();
+	CFURLRef resourcesURL = CFBundleCopyBundleURL(mainBundle);
+	CFStringRef str = CFURLCopyFileSystemPath( resourcesURL, kCFURLPOSIXPathStyle );
+	CFRelease(resourcesURL);
+	char path[PATH_MAX];
+	
+	CFStringGetCString( str, path, FILENAME_MAX, kCFStringEncodingASCII );
+	CFRelease(str);
+	EString tmp = EString(path) + "/Contents/Resources";
+	m_MountPoint = tmp.c_str();
+#endif
 }
 
 //==============================~Method: setMountPoint==============================

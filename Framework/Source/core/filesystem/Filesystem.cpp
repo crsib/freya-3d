@@ -9,6 +9,9 @@
 
 #include "core/filesystem/FilesystemException.h"
 
+#ifdef __APPLE__
+#	include "CoreFoundation/CoreFoundation.h"
+#endif
 
 namespace core
 {
@@ -61,7 +64,24 @@ void		Filesystem::mount(const EString& type, const EString& path)
 		throw FilesystemException(EString("Driver type \"") + type + "\" is not registered" );
 	try
 	{
+#ifdef __APPLE__
+		//First of all check, whether we have relative path
+		if(path[0] != '/')
+		{
+			CFBundleRef mainBundle = CFBundleGetMainBundle();
+			CFURLRef resourcesURL = CFBundleCopyBundleURL(mainBundle);
+			CFStringRef str = CFURLCopyFileSystemPath( resourcesURL, kCFURLPOSIXPathStyle );
+			CFRelease(resourcesURL);
+			char _path[PATH_MAX];
+			
+			CFStringGetCString( str, _path, FILENAME_MAX, kCFStringEncodingASCII );
+			CFRelease(str);
+			EString full_path = EString(_path) + "/Contents/Resources/" + path;
+			static_cast<FilesystemDriver*>(d)->setMountPoint(full_path);
+		}
+#else
 		static_cast<FilesystemDriver*>(d)->setMountPoint(path);
+#endif	
 	}
 	catch(const EngineException& ex)
 	{
