@@ -46,5 +46,11 @@ MESSAGE("Building shared version of core: ${BUILD_SHARED_LIBS}")
 #set multithreaded enviroment for STLport
 SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -D_STLP_THREADS)
 
+SET( COREFOUNDATION )
+IF(APPLE)
+	FIND_LIBRARY(COREFOUNDATION CoreFoundation)
+	MESSAGE("Using CoreFoundation as ${COREFOUNDATION}")
+ENDIF(APPLE)
+
 ADD_SUBDIRECTORY ( Framework Build/Bin/Core)
 ADD_SUBDIRECTORY ( Tests Build/Bin/Test)
