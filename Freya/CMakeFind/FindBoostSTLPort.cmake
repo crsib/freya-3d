@@ -261,13 +261,15 @@ IF(NOT DEFINED Boost_USE_MULTITHREADED)
     SET(Boost_USE_MULTITHREADED TRUE)
 ENDIF()
 
-if(Boost_FIND_VERSION_EXACT)
+MESSAGE ("Boost of version ${BoostSTLPort_FIND_VERSION_EXACT} requested")
+
+if(BoostSTLPort_FIND_VERSION_EXACT)
   # The version may appear in a directory with or without the patch
   # level, even when the patch level is non-zero.
   set(_boost_TEST_VERSIONS
-    "${Boost_FIND_VERSION_MAJOR}.${Boost_FIND_VERSION_MINOR}.${Boost_FIND_VERSION_PATCH}"
-    "${Boost_FIND_VERSION_MAJOR}.${Boost_FIND_VERSION_MINOR}")
-else(Boost_FIND_VERSION_EXACT)
+    "${BoostSTLPort_FIND_VERSION_MAJOR}.${BoostSTLPort_FIND_VERSION_MINOR}.${BoostSTLPort_FIND_VERSION_PATCH}"
+    "${BoostSTLPort_FIND_VERSION_MAJOR}.${BoostSTLPort_FIND_VERSION_MINOR}")
+else(BoostSTLPort_FIND_VERSION_EXACT)
   # The user has not requested an exact version.  Among known
   # versions, find those that are acceptable to the user request.
   set(_Boost_KNOWN_VERSIONS ${Boost_ADDITIONAL_VERSIONS} "1.41" "1.41.0" "1.40" "1.40.0" "1.39" "1.39.0"
@@ -275,24 +277,24 @@ else(Boost_FIND_VERSION_EXACT)
     "1.36.1" "1.36.0" "1.36" "1.35.1" "1.35.0" "1.35" "1.34.1" "1.34.0"
     "1.34" "1.33.1" "1.33.0" "1.33")
   set(_boost_TEST_VERSIONS)
-  if(Boost_FIND_VERSION)
-    set(_Boost_FIND_VERSION_SHORT "${Boost_FIND_VERSION_MAJOR}.${Boost_FIND_VERSION_MINOR}")
+  if(BoostSTLPort_FIND_VERSION)
+    set(_BoostSTLPort_FIND_VERSION_SHORT "${BoostSTLPort_FIND_VERSION_MAJOR}.${BoostSTLPort_FIND_VERSION_MINOR}")
     # Select acceptable versions.
     foreach(version ${_Boost_KNOWN_VERSIONS})
-      if(NOT "${version}" VERSION_LESS "${Boost_FIND_VERSION}")
+      if(NOT "${version}" VERSION_LESS "${BoostSTLPort_FIND_VERSION}")
         # This version is high enough.
         list(APPEND _boost_TEST_VERSIONS "${version}")
-      elseif("${version}.99" VERSION_EQUAL "${_Boost_FIND_VERSION_SHORT}.99")
+      elseif("${version}.99" VERSION_EQUAL "${_BoostSTLPort_FIND_VERSION_SHORT}.99")
         # This version is a short-form for the requested version with
         # the patch level dropped.
         list(APPEND _boost_TEST_VERSIONS "${version}")
       endif()
     endforeach(version)
-  else(Boost_FIND_VERSION)
+  else(BoostSTLPort_FIND_VERSION)
     # Any version is acceptable.
     set(_boost_TEST_VERSIONS "${_Boost_KNOWN_VERSIONS}")
-  endif(Boost_FIND_VERSION)
-endif(Boost_FIND_VERSION_EXACT)
+  endif(BoostSTLPort_FIND_VERSION)
+endif(BoostSTLPort_FIND_VERSION_EXACT)
 
 # The reason that we failed to find Boost. This will be set to a
 # user-friendly message when we fail to find some necessary piece of
@@ -491,17 +493,17 @@ ELSE (_boost_IN_CACHE)
     # Extract Boost_VERSION and Boost_LIB_VERSION from version.hpp
     # Read the whole file:
     #
-    SET(BOOST_VERSION 0)
+    SET(Boost_VERSION 0)
     SET(BOOST_LIB_VERSION "")
-    FILE(READ "${Boost_INCLUDE_DIR}/boost/version.hpp" _boost_VERSION_HPP_CONTENTS)
+    FILE(READ "${Boost_INCLUDE_DIR}/boost/version.hpp" _Boost_VERSION_HPP_CONTENTS)
     if(Boost_DEBUG)
       message(STATUS "[ ${CMAKE_CURRENT_LIST_FILE}:${CMAKE_CURRENT_LIST_LINE} ] "
                      "location of version.hpp: ${Boost_INCLUDE_DIR}/boost/version.hpp")
     endif()
   
-    STRING(REGEX REPLACE ".*#define BOOST_VERSION ([0-9]+).*" "\\1" Boost_VERSION "${_boost_VERSION_HPP_CONTENTS}")
-    STRING(REGEX REPLACE ".*#define BOOST_LIB_VERSION \"([0-9_]+)\".*" "\\1" Boost_LIB_VERSION "${_boost_VERSION_HPP_CONTENTS}")
-  
+    STRING(REGEX REPLACE ".*#define BOOST_VERSION ([0-9]+).*" "\\1" Boost_VERSION "${_Boost_VERSION_HPP_CONTENTS}")
+    STRING(REGEX REPLACE ".*#define BOOST_LIB_VERSION \"([0-9_]+)\".*" "\\1" Boost_LIB_VERSION "${_Boost_VERSION_HPP_CONTENTS}")
+  	MESSAGE("BOOST VERSION STRING ${BOOST_VERSION}")
     SET(Boost_LIB_VERSION ${Boost_LIB_VERSION} CACHE INTERNAL "The library version string for boost libraries")
     SET(Boost_VERSION ${Boost_VERSION} CACHE INTERNAL "The version number for boost libraries")
     
@@ -719,57 +721,57 @@ ELSE (_boost_IN_CACHE)
     SET( Boost_FOUND TRUE )
 
     # Check the version of Boost against the requested version.
-    if (Boost_FIND_VERSION AND NOT Boost_FIND_VERSION_MINOR)
+    if (BoostSTLPort_FIND_VERSION AND NOT BoostSTLPort_FIND_VERSION_MINOR)
       message(SEND_ERROR "When requesting a specific version of Boost, you must provide at least the major and minor version numbers, e.g., 1.34")
-    endif (Boost_FIND_VERSION AND NOT Boost_FIND_VERSION_MINOR)
-    if(Boost_MAJOR_VERSION LESS "${Boost_FIND_VERSION_MAJOR}" )
+    endif (BoostSTLPort_FIND_VERSION AND NOT BoostSTLPort_FIND_VERSION_MINOR)
+    if(Boost_MAJOR_VERSION LESS "${BoostSTLPort_FIND_VERSION_MAJOR}" )
       set( Boost_FOUND FALSE )
       set(_Boost_VERSION_AGE "old") 
-    elseif(Boost_MAJOR_VERSION EQUAL "${Boost_FIND_VERSION_MAJOR}" )
-      if(Boost_MINOR_VERSION LESS "${Boost_FIND_VERSION_MINOR}" )
+    elseif(Boost_MAJOR_VERSION EQUAL "${BoostSTLPort_FIND_VERSION_MAJOR}" )
+      if(Boost_MINOR_VERSION LESS "${BoostSTLPort_FIND_VERSION_MINOR}" )
         set( Boost_FOUND FALSE )
         set(_Boost_VERSION_AGE "old")
-      elseif(Boost_MINOR_VERSION EQUAL "${Boost_FIND_VERSION_MINOR}" )
-        if( Boost_FIND_VERSION_PATCH AND Boost_SUBMINOR_VERSION LESS "${Boost_FIND_VERSION_PATCH}" )
+      elseif(Boost_MINOR_VERSION EQUAL "${BoostSTLPort_FIND_VERSION_MINOR}" )
+        if( BoostSTLPort_FIND_VERSION_PATCH AND Boost_SUBMINOR_VERSION LESS "${BoostSTLPort_FIND_VERSION_PATCH}" )
           set( Boost_FOUND FALSE )
           set(_Boost_VERSION_AGE "old")
-        endif( Boost_FIND_VERSION_PATCH AND Boost_SUBMINOR_VERSION LESS "${Boost_FIND_VERSION_PATCH}" )
-      endif( Boost_MINOR_VERSION LESS "${Boost_FIND_VERSION_MINOR}" )
-    endif( Boost_MAJOR_VERSION LESS "${Boost_FIND_VERSION_MAJOR}" )
+        endif( BoostSTLPort_FIND_VERSION_PATCH AND Boost_SUBMINOR_VERSION LESS "${BoostSTLPort_FIND_VERSION_PATCH}" )
+      endif( Boost_MINOR_VERSION LESS "${BoostSTLPort_FIND_VERSION_MINOR}" )
+    endif( Boost_MAJOR_VERSION LESS "${BoostSTLPort_FIND_VERSION_MAJOR}" )
 
-    if (Boost_FOUND AND Boost_FIND_VERSION_EXACT)
+    if (Boost_FOUND AND BoostSTLPort_FIND_VERSION_EXACT)
       # If the user requested an exact version of Boost, check
       # that. We already know that the Boost version we have is >= the
       # requested version.
       set(_Boost_VERSION_AGE "new")
 
       # If the user didn't specify a patchlevel, it's 0.
-      if (NOT Boost_FIND_VERSION_PATCH)
-        set(Boost_FIND_VERSION_PATCH 0)
-      endif (NOT Boost_FIND_VERSION_PATCH)
+      if (NOT BoostSTLPort_FIND_VERSION_PATCH)
+        set(BoostSTLPort_FIND_VERSION_PATCH 0)
+      endif (NOT BoostSTLPort_FIND_VERSION_PATCH)
       
       # We'll set Boost_FOUND true again if we have an exact version match.
       set(Boost_FOUND FALSE)
-      if(Boost_MAJOR_VERSION EQUAL "${Boost_FIND_VERSION_MAJOR}" )
-        if(Boost_MINOR_VERSION EQUAL "${Boost_FIND_VERSION_MINOR}" )
-          if(Boost_SUBMINOR_VERSION EQUAL "${Boost_FIND_VERSION_PATCH}" )
+      if(Boost_MAJOR_VERSION EQUAL "${BoostSTLPort_FIND_VERSION_MAJOR}" )
+        if(Boost_MINOR_VERSION EQUAL "${BoostSTLPort_FIND_VERSION_MINOR}" )
+          if(Boost_SUBMINOR_VERSION EQUAL "${BoostSTLPort_FIND_VERSION_PATCH}" )
             set( Boost_FOUND TRUE )
-          endif(Boost_SUBMINOR_VERSION EQUAL "${Boost_FIND_VERSION_PATCH}" )
-        endif( Boost_MINOR_VERSION EQUAL "${Boost_FIND_VERSION_MINOR}" )
-      endif( Boost_MAJOR_VERSION EQUAL "${Boost_FIND_VERSION_MAJOR}" )
-    endif (Boost_FOUND AND Boost_FIND_VERSION_EXACT)
+          endif(Boost_SUBMINOR_VERSION EQUAL "${BoostSTLPort_FIND_VERSION_PATCH}" )
+        endif( Boost_MINOR_VERSION EQUAL "${BoostSTLPort_FIND_VERSION_MINOR}" )
+      endif( Boost_MAJOR_VERSION EQUAL "${BoostSTLPort_FIND_VERSION_MAJOR}" )
+    endif (Boost_FOUND AND BoostSTLPort_FIND_VERSION_EXACT)
 
     if(NOT Boost_FOUND)
       # State that we found a version of Boost that is too new or too old.
       set(Boost_ERROR_REASON
-        "${Boost_ERROR_REASON}\nDetected version of Boost is too ${_Boost_VERSION_AGE}. Requested version was ${Boost_FIND_VERSION_MAJOR}.${Boost_FIND_VERSION_MINOR}")
-      if (Boost_FIND_VERSION_PATCH)
+        "${Boost_ERROR_REASON}\nDetected version of Boost is too ${_Boost_VERSION_AGE}. Requested version was ${BoostSTLPort_FIND_VERSION_MAJOR}.${BoostSTLPort_FIND_VERSION_MINOR}")
+      if (BoostSTLPort_FIND_VERSION_PATCH)
         set(Boost_ERROR_REASON 
-          "${Boost_ERROR_REASON}.${Boost_FIND_VERSION_PATCH}")
-      endif (Boost_FIND_VERSION_PATCH)
-      if (NOT Boost_FIND_VERSION_EXACT)
+          "${Boost_ERROR_REASON}.${BoostSTLPort_FIND_VERSION_PATCH}")
+      endif (BoostSTLPort_FIND_VERSION_PATCH)
+      if (NOT BoostSTLPort_FIND_VERSION_EXACT)
         set(Boost_ERROR_REASON "${Boost_ERROR_REASON} (or newer)")
-      endif (NOT Boost_FIND_VERSION_EXACT)
+      endif (NOT BoostSTLPort_FIND_VERSION_EXACT)
       set(Boost_ERROR_REASON "${Boost_ERROR_REASON}.")
     endif (NOT Boost_FOUND)
 
