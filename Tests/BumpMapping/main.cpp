@@ -85,7 +85,7 @@ int main(int argC,char** argV)
 		wm->swapBuffers();
 		//Create keyboard and mouse
 		windowmanager::input::KeyDrivenDevice* kbd = wm->createKeyDrivenDevice("keyboard");
-		windowmanager::input::MovementDrivenDevice* mouse = wm->createMovementDrivenDevice("mouse");
+		//windowmanager::input::MovementDrivenDevice* mouse = wm->createMovementDrivenDevice("mouse");
 		//Time variables. We need to know, how much time previuos frame has taken to do the correct animation/camera controlling
 		unsigned oldTime = wm->getTickCount(),newTime;
 		float secs;

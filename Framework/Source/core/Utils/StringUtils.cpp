@@ -100,7 +100,7 @@ EStringList split_to_list(const EString& str,unsigned mode) //SplitMode enum or'
 {
 	if(str.length() == 0)
 		return EStringList();
-	bool (*split)(char c);
+	bool (*split)(char c) = NULL;
 	switch(mode)
 	{
 	case  SPLIT_BY_SPACES:

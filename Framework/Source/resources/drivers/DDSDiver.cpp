@@ -101,7 +101,7 @@ renderer::Texture* __sync_load_dds(const EString& path) throw(EngineException) {
 		throw EngineException();
 
 	__ret_tex = core::EngineCore::getRenderingDriver()->createTexture();
-
+	return __ret_tex;
 }
 
 }// namespace drivers
