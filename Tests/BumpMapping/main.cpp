@@ -52,7 +52,7 @@ public:
 int main(int argC,char** argV)
 {
 	//Create framework core. Core is responsible on creating/managing various subsystems
-	core::EngineCore Core;
+	core::EngineCore Core(argC,argV);
 	try
 	{
 		std::cout << "Starting engine" << std::endl;

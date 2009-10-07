@@ -25,7 +25,8 @@ class WindowManagerDriver;
 //! This namespace contains all classes related to engine core futures
 namespace core
 {
-
+class PluginCore;
+class PluginLoader;
 namespace multithreading
 {
 class Thread;
@@ -50,9 +51,9 @@ namespace taskmanager
 {
 class TaskManager;
 }
-
 namespace memory
 {
+#ifndef _FREYA_SHARED_PLUGIN
 //!uses memory arena to allocate a memory block
 /*!
 * This function allocates a memory block inside the memory arena.
@@ -60,7 +61,8 @@ namespace memory
 * \param sz is a size of newly created block
 * \return pointer to a newly created block
 */
-EXPORT void* Allocate(size_t sz,unsigned id = 0); //General in place STL allocation
+void* Allocate(size_t sz,unsigned id); //General in place STL allocation
+#endif
 //!Uses memory arena to reallocate a memory block
 /*!
 * This function reallocates a memory block inside the memory arena.
@@ -70,7 +72,8 @@ EXPORT void* Allocate(size_t sz,unsigned id = 0); //General in place STL allocat
 * \param sz is a size of newly created block
 * \return pointer to reallocated block of memory (as it possipbly could move)
 */
-EXPORT void* Reallocate(void* p,size_t sz,unsigned id = 0);
+EXPORT void* Reallocate(void* p,size_t sz,unsigned id);
+#ifndef _FREYA_SHARED_PLUGIN
 //!uses memory arena to free a memory block
 /*!
 * This function frees a memory block inside the memory arena.
@@ -78,11 +81,14 @@ EXPORT void* Reallocate(void* p,size_t sz,unsigned id = 0);
 * The function can be used on, and only on memory blocks allocated inside memory arena
 * \param p  is a pointer to memory block inside memory arena
 */
-EXPORT void  Free(void* p,unsigned id = 0);
+void  Free(void* p,unsigned id);
+#endif
 
 class MemoryArena;
 }
+
 }
+
 
 namespace renderer
 {
@@ -101,8 +107,11 @@ namespace core
 
 class EXPORT EngineCore {
 public:
-	EngineCore();
+	//! Default executable parameters
+	EngineCore(int arcC,char** argV);
 	virtual ~EngineCore();
+	//! retrieves the instance of PluginCore
+	static core::PluginCore*	getPluginCore();
 	//Window manager
 	//! retrieves the current Window manager created
 	/*!
@@ -245,6 +254,8 @@ private:
 	static core::taskmanager::TaskManager*				m_TaskManager;
 	static resources::ResourceManager*					m_ResourceManager;
 	static THREAD_IMPLEMENTATION			*			m_ThreadImplementation;
+	static core::PluginCore*							m_PluginCore;
+	static core::PluginLoader*							m_PluginLoader;
 };
 
 }

@@ -65,7 +65,7 @@ public:
 
 int main(int argc, char** argV)
 {
-	core::EngineCore core;
+	core::EngineCore core(argc,argV);
 	try
 	{
 		//Start up WM and renderer

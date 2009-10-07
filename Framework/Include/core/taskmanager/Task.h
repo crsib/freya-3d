@@ -24,7 +24,7 @@ private:
 	unsigned m_TaskCounter;
 protected:
 	Task() : m_TaskCounter(0) {}
-	virtual ~Task();
+	virtual ~Task(){}
 public:
 	virtual int operator () () = 0;
 

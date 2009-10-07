@@ -27,8 +27,7 @@ namespace ids
 
 class LocalFilesystemDriverID : public core::drivermodel::DriverID
 {
-	friend class core::filesystem::FilesystemDriverFactory;
-protected:
+public:
 	LocalFilesystemDriverID()
 	{
 	}

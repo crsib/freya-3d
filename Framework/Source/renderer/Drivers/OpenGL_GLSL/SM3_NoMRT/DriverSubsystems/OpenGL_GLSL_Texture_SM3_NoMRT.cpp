@@ -3,7 +3,7 @@
 
 
 #include "renderer/Drivers/OpenGL_GLSL/OpenGL_GLSL_ConstantsTables.h"
-#include "core/EngineCore.h"
+#include "core/PluginCore.h"
 
 
 #include "renderer/DriverException.h"
@@ -37,7 +37,7 @@ void		OpenGL_GLSL_Texture::loadTexture(unsigned TextureType,unsigned level,unsig
 	m_SourceFormat   = OpenGL_GLSL_Tables::TextureFormat[TextureStorageFormat];
 	std::pair<unsigned,unsigned> ind = make_index(level,0);
 	{
-		m_VBO[ind] = core::EngineCore::getRenderingDriver()->createVertexBufferObject();
+		m_VBO[ind] = core::CoreInstance->getRenderingDriver()->createVertexBufferObject();
 		m_VBO[ind].setWidth(width);
 		m_VBO[ind].setHeight(height);
 		m_VBO[ind].setComponentSize(OpenGL_GLSL_Tables::TextureStorageSize[TextureStorage]*OpenGL_GLSL_Tables::TextureComponentsNumber[TextureStorageFormat]);
@@ -89,7 +89,7 @@ void		OpenGL_GLSL_Texture::loadTexture(unsigned TextureType,unsigned level,unsig
 		m_VBO[ind]->unbind();
 	}
 	//Free VBO
-	core::EngineCore::getRenderingDriver()->destroyVertexBufferObject(m_VBO[ind]);
+	core::CoreInstance->getRenderingDriver()->destroyVertexBufferObject(m_VBO[ind]);
 	m_VBO[ind].setVBO(NULL);
 }
 
@@ -107,7 +107,7 @@ void		OpenGL_GLSL_Texture::loadTexture(unsigned TextureType,unsigned level,unsig
 		ind = make_index(level,side_or_depth);
 
 	{
-		m_VBO[ind] = core::EngineCore::getRenderingDriver()->createVertexBufferObject();
+		m_VBO[ind] = core::CoreInstance->getRenderingDriver()->createVertexBufferObject();
 		m_VBO[ind].setWidth(width);
 		m_VBO[ind].setHeight(height);
 		m_VBO[ind].setComponentSize(OpenGL_GLSL_Tables::TextureStorageSize[TextureStorage]*OpenGL_GLSL_Tables::TextureComponentsNumber[TextureStorageFormat]);
@@ -172,7 +172,7 @@ void		OpenGL_GLSL_Texture::loadTexture(unsigned TextureType,unsigned level,unsig
 	}
 	else throw renderer::DriverException("Invalid texture format");//*/
 	//Free VBO
-	core::EngineCore::getRenderingDriver()->destroyVertexBufferObject(m_VBO[ind]);
+	core::CoreInstance->getRenderingDriver()->destroyVertexBufferObject(m_VBO[ind]);
 	m_VBO[ind].setVBO(NULL);
 }
 
@@ -193,7 +193,7 @@ void*		OpenGL_GLSL_Texture::map(unsigned level,unsigned side)
 	if(m_InternalTarget != TextureType::TEXTURE_CUBE)
 		side = 0;
 	std::pair<unsigned,unsigned> ind = make_index(level,side);
-	m_VBO[ind] = core::EngineCore::getRenderingDriver()->createVertexBufferObject();
+	m_VBO[ind] = core::CoreInstance->getRenderingDriver()->createVertexBufferObject();
 	VertexBufferObject* obj = m_VBO[ind];
 	obj->setTarget(VBOType::R2VB);
 	obj->setData(VBOUsage::STATIC_DRAW,m_VBO[ind].getWidth()*m_VBO[ind].getHeight()*m_VBO[ind].getComponentSize(),NULL);
@@ -247,7 +247,7 @@ void		OpenGL_GLSL_Texture:: unmap(unsigned level,unsigned side)
 	}
 	unbind();
 	obj->unbind();
-	core::EngineCore::getRenderingDriver()->destroyVertexBufferObject(obj);
+	core::CoreInstance->getRenderingDriver()->destroyVertexBufferObject(obj);
 	m_VBO[ind].setVBO(NULL);
 }
 

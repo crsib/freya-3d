@@ -8,6 +8,17 @@
 #ifndef FRAMEBUFFER_H_
 #define FRAMEBUFFER_H_
 
+#ifdef _FREYA_SHARED_PLUGIN
+#include <cstdlib>
+namespace core
+{
+namespace memory
+{
+	extern void* (*Allocate)(size_t,unsigned);
+	extern void  (*Free)(void*,unsigned);
+}
+}
+#endif
 /*
  *
  */
