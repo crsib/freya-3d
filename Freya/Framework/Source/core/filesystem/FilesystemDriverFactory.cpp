@@ -1,12 +1,12 @@
 #include "core/filesystem/FilesystemDriverFactory.h"
 
 //Filesystem drivers headers
-
+/*
 #include "core/filesystem/drivers/ids/LocalFilesystemDriverID.h"
 #include "core/filesystem/drivers/ids/LzmaFilesystemDriverID.h"
 #include "core/filesystem/drivers/ids/AppHomeFilesystemDriverID.h"
 #include "core/filesystem/drivers/ids/CurrentFilesystemDriverID.h"
-
+*/
 #include "core/drivermodel/DriverException.h"
 namespace core
 {
@@ -15,10 +15,10 @@ namespace filesystem
 //============================== Derived constructors==============================
 FilesystemDriverFactory::FilesystemDriverFactory()
 {
-	registerDriver(new core::filesystem::drivers::ids::LocalFilesystemDriverID());
-	registerDriver(new core::filesystem::drivers::ids::LzmaFilesystemDriverID());
-	registerDriver(new core::filesystem::drivers::ids::AppHomeFilesystemDriverID());
-	registerDriver(new core::filesystem::drivers::ids::CurrentFilesystemDriverID());
+	//registerDriver(new core::filesystem::drivers::ids::LocalFilesystemDriverID());
+	//registerDriver(new core::filesystem::drivers::ids::LzmaFilesystemDriverID());
+	//registerDriver(new core::filesystem::drivers::ids::AppHomeFilesystemDriverID());
+	//registerDriver(new core::filesystem::drivers::ids::CurrentFilesystemDriverID());
 }
 //==============================~Derived constructors==============================
 

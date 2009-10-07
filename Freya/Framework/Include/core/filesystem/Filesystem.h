@@ -43,14 +43,14 @@ public:
 	 * \param path is a path to assign to driver
 	 * \throw FilesystemException if driver is not registered or for any reason could not be assigned with path
 	 */
-	void mount(const EString& type, const EString& path = EString());
+	virtual void mount(const EString& type, const EString& path = EString());
 
 	//!Lists files on filesystem
 	/*!
 	 * Lists all files on all registered drivers
 	 * \return List of all files
 	 */
-	EStringList list();
+	virtual EStringList list();
 
 	//Same as in driver
 	//!Create a directory
@@ -60,7 +60,7 @@ public:
 	 * \param to specifies driver number to write to
 	 * \throw FilesystemException on any error (such as no writable driver is mounted)
 	 */
-	void makeDir(const  EString& path, int to = 0);
+	virtual void makeDir(const  EString& path, int to = 0);
 	//!Check that directory exists
 	/*!
 	 * Checks that internal directory is present on any driver.
@@ -68,14 +68,14 @@ public:
 	 * \param path contains full internal path to check for
 	 * \return true if specified directory exists, false otherwise
 	 */
-	bool dirExists(const EString& path);
+	virtual bool dirExists(const EString& path);
 	//!Check that file exists
 	/*!
 	 * Checks that file is present on any driver
 	 * \param path contains full internal path to check for
 	 * \return true if specified directory exists, false otherwise
 	 */
-	bool fileExists(const EString& path);
+	virtual bool fileExists(const EString& path);
 	//!Read file
 	/*!
 	 * Reads file from {path} using {from} driver. In current implementation stream reading is not supported.
@@ -84,7 +84,7 @@ public:
 	 * \throw FilesystemException if file is not found
 	 * \return Address of memory block containing file (caller is responsible of future memory management)
 	 */
-	void* read(const EString& path,int from = -1);
+	virtual void* read(const EString& path,int from = -1);
 	//!Read file (overloaded version)
 	/*!
 	 * Reads file from {path} using {from} driver. In current implementation stream reading is not supported.
@@ -94,7 +94,7 @@ public:
 	 * \throw FilesystemException if file is not found or reading failed
 	 * \return Address of memory block containing file (caller is responsible of future memory management)
 	 */
-	void*  read(const EString& path, size_t* sz,int from = -1);
+	virtual void*  read(const EString& path, size_t* sz,int from = -1);
 	//!Get file size
 	/*!
 	 * Returns a size of file decribed by {path}. This method only uses FIFO method of resolving conflicts.
@@ -103,7 +103,7 @@ public:
 	 * \throw FilesystemException if file is not found
 	 * \return Size of file demanded
 	 */
-	size_t fileSize(const EString& path);
+	virtual size_t fileSize(const EString& path);
 	//! Write file
 	/*!
 	 * Writes a file to a writable driver
@@ -113,7 +113,7 @@ public:
 	 * \param to is an global ID of an writable driver. 0 means writing on first writable driver
 	 * \throw FilesystemException  on either there are no writable drivers, either selected driver is not writable, either writing failed
 	 */
-	void write(const EString& path, const void* buf, size_t sz, int to = 0);
+	virtual void write(const EString& path, const void* buf, size_t sz, int to = 0);
 	//!Remove filesystem object (file or directory)
 	/*!
 	 * Removes filesytem object described by path from file system (with all ancestors if needed)
@@ -121,7 +121,7 @@ public:
 	 * \param from is an global ID of an writable driver. 0 means writing on first writable driver
 	 * \throw FilesystemException  on either there are no writable drivers, either selected driver is not writable, either removing failed
 	 */
-	void remove(const EString& path,int from = 0);
+	virtual void remove(const EString& path,int from = 0);
 
 	//!Available search modes to override FIFO
 	enum SearchMode
@@ -140,14 +140,14 @@ public:
 	 * \param mode describes wich mode to use while searching
 	 * \return Global ID of a driver to search on
 	 */
-	int where(const EString& path,SearchMode mode = EVERYWHERE);
+	virtual int where(const EString& path,SearchMode mode = EVERYWHERE);
 
 	//!Register filesystem driver
 	/*!
 	 * Registers user-written filesystem driver to be used with core::Filesystem class
 	 * \param driverID is an ID of a driver to be registered
 	 */
-	void	registerDriver(core::drivermodel::DriverID* driverID);
+	virtual void	registerDriver(core::drivermodel::DriverID* driverID);
 private:
 	typedef std::vector<core::drivermodel::Driver*, core::memory::MemoryAllocator<core::drivermodel::Driver*> > Drivers;
 

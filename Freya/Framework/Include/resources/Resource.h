@@ -8,6 +8,24 @@
 #ifndef RESOURCE_H_
 #define RESOURCE_H_
 
+#include "core/PluginCore.h"
+#ifdef _FREYA_SHARED_PLUGIN
+#include <cstdlib>
+namespace core
+{
+namespace memory
+{
+	extern void* (*Allocate)(size_t,unsigned);
+	extern void  (*Free)(void*,unsigned);
+}
+	extern core::PluginCore*	CoreInstance;
+}
+#else
+namespace core
+{
+	extern core::PluginCore*	CoreInstance;
+}
+#endif
 /*
  *
  */
@@ -48,9 +66,9 @@ class Resource: virtual public ::EngineSubsystem
 	friend class resources::ResourceManager;
 	friend class __internal::ResourceLibrary;
 	template<typename T>
-	friend resources::Resource* 	__internal::createResource(T*);
-	friend void						__internal::destroyResource(resources::Resource*);
-	friend void						__internal::finalizeResource(resources::Resource*);
+	friend resources::Resource* 	resources::__internal::createResource(T*);
+	friend void						resources::__internal::destroyResource(resources::Resource*);
+	friend void						resources::__internal::finalizeResource(resources::Resource*);
 private://TODO: make this private
 	Resource();
 	virtual ~Resource();
@@ -60,7 +78,7 @@ public:
 	 * Checks the status of resource
 	 * \return true if Resource is ready to be used
 	 */
-	bool	ready();
+	virtual bool	ready();
 	//! Cast operator. T MUST be a pointer
 	/*!
 	 * Casts Resource to specific type
@@ -84,9 +102,9 @@ public:
 	template<typename T>
 	T	get();
 	//!Stop the execution of cuurent thread and wait until the resource is ready
-	void	waitForResource();
+	virtual void	waitForResource();
 	//!Get the ID of an resource
-	EString	id();
+	virtual EString	id();
 protected:
 	//methods
 private:
