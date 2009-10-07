@@ -7,38 +7,27 @@
 
 #include "resources/Resource.h"
 
-#include "core/EngineCore.h"
 #include "windowmanager/WindowManagerDriver.h"
 #include "core/multithreading/Mutex.h"
 #include "core/multithreading/ThreadBlocks.h"
 
+#ifndef _WIN32
+#include <sched.h>
+#else
+#include <Windows.h>
+#endif
+
 namespace resources
 {
-
-namespace __internal
-{
-
-void					destroyResource(resources::Resource* res)
-{
-	delete res;
-}
-
-void					finalizeResource(resources::Resource* res)
-{
-	res->m_Ready = true;
-}
-
-}
-
 Resource::Resource()
 {
 	m_Ready = 0;
-	m_Resource = NULL;
+	m_Resource = NULL;	
 }
 
 Resource::~Resource()
 {
-	m_Ready = 0;
+	
 }
 
 bool	Resource::ready()
@@ -50,7 +39,12 @@ void	Resource::waitForResource()
 {
 	while(m_Ready == 0)
 	{
-		core::multithreading::yield();
+		//core::multithreading::yield();
+#ifndef _WIN32
+	sched_yield();
+#else
+	Sleep(0);
+#endif
 	}
 }
 

@@ -4,13 +4,9 @@
 #include <cmath>
 #include "struct_def.hpp"
 #include <iostream>
-//#include "internal.h"
+#include "internal.h"
 #include "MathSubsystem.h"
 #define MATH_DEBUG
-
-#ifndef EXPORT 
-#define EXPORT
-#endif
 
 namespace math
 {

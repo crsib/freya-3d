@@ -10,7 +10,7 @@
 #include "resources/ResourceManagerDriver.h"
 #include "core/multithreading/Mutex.h"
 //Default drivers
-#include "resources/drivers/TGADriver.h"
+//#include "resources/drivers/TGADriver.h"
 //TODO: DBG
 #include <iostream>
 
@@ -21,7 +21,7 @@ ResourceManager::ResourceManager()
 {
 	m_ResourceLibrary = new __internal::ResourceLibrary;
 	//Default drivers registration
-	registerDriver(new resources::drivers::TGADriverID());
+	//registerDriver(new resources::drivers::TGADriverID());
 }
 
 ResourceManager::~ResourceManager()

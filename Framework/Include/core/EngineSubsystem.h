@@ -8,6 +8,7 @@
 #ifndef ENGINESUBSYSTEM_H_
 #define ENGINESUBSYSTEM_H_
 
+#ifndef _FREYA_SHARED_PLUGIN
 #include <cstdlib>
 namespace core
 {
@@ -17,6 +18,8 @@ namespace memory
 	void  Free(void*,unsigned);
 }
 }
+#endif
+
 //!This class corrects memory management routines for any engine class except EngineCore and MemoryArena
 /*!
  * All Freya subclasses should inherited is some way from this class, as it defines correct memory management while creating them

@@ -1,6 +1,18 @@
 #ifndef _LZMADRIVER_H_
 #define _LZMADRIVER_H_
 
+#ifdef _FREYA_SHARED_PLUGIN
+#include <cstdlib>
+namespace core
+{
+namespace memory
+{
+	extern void* (*Allocate)(size_t,unsigned);
+	extern void  (*Free)(void*,unsigned);
+}
+}
+#endif
+
 #include "core/filesystem/FilesystemDriver.h"
 
 #include "core/EString.h"

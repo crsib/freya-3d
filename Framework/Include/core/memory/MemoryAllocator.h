@@ -7,10 +7,10 @@ namespace core
 {
 namespace memory
 {
-
+#ifndef _FREYA_SHARED_PLUGIN
 void* Allocate(size_t,unsigned);
 void  Free(void*,unsigned);
-
+#endif
 //!STL compatible memory allocator to use memory arena for allocation. For detailed information use C++ documentation
 template<typename T,unsigned pool = 0>
 class MemoryAllocator// : public std::allocator<T>

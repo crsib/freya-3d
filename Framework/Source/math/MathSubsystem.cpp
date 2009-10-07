@@ -1,5 +1,16 @@
 #include "math/MathSubsystem.h"
 
+#ifdef _FREYA_SHARED_PLUGIN
+#include <cstdlib>
+namespace core
+{
+namespace memory
+{
+	extern void* (*Allocate)(size_t,unsigned);
+	extern void  (*Free)(void*,unsigned);
+}
+}
+#else
 namespace core
 {
 namespace memory
@@ -8,6 +19,8 @@ namespace memory
 	void  Free(void*,unsigned);
 }
 }
+#endif
+
 namespace math
 {
 

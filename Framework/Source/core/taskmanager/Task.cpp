@@ -13,11 +13,6 @@ namespace core
 namespace taskmanager
 {
 
-Task::~Task()
-{
-	std::cout << "Destroying task: " << reinterpret_cast<void*>(this) << std::endl;
-}
-
 Task*	Task::retain()
 {
 	++m_TaskCounter;

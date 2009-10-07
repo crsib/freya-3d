@@ -9,6 +9,8 @@
 #include <fstream>
 #include <cstdlib>
 
+#include "core/PluginCore.h"
+
 #include "core/memory/MemoryArena.h"
 
 #include "windowmanager/WindowManagerDriver.h"
@@ -33,6 +35,10 @@
 
 #include "resources/ResourceManager.h"
 
+#include "core/PluginCoreInternal.h"
+
+#include "core/PluginLoader.h"
+
 #include <iostream>
 
 using namespace renderer;
@@ -40,7 +46,8 @@ using namespace renderer;
 
 namespace core
 {
-
+	extern core::PluginCore*	CoreInstance;
+	core::PluginCore*	CoreInstance;
 namespace memory {
 #ifdef _FREYA_DEBUG_MEMORY
 	extern unsigned memory_allocated;
@@ -50,6 +57,7 @@ namespace memory {
 	extern unsigned allocated_for_buffers;
 #endif
 }
+core::PluginCore*							EngineCore::m_PluginCore  = NULL;
 core::memory::MemoryArena*    				EngineCore::m_MemoryArena = NULL;
 core::filesystem::Filesystem*				EngineCore::m_Filesystem  = NULL;
 windowmanager::WindowManagerDriver*			EngineCore::m_WindowManager = NULL;
@@ -63,7 +71,9 @@ renderer::RenderingAPIFactory*			 	EngineCore::m_RAPIFactory = NULL;
 core::taskmanager::TaskManager*				EngineCore::m_TaskManager = NULL;
 resources::ResourceManager*					EngineCore::m_ResourceManager = NULL;
 
-THREAD_IMPLEMENTATION	*					EngineCore::m_ThreadImplementation = 0;
+THREAD_IMPLEMENTATION	*					EngineCore::m_ThreadImplementation = NULL;
+	
+core::PluginLoader*							EngineCore::m_PluginLoader         = NULL;
 //Memory allocation function
 namespace memory
 {
@@ -84,7 +94,7 @@ void* Reallocate(void* p,size_t sz,unsigned id)
 }
 }
 //Constructor and destructor
-EngineCore::EngineCore()
+EngineCore::EngineCore(int argC,char** argV)
 {
 	if(m_Instance)
 		throw EngineException();
@@ -118,6 +128,9 @@ EngineCore::EngineCore()
 	std::cout << "Creating factories" << std::endl;
 	m_WMFactory	=	new windowmanager::WindowManagerFactory();
 	m_RAPIFactory = new renderer::RenderingAPIFactory();
+	m_PluginCore  = new core::PluginCoreInternal();
+	CoreInstance  = m_PluginCore;
+	m_PluginLoader = new core::PluginLoader(argC,argV);
 }
 
 EngineCore::~EngineCore()
@@ -135,8 +148,11 @@ EngineCore::~EngineCore()
 	delete m_Filesystem;
 	std::cout << "Destroying thread subsystem" << std::endl;
 	delete m_ThreadImplementation;
+	delete m_PluginCore;
+	delete m_PluginLoader;
 	std::cout << "Switching allocation mode" << std::endl;
 	delete m_MemoryArena;
+	
 	std::cout << "Stopping log subsystem" << std::endl;
 	std::clog.flush();
 	//std::clog.rdbuf(m_OldLogStream);
@@ -144,6 +160,7 @@ EngineCore::~EngineCore()
 	//m_LogStream->close();
 	std::cout << "Destroying log" << std::endl;
 	//delete m_LogStream;
+#ifdef _FREYA_DEBUG_MEMORY
 	std::cout << "Engine memory usage at shutdown:\n"
 	<< "\tLeaked in internal manager: " << memory::memory_allocated / 1024.f << " Kb\n"
 	<< "\tTotal number of allocations " << memory::allocation_count << "\n"
@@ -151,6 +168,7 @@ EngineCore::~EngineCore()
 	<< "\tAlloc - Dealloc: " << memory::alloc_dealloc_dif << "\n"
 	<< "\tSystem memory allocation for internal manager: " << memory::allocated_for_buffers / 1024.f / 1024.f << " Mb" << std::endl;
 	std::cout << "Engine shutdown completed" << std::endl;
+#endif
 }
 
 void EngineCore::createWindowManager(const EString& type)
@@ -318,4 +336,10 @@ void								EngineCore::destroyCondition(core::multithreading::Condition* cond)
 	m_ThreadImplementation->destroyCondition(cond);
 }
 
+core::PluginCore*					EngineCore::getPluginCore()
+{
+	return							m_PluginCore;	
+}
+	
+	
 }

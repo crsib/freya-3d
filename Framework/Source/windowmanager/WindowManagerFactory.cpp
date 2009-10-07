@@ -1,6 +1,6 @@
 #include "windowmanager/WindowManagerFactory.h"
 //SDL
-#include "windowmanager/Drivers/SDL/SDLDriverID.h"
+//#include "windowmanager/Drivers/SDL/SDLDriverID.h"
 #include "core/drivermodel/DriverID.h"
 #include "core/drivermodel/Driver.h"
 #include "core/drivermodel/DriverException.h"
@@ -11,7 +11,7 @@ namespace windowmanager
 //============================== Derived constructors==============================
 WindowManagerFactory::WindowManagerFactory()
 {
-	registerDriver(new windowmanager::drivers::sdl::SDLDriverID);
+	//registerDriver(new windowmanager::drivers::sdl::SDLDriverID);
 }
 //==============================~Derived constructors==============================
 

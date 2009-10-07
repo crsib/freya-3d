@@ -63,27 +63,27 @@ public:
 	 * Adds a task to the main thread scheduler for future execution
 	 * \param task is a task to be scheduled
 	 */
-	void addTask(Task* task);
+	virtual void addTask(Task* task);
 	//! Add a task to the secondary thread scheduler
 	/*!
 	 * Adds a task to the main thread scheduler for future execution
 	 * \param task is a task to be scheduled
 	 */
-	void addAsynchronousTask(Task* task);
+	virtual void addAsynchronousTask(Task* task);
 	//! Set the number of secondary threads.
 	/*!
 	 *  Set the number of secondary threads. Please note, that this number could not be decreased due to large synchronization
 	 *  overhead. By default, there is always one secondary thread (i.e. execution is done on two threads)
 	 *  \param n is a desired number of threads
 	 */
-	void setThreadNumber(size_t n);
+	virtual void setThreadNumber(size_t n);
 	//! Retrieve current secondary threads number
-	size_t getThreadNumber();
+	virtual size_t getThreadNumber();
 	//! Enter application's main loop
 	/*!
 	 * This method is used to enter applications main loop. This method should be called EXACTLY once to assure the correct functionality of engine
 	 */
-	void enterMainLoop();
+	virtual void enterMainLoop();
 private:
 	std::deque<Task*,schedule_allocator(Task*) >	m_MainThreadSchedule;
 	std::deque<Task*,schedule_allocator(Task*) > 	m_SecThreadSchedule;
