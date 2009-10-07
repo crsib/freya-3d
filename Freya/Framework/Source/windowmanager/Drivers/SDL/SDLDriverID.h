@@ -25,7 +25,7 @@ namespace sdl
 
 class SDLDriverID : public core::drivermodel::DriverID
 {
-	friend class windowmanager::WindowManagerFactory;
+public:
 	SDLDriverID()
 	{
 	}

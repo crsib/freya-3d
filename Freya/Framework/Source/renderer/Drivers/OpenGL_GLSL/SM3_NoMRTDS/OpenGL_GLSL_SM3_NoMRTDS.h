@@ -24,7 +24,7 @@ namespace ids
 {
 class OpenGL_GLSL_SM3_NOMRTDS : public core::drivermodel::DriverID
 {
-	friend class renderer::RenderingAPIFactory;
+public:
 	OpenGL_GLSL_SM3_NOMRTDS()
 	{
 	}

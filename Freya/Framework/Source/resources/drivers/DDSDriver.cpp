@@ -6,10 +6,14 @@
  */
 #include "renderer/DriverSubsystems/Texture.h"
 #include "core/EngineException.h"
-#include "core/EngineCore.h"
+#include "core/PluginCore.h"
 #include "renderer/RenderingAPIDriver.h"
 #include "core/filesystem/Filesystem.h"
 
+#include "DDSDriver.h"
+
+namespace resources
+{
 namespace drivers {
 
 enum _E_DDS_PixelFormat_Flags {
@@ -88,7 +92,7 @@ private:
 const unsigned int _S_DDS_Header::header_size = 124;
 
 renderer::Texture* __sync_load_dds(const EString& path) throw(EngineException) {
-	unsigned char* __file = reinterpret_cast<unsigned char*>(core::EngineCore::getFilesystem()->read(path));
+	unsigned char* __file = reinterpret_cast<unsigned char*>(core::CoreInstance->getFilesystem()->read(path));
 	_S_DDS_Header* __header = reinterpret_cast<_S_DDS_Header*>(__file);
 	renderer::Texture* __ret_tex;
 
@@ -100,8 +104,43 @@ renderer::Texture* __sync_load_dds(const EString& path) throw(EngineException) {
 		(__header->mCaps.mCaps1 | TEXTURE))
 		throw EngineException();
 
-	__ret_tex = core::EngineCore::getRenderingDriver()->createTexture();
+	__ret_tex = core::CoreInstance->getRenderingDriver()->createTexture();
 	return __ret_tex;
 }
 
+DDSDriver::DDSDriver()
+{
+}
+
+DDSDriver::~DDSDriver()
+{
+	
+}
+
+bool	DDSDriver::unique() const
+{
+	return true;	
+}
+
+EString DDSDriver::id() const
+{
+	return "dds";
+}
+
+Resource*	DDSDriver::loadSynchronous(const EString& ID)
+{
+	return NULL;	
+}
+
+Resource*	DDSDriver::loadAsynchronous(const EString& ID)
+{
+	return NULL;
+}
+
+void 		DDSDriver::destroy(Resource* res)
+{
+	
+}
+
 }// namespace drivers
+}

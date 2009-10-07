@@ -261,8 +261,6 @@ IF(NOT DEFINED Boost_USE_MULTITHREADED)
     SET(Boost_USE_MULTITHREADED TRUE)
 ENDIF()
 
-MESSAGE ("Boost of version ${BoostSTLPort_FIND_VERSION_EXACT} requested")
-
 if(BoostSTLPort_FIND_VERSION_EXACT)
   # The version may appear in a directory with or without the patch
   # level, even when the patch level is non-zero.
@@ -503,7 +501,7 @@ ELSE (_boost_IN_CACHE)
   
     STRING(REGEX REPLACE ".*#define BOOST_VERSION ([0-9]+).*" "\\1" Boost_VERSION "${_Boost_VERSION_HPP_CONTENTS}")
     STRING(REGEX REPLACE ".*#define BOOST_LIB_VERSION \"([0-9_]+)\".*" "\\1" Boost_LIB_VERSION "${_Boost_VERSION_HPP_CONTENTS}")
-  	MESSAGE("BOOST VERSION STRING ${BOOST_VERSION}")
+
     SET(Boost_LIB_VERSION ${Boost_LIB_VERSION} CACHE INTERNAL "The library version string for boost libraries")
     SET(Boost_VERSION ${Boost_VERSION} CACHE INTERNAL "The version number for boost libraries")
     

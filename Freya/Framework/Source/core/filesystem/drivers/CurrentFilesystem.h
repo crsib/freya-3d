@@ -1,6 +1,18 @@
 #ifndef _CURRENTFILESYSTEM_H_
 #define _CURRENTFILESYSTEM_H_
 
+#ifdef _FREYA_SHARED_PLUGIN
+#include <cstdlib>
+namespace core
+{
+namespace memory
+{
+	extern void* (*Allocate)(size_t,unsigned);
+	extern void  (*Free)(void*,unsigned);
+}
+}
+#endif
+
 #include "core/filesystem/drivers/LocalFilesystemDriver.h"
 
 namespace core

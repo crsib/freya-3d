@@ -9,14 +9,14 @@
 
 #include <cstring>
 
-#include "core/EngineCore.h"
+#include "core/PluginCore.h"
 #include "renderer/RenderingAPIDriver.h"
 #include "renderer/DriverSubsystems/Texture.h"
 #include "core/filesystem/Filesystem.h"
 
 #include <vector>
 #include "core/memory/MemoryAllocator.h"
-#include "resources/ResourceFactory.h"
+//#include "resources/ResourceFactory.h"
 #include "resources/Resource.h"
 
 #include "core/taskmanager/Task.h"
@@ -31,7 +31,18 @@
 
 namespace resources
 {
-
+namespace __internal
+{
+template<>
+resources::Resource* 	createResource(renderer::Texture*	resource)
+{
+	resources::Resource* res = new resources::Resource;
+	res->m_Resource = dynamic_cast<EngineSubsystem*>(resource);
+	if(res->m_Resource == NULL)
+		throw resources::ResourceException ("Failed to create resource");
+	return res;
+}	
+}
 namespace drivers
 {
 //++++ sub-routines +++++++++ inherited from old class
@@ -64,7 +75,7 @@ void __calculateMipMap(unsigned level, unsigned width, unsigned height,void* mem
 		h = 1;
 	//Ok, algorithm idea.
 	//Consumptions: texture is a power of two one
-	unsigned char* nmem = reinterpret_cast<unsigned char*> (core::memory::Allocate(bpp*w*h));
+	unsigned char* nmem = reinterpret_cast<unsigned char*> (core::memory::Allocate(bpp*w*h,3));
 	//We sum blocks of size max(1 << level, w), max (1 << level ,h)
 	unsigned wb = min((1u << level),width);
 	unsigned hb = min((1u << level),height);
@@ -93,13 +104,13 @@ void __calculateMipMap(unsigned level, unsigned width, unsigned height,void* mem
 		tex->loadTexture(renderer::TextureType::TEXTURE_2D,level,renderer::TextureInternalFormat::RGBA8,
 				renderer::TextureFormat::RGBA,renderer::TextureStorage::UNSIGNED_BYTE,
 				w,h,nmem);
-	core::memory::Free(nmem);
+	core::memory::Free(nmem,3);
 }
 
 
 renderer::Texture*	__load(const EString& path,bool mipMaps)
 {
-	unsigned char*	file = reinterpret_cast<unsigned char*> (core::EngineCore::getFilesystem()->read(path));
+	unsigned char*	file = reinterpret_cast<unsigned char*> (core::CoreInstance->getFilesystem()->read(path));
 	unsigned char*  data = file + sizeof(TGAHeader);
 	//BYTES per pixel
 	TGAHeader head;
@@ -108,7 +119,7 @@ renderer::Texture*	__load(const EString& path,bool mipMaps)
 	unsigned char rgb[4];
 
 	//Allocate enough memory
-	unsigned char* mem = reinterpret_cast<unsigned char*> (core::memory::Allocate(Bpp*head.Width*head.Height));
+	unsigned char* mem = reinterpret_cast<unsigned char*> (core::memory::Allocate(Bpp*head.Width*head.Height,3));
 	if(mem == NULL)
 		throw EngineException();
 	unsigned	n = 0; //Number of processed pixels
@@ -200,7 +211,7 @@ renderer::Texture*	__load(const EString& path,bool mipMaps)
 		}
 	}
 	//Create texture now
-	renderer::Texture* tex = core::EngineCore::getRenderingDriver()->createTexture();
+	renderer::Texture* tex = core::CoreInstance->getRenderingDriver()->createTexture();
 	//Load main level.
 	if(Bpp == 3)
 		tex->loadTexture(renderer::TextureType::TEXTURE_2D,0,renderer::TextureInternalFormat::RGB8,
@@ -221,8 +232,8 @@ renderer::Texture*	__load(const EString& path,bool mipMaps)
 			__calculateMipMap(lev++, head.Width,head.Height,mem,Bpp,tex);
 		}
 	}
-	core::memory::Free(mem);
-	core::memory::Free(file);
+	core::memory::Free(mem,3);
+	core::memory::Free(file,3);
 	return tex;
 }
 }
@@ -244,7 +255,7 @@ public:
 		case	LOADING:
 		{
 			//std::cout << "Loading tga texture" << std::endl;
-			unsigned char*	file = reinterpret_cast<unsigned char*> (core::EngineCore::getFilesystem()->read(path));
+			unsigned char*	file = reinterpret_cast<unsigned char*> (core::CoreInstance->getFilesystem()->read(path));
 			unsigned char*  data = file + sizeof(TGAHeader);
 			//BYTES per pixel
 			TGAHeader head;
@@ -254,7 +265,7 @@ public:
 			width = head.Width;
 			height = head.Height;
 			//Allocate enough memory
-			unsigned char* mem = reinterpret_cast<unsigned char*> (core::memory::Allocate(Bpp*head.Width*head.Height));
+			unsigned char* mem = reinterpret_cast<unsigned char*> (core::memory::Allocate(Bpp*head.Width*head.Height,3));
 			if(mem == NULL)
 				throw EngineException();
 			unsigned	n = 0; //Number of processed pixels
@@ -366,7 +377,7 @@ public:
 				h = 1;
 			//Ok, algorithm idea.
 			//Consumptions: texture is a power of two one
-			nmem = reinterpret_cast<unsigned char*> (core::memory::Allocate(Bpp*w*h));
+			nmem = reinterpret_cast<unsigned char*> (core::memory::Allocate(Bpp*w*h,3));
 			//We sum blocks of size max(1 << level, w), max (1 << level ,h)
 			unsigned wb = min((1u << level),width);
 			unsigned hb = min((1u << level),height);
@@ -406,7 +417,7 @@ public:
 							renderer::TextureFormat::RGBA,renderer::TextureStorage::UNSIGNED_BYTE,
 							w,h,nmem);
 				if(level > 0)
-					core::memory::Free(nmem);
+					core::memory::Free(nmem,3);
 				level++;
 				mode = MIPMAP;
 				//std::cout << "Switching to sec thread" << std::endl;
@@ -416,7 +427,7 @@ public:
 		}
 		break;
 		}
-		core::memory::Free(memory);
+		core::memory::Free(memory,3);
 		resources::__internal::finalizeResource(res);
 		//std::cout << "Texture loaded" << std::endl;
 		return ASyncTGALoader::DONE;
@@ -527,13 +538,13 @@ Resource*	TGADriver::loadAsynchronous(const EString& ID)
 	}
 	if(IDch.find(':') != EString::npos)
 		throw resources::ResourceException("Malformed resource ID");
-	renderer::Texture* tex = core::EngineCore::getRenderingDriver()->createTexture();
+	renderer::Texture* tex = core::CoreInstance->getRenderingDriver()->createTexture();
 	__tga_async_internal::ASyncTGALoader*	loader = new __tga_async_internal::ASyncTGALoader;
 	loader->res = resources::__internal::createResource(tex);
 	loader->tex = tex;
 	loader->mipMaps = mipMaps;
 	loader->path = IDch;
-	core::EngineCore::getTaskManager()->addAsynchronousTask(loader);
+	core::CoreInstance->getTaskManager()->addAsynchronousTask(loader);
 	return loader->res;
 }
 
@@ -542,7 +553,7 @@ void 		TGADriver::destroy(Resource* res)
 	if(!res->ready())
 		return; //It will never finish then))
 	renderer::Texture* tex = res->get<renderer::Texture*>();
-	core::EngineCore::getRenderingDriver()->destroyTexture(tex);
+	core::CoreInstance->getRenderingDriver()->destroyTexture(tex);
 	resources::__internal::destroyResource(res);
 }
 
