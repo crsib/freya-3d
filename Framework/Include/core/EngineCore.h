@@ -25,6 +25,12 @@ class WindowManagerDriver;
 //! This namespace contains all classes related to engine core futures
 namespace core
 {
+namespace __internal
+{
+	template<class charT,class traits >
+	class basic_freya_buf;	
+	typedef basic_freya_buf<char,std::char_traits<char> > freya_buf;
+}
 class PluginCore;
 class PluginLoader;
 namespace multithreading
@@ -231,12 +237,17 @@ public:
 	static core::multithreading::Condition*	createCondition();
 	//! Destroy a condition variable
 	static void								destroyCondition(core::multithreading::Condition* cond);
+	//! Get current log string
+	static EString							getLog();
 private:
 	//Memory subsystem
 	static core::memory::MemoryArena*					m_MemoryArena;
 	//Logging subsystem
 	std::ofstream*										m_LogStream;
-	std::streambuf*  									m_OldLogStream;
+	std::streambuf*  									m_OldCLogStream;
+	std::streambuf*  									m_OldCOutStream;
+	__internal::freya_buf*								m_OutBuffer;
+	static std::stringbuf*								m_LogStringBuf;
 	//Filesystem subsystem :)
 	static core::filesystem::Filesystem*				m_Filesystem;
 	//Window management
