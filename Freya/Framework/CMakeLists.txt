@@ -123,7 +123,8 @@ Source/core/PluginCore.cpp
 #Plugin subsystem
 Include/core/PluginLoader.h
 Source/core/PluginLoader.cpp
-
+#Log buffer
+Source/core/freya_buf.hpp
 ${INTERMIDIATE_DIRECTORY}/StaticPluginsLoader.cpp
 )
 
