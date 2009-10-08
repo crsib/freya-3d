@@ -5,6 +5,8 @@ IF( APPLE )
 	SET_SOURCE_FILES_PROPERTIES( ${SHARED_PLUGINS} PROPERTIES GENERATED YES MACOSX_PACKAGE_LOCATION Plugins )
 	ADD_EXECUTABLE( ResourcesTest MACOSX_BUNDLE main.cpp ${RESOURCES})
 	#installation routines
+	INSTALL(TARGETS ResourcesTest DESTINATION ${CMAKE_INSTALL_PREFIX})
+	INSTALL(CODE "INCLUDE ( ${CMAKE_SOURCE_DIR}/CMakeIncludes/CompleteBundle.cmake )\nMakeCompleteBundle( ResourcesTest )")
 ELSE( APPLE )
 #Non apple platforms 
 	IF( WIN32 )
