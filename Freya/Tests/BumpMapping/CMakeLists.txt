@@ -6,6 +6,8 @@ IF( APPLE )
 	SET_SOURCE_FILES_PROPERTIES( ${SHARED_PLUGINS} PROPERTIES GENERATED YES MACOSX_PACKAGE_LOCATION Plugins )
 	ADD_EXECUTABLE( BumpMapping MACOSX_BUNDLE main.cpp ${RESOURCES})
 	#installation routines
+	INSTALL(TARGETS BumpMapping DESTINATION ${CMAKE_INSTALL_PREFIX})
+	INSTALL(CODE "INCLUDE ( ${CMAKE_SOURCE_DIR}/CMakeIncludes/CompleteBundle.cmake )\nMakeCompleteBundle( BumpMapping )")
 ELSE( APPLE )
 #Non apple platforms 
 	IF( WIN32 )
