@@ -41,6 +41,7 @@
 
 #include <iostream>
 
+#include "core/freya_buf.hpp"
 using namespace renderer;
 
 
@@ -74,6 +75,8 @@ resources::ResourceManager*					EngineCore::m_ResourceManager = NULL;
 THREAD_IMPLEMENTATION	*					EngineCore::m_ThreadImplementation = NULL;
 	
 core::PluginLoader*							EngineCore::m_PluginLoader         = NULL;
+	
+	std::stringbuf*							EngineCore::m_LogStringBuf;
 //Memory allocation function
 namespace memory
 {
@@ -101,13 +104,16 @@ EngineCore::EngineCore(int argC,char** argV)
 	if(m_MemoryArena)
 		return;
 	std::cout << "Starting log subsystem" << std::endl;
-	//m_LogStream = new std::ofstream((char*)"freya.log");
-	//m_OldLogStream = std::clog.rdbuf(m_LogStream->rdbuf());
+	m_LogStream = new std::ofstream((char*)"freya.log");
+	m_LogStringBuf = new std::stringbuf;
+	m_OutBuffer = new __internal::freya_buf(std::cout.rdbuf(),m_LogStream->rdbuf(),m_LogStringBuf);
+	m_OldCLogStream = std::clog.rdbuf(m_OutBuffer);
+	m_OldCOutStream = std::cout.rdbuf(m_OutBuffer);
 	//Start memory
 	std::cout << "Starting memory subsystem" << std::endl;
 	m_MemoryArena = new core::memory::MemoryArena();
-	m_MemoryArena->addPool(10*1024*1024,4);//STL pool 10 mb
-	m_MemoryArena->addPool(10*1024*1024,4);//Math pool 10 mb
+	m_MemoryArena->addPool(1024*1024,4);//STL pool 1 mb
+	m_MemoryArena->addPool(1024*1024,4);//Math pool 1 mb
 	m_MemoryArena->addPool(30*1024*1024,4);//Generic pool 30 mb
 	m_MemoryArena->addPool(1024*1024,4);//Generic class pool 1mb
 	m_ThreadImplementation = new THREAD_IMPLEMENTATION;
@@ -153,13 +159,6 @@ EngineCore::~EngineCore()
 	std::cout << "Switching allocation mode" << std::endl;
 	delete m_MemoryArena;
 	
-	std::cout << "Stopping log subsystem" << std::endl;
-	std::clog.flush();
-	//std::clog.rdbuf(m_OldLogStream);
-	//m_LogStream->flush();
-	//m_LogStream->close();
-	std::cout << "Destroying log" << std::endl;
-	//delete m_LogStream;
 #ifdef _FREYA_DEBUG_MEMORY
 	std::cout << "Engine memory usage at shutdown:\n"
 	<< "\tLeaked in internal manager: " << memory::memory_allocated / 1024.f << " Kb\n"
@@ -169,6 +168,19 @@ EngineCore::~EngineCore()
 	<< "\tSystem memory allocation for internal manager: " << memory::allocated_for_buffers / 1024.f / 1024.f << " Mb" << std::endl;
 	std::cout << "Engine shutdown completed" << std::endl;
 #endif
+	
+	std::cout << "Stopping log subsystem" << std::endl;
+	std::clog.flush();
+	std::cout.flush();
+	std::clog.rdbuf(m_OldCLogStream);
+	std::cout.rdbuf(m_OldCOutStream);
+	delete m_OutBuffer;
+	delete m_LogStringBuf;
+	m_LogStream->flush();
+	m_LogStream->close();
+	std::cout << "Destroying log" << std::endl;
+	delete m_LogStream;
+
 }
 
 void EngineCore::createWindowManager(const EString& type)
@@ -340,6 +352,9 @@ core::PluginCore*					EngineCore::getPluginCore()
 {
 	return							m_PluginCore;	
 }
-	
-	
+
+EString								EngineCore::getLog()
+{
+	return EString(m_LogStringBuf->str().c_str());
+}
 }

@@ -130,14 +130,16 @@ void* 	MemoryPool::allocate(size_t sz)
 		try
 		{
 			m_Last->Next = new MemoryPool::MemoryBufferListItem;
-			const core::multithreading::ThreadID& id =  core::multithreading::getMainThreadID();
-			const core::multithreading::ThreadID& cid = core::multithreading::getCurrentThreadID();
-			if(1&&(cid == id))
-			{
-				std::cout  << "Pre-Allocating memory: inside" << std::endl;
+			//const core::multithreading::ThreadID& id =  core::multithreading::getMainThreadID();
+			//const core::multithreading::ThreadID& cid = core::multithreading::getCurrentThreadID();
+			//if(1&&(cid == id))
+			//{
+#ifdef _FREYA_DEBUG_MEMORY
+				std::cout  << "[Memory]: pre-Allocating memory: inside" << std::endl;
+#endif
 				m_Last->Next->This = new MemoryBuffer((sz < m_AllocSize) ?  m_AllocSize : sz,m_Alligment);
-			}
-			else
+			//}
+			/*else
 			{
 				std::cout  << "Pre-Allocating memory: outside" << std::endl;
 			spin_wait:
@@ -162,6 +164,7 @@ void* 	MemoryPool::allocate(size_t sz)
 				m_Blocked = 0;
 				std::cout << "Successfully allocated pool memory for sec thread task" << std::endl;
 			}
+			*/
 			m_Last = m_Last->Next;
 			m_Last->Next = NULL;
 			if((p = m_Last->This->allocate(sz)) != NULL)

@@ -59,6 +59,7 @@ MemoryBuffer::MemoryBuffer(size_t size,size_t alligment)
 	_start->m_Size = m_Size - (reinterpret_cast<char*>(_start->pointer()) - reinterpret_cast<char*>(m_Memory));
 	//_start->m_Size
 #ifdef _FREYA_DEBUG_MEMORY
+	std::cout << "[Memory]: Allocated buffer of size: " << m_Size / 1024.0f << " Kb " << std::endl;
 	allocated_for_buffers += m_Size;
 #endif
 
