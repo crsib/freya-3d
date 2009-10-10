@@ -1,0 +1,13 @@
+$#include "math/matrix4x4.hpp"
+
+namespace math
+{
+class matrix4x4
+{
+
+	matrix4x4();
+	matrix4x4(const float diag);
+	matrix4x4(const float* m);
+	matrix4x4(const matrix4x4& m);
+};
+}

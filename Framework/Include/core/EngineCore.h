@@ -17,6 +17,7 @@ namespace resources
 {
 class ResourceManager;
 }
+
 namespace windowmanager
 {
 class WindowManagerFactory;
@@ -25,6 +26,11 @@ class WindowManagerDriver;
 //! This namespace contains all classes related to engine core futures
 namespace core
 {
+namespace lua
+{
+	class LuaCore;
+}
+	
 namespace __internal
 {
 	template<class charT,class traits >
@@ -59,6 +65,15 @@ class TaskManager;
 }
 namespace memory
 {
+//!Default memory pools location
+	enum MEMORYPOOLTYPE
+	{
+		STL_POOL = 0,
+		MATH_POOL,
+		GENERIC_POOL,
+		CLASS_POOL,
+		LUA_POOL,
+	};
 #ifndef _FREYA_SHARED_PLUGIN
 //!uses memory arena to allocate a memory block
 /*!
@@ -164,6 +179,7 @@ public:
 	/*!
 	* \return pointer to a LuaCore class instance
 	*/
+	static core::lua::LuaCore*			getLuaCore();
 	//! retrieve the XMLParser class instance
 	/*!
 	* \return pointer to a XMLParser class instance
@@ -267,6 +283,7 @@ private:
 	static THREAD_IMPLEMENTATION			*			m_ThreadImplementation;
 	static core::PluginCore*							m_PluginCore;
 	static core::PluginLoader*							m_PluginLoader;
+	static core::lua::LuaCore*							m_LuaCore;
 };
 
 }
