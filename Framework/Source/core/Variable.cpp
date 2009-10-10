@@ -10,9 +10,103 @@
 #include <cmath>
 #include "core/Utils/FromString.hpp"
 #include <sstream>
+#include <lua.hpp>
+#include "core/lua/tolua++/tolua++.h"
+#include "core/lua/VariableException.h"
+
 namespace core
 {
 
+	Variable::Variable(lua_State* L,const EString& name)
+	{
+		//Parse name to parts using . sign
+		//First of all, get global
+		if(name.size() != 0)
+		{
+			EString orig_name(name);
+			size_t pos;
+			pos = orig_name.find_first_of('.');
+			lua_getglobal(L, orig_name.substr(0,pos).c_str());//Stack first
+			orig_name.erase(0,pos+1);	//Now string without first. Now - iterate
+			if(pos != std::string::npos)
+				while(true)
+				{
+					pos = orig_name.find_first_of('.');
+					if(lua_istable(L,-1))
+					{
+						lua_getfield(L,-1,orig_name.substr(0,pos).c_str());
+						lua_remove(L,-2);
+						orig_name.erase(0,pos+1);
+					}
+					else
+					{
+						std::clog << "Lua error: value is not a table" << std::endl;
+						lua_pop(L,1);
+						
+					}
+					if(pos == std::string::npos) break;
+				}
+			//Ok, our name is on op of lua table now
+			//Get type
+			//Note - integer type will never ocure, as lua stores its numbers as doubles
+			//Nevertheless - we can push integer value onto stack
+		}
+		tolua_Error err;
+		if(tolua_isnumber(L,-1,0,&err))//Is it a number?
+			m_Type = DOUBLE;
+		else if(tolua_isboolean(L,-1,0,&err))
+			m_Type = BOOLEAN;
+		else if(tolua_isstring(L,-1,0,&err))
+			m_Type = STRING;
+		else if(tolua_isusertype(L,-1,(char*)"math::vector3d",0,&err))
+			m_Type = VECTOR3D;
+		else if(tolua_isusertype(L,-1,(char*)"math::quaternion",0,&err))
+			m_Type = QUATERNION;
+		else if(tolua_isusertype(L,-1,(char*)"math::matrix3x3",0,&err))
+			m_Type = MATRIX3X3;
+		else if(tolua_isusertype(L,-1,(char*)"math::matrix4x4",0,&err))
+			m_Type = MATRIX4X4;
+		else
+		{
+			lua_pop(L,1);
+			std::clog << "Type of variable \"" << name << "\"is unsupported" << std::endl;
+			throw core::lua::VariableException(name); //No supported type
+		}
+		
+		//Ok, we know what type to use. Load it now
+		switch(m_Type)
+		{
+			case	DOUBLE:
+				m_Double = tolua_tonumber(L,-1,0.0);
+				break;
+			case	BOOLEAN:
+				m_Boolean = tolua_toboolean(L,-1,false);
+				break;
+			case	STRING:
+				m_String = new EString;
+				(*m_String) = tolua_tostring(L,-1,"");
+				break;
+			case	VECTOR3D:
+				m_Vector3d = new math::vector3d;
+				(*m_Vector3d) = *static_cast<math::vector3d*>(tolua_tousertype(L,-1,NULL));
+				break;
+			case	QUATERNION:
+				m_Quaternion = new math::quaternion;
+				(*m_Quaternion) = *static_cast<math::quaternion*>(tolua_tousertype(L,-1,NULL));
+				break;
+			case	MATRIX3X3:
+				m_Matrix3x3 = new math::matrix3x3;
+				(*m_Matrix3x3) = *static_cast<math::matrix3x3*>(tolua_tousertype(L,-1,NULL));
+				break;
+			case	MATRIX4X4:
+				m_Matrix4x4 = new math::matrix4x4;
+				(*m_Matrix4x4) = *static_cast<math::matrix4x4*>(tolua_tousertype(L,-1,NULL));
+				break;
+		}
+		lua_pop(L,1);
+	}
+	
+	
 void Variable::m_Clear()
 {
 	switch(m_Type)

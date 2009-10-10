@@ -42,6 +42,7 @@ public:
 	{
 		while(man->m_ThreadActive != 0)
 		{
+			//std::cout << "Balancer running " << std::endl;
 			try
 			{
 				if(man->m_SecThreadSchedule.size())
@@ -49,20 +50,23 @@ public:
 					core::taskmanager::Task*	task = NULL;
 					synchronize(man->m_MutexAux)
 					{
+				//		std::cout << "Entering critical section" << std::endl;
 						task = man->m_SecThreadSchedule.front();
 						man->m_SecThreadSchedule.pop_front();
+				//		std::cout << "Leaving critical section" << std::endl;
 						//TODO: DBG
-					}
+					}//synchronize(man->m_MutexAux)
 					if(task)
 					{
+						//std::cout << "Adding task to buffer" << std::endl; 
 						man->m_Threads.front()->addTask(task);
+						//std::cout << "Done" << std::endl;
 						man->m_Threads.sort(_compare);
-					}
-
+					}//if(task)
 					core::multithreading::yield();
 					continue;
-				}
-			}
+				}//if(man->m_SecThreadSchedule.size())
+			}//try
 			catch(const ::EngineException& ex)
 			{
 				std::cout << "Aux thread " << ex.message() << std::endl;
@@ -70,9 +74,10 @@ public:
 			}
 			//Let another threads to run
 			core::multithreading::yield();
-		}
+		}//catch
+		//std::cout << "Balancer stopped" << std::endl;
 		return 0;
-	}
+	}//operator ()
 };
 
 }
@@ -104,8 +109,8 @@ TaskManager::~TaskManager()
 	}
 	std::cout << "Awaiting AUX thread " << m_Thread << std::endl;
 	m_Thread->wait();
-	delete m_Func;
 	std::cout << "Returning AUX thread" << std::endl;
+	delete m_Func;
 	core::EngineCore::destroyMutex(m_MutexAux);
 	core::EngineCore::destroyMutex(m_MutexPri);
 	core::EngineCore::destroyThread(m_Thread);
