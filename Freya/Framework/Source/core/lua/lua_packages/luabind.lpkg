@@ -1,7 +1,7 @@
 //Packages
-//math
 $#include "core/lua/tolua++/tolua_base.h"
-
+//Math
+$#include "math/math.hpp"
 $pfile "math/vector3d.lpkg"
 $pfile "math/quaternion.lpkg"
 $pfile "math/matrix3x3.lpkg"

@@ -1,7 +1,7 @@
 #ifndef VALUEEXCEPTION_H_
 #define VALUEEXCEPTION_H_
 
-#include "core/Lua/LuaException.h"
+#include "core/lua/LuaException.h"
 
 namespace core
 {
