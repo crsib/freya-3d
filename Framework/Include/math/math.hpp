@@ -58,7 +58,7 @@ namespace math
     //float     sqrt(const float);
     //float     sqr (const float);
     EXPORT float     wu_hypotenuse(const float, const float);
-/*
+
     EXPORT float     max(float,     float);
     EXPORT vector2d& max(vector2d&, vector2d&);
     EXPORT vector3d& max(vector3d&, vector3d&);
@@ -69,7 +69,7 @@ namespace math
 
     EXPORT vector2d  normalized(const vector2d&);
     EXPORT vector3d  normalized(const vector3d&);
-
+/*
 
     EXPORT float     det(const matrix3x3&);
     EXPORT float     det(const matrix4x4&);
@@ -79,14 +79,14 @@ namespace math
 
     EXPORT float     dot(const matrix3x3&, const matrix3x3&);
     EXPORT float     dot(const matrix4x4&, const matrix4x4&);
-
+*/
     EXPORT float 	   norm		 (const quaternion&);
-    EXPORT bool	   isNormed	 (const quaternion&);
+    EXPORT bool	   	   isNormed	 (const quaternion&);
     EXPORT float	   abs		 (const quaternion&);
     EXPORT quaternion conjugated(const quaternion&);
     EXPORT quaternion inversed  (const quaternion&);
     EXPORT quaternion normalized(const quaternion&);
-*/
+
     EXPORT matrix4x4  QuaternionToMatrix4x4(const quaternion& q);
     EXPORT quaternion Matrix4x4ToQuaternion(const matrix4x4& m);
     //void matrix3x3ToQuaternion(const matrix3x3&, const quaternion&);

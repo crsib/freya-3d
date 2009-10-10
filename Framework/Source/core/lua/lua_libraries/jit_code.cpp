@@ -13,8 +13,10 @@ using std::endl;
 
 
 #define LUA_JITLIBNAME "jit"
-extern "C" LUALIB_API int (luaopen_jit) (lua_State *L);
-
+extern "C"
+{ 
+	LUA_API int (luaopen_jit) (lua_State *L);
+}
 
 namespace core
 {
