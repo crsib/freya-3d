@@ -11,8 +11,8 @@
 //#include "core/Lua/Packages/Binary/luabind.h"
 #include "core/lua/lua_libraries/init_math.h"
 #include "core/lua/lua_libraries/jit_code.h"
-#include "core/Lua/VariableException.h"
-#include "core/Lua/LuaException.h"
+#include "core/lua/VariableException.h"
+#include "core/lua/LuaException.h"
 #include <iostream>
 #include <algorithm>
 using std::clog;

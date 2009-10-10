@@ -372,7 +372,11 @@ function(gp_resolved_file_type original_file file exepath dirs type_var)
 
     if(UNIX)
       if(resolved_file MATCHES "^(/lib/|/lib32/|/lib64/|/usr/lib/|/usr/lib32/|/usr/lib64/|/usr/X11R6/)")
-        set(is_system 1)
+	if(resolved_file MATCHES "libboost|libSDL" )
+        	set(is_system 0)
+	else()
+		set(is_system 1)
+	endif()
       endif()
     endif()
 
