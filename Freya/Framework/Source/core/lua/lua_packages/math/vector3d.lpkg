@@ -1,0 +1,43 @@
+$#include "math/vector3d.hpp"
+
+namespace math {
+
+class vector3d
+{
+   	vector3d();
+    
+	vector3d(const float xx, const float yy, const float zz);
+    
+	vector3d(const vector3d* v);
+    
+	vector3d(const vector3d& v);   
+	
+	~vector3d();
+
+	float& operator[](const int index);
+
+	vector3d operator-();
+
+	bool operator==(const vector3d& v);
+
+    vector3d& normalize();
+     
+    
+};
+
+	float abs @ abs_v3d(const vector3d& v);
+    
+    float abs_sq @ abs_sq_v3d(const vector3d& v);
+    
+    float distance @ distance_v3d(const vector3d& v1, const vector3d& v2);
+    
+    float distance_sq @ distance_sq_v3d(const vector3d& v1, const vector3d& v2);
+    
+    vector3d& max @ max_v3d(vector3d& v1, vector3d& v2);
+    
+    vector3d& min @ min_v3d(vector3d& v1, vector3d& v2);
+    
+    vector3d normalized @ normalized_v3d(const vector3d& v);
+    
+        
+}//math

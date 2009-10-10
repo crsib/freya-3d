@@ -88,6 +88,7 @@ Source/renderer/RenderingAPIFactory.h
 Source/resources/ResourceFactory.h
 Source/resources/ResourceLibrary.h
 Source/windowmanager/WindowManagerFactory.h
+
 Source/application-settings.cpp
 Source/camera/FlyCamera.cpp
 Source/camera/RotateCamera.cpp
@@ -125,10 +126,56 @@ Include/core/PluginLoader.h
 Source/core/PluginLoader.cpp
 #Log buffer
 Source/core/freya_buf.hpp
-${INTERMIDIATE_DIRECTORY}/StaticPluginsLoader.cpp
+#Lua headers
+Include/core/lua/FunctionException.h
+Include/core/lua/LuaCore.h
+Include/core/lua/LuaException.h
+Include/core/lua/LuaFunction.h
+Include/core/lua/tolua++/tolua++.h
+Include/core/lua/VariableException.h
+#Lua dependencies
+Source/core/lua/lua_libraries/init_math.h
+Source/core/lua/lua_libraries/jit_code.h
+Source/core/lua/lua_libraries/lua_alloc.h
+Source/core/lua/lua_libraries/lua_libs.h
+Source/core/lua/lua_libraries/wrap_math.h
+Source/core/lua/tolua++/tolua_event.h
+
+Source/core/lua/lua_libraries/init_math.cpp
+Source/core/lua/lua_libraries/jit_code.cpp
+Source/core/lua/lua_libraries/lua_alloc.cpp
+Source/core/lua/lua_libraries/lua_libs.cpp
+Source/core/lua/lua_libraries/wrap_math.cpp
+Source/core/lua/LuaCore.cpp
+Source/core/lua/LuaFunction.cpp
+
+#tolua++
+Source/core/lua/tolua++/tolua_event.c
+Source/core/lua/tolua++/tolua_is.c
+Source/core/lua/tolua++/tolua_map.c
+Source/core/lua/tolua++/tolua_push.c
+Source/core/lua/tolua++/tolua_to.c
+
+
+"${INTERMIDIATE_DIRECTORY}/StaticPluginsLoader.cpp"
+"${INTERMIDIATE_DIRECTORY}/freya_lua_bind.cpp"
 )
 
-SET_SOURCE_FILES_PROPERTIES(${INTERMIDIATE_DIRECTORY}/StaticPluginsLoader.cpp PROPERTIES GENERATED YES)
+SET_SOURCE_FILES_PROPERTIES("${INTERMIDIATE_DIRECTORY}/StaticPluginsLoader.cpp" PROPERTIES GENERATED YES)
+SET_SOURCE_FILES_PROPERTIES("${INTERMIDIATE_DIRECTORY}/freya_lua_bind.cpp" PROPERTIES GENERATED YES)
+
+MESSAGE(STATUS "Searching tolua")
+FIND_PROGRAM( TOLUA_APP NAMES tolua tolua++ tolua++5 tolua++5.1 PATH ${TOLUA_APP_PATH} )
+IF( NOT TOLUA_APP )
+    MESSAGE(FATAL_ERROR "Failed to find tolua++ application. Please,set TOLUA_APP_PATH to path, where one of tolua, tolua++, tolua++5, tolua++5.1 is located" )
+ENDIF( NOT TOLUA_APP )
+
+MESSAGE(STATUS "Generating bind file using ${TOLUA_APP}..." )
+EXECUTE_PROCESS(COMMAND ${TOLUA_APP} -n freya -L virtual_method_hooks.lua -o "${INTERMIDIATE_DIRECTORY}/freya_lua_bind.cpp" luabind.lpkg 
+                            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/Framework/Source/core/lua/lua_packages 
+                            OUTPUT_VARIABLE TOLUA_OUT ERROR_VARIABLE TOLUA_ERROR)
+MESSAGE(STATUS "Done\n\tOutput: ${TOLUA_OUT}\n\tErrors: ${TOLUA_ERROR}" )
+
 #Search for boost.thread and boost.date_time
 IF( FREYA_CORE_USE_BOOST )
 	SET(Boost_USE_STATIC_LIBS   NO)
@@ -139,6 +186,13 @@ IF( FREYA_CORE_USE_BOOST )
 	SET( FREYA_CORE_LINK_LIBRARIES ${FREYA_CORE_LINK_LIBRARIES} ${Boost_LIBRARIES} )
 ENDIF( FREYA_CORE_USE_BOOST )
 
+#Find lua
+
+FIND_PACKAGE( Lua51 REQUIRED )
+IF ( LUA51_FOUND )
+    INCLUDE_DIRECTORIES( ${LUA_INCLUDE_DIR} )
+    SET( FREYA_CORE_LINK_LIBRARIES ${FREYA_CORE_LINK_LIBRARIES} ${LUA_LIBRARIES} )
+ENDIF ( LUA51_FOUND )
 #Generate library target depending on FREYA_CORE_DYNAMIC
 	
 IF(FREYA_CORE_SHARED)   #Dynamic linkage

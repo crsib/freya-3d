@@ -1,0 +1,44 @@
+$#include "math/quaternion.hpp"
+
+namespace math {
+
+class quaternion
+{
+	quaternion();
+	quaternion(const float ww, const float xx,
+			   const float yy, const float zz);
+	quaternion(const float ww, const vector3d& uu);
+	quaternion(const vector3d& dir,const float angle);
+	quaternion(const quaternion& q);
+	
+	~quaternion();
+	
+	operator vector3d();
+	
+	float& operator[](const int index);
+		
+	quaternion operator-();
+
+	
+	bool operator==(const quaternion& q);
+
+	quaternion& conjugate();
+
+	quaternion& inverse();
+
+	quaternion& normalize();
+	
+	vector3d rotate(const vector3d& v);
+	
+	float 	 w;
+	vector3d u;
+};
+
+	float norm @ norm_q(const quaternion& q) ;
+
+	bool isNormed @ isNormed_q(const quaternion& q);
+	
+	float abs @ abs_q(const quaternion& q);
+
+
+}

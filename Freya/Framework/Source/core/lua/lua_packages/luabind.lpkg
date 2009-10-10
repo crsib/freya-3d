@@ -1,0 +1,10 @@
+//Packages
+//math
+$#include "core/lua/tolua++/tolua_base.h"
+
+$pfile "math/vector3d.lpkg"
+$pfile "math/quaternion.lpkg"
+$pfile "math/matrix3x3.lpkg"
+$pfile "math/matrix4x4.lpkg"
+$pfile "math/wrap_math.lpkg"
+$pfile "math/plane.lpkg"

@@ -9,6 +9,8 @@
 #include <fstream>
 #include <cstdlib>
 
+#include "application-settings.h"
+
 #include "core/PluginCore.h"
 
 #include "core/memory/MemoryArena.h"
@@ -38,6 +40,8 @@
 #include "core/PluginCoreInternal.h"
 
 #include "core/PluginLoader.h"
+
+#include "core/lua/LuaCore.h"
 
 #include <iostream>
 
@@ -76,7 +80,9 @@ THREAD_IMPLEMENTATION	*					EngineCore::m_ThreadImplementation = NULL;
 	
 core::PluginLoader*							EngineCore::m_PluginLoader         = NULL;
 	
-	std::stringbuf*							EngineCore::m_LogStringBuf;
+std::stringbuf*								EngineCore::m_LogStringBuf = NULL;
+
+core::lua::LuaCore*							EngineCore::m_LuaCore = NULL;
 //Memory allocation function
 namespace memory
 {
@@ -101,10 +107,25 @@ EngineCore::EngineCore(int argC,char** argV)
 {
 	if(m_Instance)
 		throw EngineException();
-	if(m_MemoryArena)
-		return;
 	std::cout << "Starting log subsystem" << std::endl;
-	m_LogStream = new std::ofstream((char*)"freya.log");
+	std::string path(argV[0]);
+	size_t slash_pos = path.find_last_of("/\\" );
+	if(slash_pos == std::string::npos)
+		path = std::string(settings::application_name) + ".log";
+	else
+	{
+		path.erase(slash_pos + 1);
+#ifdef __APPLE__
+		slash_pos = path.find_last_of("/\\" );
+		slash_pos = path.find_last_of("/\\",slash_pos - 1 );
+		slash_pos = path.find_last_of("/\\",slash_pos - 1 );
+		slash_pos = path.find_last_of("/\\",slash_pos - 1 );
+		path.erase(slash_pos + 1);
+#endif
+		path += std::string(settings::application_name) + ".log";
+		std::cout << path << std::endl;
+	}
+	m_LogStream = new std::ofstream(path.c_str());
 	m_LogStringBuf = new std::stringbuf;
 	m_OutBuffer = new __internal::freya_buf(std::cout.rdbuf(),m_LogStream->rdbuf(),m_LogStringBuf);
 	m_OldCLogStream = std::clog.rdbuf(m_OutBuffer);
@@ -116,6 +137,7 @@ EngineCore::EngineCore(int argC,char** argV)
 	m_MemoryArena->addPool(1024*1024,4);//Math pool 1 mb
 	m_MemoryArena->addPool(30*1024*1024,4);//Generic pool 30 mb
 	m_MemoryArena->addPool(1024*1024,4);//Generic class pool 1mb
+	m_MemoryArena->addPool(1024*1024, 4); //Lua pool 1mb
 	m_ThreadImplementation = new THREAD_IMPLEMENTATION;
 	//start filesystem
 	std::cout << "Starting filesystem subsystem" << std::endl;
@@ -123,6 +145,8 @@ EngineCore::EngineCore(int argC,char** argV)
 
 	//m_Settings  = new Settings();
 
+	std::cout << "Starting Lua scripting engine" << std::endl;
+	m_LuaCore = new core::lua::LuaCore;
 	m_Running = true;
 	m_Instance = this;
 	m_RenderingDriver = NULL;
@@ -141,6 +165,8 @@ EngineCore::EngineCore(int argC,char** argV)
 
 EngineCore::~EngineCore()
 {
+	std::cout << "Destroying Lua engine " << std::endl;
+	delete m_LuaCore;
 	std::cout << "Destroying resource manager" << std::endl;
 	delete m_ResourceManager;
 	std::cout << "Destroying task manager" << std::endl;
@@ -164,7 +190,7 @@ EngineCore::~EngineCore()
 	<< "\tLeaked in internal manager: " << memory::memory_allocated / 1024.f << " Kb\n"
 	<< "\tTotal number of allocations " << memory::allocation_count << "\n"
 	<< "\tTotal number of deallocations: " << memory::deallocation_count << "\n"
-	<< "\tAlloc - Dealloc: " << memory::alloc_dealloc_dif << "\n"
+	<< "\tAlloc - Dealloc: " << (int) memory::alloc_dealloc_dif << "\n"
 	<< "\tSystem memory allocation for internal manager: " << memory::allocated_for_buffers / 1024.f / 1024.f << " Mb" << std::endl;
 	std::cout << "Engine shutdown completed" << std::endl;
 #endif
@@ -306,14 +332,16 @@ EngineCore*		EngineCore::getInstance()
 	return m_Instance;
 }
 
-struct __internal_runnable
+struct __internal_runnable : public EngineSubsystem
 {
 	__internal_runnable(const core::multithreading::Runnable* __rn) : run(const_cast<core::multithreading::Runnable*>(__rn)){}
 	int operator () ()
 	{
-		return run->operator()();
+		int retval = run->operator()();
+		//std::cout << "Proxy object returned " << retval << std::endl;
+		return retval;
 	}
-
+ 
 	core::multithreading::Runnable* run;
 };
 
@@ -356,5 +384,9 @@ core::PluginCore*					EngineCore::getPluginCore()
 EString								EngineCore::getLog()
 {
 	return EString(m_LogStringBuf->str().c_str());
+}
+core::lua::LuaCore*					EngineCore::getLuaCore()
+{
+	return m_LuaCore;
 }
 }
