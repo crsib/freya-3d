@@ -18,13 +18,20 @@
 #include "math/matrix3x3.hpp"
 #include "core/EString.h"
 #include "internal.h"
+
+struct lua_State;
+
 namespace core
 {
-
+namespace lua
+{
+	class LuaCore;
+}
 class EXPORT Variable: virtual public ::EngineSubsystem
 {
-	friend class LuaCore;
+	friend class core::lua::LuaCore;
 protected:
+	explicit Variable(lua_State* l,const EString& name);//Name is fully qualified via all tables
 public:
 	enum
 	{

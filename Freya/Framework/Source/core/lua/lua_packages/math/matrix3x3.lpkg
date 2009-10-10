@@ -1,0 +1,12 @@
+$#include	"math/matrix3x3.hpp"
+
+namespace math
+{
+		class matrix3x3
+{
+	matrix3x3();
+	matrix3x3(const float diag);
+	matrix3x3(const float* m);
+	matrix3x3(const matrix3x3& m);
+};
+}
