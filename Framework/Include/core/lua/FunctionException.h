@@ -1,7 +1,7 @@
 #ifndef FUNCTIONEXCEPTION_H_
 #define FUNCTIONEXCEPTION_H_
 
-#include "core/Lua/LuaException.h"
+#include "core/lua/LuaException.h"
 
 namespace core
 {

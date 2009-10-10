@@ -132,7 +132,7 @@ IF(BUILD_OPENGL_RENDERER_DRIVER)
 		OpenGL_GLSL_ConstantsTables.h
 		OpenGL_GLSL_ConstantsTables.cpp
 		../../../math/MathSubsystem.cpp
-		../../../math/Operations.cpp
+		../../../math/operations.cpp
 	)
 	
 	IF(BUILD_SHARED_OPENGL_RENDERER_DRIVER)
