@@ -33,7 +33,7 @@ ResourceManager::~ResourceManager()
 		drv->destroy(res);
 	}
 	delete m_ResourceLibrary;
-	for(__DriverLibrary::iterator it = m_Drivers.begin();it != m_Drivers.end(); it++)
+	for(__DriverLibrary::iterator it = m_Drivers.begin();it != m_Drivers.end(); ++it)
 	{
 		delete it->second;
 	}

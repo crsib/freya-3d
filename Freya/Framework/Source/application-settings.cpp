@@ -1,8 +1,10 @@
 #include "application-settings.h"
 
+#include <cstdlib>
+
 namespace settings
 {
-	const char	application_name[]				= "freya-engine";
-	const char	application_company[] 			= "freya-team";
-	const char	config_file_name[]				= "config.xml";
+	char*	application_name 	= NULL;
+	char*	application_company = NULL;
+	char*	config_file_name	= NULL;
 }
