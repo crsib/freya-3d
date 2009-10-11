@@ -79,7 +79,7 @@ namespace memory
 		LUA_POOL,
 		XML_POOL,
 	};
-#ifndef _FREYA_SHARED_PLUGIN
+#ifdef _FREYA_SHARED_PLUGIN
 //!uses memory arena to allocate a memory block
 /*!
 * This function allocates a memory block inside the memory arena.
@@ -87,7 +87,7 @@ namespace memory
 * \param sz is a size of newly created block
 * \return pointer to a newly created block
 */
-void* Allocate(size_t sz,unsigned id); //General in place STL allocation
+EXPORT void* Allocate(size_t sz,unsigned id); //General in place STL allocation
 #endif
 //!Uses memory arena to reallocate a memory block
 /*!
@@ -99,7 +99,7 @@ void* Allocate(size_t sz,unsigned id); //General in place STL allocation
 * \return pointer to reallocated block of memory (as it possipbly could move)
 */
 EXPORT void* Reallocate(void* p,size_t sz,unsigned id);
-#ifndef _FREYA_SHARED_PLUGIN
+#ifdef _FREYA_SHARED_PLUGIN
 //!uses memory arena to free a memory block
 /*!
 * This function frees a memory block inside the memory arena.
@@ -107,7 +107,7 @@ EXPORT void* Reallocate(void* p,size_t sz,unsigned id);
 * The function can be used on, and only on memory blocks allocated inside memory arena
 * \param p  is a pointer to memory block inside memory arena
 */
-void  Free(void* p,unsigned id);
+EXPORT void  Free(void* p,unsigned id);
 #endif
 
 class MemoryArena;

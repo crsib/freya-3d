@@ -17,9 +17,12 @@ NAMES xercesc/util/XercesVersion.hpp
 PATHS c:/Libs/xerces-c_2_8_0 ${XERCES_INCLUDE_DIR}
 PATH_SUFFIXES xercesc)
 
+MESSAGE( "xercesc/util/XercesVersion.hpp found at ${XERCESC_INCLUDE}" )
+
+
 FIND_LIBRARY(
  XERCESC_LIBRARY
- NAMES xerces-c xerces-c_2
+ NAMES xerces-c xerces-c_3 
  PATHS ${XERCES_LIBRARY_DIR})
 
 IF (XERCESC_INCLUDE AND XERCESC_LIBRARY)

@@ -13,6 +13,7 @@ namespace filesystem
 class FilesystemDriver : public core::drivermodel::Driver
 {
 	friend class Filesystem;
+	friend class FilesystemInternal;
 protected:
 	//Mount and initializes file system at mount point
 	//Trows an exception on failure

@@ -1,7 +1,7 @@
 #ifndef TOLUA_BASE_H
 #define TOLUA_BASE_H
 
-#include <tolua++.h>
+#include "core/lua/tolua++/tolua++.h"
 
 class ToluaBase {
 
