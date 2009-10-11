@@ -8,6 +8,11 @@
 #include "MathSubsystem.h"
 #define MATH_DEBUG
 
+#ifdef _MSC_VER
+#	pragma warning(disable:4805)
+#	pragma warning(disable:4244)
+#endif
+
 namespace math
 {
 	

@@ -14,12 +14,12 @@
 
 #include "core/EString.h"
 #include "core/EngineSubsystem.h"
-
+#include "internal.h"
 //! Base exception class for all Freya exceptions
 /*!
  * All Freya exceptions should be inherited from from this class
  */
-class EngineException : virtual public ::EngineSubsystem
+class EXPORT EngineException : virtual public ::EngineSubsystem
 {
 public:
 	EngineException()
