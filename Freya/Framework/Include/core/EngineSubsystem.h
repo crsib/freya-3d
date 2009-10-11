@@ -8,14 +8,16 @@
 #ifndef ENGINESUBSYSTEM_H_
 #define ENGINESUBSYSTEM_H_
 
+#include "internal.h"
+
 #ifndef _FREYA_SHARED_PLUGIN
 #include <cstdlib>
 namespace core
 {
 namespace memory
 {
-	void* Allocate(size_t,unsigned);
-	void  Free(void*,unsigned);
+	EXPORT void* Allocate(size_t,unsigned);
+	EXPORT void  Free(void*,unsigned);
 }
 }
 #endif
@@ -24,7 +26,7 @@ namespace memory
 /*!
  * All Freya subclasses should inherited is some way from this class, as it defines correct memory management while creating them
  */
-class EngineSubsystem {
+class EXPORT EngineSubsystem {
 public:
 	EngineSubsystem()
 	{

@@ -18,6 +18,7 @@
 
 #include "core/memory/MemoryAllocator.h"
 #include <map>
+#include "internal.h"
 
 namespace core
 {
@@ -47,7 +48,7 @@ namespace __internal
  * functionality
  * </OL>
  */
-class ResourceManager: virtual public ::EngineSubsystem
+class EXPORT ResourceManager: virtual public ::EngineSubsystem
 {
 	friend class core::EngineCore;
 private:

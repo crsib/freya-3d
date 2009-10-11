@@ -28,19 +28,19 @@ protected:
 	XMLParser();
 	virtual ~XMLParser();
 public:
-DOMDocument* parse(const EString& path);
+	xercesc::DOMDocument* parse(const EString& path);
 
-void freeDocument(DOMDocument* doc);
+void freeDocument(xercesc::DOMDocument* doc);
 
 private:
 	xerces::FreyaFileManager*		m_FileManager;
 	xerces::FreyaMemoryManager*     m_MemoryManager;
 	xerces::FreyaPanicHandler*      m_PanicHandler;
 
-	DOMImplementation *				m_DomImpl;
-	DOMLSParser       *				m_DomParser;
-	DOMConfiguration  *				m_DomConfig;
-	DOMErrorHandler   *				m_DomErrors;
+	xercesc::DOMImplementation *				m_DomImpl;
+	xercesc::DOMLSParser       *				m_DomParser;
+	xercesc::DOMConfiguration  *				m_DomConfig;
+	xercesc::DOMErrorHandler   *				m_DomErrors;
 }; //End of XMLParser class
 
 } //End of xml namespace

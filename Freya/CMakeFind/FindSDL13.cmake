@@ -110,14 +110,21 @@ IF( NOT WIN32 )
 		UNSET(SDL_OUTPUT)
 		UNSET(SDL_OUTPUT_1)
 	ELSE(SDL_CONFIG)
-		MESSAGE("SDL 1.3 is not found. Please install it. Alternatively set SDLDIR enviroment variable pointing to place where, you have installed SDL")
+		MESSAGE(FATAL_ERROR "SDL 1.3 is not found. Please install it. Alternatively set SDLDIR enviroment variable pointing to place where, you have installed SDL")
 		SET(SDL_FOUND NO)
 	ENDIF(SDL_CONFIG)
 	
 ELSE( )
-	IF(DEFINED SDLDIR)
-		
-	ELSE(DEFINED SDLDIR )
-		MESSAGE("Please, set SDLDIR in order to use SDL. ")
-	ENDIF(DEFINED SDLDIR)
+		FIND_PATH( SDL_INCLUDE_DIR SDL PATHS ${SDL_DIR})
+		MESSAGE( STATUS "SDL.h (yet we have not checked that it is SDL1.3) found in ${SDL_INCLUDE_DIR}" )
+		IF( NOT SDL_INCLUDE_DIR)
+			MESSAGE(FATAL_ERROR "Please, set SDLDIR in order to use SDL. ")
+		ENDIF( ) 
+		FIND_LIBRARY( SDL_LIBRARY
+			NAMES 
+				SDL
+				SDL13
+				SDL1.3
+			PATHS ${SDL_INCLUDE_DIR}/../lib
+		)
 ENDIF(  )

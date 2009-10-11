@@ -90,7 +90,7 @@ void		FreyaFile::write(size_t count, const void* p )
 	if(!m_ForWrite) throw core::xml::XMLParserException("XML error: file was opened as read only");
 	if((m_Pos + count) > m_Allocated)
 	{
-		size_t pa = (count >> 12 + 1) << 12;
+		size_t pa = ((count >> 12) + 1) << 12;
 		void* tmp = m_Buffer = core::memory::Allocate(m_Allocated + pa,core::memory::XML_POOL);
 		::memcpy(tmp,m_Buffer,m_Allocated);
 		core::memory::Free(m_Buffer,core::memory::XML_POOL);

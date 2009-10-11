@@ -79,9 +79,9 @@ XMLParser::~XMLParser()
 
 //============================== Method: parse==============================
 
-DOMDocument*		XMLParser::parse(const EString& path)
+xercesc::DOMDocument*		XMLParser::parse(const EString& path)
 {
-	DOMDocument* doc;
+	xercesc::DOMDocument* doc;
 	try
 	{
 		reinterpret_cast<core::xml::xerces::FreyaDomErrorHandler*>(m_DomErrors)->reset();
@@ -104,7 +104,7 @@ DOMDocument*		XMLParser::parse(const EString& path)
 
 //============================== Method: freeDocument==============================
 
-void		XMLParser::freeDocument(DOMDocument* doc)
+void		XMLParser::freeDocument(xercesc::DOMDocument* doc)
 {
 	doc->release();
 }

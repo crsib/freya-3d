@@ -13,6 +13,8 @@ FIND_PATH( STLPORT_INSTALL_DIR stlport/iostream
    /usr/local/STLPort-4.5.3
 )
 
+MESSAGE( "STLPORT_INSTALL: ${STLPORT_INSTALL_DIR}")
+
 # Assume for the moment that the STLPORT_INSTALL directory contains
 # both the subdirectory for header file includes (.../stlport) and
 # the subdirectory for libraries (../lib).
@@ -30,8 +32,12 @@ IF(CMAKE_BUILD_TYPE MATCHES "Debug")
           stlport_cygwin_stldebug
           stlport_gcc_debug
           stlport_gcc_stldebug
+		  stlport_x
+	      stlportstld_x
+		  stlport_x.5.2
+	      stlportstld_x.5.2
 	  stlportd
-    PATHS ${STLPORT_INSTALL_DIR}/lib
+    PATHS ${STLPORT_INSTALL_DIR}/lib ${STLPORT_INSTALL_DIR}/../lib
   )
 ELSE(CMAKE_BUILD_TYPE MATCHES "Debug")
   # if we only have debug libraries, use them.
@@ -43,9 +49,11 @@ ELSE(CMAKE_BUILD_TYPE MATCHES "Debug")
           stlport_gcc
           stlport_gcc_debug
           stlport_gcc_stldebug
-	  stlport
-	  stlportd
-    PATHS ${STLPORT_INSTALL_DIR}/lib
+		  stlport
+	      stlport_x
+		  stlport_x.5.2
+	  
+    PATHS ${STLPORT_INSTALL_DIR}/lib ${STLPORT_INSTALL_DIR}/../lib
   )
 ENDIF(CMAKE_BUILD_TYPE MATCHES "Debug")
 

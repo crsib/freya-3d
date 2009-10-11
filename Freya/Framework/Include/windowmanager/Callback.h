@@ -2,7 +2,7 @@
 #define CALLBACK_H_
 
 #include "core/EngineSubsystem.h"
-#include "core/Variable.h"
+//#include "core/Variable.h"
 /*
  * This class decribes an abstraction of callback mechanism
  * It is added because of two problems:
