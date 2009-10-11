@@ -1,4 +1,4 @@
-#include "core/filesystem/Filesystem.h"
+#include "core/filesystem/FilesystemInternal.h"
 #include <boost/filesystem.hpp>
 
 #include "core/filesystem/FilesystemDriver.h"
@@ -19,7 +19,7 @@ namespace filesystem
 {
 //============================== Default constructor==============================
 
-Filesystem::Filesystem()
+FilesystemInternal::FilesystemInternal()
 {
 	m_Factory = new FilesystemDriverFactory();
 }
@@ -32,7 +32,7 @@ Filesystem::Filesystem()
 
 //============================== Destructor==============================
 
-Filesystem::~Filesystem()
+FilesystemInternal::~FilesystemInternal()
 {
 	for(Drivers::iterator it = m_AllDrivers.begin();it != m_AllDrivers.end();++it)
 	{
@@ -49,7 +49,7 @@ Filesystem::~Filesystem()
  * Mounts filesytem of type {type} to path {path}
  **********************************************************************/
 
-void		Filesystem::mount(const EString& type, const EString& path)
+void		FilesystemInternal::mount(const EString& type, const EString& path)
 {
 	core::drivermodel::Driver* d;
 	try
@@ -104,7 +104,7 @@ void		Filesystem::mount(const EString& type, const EString& path)
  * Lists files on filesystems
  *********************************************************************/
 
-EStringList		Filesystem::list()
+EStringList		FilesystemInternal::list()
 {
 	EStringList list;
 	for(Drivers::iterator it = m_AllDrivers.begin();it != m_AllDrivers.end();it++)
@@ -124,7 +124,7 @@ EStringList		Filesystem::list()
  * Same as in driver
  ************************************************************************/
 
-void		Filesystem::makeDir(const  EString& path, int to)
+void		FilesystemInternal::makeDir(const  EString& path, int to)
 {
 	FilesystemDriver* d;
 	if(static_cast<unsigned>(to) < m_AllDrivers.size())
@@ -160,7 +160,7 @@ void		Filesystem::makeDir(const  EString& path, int to)
 
 //============================== Method: dirExists==============================
 
-bool		Filesystem::dirExists(const EString& path)
+bool		FilesystemInternal::dirExists(const EString& path)
 {
 	for(Drivers::iterator it = m_AllDrivers.begin();it != m_AllDrivers.end();it++)
 	{
@@ -174,7 +174,7 @@ bool		Filesystem::dirExists(const EString& path)
 
 //============================== Method: fileExists==============================
 
-bool		Filesystem::fileExists(const EString& path)
+bool		FilesystemInternal::fileExists(const EString& path)
 {
 	for(Drivers::iterator it = m_AllDrivers.begin();it != m_AllDrivers.end();it++)
 	{
@@ -188,7 +188,7 @@ bool		Filesystem::fileExists(const EString& path)
 
 //============================== Method: read==============================
 
-void*		Filesystem::read(const EString& path,int from)
+void*		FilesystemInternal::read(const EString& path,int from)
 {
 	if(from == -1)
 		from = where(path);
@@ -210,7 +210,7 @@ void*		Filesystem::read(const EString& path,int from)
 
 //============================== Method: read==============================
 
-void* 		Filesystem::read(const EString& path, size_t* sz,int from)
+void* 		FilesystemInternal::read(const EString& path, size_t* sz,int from)
 {
 	if(from == -1)
 		from = where(path);
@@ -232,7 +232,7 @@ void* 		Filesystem::read(const EString& path, size_t* sz,int from)
 
 //============================== Method: fileSize==============================
 
-size_t		Filesystem::fileSize(const EString& path)
+size_t		FilesystemInternal::fileSize(const EString& path)
 {
 	int id = where(path);
 	if(id == -1)
@@ -244,7 +244,7 @@ size_t		Filesystem::fileSize(const EString& path)
 
 //============================== Method: write==============================
 
-void		Filesystem::write(const EString& path, const void* buf, size_t sz, int to)
+void		FilesystemInternal::write(const EString& path, const void* buf, size_t sz, int to)
 {
 	FilesystemDriver* d;
 	if(static_cast<unsigned>(to) < m_AllDrivers.size())
@@ -278,7 +278,7 @@ void		Filesystem::write(const EString& path, const void* buf, size_t sz, int to)
 
 //==============================~Method: write==============================
 
-void		Filesystem::remove(const EString& path,int to)
+void		FilesystemInternal::remove(const EString& path,int to)
 {
 	FilesystemDriver* d;
 
@@ -311,7 +311,7 @@ void		Filesystem::remove(const EString& path,int to)
 	}
 }
 
-int			Filesystem::where(const EString& path,Filesystem::SearchMode mode)
+int			FilesystemInternal::where(const EString& path,FilesystemInternal::SearchMode mode)
 {
 	int id = -1;
 	switch(mode)
@@ -350,11 +350,11 @@ int			Filesystem::where(const EString& path,Filesystem::SearchMode mode)
 	return id;
 }
 
-void	Filesystem::registerDriver(core::drivermodel::DriverID* driverID)
+void	FilesystemInternal::registerDriver(core::drivermodel::DriverID* driverID)
 {
 	m_Factory->registerDriver(driverID);
 }
 
-} //End of filesystem namespace
+} //End of FilesystemInternal namespace
 } //End of core namespace
 

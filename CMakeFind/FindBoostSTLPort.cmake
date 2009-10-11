@@ -529,6 +529,7 @@ ELSE (_boost_IN_CACHE)
 
   # Setting some more suffixes for the library
   SET (Boost_LIB_PREFIX "")
+
   if ( WIN32 AND Boost_USE_STATIC_LIBS )
     SET (Boost_LIB_PREFIX "lib")
   endif()
@@ -624,7 +625,7 @@ ELSE (_boost_IN_CACHE)
       SET( _boost_STATIC_TAG "-s")
     ENDIF( Boost_USE_STATIC_LIBS )
   ENDIF(WIN32)
-  SET (_boost_ABI_TAG "${_boost_ABI_TAG}d")
+  SET (_boost_ABI_TAG "${_boost_ABI_TAG}dp")
   if(Boost_DEBUG)
     message(STATUS "[ ${CMAKE_CURRENT_LIST_FILE}:${CMAKE_CURRENT_LIST_LINE} ] "
       "_boost_STATIC_TAG = ${_boost_STATIC_TAG}")

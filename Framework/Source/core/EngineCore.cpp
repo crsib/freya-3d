@@ -16,7 +16,7 @@
 #include "core/memory/MemoryArena.h"
 
 #include "windowmanager/WindowManagerDriver.h"
-#include "core/filesystem/Filesystem.h"
+#include "core/filesystem/FilesystemInternal.h"
 #include "renderer/RenderingAPIDriver.h"
 #include "core/drivermodel/DriverID.h"
 #include "core/taskmanager/TaskManager.h"
@@ -154,7 +154,7 @@ EngineCore::EngineCore(int argC,char** argV,const std::string& applicationName, 
 	m_ThreadImplementation = new THREAD_IMPLEMENTATION;
 	//start filesystem
 	std::cout << "Starting filesystem subsystem" << std::endl;
-	m_Filesystem  = new core::filesystem::Filesystem();
+	m_Filesystem  = new core::filesystem::FilesystemInternal();
 
 	//m_Settings  = new Settings();
 

@@ -44,6 +44,9 @@ namespace core
 		
 		struct SOProcs : public EngineSubsystem
 		{
+			SOProcs() :  drivers_count(0), driver_type(0),set_memory_allocator(0),driver_name(0),create_driver(0)
+			{
+			}
 			DRIVERSCOUNTPTR			drivers_count;
 			DRIVERTYPEPTR			driver_type;
 			SETMEMORYALLOCATORPTR	set_memory_allocator;
@@ -53,6 +56,10 @@ namespace core
 		
 		struct SOID : public EngineSubsystem
 		{
+			SOID() : path(""), loaded(0),handle(0)
+			{
+			}
+
 			EString															path;
 			SOProcs															procs;
 			unsigned														loaded;
@@ -78,7 +85,7 @@ namespace core
 			if(so)
 				SetLastError( 0 );
 				
-			return reinterpret_cast<void*> (so)
+			return reinterpret_cast<void*> (so);
 #else
 			return dlopen(so_name,RTLD_LOCAL | RTLD_LAZY);
 #endif
@@ -87,7 +94,7 @@ namespace core
 		void		freeSO(void* so)
 		{
 #ifdef _WIN32	
-			FreeLibrary(so);
+			FreeLibrary(reinterpret_cast<HMODULE>(so));
 #else
 			dlclose(so);
 #endif
@@ -269,9 +276,11 @@ namespace core
 
 							}
 						}
-						//Free so
-						__internal::freeSO(soid->handle);
-						soid->loaded = 0;
+						if(soid->loaded == 0)
+						{
+							__internal::freeSO(soid->handle);
+							soid->loaded = 0;
+						}
 						//Add SO to so info cache
 						__internal::_SOLibraryCache::instance->SOInfo.push_back(soid);
 					}

@@ -12,6 +12,7 @@ namespace filesystem
 class FilesystemDriverFactory : public core::drivermodel::DriverFactory
 {
 	friend class Filesystem;
+	friend class FilesystemInternal;
 	FilesystemDriverFactory();
 	virtual ~FilesystemDriverFactory();
 
