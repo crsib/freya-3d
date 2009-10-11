@@ -5,6 +5,8 @@
  *      Author: vedenko
  */
 
+#ifdef LUA_JIT_AVAILABLE
+
 #ifndef JIT_CODE_H_
 #define JIT_CODE_H_
 #include <lua.hpp>
@@ -19,3 +21,4 @@ unsigned installJITOptInline(lua_State* L);
 }
 }
 #endif /* JIT_CODE_H_ */
+#endif

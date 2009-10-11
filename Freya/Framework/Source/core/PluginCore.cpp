@@ -1,5 +1,6 @@
 #include "core/PluginCoreInternal.h"
 #include "core/EngineCore.h"
+#include "application-settings.h"
 namespace core
 {
 PluginCoreInternal::PluginCoreInternal()
@@ -9,7 +10,7 @@ PluginCoreInternal::PluginCoreInternal()
 PluginCoreInternal::~PluginCoreInternal()
 {
 }
-	
+
 void PluginCoreInternal::createWindowManager(const EString& type)
 {
 	core::EngineCore::createWindowManager(type);
@@ -106,4 +107,19 @@ void								PluginCoreInternal::destroyCondition(core::multithreading::Condition
 {
 	core::EngineCore::destroyCondition(cond);
 }
+
+const char*							PluginCoreInternal::getApplicationName() const
+{
+	return settings::application_name;
 }
+const char*							PluginCoreInternal::getApplicationCompany() const
+{
+	return settings::application_company;
+}
+const char*							PluginCoreInternal::getConfigFileName() const
+{
+	return settings::config_file_name;
+}
+
+}
+

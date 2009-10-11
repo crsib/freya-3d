@@ -4,6 +4,7 @@
  *  Created on: 21.09.2008
  *      Author: vedenko
  */
+#ifdef LUA_JIT_AVAILABLE
 
 #include "core/lua/lua_libraries/jit_code.h"
 #include "core/lua/luajit.h"
@@ -1647,3 +1648,5 @@ unsigned installJITOptInline(lua_State* L)
 
 }
 }
+
+#endif
