@@ -26,6 +26,10 @@ class WindowManagerDriver;
 //! This namespace contains all classes related to engine core futures
 namespace core
 {
+namespace xml
+{
+class XMLParser;
+}
 namespace lua
 {
 	class LuaCore;
@@ -73,6 +77,7 @@ namespace memory
 		GENERIC_POOL,
 		CLASS_POOL,
 		LUA_POOL,
+		XML_POOL,
 	};
 #ifndef _FREYA_SHARED_PLUGIN
 //!uses memory arena to allocate a memory block
@@ -126,10 +131,11 @@ namespace core
 * of type EngineException to be raised. For this time the excepion message will be "Engine exception occured
 */
 
-class EXPORT EngineCore {
+class EXPORT EngineCore
+{
 public:
 	//! Default executable parameters
-	EngineCore(int arcC,char** argV);
+	EngineCore(int arcC,char** argV, const std::string& applicationName = "freya-engine", const std::string& applicationTeam = "freya-team", const std::string& configName = "config.xml");
 	virtual ~EngineCore();
 	//! retrieves the instance of PluginCore
 	static core::PluginCore*	getPluginCore();
@@ -184,7 +190,7 @@ public:
 	/*!
 	* \return pointer to a XMLParser class instance
 	*/
-
+	static core::xml::XMLParser*		getXMLParser();
 	/*static Settings*					getSettings()
 	{
 		return m_Settings;
@@ -270,7 +276,6 @@ private:
 	static windowmanager::WindowManagerDriver*			m_WindowManager;
 	//Rendering driver
 	static renderer::RenderingAPIDriver*				m_RenderingDriver;
-	//Lua
 	//static Settings*						m_Settings;
 
 	//Loop and app control
@@ -284,6 +289,7 @@ private:
 	static core::PluginCore*							m_PluginCore;
 	static core::PluginLoader*							m_PluginLoader;
 	static core::lua::LuaCore*							m_LuaCore;
+	static core::xml::XMLParser*						m_XMLParser;
 };
 
 }

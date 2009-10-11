@@ -34,7 +34,7 @@ Filesystem::Filesystem()
 
 Filesystem::~Filesystem()
 {
-	for(Drivers::iterator it = m_AllDrivers.begin();it != m_AllDrivers.end();it++)
+	for(Drivers::iterator it = m_AllDrivers.begin();it != m_AllDrivers.end();++it)
 	{
 		delete static_cast<core::filesystem::FilesystemDriver*>(*it);
 	}

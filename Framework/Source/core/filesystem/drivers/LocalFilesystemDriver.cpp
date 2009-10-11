@@ -102,7 +102,7 @@ void		LocalFilesystemDriver::makeDir(const EString& path)
 {
 	fs::path p,t = m_MountPoint / path.c_str();
 	fs::path::iterator it;
-	for(it = t.begin();it != t.end();it++)
+	for(it = t.begin();it != t.end();++it)
 	{
 		p /= *it;
 		if(fs::exists(p)&&!fs::is_directory(p))

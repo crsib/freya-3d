@@ -156,7 +156,27 @@ Source/core/lua/tolua++/tolua_map.c
 Source/core/lua/tolua++/tolua_push.c
 Source/core/lua/tolua++/tolua_to.c
 
+#XML integration
+#Global includes
+Include/core/xml/XMLParser.h
+Include/core/xml/XMLParserException.h
+Include/core/xml/XMLStringWrap.h
+#Private includes and sources
+Source/core/xml/XMLParser.cpp
 
+Source/core/xml/xerces/FreyaDomErrorHandler.h
+Source/core/xml/xerces/FreyaFile.h
+Source/core/xml/xerces/FreyaFileManager.h
+Source/core/xml/xerces/FreyaMemoryManager.h
+Source/core/xml/xerces/FreyaPanicHandler.h
+
+Source/core/xml/xerces/FreyaDomErrorHandler.cpp
+Source/core/xml/xerces/FreyaFile.cpp
+Source/core/xml/xerces/FreyaFileManager.cpp
+Source/core/xml/xerces/FreyaMemoryManager.cpp
+Source/core/xml/xerces/FreyaPanicHandler.cpp
+
+#Generated sources
 "${INTERMIDIATE_DIRECTORY}/StaticPluginsLoader.cpp"
 "${INTERMIDIATE_DIRECTORY}/freya_lua_bind.cpp"
 )
@@ -192,10 +212,27 @@ FIND_PACKAGE( Lua51 REQUIRED )
 IF ( LUA51_FOUND )
     INCLUDE_DIRECTORIES( ${LUA_INCLUDE_DIR} )
     SET( FREYA_CORE_LINK_LIBRARIES ${FREYA_CORE_LINK_LIBRARIES} ${LUA_LIBRARIES} )
+    FILE(WRITE "${INTERMIDIATE_DIRECTORY}/Tests/LuaJIT/jit_available.c" "#include <lua.h>\nLUA_API int (luaopen_jit) (lua_State *L);\n\nint main(int argc,char** argv)\n{\n\tluaopen_jit(0);\n\treturn 0;\n}\n")
+
+    TRY_COMPILE(LUA_JIT_FOUND "${INTERMIDIATE_DIRECTORY}/Tests/LuaJIT" "${INTERMIDIATE_DIRECTORY}/Tests/LuaJIT/jit_available.c" CMAKE_FLAGS "-DINCLUDE_DIRECTORIES:STRING=${LUA_INCLUDE_DIR}" "-DLINK_LIBRARIES:STRING=${LUA_LIBRARIES}" OUTPUT_VARIABLE LUA_JIT_OUTPUT )
+    MESSAGE("LuaJIT trycompile: \n\toutput: ${LUA_JIT_OUTPUT}")
+    IF( LUA_JIT_FOUND )
+        MESSAGE(STATUS "LuaJIT found!" )
+        ADD_DEFINITIONS( -DLUA_JIT_AVAILABLE )
+    ENDIF( LUA_JIT_FOUND )
     IF( UNIX AND NOT APPLE )
-	SET( FREYA_CORE_LINK_LIBRARIES ${FREYA_CORE_LINK_LIBRARIES} dl )
+		SET( FREYA_CORE_LINK_LIBRARIES ${FREYA_CORE_LINK_LIBRARIES} dl )
     ENDIF( UNIX AND NOT APPLE )
 ENDIF ( LUA51_FOUND )
+
+#Find Xerces-C++
+FIND_PACKAGE( XercesC REQUIRED )
+
+IF ( XERCESC_FOUND )
+	INCLUDE_DIRECTORIES(${XERCESC_INCLUDE})
+	SET( FREYA_CORE_LINK_LIBRARIES ${FREYA_CORE_LINK_LIBRARIES} ${XERCESC_LIBRARY} )
+ENDIF( XERCESC_FOUND )
+
 #Generate library target depending on FREYA_CORE_DYNAMIC
 	
 IF(FREYA_CORE_SHARED)   #Dynamic linkage

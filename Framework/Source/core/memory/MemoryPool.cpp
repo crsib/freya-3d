@@ -34,7 +34,7 @@ private:
 	void* operator new[](size_t sz){throw 0;}
 	void  operator delete[](void* p){}
 public:
-	__Result()
+	__Result() : Buffer(NULL), Ready(0)
 	{
 	}
 	~__Result()
