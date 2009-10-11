@@ -1,7 +1,7 @@
 #include "core/filesystem/drivers/AppHomeFilesystem.h"
 #include "core/filesystem/FilesystemException.h"
-#include "application-settings.h"
 
+#include "core/PluginCore.h"
 #include <iostream>
 namespace core
 {
@@ -36,7 +36,7 @@ void		AppHomeFilesystem::setMountPoint(const EString& o)
 		path =  EString(getenv("HOMEDRIVE")) + EString(getenv("HOMEPATH"));
 	else path = "C:\\";
 #endif
-	path += "/" +EString(settings::application_company) + "/" + EString(settings::application_name);
+	path += "/" +EString(core::CoreInstance->getApplicationCompany()) + "/" + EString(core::CoreInstance->getApplicationCompany());
 
 	m_MountPoint = fs::system_complete(fs::path(path.c_str()));
 	if(!fs::exists(m_MountPoint))

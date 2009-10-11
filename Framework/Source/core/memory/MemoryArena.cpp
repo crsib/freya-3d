@@ -68,7 +68,8 @@ void		MemoryArena::free(void* p,unsigned id)
 {
 	try
 	{
-		m_Pools[id]->free(p);
+		if(p != NULL)
+			m_Pools[id]->free(p);
 		//::free(p);
 	}
 	catch(...)
@@ -76,8 +77,11 @@ void		MemoryArena::free(void* p,unsigned id)
 		throw;
 	}
 #ifdef _FREYA_DEBUG_MEMORY
-	deallocation_count++;
-	alloc_dealloc_dif--;
+	if(p != NULL)
+	{
+		deallocation_count++;
+		alloc_dealloc_dif--;
+	}
 #endif
 }
 

@@ -127,6 +127,10 @@ public:
 	//! Destroy a condition variable
 	virtual void								destroyCondition(core::multithreading::Condition* cond);
 
+	virtual const char*							getApplicationName() const;
+	virtual const char*							getApplicationCompany() const;
+	virtual const char*							getConfigFileName() const;
+
 };
 }
 

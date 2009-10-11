@@ -46,6 +46,8 @@
 #include <iostream>
 
 #include "core/freya_buf.hpp"
+
+#include "core/xml/XMLParser.h"
 using namespace renderer;
 
 
@@ -83,6 +85,9 @@ core::PluginLoader*							EngineCore::m_PluginLoader         = NULL;
 std::stringbuf*								EngineCore::m_LogStringBuf = NULL;
 
 core::lua::LuaCore*							EngineCore::m_LuaCore = NULL;
+
+core::xml::XMLParser*						EngineCore::m_XMLParser = NULL;
+
 //Memory allocation function
 namespace memory
 {
@@ -103,10 +108,17 @@ void* Reallocate(void* p,size_t sz,unsigned id)
 }
 }
 //Constructor and destructor
-EngineCore::EngineCore(int argC,char** argV)
+EngineCore::EngineCore(int argC,char** argV,const std::string& applicationName, const std::string& applicationTeam, const std::string& configName )
 {
 	if(m_Instance)
 		throw EngineException();
+	settings::application_name 		= new char[applicationName.length()+1];
+	::memcpy(settings::application_name,applicationName.c_str(),applicationName.length() + 1);
+	settings::application_company 	= new char[applicationTeam.length()+1];
+	::memcpy(settings::application_company,applicationTeam.c_str(),applicationTeam.length() + 1);
+	settings::config_file_name		= new char[configName.length()+1];
+	::memcpy(settings::config_file_name,configName.c_str(),configName.length() + 1);
+
 	std::cout << "Starting log subsystem" << std::endl;
 	std::string path(argV[0]);
 	size_t slash_pos = path.find_last_of("/\\" );
@@ -135,9 +147,10 @@ EngineCore::EngineCore(int argC,char** argV)
 	m_MemoryArena = new core::memory::MemoryArena();
 	m_MemoryArena->addPool(1024*1024,4);//STL pool 1 mb
 	m_MemoryArena->addPool(1024*1024,4);//Math pool 1 mb
-	m_MemoryArena->addPool(30*1024*1024,4);//Generic pool 30 mb
+	m_MemoryArena->addPool(64*1024*1024,4);//Generic pool 64 mb
 	m_MemoryArena->addPool(1024*1024,4);//Generic class pool 1mb
 	m_MemoryArena->addPool(1024*1024, 4); //Lua pool 1mb
+	m_MemoryArena->addPool(4*1024*1024, 4); //XML pool 4mb
 	m_ThreadImplementation = new THREAD_IMPLEMENTATION;
 	//start filesystem
 	std::cout << "Starting filesystem subsystem" << std::endl;
@@ -146,11 +159,13 @@ EngineCore::EngineCore(int argC,char** argV)
 	//m_Settings  = new Settings();
 
 	std::cout << "Starting Lua scripting engine" << std::endl;
-	m_LuaCore = new core::lua::LuaCore;
-	m_Running = true;
-	m_Instance = this;
-	m_RenderingDriver = NULL;
-	m_WindowManager	  = NULL;
+	m_LuaCore 			= new core::lua::LuaCore;
+	std::cout << "Starting Xerces-C++" << std::endl;
+	m_XMLParser 		= new core::xml::XMLParser;
+	m_Running 			= true;
+	m_Instance 			= this;
+	m_RenderingDriver 	= NULL;
+	m_WindowManager	  	= NULL;
 	std::cout << "Creating task manager" << std::endl;
 	m_TaskManager = new core::taskmanager::TaskManager;
 	std::cout << "Creating resource manager" << std::endl;
@@ -165,6 +180,8 @@ EngineCore::EngineCore(int argC,char** argV)
 
 EngineCore::~EngineCore()
 {
+	std::cout << "Stopping Xerces-C++" << std::endl;
+	delete m_XMLParser;
 	std::cout << "Destroying Lua engine " << std::endl;
 	delete m_LuaCore;
 	std::cout << "Destroying resource manager" << std::endl;
@@ -207,6 +224,10 @@ EngineCore::~EngineCore()
 	std::cout << "Destroying log" << std::endl;
 	delete m_LogStream;
 
+	delete [] settings::application_name;
+	delete [] settings::application_company;
+	delete [] settings::config_file_name;
+
 }
 
 void EngineCore::createWindowManager(const EString& type)
@@ -222,19 +243,13 @@ void EngineCore::createWindowManager(const EString& type)
 
 void EngineCore::createRenderingDriver(const EString& type)
 {
-	if(m_RenderingDriver)
-	{
-		delete m_RenderingDriver;
-	}
+	delete m_RenderingDriver;
 	m_RenderingDriver = static_cast<renderer::RenderingAPIDriver*>(m_RAPIFactory->createDriver(type));
 }
 
 void	EngineCore::createRenderingDriver(unsigned	futures)
 {
-	if(m_RenderingDriver)
-	{
-		delete m_RenderingDriver;
-	}
+	delete m_RenderingDriver;
 	bool not_ready = true;
 	EStringList	lst = m_RAPIFactory->listDrivers();
 	size_t id = 0,sz = lst.size();
