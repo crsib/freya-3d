@@ -52,8 +52,9 @@ enum		PLUGIN_COMPONENT
 class DriverID : virtual public ::EngineSubsystem
 {
 public:
-	virtual core::drivermodel::Driver*		create() = 0;
-	virtual EString							id() = 0;
+	virtual ~DriverID(){}
+	virtual core::drivermodel::Driver*		create()const = 0;
+	virtual EString							id()	const = 0;
 };
 
 }

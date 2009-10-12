@@ -36,12 +36,12 @@ public:
 	}
 
 public:
-	virtual core::drivermodel::Driver*		create()
+	virtual core::drivermodel::Driver*		create() const
 	{
 		return new LocalFilesystemDriver();
 	}
 
-	virtual EString							id()
+	virtual EString							id() const
 	{
 		return "local";
 	}

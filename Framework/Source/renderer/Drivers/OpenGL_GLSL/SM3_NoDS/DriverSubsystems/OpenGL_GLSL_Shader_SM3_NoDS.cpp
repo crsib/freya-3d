@@ -79,10 +79,10 @@ void		OpenGL_GLSL_Shader::addShader(unsigned type,const EString& data)
 		glGetObjectParameterivARB(shader, GL_OBJECT_INFO_LOG_LENGTH_ARB, &logLength);
 		if((glGetError() == GL_NO_ERROR)&&(logLength > 0))//GL has something to say
 		{
-			GLcharARB*  log = static_cast<GLcharARB*>(core::memory::Allocate(logLength,2));
+			GLcharARB*  log = static_cast<GLcharARB*>(core::memory::Allocate(logLength,core::memory::GENERIC_POOL));
 			glGetInfoLogARB (shader, logLength, &charsWritten, log); //Get shader log.
 			clog << "Shader compilation failed: " << log << endl;
-			core::memory::Free(log,2);
+			core::memory::Free(log,core::memory::GENERIC_POOL);
 			throw renderer::ShaderException(type);;
 		}
 	}
@@ -146,10 +146,10 @@ void		OpenGL_GLSL_Shader::link()
 		glGetObjectParameterivARB(m_ShaderObject, GL_OBJECT_INFO_LOG_LENGTH_ARB, &logLength);
 		if((glGetError() == GL_NO_ERROR)&&(logLength > 0))//GL has something to say
 		{
-			GLcharARB*  log = static_cast<GLcharARB*>(core::memory::Allocate(logLength,2));
+			GLcharARB*  log = static_cast<GLcharARB*>(core::memory::Allocate(logLength,core::memory::GENERIC_POOL));
 			glGetInfoLogARB (m_ShaderObject, logLength, &charsWritten, log); //Get shader log.
 			clog << "Shader linkage failed: " << log << endl;
-			core::memory::Free(log,2);
+			core::memory::Free(log,core::memory::GENERIC_POOL);
 			throw renderer::ShaderException();
 		}
 	}

@@ -528,12 +528,6 @@ enum
 	TRIANGLE_STRIP_ADJACENCY,
 	//! Triangles are constructed as following (with correction for bypass direction) (1,2,3),(1,3,4),(1,4,5)...
 	TRIANGLE_FAN,
-	//! Four successive vertices are treated as a \a convex quad edges
-	QUADS,
-	//! Four successive vertices are treated as a \a convex quad edges in following way (with correction for bypass direction) (1,2,3,4),(2,3,4,5)...
-	QUAD_STRIP,
-	//! Successive vertices are treadented as \a convex polygon edges
-	POLYGON
 };
 }
 //Render and culling types

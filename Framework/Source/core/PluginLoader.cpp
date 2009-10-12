@@ -121,7 +121,7 @@ namespace core
 				soid	= _soid;
 			}
 			virtual ~FakeDriverID(){}
-			virtual core::drivermodel::Driver*		create()
+			virtual core::drivermodel::Driver*		create() const
 			{
 				if(soid->loaded == 0)
 				{
@@ -161,7 +161,7 @@ namespace core
 				}
 				return (soid->procs.create_driver)(m_Name.c_str());
 			}
-			virtual EString							id()
+			virtual EString							id() const
 			{
 				return m_Name;
 			}

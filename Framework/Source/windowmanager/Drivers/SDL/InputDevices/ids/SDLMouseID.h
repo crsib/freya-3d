@@ -49,12 +49,12 @@ protected:
 	}
 
 public:
-	virtual core::drivermodel::Driver*		create()
+	virtual core::drivermodel::Driver*		create() const
 	{
 		return new windowmanager::input::drivers::sdl::SDLMouse();
 	}
 
-	virtual EString							id()
+	virtual EString							id() const
 	{
 		return "mouse";
 	}
