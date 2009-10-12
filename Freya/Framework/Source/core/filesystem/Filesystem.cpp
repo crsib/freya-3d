@@ -9,8 +9,10 @@
 
 #include "core/filesystem/FilesystemException.h"
 
+#include "core/EngineCore.h"
+
 #ifdef __APPLE__
-#	include "CoreFoundation/CoreFoundation.h"
+#	include <CoreFoundation/CoreFoundation.h>
 #endif
 
 namespace core
@@ -22,6 +24,7 @@ namespace filesystem
 FilesystemInternal::FilesystemInternal()
 {
 	m_Factory = new FilesystemDriverFactory();
+	m_Mutex = core::EngineCore::createMutex();
 }
 
 //==============================~Default constructor==============================
@@ -39,6 +42,7 @@ FilesystemInternal::~FilesystemInternal()
 		delete static_cast<core::filesystem::FilesystemDriver*>(*it);
 	}
 	delete m_Factory;
+	core::EngineCore::destroyMutex(m_Mutex);
 }
 
 //==============================~Destructor==============================
@@ -54,7 +58,10 @@ void		FilesystemInternal::mount(const EString& type, const EString& path)
 	core::drivermodel::Driver* d;
 	try
 	{
-		d =	m_Factory->createDriver(type);
+		synchronize(m_Mutex)
+																{
+			d =	m_Factory->createDriver(type);
+																}
 	}
 	catch(const EngineException& ex)
 	{
@@ -73,25 +80,34 @@ void		FilesystemInternal::mount(const EString& type, const EString& path)
 			CFStringRef str = CFURLCopyFileSystemPath( resourcesURL, kCFURLPOSIXPathStyle );
 			CFRelease(resourcesURL);
 			char _path[PATH_MAX];
-			
+
 			CFStringGetCString( str, _path, FILENAME_MAX, kCFStringEncodingASCII );
 			CFRelease(str);
 			EString full_path = EString(_path) + "/Contents/Resources/" + path;
-			static_cast<FilesystemDriver*>(d)->setMountPoint(full_path);
+			synchronize(m_Mutex)
+			{
+				static_cast<FilesystemDriver*>(d)->setMountPoint(full_path);
+			}
 		}
 #else
-		static_cast<FilesystemDriver*>(d)->setMountPoint(path);
+		synchronize(m_Mutex)
+		{
+			static_cast<FilesystemDriver*>(d)->setMountPoint(path);
+		}
 #endif	
 	}
 	catch(const EngineException& ex)
 	{
 		throw;
 	}
-	m_AllDrivers.push_back(d);
-	if(static_cast<FilesystemDriver*>(d)->isWritable())
-		m_WritableDrivers.push_back(d);
-	else
-		m_ReadOnlyDrivers.push_back(d);
+	synchronize(m_Mutex)
+	{
+		m_AllDrivers.push_back(d);
+		if(static_cast<FilesystemDriver*>(d)->isWritable())
+			m_WritableDrivers.push_back(d);
+		else
+			m_ReadOnlyDrivers.push_back(d);
+	}
 }
 
 //==============================~Method: mount==============================
@@ -148,7 +164,10 @@ void		FilesystemInternal::makeDir(const  EString& path, int to)
 	}
 	try
 	{
-		d->makeDir(path);
+		synchronize(m_Mutex)
+														{
+			d->makeDir(path);
+														}
 	}
 	catch(...)
 	{
@@ -164,8 +183,11 @@ bool		FilesystemInternal::dirExists(const EString& path)
 {
 	for(Drivers::iterator it = m_AllDrivers.begin();it != m_AllDrivers.end();it++)
 	{
-		if(static_cast<core::filesystem::FilesystemDriver*>(*it)->dirExists(path))
-			return true;
+		synchronize(m_Mutex)
+												{
+			if(static_cast<core::filesystem::FilesystemDriver*>(*it)->dirExists(path))
+				return true;
+												}
 	}
 	return false;
 }
@@ -178,8 +200,11 @@ bool		FilesystemInternal::fileExists(const EString& path)
 {
 	for(Drivers::iterator it = m_AllDrivers.begin();it != m_AllDrivers.end();it++)
 	{
-		if(static_cast<core::filesystem::FilesystemDriver*>(*it)->fileExists(path))
-			return true;
+		synchronize(m_Mutex)
+										{
+			if(static_cast<core::filesystem::FilesystemDriver*>(*it)->fileExists(path))
+				return true;
+										}
 	}
 	return false;
 }
@@ -190,19 +215,22 @@ bool		FilesystemInternal::fileExists(const EString& path)
 
 void*		FilesystemInternal::read(const EString& path,int from)
 {
-	if(from == -1)
-		from = where(path);
-	if(
-			(static_cast<unsigned>(from) < m_AllDrivers.size())
-			&& (static_cast<core::filesystem::FilesystemDriver*>(m_AllDrivers[from]))->fileExists(path)
-	)
-	{
-		return static_cast<core::filesystem::FilesystemDriver*>(m_AllDrivers[from])->read(path);
-	}
-	else
-	{
-		throw core::filesystem::FilesystemException(EString("File ") + path + " not found" );
-	}
+	synchronize(m_Mutex)
+							{
+		if(from == -1)
+			from = where(path);
+		if(
+				(static_cast<unsigned>(from) < m_AllDrivers.size())
+				&& (static_cast<core::filesystem::FilesystemDriver*>(m_AllDrivers[from]))->fileExists(path)
+		)
+		{
+			return static_cast<core::filesystem::FilesystemDriver*>(m_AllDrivers[from])->read(path);
+		}
+		else
+		{
+			throw core::filesystem::FilesystemException(EString("File ") + path + " not found" );
+		}
+							}
 	return NULL;
 }
 
@@ -212,19 +240,22 @@ void*		FilesystemInternal::read(const EString& path,int from)
 
 void* 		FilesystemInternal::read(const EString& path, size_t* sz,int from)
 {
-	if(from == -1)
-		from = where(path);
-	if(
-			(static_cast<unsigned>(from) < m_AllDrivers.size())
-			&& (static_cast<core::filesystem::FilesystemDriver*>(m_AllDrivers[from]))->fileExists(path)
-	)
-	{
-		return static_cast<core::filesystem::FilesystemDriver*>(m_AllDrivers[from])->read(path,sz);
-	}
-	else
-	{
-		throw core::filesystem::FilesystemException(EString("File ") + path + " not found" );
-	}
+	synchronize(m_Mutex)
+									{
+		if(from == -1)
+			from = where(path);
+		if(
+				(static_cast<unsigned>(from) < m_AllDrivers.size())
+				&& (static_cast<core::filesystem::FilesystemDriver*>(m_AllDrivers[from]))->fileExists(path)
+		)
+		{
+			return static_cast<core::filesystem::FilesystemDriver*>(m_AllDrivers[from])->read(path,sz);
+		}
+		else
+		{
+			throw core::filesystem::FilesystemException(EString("File ") + path + " not found" );
+		}
+									}
 	return NULL;
 }
 
@@ -234,10 +265,13 @@ void* 		FilesystemInternal::read(const EString& path, size_t* sz,int from)
 
 size_t		FilesystemInternal::fileSize(const EString& path)
 {
-	int id = where(path);
-	if(id == -1)
-		throw core::filesystem::FilesystemException(EString("File ") + path + " not found" );
-	return static_cast<FilesystemDriver*>(m_AllDrivers[id])->fileSize(path);
+	synchronize(m_Mutex)
+							{
+		int id = where(path);
+		if(id == -1)
+			throw core::filesystem::FilesystemException(EString("File ") + path + " not found" );
+		return static_cast<FilesystemDriver*>(m_AllDrivers[id])->fileSize(path);
+							}
 }
 
 //==============================~Method: fileSize==============================
@@ -268,7 +302,10 @@ void		FilesystemInternal::write(const EString& path, const void* buf, size_t sz,
 	}
 	try
 	{
-		d->write(path,buf,sz);
+		synchronize(m_Mutex)
+						{
+			d->write(path,buf,sz);
+						}
 	}
 	catch(...)
 	{
@@ -303,7 +340,10 @@ void		FilesystemInternal::remove(const EString& path,int to)
 	}
 	try
 	{
+		synchronize(m_Mutex)
+				{
 		d->remove(path);
+				}
 	}
 	catch(...)
 	{

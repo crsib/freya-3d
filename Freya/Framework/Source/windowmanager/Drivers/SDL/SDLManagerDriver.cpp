@@ -85,6 +85,8 @@ void		SDLManagerDriver::createWindow(unsigned Width,unsigned Height,const EStrin
 	clog 	 << "\nVendor " << glGetString( GL_VENDOR ) << "\nRenderer " << glGetString( GL_RENDERER )
 	<< "\nVersion " << glGetString( GL_VERSION ) << endl;
 
+	//core::CoreInstance->getResourceManager()->invalidateResources(); //Reload all resources if needed
+
 }
 
 void    	SDLManagerDriver::destroyWindow()
@@ -153,7 +155,7 @@ void		SDLManagerDriver::grabInput(bool grab_state)
 
 void		SDLManagerDriver::showCursor(bool cursor_state)
 {
-	SDL_ShowCursor(cursor_state);
+	SDL_ShowCursor(cursor_state ? SDL_ENABLE : SDL_DISABLE);
 }
 
 void		SDLManagerDriver::swapBuffers()

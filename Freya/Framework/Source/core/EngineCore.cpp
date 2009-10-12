@@ -145,11 +145,11 @@ EngineCore::EngineCore(int argC,char** argV,const std::string& applicationName, 
 	//Start memory
 	std::cout << "Starting memory subsystem" << std::endl;
 	m_MemoryArena = new core::memory::MemoryArena();
-	m_MemoryArena->addPool(1024*1024,4);//STL pool 1 mb
-	m_MemoryArena->addPool(1024*1024,4);//Math pool 1 mb
-	m_MemoryArena->addPool(64*1024*1024,4);//Generic pool 64 mb
-	m_MemoryArena->addPool(1024*1024,4);//Generic class pool 1mb
-	m_MemoryArena->addPool(1024*1024, 4); //Lua pool 1mb
+	m_MemoryArena->addPool(4*1024*1024,4);	//STL pool 4 mb
+	m_MemoryArena->addPool(4*1024*1024,4);	//Math pool 4 mb
+	m_MemoryArena->addPool(64*1024*1024,4);	//Generic pool 64 mb
+	m_MemoryArena->addPool(4*1024*1024,4);	//Generic class pool 4mb
+	m_MemoryArena->addPool(4*1024*1024, 4); //Lua pool 4mb
 	m_MemoryArena->addPool(4*1024*1024, 4); //XML pool 4mb
 	m_ThreadImplementation = new THREAD_IMPLEMENTATION;
 	//start filesystem
@@ -245,6 +245,7 @@ void EngineCore::createRenderingDriver(const EString& type)
 {
 	delete m_RenderingDriver;
 	m_RenderingDriver = static_cast<renderer::RenderingAPIDriver*>(m_RAPIFactory->createDriver(type));
+	m_ResourceManager->invalidateResources();
 }
 
 void	EngineCore::createRenderingDriver(unsigned	futures)
@@ -289,6 +290,7 @@ void	EngineCore::createRenderingDriver(unsigned	futures)
 		}
 	}
 	std::cout << "Rendering driver started successfully" << std::endl;
+	m_ResourceManager->invalidateResources();
 }
 
 void 		EngineCore::registerWindowManager(core::drivermodel::DriverID* driverID)

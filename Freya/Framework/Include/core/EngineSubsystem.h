@@ -9,7 +9,7 @@
 #define ENGINESUBSYSTEM_H_
 
 #include "internal.h"
-
+#include "core/memory/MemoryPools.h"
 #ifndef _FREYA_SHARED_PLUGIN
 #include <cstdlib>
 namespace core
@@ -39,22 +39,22 @@ public:
 	//!Overloaded new operator
 	static void* operator new(size_t sz)
 	{
-		return core::memory::Allocate(sz,3);
+		return core::memory::Allocate(sz,core::memory::CLASS_POOL);
 	}
 	//!Overloaded delete operator
 	static void  operator delete(void* p)
 	{
-		core::memory::Free(p,3);
+		core::memory::Free(p,core::memory::CLASS_POOL);
 	}
 	//!Overloaded new[] operator
 	static void* operator new[](size_t sz)
 	{
-		return core::memory::Allocate(sz,3);
+		return core::memory::Allocate(sz,core::memory::CLASS_POOL);
 	}
 	//!Overloaded delete[] operator
 	static void  operator delete[](void* p)
 	{
-		core::memory::Free(p,3);
+		core::memory::Free(p,core::memory::CLASS_POOL);
 	}
 
 };

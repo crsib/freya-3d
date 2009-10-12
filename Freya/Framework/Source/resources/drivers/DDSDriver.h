@@ -39,11 +39,11 @@ public:
 class  DDSDriverID : public core::drivermodel::DriverID
 {
 public:
-	virtual core::drivermodel::Driver*		create()
+	virtual core::drivermodel::Driver*		create() const
 	{
 		return new DDSDriver;
 	}
-	virtual EString							id()
+	virtual EString							id() const
 	{
 		return 	"dds";
 	}

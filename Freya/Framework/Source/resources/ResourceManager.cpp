@@ -41,8 +41,8 @@ ResourceManager::~ResourceManager()
 
 Resource*	ResourceManager::load(const EString& ID,immediately t)
 {
-	(void)t;
-	ResourceManagerDriver*	drv = __findDriver(ID);
+	(void)((t));
+	ResourceManagerDriver *drv = __findDriver(ID);
 	if(drv)
 	{
 		Resource*				res;
@@ -68,10 +68,10 @@ Resource*	ResourceManager::load(const EString& ID,immediately t)
 	throw resources::ResourceException(EString("Failed to find driver to manage query:" + ID));
 }
 
-Resource*	ResourceManager::load(const EString& ID,asynchronous t)
+Resource *ResourceManager::load(const EString & ID, asynchronous t)
 {
-	(void)t;
-	ResourceManagerDriver*	drv = __findDriver(ID);
+	(void)((t));
+	ResourceManagerDriver *drv = __findDriver(ID);
 	if(drv)
 	{
 		Resource*				res;
@@ -97,25 +97,58 @@ Resource*	ResourceManager::load(const EString& ID,asynchronous t)
 	throw resources::ResourceException(EString("Failed to find driver to manage query:" + ID));
 }
 
-void		ResourceManager::free(Resource* res)
+void ResourceManager::free(Resource *res)
 {
-	ResourceManagerDriver*	drv = __findDriver(res->id());
-	if(drv->unique())
-	{
-		if(m_ResourceLibrary->remove(res))
-		{
+	ResourceManagerDriver *drv = __findDriver(res->id());
+	if(drv->unique()){
+		if(m_ResourceLibrary->remove(res)){
 			drv->destroy(res);
 		}
 	}
-	else
-	{
+	else{
 		drv->destroy(res);
 	}
 }
 
-void		ResourceManager::registerDriver(core::drivermodel::DriverID* driverID)
+void ResourceManager::registerDriver(core::drivermodel::DriverID *driverID)
 {
 	m_Drivers[driverID->id()] = static_cast<ResourceManagerDriver*>(driverID->create());
+}
+
+void ResourceManager::invalidateResources()
+{
+	Resource *res;
+	while((res = m_ResourceLibrary->pop()) != NULL)
+	{
+		ResourceManagerDriver*	drv = __findDriver(res->id());
+		drv->destroy(res);
+		res->m_Ready = 0;
+		m_ResourceCache[drv->loadAsynchronous(res->id())] = res;
+	}
+}
+
+bool ResourceManager::isReady()
+{
+	if(m_ResourceCache.size() == 0)
+		return true;
+	for(ResourceCache::iterator it = m_ResourceCache.begin();it!=m_ResourceCache.end();)
+	{
+		Resource* res = it->first;
+		if(res->m_Ready)
+		{
+			it->second->m_Ready = 1;
+			it->second->m_Resource = res->m_Resource;
+			ResourceCache::iterator temp = it;
+			++it;
+			m_ResourceCache.erase(temp);
+			delete res;
+		}
+		else
+			++it;
+	}
+	if(m_ResourceCache.size() == 0)
+		return true;
+	return false;
 }
 
 ResourceManagerDriver*			ResourceManager::__findDriver(const EString& ID)
