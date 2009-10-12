@@ -6,6 +6,7 @@
 #include "core/EStringList.h"
 #include "core/filesystem/Filesystem.h"
 #include <vector>
+#include "core/multithreading/Lock.h"
 
 #ifdef _MSC_VER
 #	pragma warning(disable:4275)
@@ -152,6 +153,7 @@ private:
 	Drivers						m_WritableDrivers;
 
 	FilesystemDriverFactory*		m_Factory;
+	core::multithreading::Mutex*	m_Mutex;
 }; //End of FilesystemInternal class
 
 } //End of FilesystemInternal namespace

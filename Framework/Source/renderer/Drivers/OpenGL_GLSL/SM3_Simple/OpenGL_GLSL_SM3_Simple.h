@@ -33,12 +33,12 @@ public:
 	}
 
 public:
-	virtual core::drivermodel::Driver*		create()
+	virtual core::drivermodel::Driver*		create() const
 	{
 		return new renderer::drivers::opengl_glsl_sm3_simple::OpenGL_GLSL_Driver();
 	}
 
-	virtual EString							id()
+	virtual EString							id() const
 	{
 		return "OpenGL GLSL";
 	}

@@ -166,7 +166,7 @@ void*		LocalFilesystemDriver::read(const EString& path)
 	if(!fs::is_regular(p) || fs::is_empty(p))
 		throw core::filesystem::FilesystemException(EString("Failed to load file ") + path + " as it is not a regular file");
 	size_t sz = fs::file_size(p);
-	void* _p = core::memory::Allocate(sz,2);
+	void* _p = core::memory::Allocate(sz,core::memory::GENERIC_POOL);
 	if(_p == NULL)
 		throw core::filesystem::FilesystemException(EString("Failed to allocate memory for loading ") + path);
 	//Ok, finaly, we have checked that the file is correct and allocated memory for it
@@ -201,7 +201,7 @@ void*		LocalFilesystemDriver::read(const EString& path,size_t* sz)
 	if(!fs::is_regular(p) || fs::is_empty(p))
 		throw core::filesystem::FilesystemException(EString("Failed to load file ") + path + " as it is not a regular file");
 	*sz = fs::file_size(p);
-	void* _p = core::memory::Allocate(*sz,2);
+	void* _p = core::memory::Allocate(*sz,core::memory::GENERIC_POOL);
 	if(_p == NULL)
 		throw core::filesystem::FilesystemException(EString("Failed to allocate memory for loading ") + path);
 	//Ok, finaly, we have checked that the file is correct and allocated memory for it

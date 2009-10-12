@@ -1,6 +1,8 @@
 #ifndef PLUGIN_CORE_H_
 #define PLUGIN_CORE_H_
 
+#include "core/memory/MemoryPools.h"
+
 #ifdef _FREYA_SHARED_PLUGIN
 #include <cstdlib>
 namespace core

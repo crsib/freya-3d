@@ -39,7 +39,7 @@ class __aux_thread_func : public core::multithreading::Runnable
 public:
 	core::taskmanager::TaskManager*	man;
 	virtual int			operator ()()
-	{
+					{
 		while(man->m_ThreadActive != 0)
 		{
 			//std::cout << "Balancer running " << std::endl;
@@ -50,10 +50,10 @@ public:
 					core::taskmanager::Task*	task = NULL;
 					synchronize(man->m_MutexAux)
 					{
-				//		std::cout << "Entering critical section" << std::endl;
+						//		std::cout << "Entering critical section" << std::endl;
 						task = man->m_SecThreadSchedule.front();
 						man->m_SecThreadSchedule.pop_front();
-				//		std::cout << "Leaving critical section" << std::endl;
+						//		std::cout << "Leaving critical section" << std::endl;
 						//TODO: DBG
 					}//synchronize(man->m_MutexAux)
 					if(task)
@@ -77,7 +77,7 @@ public:
 		}//catch
 		//std::cout << "Balancer stopped" << std::endl;
 		return 0;
-	}//operator ()
+					}//operator ()
 };
 
 }
@@ -114,7 +114,14 @@ TaskManager::~TaskManager()
 	core::EngineCore::destroyMutex(m_MutexAux);
 	core::EngineCore::destroyMutex(m_MutexPri);
 	core::EngineCore::destroyThread(m_Thread);
-
+	std::cout << "Destroying tasks from main queue" << std::endl;
+	for(unsigned i = 0; i < m_MainThreadSchedule.size();i++)
+		while(m_MainThreadSchedule[i]->retainCount())
+			m_MainThreadSchedule[i]->release();
+	std::cout << "Destroying tasks from AUX queue" << std::endl;
+	for(unsigned i = 0; i < m_SecThreadSchedule.size();i++)
+		while(m_SecThreadSchedule[i]->retainCount())
+			m_SecThreadSchedule[i]->release();
 }
 
 void TaskManager::addTask(Task* task)
@@ -123,12 +130,12 @@ void TaskManager::addTask(Task* task)
 	{
 		//std::cout << "Entering critical section " << std::endl;
 		synchronize(m_MutexPri)
-		{
+						{
 			task->retain();
 			//std::cout << "Adding task to main thread scheduler " << task << " " << task->retainCount() << std::endl;
 			m_MainThreadSchedule.push_back(task);
 			assert(m_MainThreadSchedule.back() == task);
-		}
+						}
 	}
 }
 
@@ -137,12 +144,12 @@ void TaskManager::addAsynchronousTask(Task* task)
 	if(m_ThreadActive)
 	{
 		synchronize(m_MutexAux)
-		{
+						{
 			task->retain();
 			//std::cout << "Adding task to sec thread scheduler " << task << std::endl;
 			m_SecThreadSchedule.push_back(task);
 			assert(m_SecThreadSchedule.back() == task);
-		}
+						}
 	}
 }
 
@@ -179,13 +186,13 @@ void TaskManager::enterMainLoop()
 			//retval <<= 2;
 			switch(retval)
 			{
-				case core::taskmanager::Task::MAIN_THREAD:
-					//std::cout << "Adding task to main queue " << task << std::endl;
-					addTask(task);
-					break;
-				case core::taskmanager::Task::SECONDARY_THREAD:
-					addAsynchronousTask(task);
-					break;					
+			case core::taskmanager::Task::MAIN_THREAD:
+				//std::cout << "Adding task to main queue " << task << std::endl;
+				addTask(task);
+				break;
+			case core::taskmanager::Task::SECONDARY_THREAD:
+				addAsynchronousTask(task);
+				break;
 			}
 			//std::cout << "Task returned " << retval << " expected " << core::taskmanager::Task::MAIN_THREAD << std::endl;
 			task->release();

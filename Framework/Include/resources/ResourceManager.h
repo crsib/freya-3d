@@ -102,12 +102,22 @@ public:
 	 * \throw ResourceException on any error
 	 */
 	void		registerDriver(core::drivermodel::DriverID* driverID);
+	//! Invalidates loaded resource
+	/*!
+	 * This metod invalidates all loaded resources and reloads them again. Yhe splash screen should be probably shown. It will be called by EngineCore after all RenderingAPIDriver switches.
+	 */
+	void		invalidateResources();
+
+	//!Check, wether all resources are ready
+	bool		isReady();
 private:
 	typedef	std::map<EString,ResourceManagerDriver*,std::less<EString>,core::memory::MemoryAllocator<std::pair<const EString,ResourceManagerDriver*> > >	__DriverLibrary;
 	__DriverLibrary										m_Drivers;
 	resources::__internal::ResourceLibrary*				m_ResourceLibrary;
 
 	ResourceManagerDriver*			__findDriver(const EString& ID);
+	typedef std::map<Resource*,Resource*,std::less<Resource*>,core::memory::MemoryAllocator< std::pair< Resource* const,Resource*> > > ResourceCache;
+	ResourceCache	m_ResourceCache;
 };
 
 }
