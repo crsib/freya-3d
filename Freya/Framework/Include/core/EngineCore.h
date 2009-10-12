@@ -12,7 +12,7 @@
 #include "internal.h"
 #include "config.h"
 #include "core/multithreading/ImplementationFactory.h"
-
+#include "core/memory/MemoryPools.h"
 namespace resources
 {
 class ResourceManager;
@@ -69,16 +69,7 @@ class TaskManager;
 }
 namespace memory
 {
-//!Default memory pools location
-	enum MEMORYPOOLTYPE
-	{
-		STL_POOL = 0,
-		MATH_POOL,
-		GENERIC_POOL,
-		CLASS_POOL,
-		LUA_POOL,
-		XML_POOL,
-	};
+
 #ifdef _FREYA_SHARED_PLUGIN
 //!uses memory arena to allocate a memory block
 /*!

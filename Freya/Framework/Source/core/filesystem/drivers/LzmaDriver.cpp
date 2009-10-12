@@ -79,12 +79,12 @@ LzmaDriver::~LzmaDriver()
 
 inline void*	_LZMA_Alloc(size_t sz)
 {
-	return core::memory::Allocate(sz,2);
+	return core::memory::Allocate(sz,core::memory::GENERIC_POOL);
 }
 
 inline void		_LZMA_Free(void* p)
 {
-	core::memory::Free(p,2);
+	core::memory::Free(p,core::memory::GENERIC_POOL);
 }
 
 void		LzmaDriver::setMountPoint(const EString& path)

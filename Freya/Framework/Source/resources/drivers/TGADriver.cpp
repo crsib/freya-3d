@@ -75,7 +75,7 @@ void __calculateMipMap(unsigned level, unsigned width, unsigned height,void* mem
 		h = 1;
 	//Ok, algorithm idea.
 	//Consumptions: texture is a power of two one
-	unsigned char* nmem = reinterpret_cast<unsigned char*> (core::memory::Allocate(bpp*w*h,3));
+	unsigned char* nmem = reinterpret_cast<unsigned char*> (core::memory::Allocate(bpp*w*h,core::memory::GENERIC_POOL));
 	//We sum blocks of size max(1 << level, w), max (1 << level ,h)
 	unsigned wb = min((1u << level),width);
 	unsigned hb = min((1u << level),height);
@@ -104,12 +104,12 @@ void __calculateMipMap(unsigned level, unsigned width, unsigned height,void* mem
 		tex->loadTexture(renderer::TextureType::TEXTURE_2D,level,renderer::TextureInternalFormat::RGBA8,
 				renderer::TextureFormat::RGBA,renderer::TextureStorage::UNSIGNED_BYTE,
 				w,h,nmem);
-	core::memory::Free(nmem,3);
+	core::memory::Free(nmem,core::memory::GENERIC_POOL);
 }
 
 
 renderer::Texture*	__load(const EString& path,bool mipMaps)
-{
+				{
 	unsigned char*	file = reinterpret_cast<unsigned char*> (core::CoreInstance->getFilesystem()->read(path));
 	unsigned char*  data = file + sizeof(TGAHeader);
 	//BYTES per pixel
@@ -119,7 +119,7 @@ renderer::Texture*	__load(const EString& path,bool mipMaps)
 	unsigned char rgb[4];
 
 	//Allocate enough memory
-	unsigned char* mem = reinterpret_cast<unsigned char*> (core::memory::Allocate(Bpp*head.Width*head.Height,3));
+	unsigned char* mem = reinterpret_cast<unsigned char*> (core::memory::Allocate(Bpp*head.Width*head.Height,core::memory::GENERIC_POOL));
 	if(mem == NULL)
 		throw EngineException();
 	unsigned	n = 0; //Number of processed pixels
@@ -232,10 +232,10 @@ renderer::Texture*	__load(const EString& path,bool mipMaps)
 			__calculateMipMap(lev++, head.Width,head.Height,mem,Bpp,tex);
 		}
 	}
-	core::memory::Free(mem,3);
-	core::memory::Free(file,3);
+	core::memory::Free(mem,core::memory::GENERIC_POOL);
+	core::memory::Free(file,core::memory::GENERIC_POOL);
 	return tex;
-}
+				}
 }
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++ Asynchronous loader +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -248,7 +248,8 @@ public:
 	{
 
 	}
-	virtual int operator ()()
+	virtual
+	int operator ()()
 	{
 		switch(mode)
 		{
@@ -265,7 +266,7 @@ public:
 			width = head.Width;
 			height = head.Height;
 			//Allocate enough memory
-			unsigned char* mem = reinterpret_cast<unsigned char*> (core::memory::Allocate(Bpp*head.Width*head.Height,3));
+			unsigned char* mem = reinterpret_cast<unsigned char*> (core::memory::Allocate(Bpp*head.Width*head.Height,core::memory::GENERIC_POOL));
 			if(mem == NULL)
 				throw EngineException();
 			unsigned	n = 0; //Number of processed pixels
@@ -362,6 +363,7 @@ public:
 			maxlevel = ceil(log2((float)maxlevel));
 			w = width;
 			h = height;
+			core::memory::Free(file,core::memory::GENERIC_POOL);
 			//std::cout << "Switching to main thread" << std::endl;
 			return ASyncTGALoader::MAIN_THREAD;
 		}
@@ -377,7 +379,7 @@ public:
 				h = 1;
 			//Ok, algorithm idea.
 			//Consumptions: texture is a power of two one
-			nmem = reinterpret_cast<unsigned char*> (core::memory::Allocate(Bpp*w*h,3));
+			nmem = reinterpret_cast<unsigned char*> (core::memory::Allocate(Bpp*w*h,core::memory::GENERIC_POOL));
 			//We sum blocks of size max(1 << level, w), max (1 << level ,h)
 			unsigned wb = min((1u << level),width);
 			unsigned hb = min((1u << level),height);
@@ -417,7 +419,7 @@ public:
 							renderer::TextureFormat::RGBA,renderer::TextureStorage::UNSIGNED_BYTE,
 							w,h,nmem);
 				if(level > 0)
-					core::memory::Free(nmem,3);
+					core::memory::Free(nmem,core::memory::GENERIC_POOL);
 				level++;
 				mode = MIPMAP;
 				//std::cout << "Switching to sec thread" << std::endl;
@@ -427,9 +429,8 @@ public:
 		}
 		break;
 		}
-		core::memory::Free(memory,3);
+		core::memory::Free(memory,core::memory::GENERIC_POOL);
 		resources::__internal::finalizeResource(res);
-		//std::cout << "Texture loaded" << std::endl;
 		return ASyncTGALoader::DONE;
 	}
 
@@ -463,14 +464,14 @@ TGADriver::~TGADriver()
 }
 
 bool	TGADriver::unique() const
-{
+		{
 	return true;
-}
+		}
 
 EString TGADriver::id() const
-{
+		{
 	return "tga";
-}
+		}
 
 Resource*	TGADriver::loadSynchronous(const EString& ID)
 {

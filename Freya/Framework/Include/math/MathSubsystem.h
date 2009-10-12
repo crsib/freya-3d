@@ -3,6 +3,7 @@
 
 #include <cstdlib>
 #include "internal.h"
+#include "core/memory/MemoryPools.h"
 #ifdef _FREYA_SHARED_PLUGIN
 
 namespace core
@@ -35,22 +36,22 @@ public:
 
 	static void* operator new(size_t sz)
 	{
-		return core::memory::Allocate(sz,1);
+		return core::memory::Allocate(sz,core::memory::MATH_POOL);
 	}
 
 	static void  operator delete(void* p)
 	{
-		core::memory::Free(p,1);
+		core::memory::Free(p,core::memory::MATH_POOL);
 	}
 
 	static void* operator new[](size_t sz)
 	{
-		return core::memory::Allocate(sz,1);
+		return core::memory::Allocate(sz,core::memory::MATH_POOL);
 	}
 
 	static void  operator delete[](void* p)
 	{
-		core::memory::Free(p,1);
+		core::memory::Free(p,core::memory::MATH_POOL);
 	}
 };
 

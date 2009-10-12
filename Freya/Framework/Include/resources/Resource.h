@@ -112,6 +112,7 @@ private:
 	::EngineSubsystem* 								m_Resource;
 	unsigned 										m_Ready;
 	EString											m_ResourceID;
+
 };
 
 //========= Implementation ==============================================================
