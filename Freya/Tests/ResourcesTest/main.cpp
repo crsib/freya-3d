@@ -34,7 +34,7 @@ class SimpleUpdate : public core::taskmanager::Task
 public:
 	SimpleUpdate() : firstpass(true),firstnotify(true){}
 	virtual int operator () ()
-	{
+			{
 		wm->updateEvents();
 		if(kbd->getKeyState(KeyboardKeys::KEY_ESCAPE))
 			core::EngineCore::shutdown();
@@ -55,7 +55,7 @@ public:
 		//sleep(3);
 		return core::taskmanager::Task::MAIN_THREAD;
 		//return core::taskmanager::Task::DONE;
-	}
+			}
 	windowmanager::WindowManagerDriver* wm;
 	windowmanager::input::KeyDrivenDevice*		kbd;
 	resources::Resource*					res;
@@ -72,12 +72,16 @@ int main(int argc, char** argV)
 		core.createWindowManager("SDL");
 
 		windowmanager::WindowManagerDriver* wm = core.getWindowManager();
-		wm->createWindow(winWidth,winHeight,"Resource manager test",false,NULL);
-
+		//wm->createWindow(winWidth,winHeight,"Resource manager test",false,NULL);
+		wm->setWindowedModeWindowSize(winWidth,winHeight);
+		wm->setFullscreenWindowMode((unsigned)0);
+		wm->toggleFullscreen(false);
+		wm->setWindowFormat(new windowmanager::WindowFormat);
+		wm->setCaption("Resource manager test");
 		core::filesystem::Filesystem* fs = core::EngineCore::getFilesystem();
 		fs->mount("pwd");
 		fs->mount("lzma","Base.7z");
-		
+
 		core.createRenderingDriver(renderer::futures::MULTITEXTURE | renderer::futures::AUTO_TRANSPOSE_MATIRIX |
 				renderer::futures::VERTEX_BUFFER | renderer::futures::TEXTURE_BUFFER |
 				renderer::futures::VERTEX_SHADER | renderer::futures::FRAGMENT_SHADER);

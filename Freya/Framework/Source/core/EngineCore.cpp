@@ -254,11 +254,14 @@ void	EngineCore::createRenderingDriver(unsigned	futures)
 	bool not_ready = true;
 	EStringList	lst = m_RAPIFactory->listDrivers();
 	size_t id = 0,sz = lst.size();
+	if(m_WindowManager == 0)
+		throw renderer::DriverException("WindowManager is not started");
 	while(not_ready)
 	{
 		bool created = false;
 		try
 		{
+			m_WindowManager->destroyWindow();
 			created = true;
 			//Todo: redirect to log
 			std::cout << "Trying to start " << lst[id] << " renderer " << std::endl;
@@ -277,7 +280,7 @@ void	EngineCore::createRenderingDriver(unsigned	futures)
 			created = false;
 		}
 		++id;
-		if(id == sz)
+		if(id > sz)
 			throw renderer::DriverException("Failed to create renderer with requested capabilities.");
 		if(!created)
 			continue;
