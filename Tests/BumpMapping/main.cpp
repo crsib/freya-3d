@@ -37,7 +37,9 @@ public:
 			fps  = frames * 1000.0f / float(newt-lastt);
 			lastt = newt;
 			frames = 0;
-			std::cout << "FPS: " << fps << std::endl;
+			std::stringstream str;
+			str << "Bump Mapping Demo [FPS " << fps << "]";
+			wm->setCaption(str.str().c_str());
 		}
 		return FPSCounter::SECONDARY_THREAD;
 	}
@@ -295,15 +297,22 @@ public:
 			fs->mount("lzma","Textures.7z");
 
 			//Create window
-			wm->createWindow(winWidth,winHeight,"Tutorial 1: Bump mapping",fullscreen ,NULL);
+			wm->setWindowedModeWindowSize(winWidth,winHeight);
+			windowmanager::DisplayMode*	mode = wm->getDisplayMode(0);
+			std::cout << "Default fs mode is " << mode->width << "x" << mode->height << "@" << mode->refreshRate << std::endl;
+			wm->setFullscreenWindowMode((unsigned)0);
+			wm->toggleFullscreen(fullscreen);
+			wm->setCaption("Bump Mapping Demo");
+			//wm->createWindow(winWidth,winHeight,"Tutorial 1: Bump mapping",fullscreen ,NULL);
 			//Start rendering subsystem
-			core::EngineCore::createRenderingDriver(renderer::futures::MULTITEXTURE | renderer::futures::AUTO_TRANSPOSE_MATIRIX |
-					renderer::futures::VERTEX_BUFFER | renderer::futures::TEXTURE_BUFFER |
+			core::EngineCore::createRenderingDriver(renderer::futures::MULTITEXTURE | renderer::futures::AUTO_TRANSPOSE_MATIRIX | renderer::futures::VERTEX_BUFFER | renderer::futures::TEXTURE_BUFFER |
 					renderer::futures::VERTEX_SHADER | renderer::futures::FRAGMENT_SHADER);
 			//Get the address of rendering subsystem
 			rapi = core::EngineCore::getRenderingDriver();
 			//Set the clear color value
 			rapi->clearColorValue(0.3,0.4,0.5,1.0);
+			rapi->clearColor();
+			rapi->clearDepth();
 			wm->swapBuffers();
 			//Create keyboard and mouse
 			windowmanager::input::KeyDrivenDevice* kbd = wm->createKeyDrivenDevice("keyboard");
@@ -435,9 +444,10 @@ public:
 		};
 
 		//Initialization done
+		cams[0]->applyRenderingSettings();
 		BumpmappingRender*	renderer =  new BumpmappingRender(camMode,cams,sphere,cube,useBump,shader,lightSource);
-		core::EngineCore::getTaskManager()->addTask(renderer);
 		core::EngineCore::getTaskManager()->addTask(new HandleInput(camMode,cams,sphere,cube,useBump,bump,fake,renderer));
+		core::EngineCore::getTaskManager()->addTask(renderer);
 		core::EngineCore::getTaskManager()->addTask(new FPSCounter);
 		return core::taskmanager::Task::DONE;
 	}

@@ -6,7 +6,7 @@ namespace renderer
 {
 namespace drivers
 {
-namespace opengl_glsl_sm4_full
+namespace opengl_glsl_sm3_simple
 {
 
 namespace OpenGL_GLSL_Tables
@@ -49,46 +49,6 @@ extern unsigned	DataTypeSize[];
 extern unsigned TextureComponentsNumber[];
 }
 
-}
-
-namespace opengl_glsl_sm3_full
-{
-namespace OpenGL_GLSL_Tables = opengl_glsl_sm4_full::OpenGL_GLSL_Tables;
-}
-
-namespace opengl_glsl_sm3_nods
-{
-namespace OpenGL_GLSL_Tables = opengl_glsl_sm4_full::OpenGL_GLSL_Tables;
-}
-
-namespace opengl_glsl_sm3_nomrt
-{
-namespace OpenGL_GLSL_Tables =  opengl_glsl_sm4_full::OpenGL_GLSL_Tables;
-}
-
-namespace opengl_glsl_sm3_nomrtds
-{
-namespace OpenGL_GLSL_Tables =  opengl_glsl_sm4_full::OpenGL_GLSL_Tables;
-}
-
-namespace opengl_glsl_sm3_simple
-{
-namespace OpenGL_GLSL_Tables =  opengl_glsl_sm4_full::OpenGL_GLSL_Tables;
-}
-
-namespace opengl_glsl_sm4_nods
-{
-namespace OpenGL_GLSL_Tables = opengl_glsl_sm4_full::OpenGL_GLSL_Tables;
-}
-
-namespace opengl_glsl_sm4_nomrt
-{
-namespace OpenGL_GLSL_Tables =  opengl_glsl_sm4_full::OpenGL_GLSL_Tables;
-}
-
-namespace opengl_glsl_sm4_nomrtds
-{
-namespace OpenGL_GLSL_Tables =  opengl_glsl_sm4_full::OpenGL_GLSL_Tables;
 }
 
 }

@@ -5,7 +5,7 @@ namespace renderer
 {
 namespace drivers
 {
-namespace opengl_glsl_sm4_full
+namespace opengl_glsl_sm3_simple
 {
 namespace OpenGL_GLSL_Tables
 {
@@ -279,9 +279,6 @@ unsigned	Primitive[] = {
 		GL_TRIANGLE_STRIP,	/*TRIANGLES_STRIP*/
 		GL_TRIANGLE_STRIP_ADJACENCY_EXT,	/*TRIANGLES_STRIP_ADJACENCY*/
 		GL_TRIANGLE_FAN,	/*TRIANGLES_FAN*/
-		GL_QUADS,	/*QUADS*/
-		GL_QUAD_STRIP,	/*QUADS_STRIP*/
-		GL_POLYGON 	/*POLYGON*/
 };
 
 

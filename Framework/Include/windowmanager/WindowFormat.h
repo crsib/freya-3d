@@ -8,7 +8,7 @@
 #ifndef WINDOWFORMAT_H_
 #define WINDOWFORMAT_H_
 
-#include "EngineSubsystem.h"
+#include "core/EngineSubsystem.h"
 
 namespace windowmanager
 {
@@ -47,7 +47,7 @@ struct WindowFormat: public EngineSubsystem
 };
 
 //============== Implementation =============
-WindowFormat::WindowFormat()
+inline WindowFormat::WindowFormat()
 {
 	RedSize = GreenSize = BlueSize = AlphaSize 	= 8;
 	BufferSize 									= 32;

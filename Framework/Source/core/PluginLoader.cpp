@@ -119,6 +119,7 @@ namespace core
 			{
 				m_Name	= name;
 				soid	= _soid;
+				//m_DriverType = driverType;
 			}
 			virtual ~FakeDriverID(){}
 			virtual core::drivermodel::Driver*		create() const
@@ -159,6 +160,7 @@ namespace core
 					(soid->procs.set_memory_allocator)(core::memory::Allocate,core::memory::Free,core::EngineCore::getPluginCore());
 
 				}
+				//if(m_DriverType == core::drivermodel::RENDERER)
 				return (soid->procs.create_driver)(m_Name.c_str());
 			}
 			virtual EString							id() const
