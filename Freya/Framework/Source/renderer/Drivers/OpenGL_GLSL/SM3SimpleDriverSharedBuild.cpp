@@ -21,7 +21,7 @@ namespace memory
 #include "internal.h"
 #include "core/drivermodel/Driver.h"
 //Ids
-#include "SM3_Simple/OpenGL_GLSL_SM3_Simple.h"
+#include "OpenGL15Driver/OpenGL_GLSL_SM3_Simple.h"
 
 
 extern "C" EXPORT void 		set_memory_allocator(core::memory::ALLOCATE alloc,core::memory::FREE free,core::PluginCore*	pl)
@@ -49,7 +49,7 @@ extern "C" EXPORT const char*	driver_name(unsigned id)
 	{
 		case 0:
 		{
-			return "OpenGL GLSL";
+			return "OpenGL 1.5 GLSL";
 		}
 		break;
 	}
@@ -59,7 +59,7 @@ extern "C" EXPORT const char*	driver_name(unsigned id)
 extern "C" EXPORT core::drivermodel::Driver* create_driver(const char * driverName)
 {
 	EString name(driverName);
-	renderer::drivers::ids::OpenGL_GLSL_SM3_SIMPLE 	id1;
+	renderer::drivers::ids::OpenGL15DriverID 	id1;
 	if(id1.id() == name)
 	{
 		return id1.create();

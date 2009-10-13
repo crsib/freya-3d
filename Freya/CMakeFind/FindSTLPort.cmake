@@ -36,7 +36,8 @@ IF(CMAKE_BUILD_TYPE MATCHES "Debug")
 	      stlportstld_x
 		  stlport_x.5.2
 	      stlportstld_x.5.2
-	  stlportd
+	      stlportd
+	      stlport
     PATHS ${STLPORT_INSTALL_DIR}/lib ${STLPORT_INSTALL_DIR}/../lib
   )
 ELSE(CMAKE_BUILD_TYPE MATCHES "Debug")

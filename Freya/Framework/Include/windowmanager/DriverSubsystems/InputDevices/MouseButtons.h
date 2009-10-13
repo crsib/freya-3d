@@ -12,15 +12,15 @@ namespace windowmanager
 {
 namespace input
 {
-extern const char* MouseButtonsNames [7];
+extern const char* MouseButtonsNames [5];
 
 enum MouseButtons
 {
 	BUTTON_LEFT = 1,
 	BUTTON_MIDDLE,
 	BUTTON_RIGT,
-	BUTTON_WHEEL_UP,
-	BUTTON_WHEEL_DOWN,
+	BUTTON_X4,
+	BUTTON_X5,
 };
 
 }

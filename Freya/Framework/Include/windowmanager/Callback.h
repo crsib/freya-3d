@@ -82,6 +82,16 @@ public:
 		}
 	}
 
+	template<typename T1>
+	void call(const T1& p1)
+	{
+		if(m_Cpp_Function) //c++ function
+		{
+			void (*f)(const T1& p1) = reinterpret_cast<void (*)(const T1& p1)>(m_Cpp_Function);
+			f(p1);
+		}
+	}
+
 	template<typename T1,typename T2>
 	void call(const T1& p1,const T2& p2)
 	{
