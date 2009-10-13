@@ -18,19 +18,19 @@ namespace core
 {
 namespace memory
 {
-	extern void* (*Allocate)(size_t,unsigned);
-	extern void  (*Free)(void*,unsigned);
+extern void* (*Allocate)(size_t,unsigned);
+extern void  (*Free)(void*,unsigned);
 }
 }
 #endif 
- 
+
 #include "windowmanager/WindowManagerDriver.h"
 #include "core/memory/MemoryAllocator.h"
 
 #include "core/EString.h"
 #include <list>
 #include <map>
-struct SDL_Surface;
+#include <SDL/SDL.h>
 
 
 namespace windowmanager
@@ -86,7 +86,25 @@ public:
 
 	virtual EString		id() const;
 	//Window part
-	virtual void		createWindow(unsigned Width,unsigned Height,const EString& Caption,bool Fullscreen = false,const RenderingAPIInitialization* API = 0);
+	virtual void		setWindowedModeWindowSize(unsigned width,unsigned height);
+
+	virtual void 		setCaption(const EString& caption);
+
+	virtual void		setWindowFormat(WindowFormat*	fmt);
+
+	virtual unsigned	getSupportedModesNumber();
+
+	virtual DisplayMode*getDisplayMode(unsigned id);
+
+	virtual void		setFullscreenWindowMode(DisplayMode* mode);
+	virtual void		setFullscreenWindowMode(unsigned id);
+
+	virtual void		toggleFullscreen(bool fs);
+
+	virtual void		initWindow(renderer::RenderingAPIVersion*	API);
+
+	virtual void		setMouseWheelCallback(const Callback& callback);
+
 	virtual void    	destroyWindow();
 
 	//Time
@@ -119,9 +137,23 @@ private:
 	MovementDrivenDeviceList 	m_MovementDrivenDeviceList;
 
 	//Window
-	SDL_Surface*				m_Screen;
+	SDL_WindowID				m_WindowID;
+	SDL_GLContext				m_GLContext;
+	unsigned					m_Width;
+	unsigned					m_Height;
+	unsigned					m_Fullscreen;
+	WindowFormat*				m_Fmt;
+	EString						m_Caption;
+	SDL_DisplayMode**			m_SDLDisplayModes;
+	DisplayMode**				m_FreyaModes;
+	unsigned					m_NumModes;
+	unsigned					m_FullScreenMode;
 	//Input events
 	Callback*					m_QuitCallback;
+	Callback*					m_MouseWheelCallback;
+
+	unsigned					m_Grabbed;
+	unsigned					m_CursorShown;
 	windowmanager::input::drivers::sdl::InputDeviceFactory*	m_Factory;
 };
 

@@ -18,7 +18,6 @@
 #include "windowmanager/WMException.h"
 
 #include <algorithm>
-#include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
 #include <iostream>
 using std::clog;
@@ -34,9 +33,41 @@ using namespace windowmanager::input;
 SDLManagerDriver::SDLManagerDriver()
 {
 	clog << "Starting SDL window manager" << endl;
-	SDL_Init(SDL_INIT_EVERYTHING);
+	if(SDL_Init(SDL_INIT_VIDEO) < 0)
+	{
+		char* err = SDL_GetError();
+		throw windowmanager::WMException("Failed to start SDL: " + EString(err));
+	}
 	m_Factory = new windowmanager::input::drivers::sdl::InputDeviceFactory();
 	m_QuitCallback = NULL;
+	m_MouseWheelCallback = NULL;
+	m_WindowID = 0;
+	m_GLContext = 0;
+	m_Fullscreen = 0;
+	m_Fmt = NULL;
+
+	//Get avalable modes
+	m_NumModes = SDL_GetNumDisplayModes();
+	if(m_NumModes)
+	{
+		m_SDLDisplayModes = reinterpret_cast<SDL_DisplayMode**>(core::memory::Allocate(m_NumModes*sizeof(void*),core::memory::GENERIC_POOL));
+		m_FreyaModes      = reinterpret_cast<DisplayMode**>(core::memory::Allocate(m_NumModes*sizeof(void*),core::memory::GENERIC_POOL));
+		for(unsigned i = 0; i < m_NumModes;i++)
+		{
+			SDL_DisplayMode* mode = reinterpret_cast<SDL_DisplayMode*>(core::memory::Allocate(sizeof(SDL_DisplayMode),core::memory::GENERIC_POOL));
+			SDL_GetDisplayMode(i,mode);
+			DisplayMode*     fmode = new DisplayMode;
+			fmode->width = mode->w;
+			fmode->height = mode->h;
+			fmode->refreshRate = mode->refresh_rate;
+			fmode->id  = i;
+			m_SDLDisplayModes[i] = mode;
+			m_FreyaModes[i] = fmode;
+		}
+	}
+	m_FullScreenMode = 0;
+	m_Grabbed = false;
+	m_CursorShown = false;
 }
 
 SDLManagerDriver::~SDLManagerDriver()
@@ -50,49 +81,169 @@ SDLManagerDriver::~SDLManagerDriver()
 	{
 		delete (*it);
 	}
+	if(m_NumModes)
+	{
+		for(unsigned i = 0; i < m_NumModes;i++)
+		{
+			core::memory::Free(m_SDLDisplayModes[i],core::memory::GENERIC_POOL);
+			delete m_FreyaModes[i];
+		}
+		core::memory::Free(m_SDLDisplayModes,core::memory::GENERIC_POOL);
+		core::memory::Free(m_FreyaModes,core::memory::GENERIC_POOL);
+	}
 	delete m_Factory;
 	delete m_QuitCallback;
-	if(m_Screen)
-		SDL_FreeSurface(m_Screen);
+
+	if(m_GLContext)
+		SDL_GL_DeleteContext(m_GLContext);
+
+	if(m_WindowID)
+		SDL_DestroyWindow(m_WindowID);
 	SDL_Quit();
 }
 
 EString 		SDLManagerDriver::id() const
-{
+		{
 	return EString("SDL");
-}
-void		SDLManagerDriver::createWindow(unsigned Width,unsigned Height,const EString& Caption,bool Fullscreen,const RenderingAPIInitialization* API)
+		}
+
+void			SDLManagerDriver::setWindowedModeWindowSize(unsigned width,unsigned height)
 {
-	RenderingAPIInitialization* Api = const_cast<RenderingAPIInitialization*>(API);
-	if(Api == 0)
-		Api = new OpenGLSDLAPIInit();
-	Api->setupAPI();
-	if(API == 0)
+	if(m_WindowID)
 	{
-		delete static_cast<OpenGLSDLAPIInit*>(Api);
+		SDL_SetWindowSize(m_WindowID,width,height);
 	}
-	unsigned flag = Fullscreen? SDL_OPENGL | SDL_FULLSCREEN : SDL_OPENGL;
-	unsigned bpp =	SDL_VideoModeOK(Width,Height,0,flag);
-	if((m_Screen =  SDL_SetVideoMode(Width,Height,bpp,flag)) == NULL)
+	m_Width = width;
+	m_Height = height;
+}
+
+void 			SDLManagerDriver::setCaption(const EString& caption)
+{
+	if(m_WindowID)
 	{
-		clog << "Failed to create window: " << SDL_GetError() << endl;
-		throw WMException(EString("Failed to create window: ") + SDL_GetError());
+		SDL_SetWindowTitle(m_WindowID,caption.c_str());
 	}
-	clog << "Window was successfully created with: " << Width << "x" << Height << "x" << bpp << " " << (Fullscreen ? "fullscreen" : " ") << endl;
+	m_Caption = caption;
+}
 
-	SDL_WM_SetCaption(Caption.c_str(),Caption.c_str());
+void			SDLManagerDriver::setWindowFormat(WindowFormat*	fmt)
+{
+	if(m_Fmt)
+		delete m_Fmt;
+	m_Fmt = new WindowFormat();
+	::memcpy(m_Fmt,fmt,sizeof(WindowFormat));
+}
 
-	clog 	 << "\nVendor " << glGetString( GL_VENDOR ) << "\nRenderer " << glGetString( GL_RENDERER )
-	<< "\nVersion " << glGetString( GL_VERSION ) << endl;
+unsigned		SDLManagerDriver::getSupportedModesNumber()
+{
+	return m_NumModes;
+}
 
-	//core::CoreInstance->getResourceManager()->invalidateResources(); //Reload all resources if needed
+DisplayMode* 	SDLManagerDriver::getDisplayMode(unsigned id)
+{
+	if(id < m_NumModes)
+		return m_FreyaModes[id];
+	else
+		throw windowmanager::WMException(EString("Mode is not supported"));
+}
+
+void			SDLManagerDriver::setFullscreenWindowMode(DisplayMode* mode)
+{
+	this->setFullscreenWindowMode(mode->id);
+}
+
+void			SDLManagerDriver::setFullscreenWindowMode(unsigned id)
+{
+	if(id < m_NumModes)
+	{
+
+		SDL_SetFullscreenDisplayMode(m_SDLDisplayModes[id]);
+		m_FullScreenMode = id;
+	}
+	else
+		throw windowmanager::WMException(EString("Mode is not supported"));
+}
+
+void			SDLManagerDriver::toggleFullscreen(bool fs)
+{
+	if(m_WindowID)
+	{
+		SDL_SetWindowFullscreen(m_WindowID,fs);
+	}
+	m_Fullscreen = fs;
+}
+
+void			SDLManagerDriver::initWindow(renderer::RenderingAPIVersion*	API)
+{
+	std::clog << "Initializing window..." << std::endl;
+	if(m_WindowID)
+		this->destroyWindow();
+	bool usesDefaultWF = false;
+	if(m_Fmt == NULL)
+	{
+		m_Fmt = new WindowFormat;
+	}
+
+	if(API->type() != renderer::RenderingAPIVersion::OPENGL)
+		throw windowmanager::WMException("Support for APIs other the OpenGL is not implemented yet");
+
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION,API->major() - '0');
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,API->minor() - '0');
+
+	SDL_GL_SetAttribute(SDL_GL_RED_SIZE,m_Fmt->RedSize);
+	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,m_Fmt->GreenSize);
+	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,m_Fmt->BlueSize);
+	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,m_Fmt->AlphaSize);
+
+	SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE,m_Fmt->BufferSize);
+
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,m_Fmt->DepthSize);
+
+	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,m_Fmt->StencilSize);
+
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,m_Fmt->Doublebuffered);
+
+	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL,m_Fmt->Accelerated);
+
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS,m_Fmt->Multisampled);
+
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES,m_Fmt->MultisampleSamples);
+
+	SDL_GL_SetSwapInterval(m_Fmt->VSync);
+
+	//Now we are ready to create window
+
+	m_WindowID = SDL_CreateWindow(m_Caption.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,m_Width,m_Height,SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+	if(m_WindowID == 0)
+		throw windowmanager::WMException("Failed to create window");
+	SDL_SetWindowGrab(m_WindowID,m_Grabbed);
+	SDL_SetWindowFullscreen(m_WindowID,m_Fullscreen);
+
+	m_GLContext = SDL_GL_CreateContext(m_WindowID);
+	if(m_GLContext == 0)
+	{
+		SDL_DestroyWindow(m_WindowID);
+		m_WindowID = 0;
+		throw windowmanager::WMException("Failed to create window");
+	}
+	if(usesDefaultWF)
+	{
+		delete m_Fmt;
+	}
+
+	std::clog << "Window successfully created" << std::endl;
 
 }
+
 
 void    	SDLManagerDriver::destroyWindow()
 {
-	if(m_Screen)
-		SDL_FreeSurface(m_Screen);
+	if(m_GLContext)
+		SDL_GL_DeleteContext(m_GLContext);
+	if(m_WindowID)
+		SDL_DestroyWindow(m_WindowID);
+	m_GLContext = 	0;
+	m_WindowID = 	0;
 }
 
 //Time
@@ -138,9 +289,18 @@ void		SDLManagerDriver::updateEvents()
 	SDL_Event	event;
 	while(SDL_PollEvent(&event))
 	{
-		if(event.type == SDL_QUIT)
+		switch(event.type)
+		{
+		case SDL_QUIT:
 			if(m_QuitCallback)
 				m_QuitCallback->call();
+			break;
+		case SDL_MOUSEWHEEL:
+			if(m_MouseWheelCallback)
+				m_MouseWheelCallback->call(event.wheel.which,event.wheel.y);
+			break;
+		}
+
 	}
 	for(KeyDrivenDeviceListIterator it = m_KeyDrivenDeviceList.begin();it != m_KeyDrivenDeviceList.end();it++)
 	{
@@ -150,17 +310,21 @@ void		SDLManagerDriver::updateEvents()
 
 void		SDLManagerDriver::grabInput(bool grab_state)
 {
-	SDL_WM_GrabInput(grab_state ? SDL_GRAB_ON : SDL_GRAB_OFF);
+	if(m_WindowID)
+		SDL_SetWindowGrab(m_WindowID,grab_state);
+	m_Grabbed = grab_state;
 }
 
 void		SDLManagerDriver::showCursor(bool cursor_state)
 {
-	SDL_ShowCursor(cursor_state ? SDL_ENABLE : SDL_DISABLE);
+	SDL_ShowCursor(cursor_state);
+	m_CursorShown = cursor_state;
 }
 
 void		SDLManagerDriver::swapBuffers()
 {
-	SDL_GL_SwapBuffers();
+	if(m_WindowID)
+		SDL_GL_SwapWindow(m_WindowID);
 }
 
 void		SDLManagerDriver::setQuitCallback(const Callback& callback)
@@ -169,6 +333,14 @@ void		SDLManagerDriver::setQuitCallback(const Callback& callback)
 		m_QuitCallback = new Callback(callback);
 	else
 		*m_QuitCallback = callback;
+}
+
+void			SDLManagerDriver::setMouseWheelCallback(const Callback& callback)
+{
+	if(!m_MouseWheelCallback)
+		m_MouseWheelCallback = new Callback(callback);
+	else
+		*m_MouseWheelCallback = callback;
 }
 
 void		SDLManagerDriver::setKeydrivenDeviceMode(unsigned mode)
