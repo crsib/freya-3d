@@ -191,7 +191,7 @@ public:
 	void   render()	//Renders frustum
 	{
 		//TODO: Add moving to position code here
-		rapi->enableClientState(renderer::ClientState::VERTEX_ARRAY);
+		/*rapi->enableClientState(renderer::ClientState::VERTEX_ARRAY);
 		m_VertexBuffer->bind();
 		rapi->vertexPointer(renderer::DataType::FLOAT,3,0,m_VertexBuffer);
 		m_VertexBuffer->unbind();
@@ -202,7 +202,7 @@ public:
 		rapi->drawIndexedPrimitive(renderer::Primitive::TRIANGLE_STRIP,22,renderer::DataType::UNSIGNED_SHORT,m_IndexBuffer);
 		rapi->popMatrix();
 		m_IndexBuffer->unbind();
-		rapi->disableClientState(renderer::ClientState::VERTEX_ARRAY);
+		rapi->disableClientState(renderer::ClientState::VERTEX_ARRAY);*/
 	}
 	//As in camera, everything is public,as speed is in favour
 	math::vector3d  	Origin;

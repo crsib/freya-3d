@@ -15,11 +15,6 @@ public:
 
 	void render();
 
-	void addInstance(const renderer::InstanceData& i);
-
-	renderer::InstanceData&  getInstance(unsigned i);
-
-	unsigned getInstancesCount();
 	renderer::Shader *getShader() const
 	{
 		return m_Shader;
@@ -61,7 +56,6 @@ public:
 	}
 
 private:
-	renderer::InstanceArray					m_Arr;
 	static renderer::VertexBufferObject*			m_Verticies;
 	static renderer::VertexBufferObject*			m_Normals;
 	static renderer::VertexBufferObject*			m_Indicies;

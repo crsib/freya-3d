@@ -41,7 +41,7 @@ MemoryBuffer::MemoryBuffer(size_t size,size_t alligment)
 
 	try
 	{
-		m_Memory = new char[m_Size];
+		m_Memory = malloc(m_Size);
 	}
 	catch(...)
 	{
@@ -67,7 +67,7 @@ MemoryBuffer::MemoryBuffer(size_t size,size_t alligment)
 
 MemoryBuffer::~MemoryBuffer()
 {
-	delete[] reinterpret_cast<char*>(m_Memory);
+	free(m_Memory);
 }
 
 void *		MemoryBuffer::allocate(size_t size)

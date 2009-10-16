@@ -67,7 +67,7 @@ public:
 	core::drivermodel::Driver*		create() const
 	{
 		core::CoreInstance->getWindowManager()->initWindow(new OpenGL15Version);
-		return new renderer::drivers::opengl_glsl_sm3_simple::OpenGL_GLSL_Driver();
+		return new renderer::drivers::opengl_glsl_15::OpenGL_GLSL_Driver();
 	}
 
 	virtual

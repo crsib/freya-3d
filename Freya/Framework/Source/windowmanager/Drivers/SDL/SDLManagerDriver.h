@@ -68,13 +68,13 @@ namespace drivers
 {
 namespace sdl
 {
-class SDLManagerDriver: public windowmanager::WindowManagerDriver
+class SDLWindowManagerDriver: public windowmanager::WindowManagerDriver
 {
 	friend class core::EngineCore;
 	friend class windowmanager::drivers::sdl::SDLDriverID;
 protected:
-	SDLManagerDriver();
-	~SDLManagerDriver();
+	SDLWindowManagerDriver();
+	~SDLWindowManagerDriver();
 public:
 	//Typedefs
 	typedef std::list<windowmanager::input::KeyDrivenDevice*,core::memory::MemoryAllocator<windowmanager::input::KeyDrivenDevice*> > KeyDrivenDeviceList;

@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <iostream>
 #include "internal.h"
+#include "core/memory/MemoryPools.h"
 namespace core
 {
 namespace memory
@@ -13,7 +14,7 @@ EXPORT void* Allocate(size_t,unsigned);
 EXPORT void  Free(void*,unsigned);
 #endif
 //!STL compatible memory allocator to use memory arena for allocation. For detailed information use C++ documentation
-template<typename T,unsigned pool = 0>
+template<typename T,unsigned pool = core::memory::STL_POOL>
 class MemoryAllocator// : public std::allocator<T>
 {
 public:

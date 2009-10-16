@@ -18,7 +18,7 @@ namespace renderer
 {
 namespace drivers
 {
-namespace opengl_glsl_sm3_simple
+namespace opengl_glsl_15
 {
 class	OpenGL_GLSL_Framebuffer : public Framebuffer
 {

@@ -11,6 +11,7 @@ extern "C"
 }
 
 #include <list>
+#include <map>
 
 namespace renderer
 {
@@ -21,7 +22,7 @@ namespace ids
 class OpenGL15DriverID;
 }
 
-namespace opengl_glsl_sm3_simple
+namespace opengl_glsl_15
 {
 class OpenGL_GLSL_Texture;
 class OpenGL_GLSL_VertexBufferObject;
@@ -139,48 +140,21 @@ public:
 
 	virtual void					destroyVertexBufferObject(VertexBufferObject*	buf);
 
+	virtual void		setStreamSource(unsigned sourceID,VertexBufferObject* dataSource,unsigned offset,unsigned stride);
+	virtual void		setVertexFormat(VertexElement*    element);
+
+	virtual void		beginScene();
+	virtual void		endScene();
+
 	virtual void		drawPrimitive(unsigned primitives,unsigned first,unsigned count);
 
 	virtual void		drawIndexedPrimitive(unsigned primitives,unsigned count,unsigned type,VertexBufferObject* buf);
 
-	virtual void		drawPrimitive(unsigned primitives,unsigned first,unsigned count,const InstanceArray& instances);
-
-	virtual void		drawIndexedPrimitive(unsigned primitives,unsigned count,unsigned type,VertexBufferObject* buf,const InstanceArray& instances);
-
-
-	virtual void		enableClientState(unsigned state);
-
-	virtual void		disableClientState(unsigned state);
-
-	virtual void		enableTextureCoordState(unsigned unit);
-
-	virtual void		disableTextureCoordState(unsigned unit);
-
-	virtual void		colorPointer(unsigned dataType,unsigned numComponents,unsigned stride,VertexBufferObject*	buf,unsigned offset = 0);
-
-	virtual void		colorIndexPointer(unsigned dataType,unsigned stride,VertexBufferObject*	buf,unsigned offset = 0);
-
-	virtual void		normalPointer(unsigned dataType,unsigned stride,VertexBufferObject*	buf,unsigned offset = 0);
-
-	virtual void		textureCoordPointer(unsigned unit,unsigned dataType,unsigned numComponenets,unsigned stride,VertexBufferObject*	buf,unsigned offset = 0);
-
-	virtual void		vertexPointer(unsigned dataType,unsigned numComponenets,unsigned stride,VertexBufferObject*	buf,unsigned offset = 0);
-
-	virtual void		fogCoordPointer(unsigned dataType,unsigned stride,VertexBufferObject*	buf,unsigned offset = 0);
+	virtual void		drawPrimitive(unsigned primitives,unsigned first,unsigned count,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData);//Render non-idexed primitive assembled as {primitves},starting from element {first} with count of elements (vertices)
+	virtual void		drawIndexedPrimitive(unsigned primitives,unsigned count,unsigned type,VertexBufferObject* indexBuffer,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData);//Type is described by DataType
 
 	virtual void		setRenderMode(unsigned side,unsigned mode);
 
-	virtual void		enableFog();
-
-	virtual void		disableFog();
-
-	virtual void		setFogFunction(unsigned func);
-
-	virtual void		setLinearFogBoundaries(float start,float end);
-
-	virtual void		setFogDensity(float density);
-
-	virtual void		setFogColor(float r,float g,float,float b);
 
 	virtual Framebuffer*		createFramebuffer();
 
@@ -216,6 +190,30 @@ private:
 	FramebufferList			m_FramebufferList;
 	ShaderList				m_ShaderList;
 
+	struct  StreamSource : public EngineSubsystem
+	{
+		VertexBufferObject*	buffer;
+		unsigned			offset;
+		unsigned			stride;
+		StreamSource() : buffer(NULL),offset(0),stride(0){}
+	};
+
+	StreamSource		m_Streams[MAX_STREAM_SOURCES];
+
+	class  VertexFormat: public EngineSubsystem
+	{
+		unsigned 		m_Size;
+		unsigned		m_Length;
+		VertexElement*	m_Format;
+		StreamSource*	m_Streams;
+	public:
+		VertexFormat(VertexElement* format,StreamSource*	streams);
+		void enable();
+		void enableImmediate(unsigned inst,void* data);
+		void disable();
+	};
+
+	VertexFormat*		m_VF;
 };
 }
 }

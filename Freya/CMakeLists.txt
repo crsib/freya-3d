@@ -27,6 +27,14 @@ SET ( INTERMIDIATE_DIRECTORY		 ${CMAKE_SOURCE_DIR}/Build/Intermediate )
 #Additional modules paths
 SET	( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/CMakeFind ${CMAKE_SOURCE_DIR}/CMakeIncludes )
 
+#Search for bullet physics library
+FIND_PACKAGE( Bullet REQUIRED )
+IF( BULLET_FOUND )
+    INCLUDE_DIRECTORIES(AFTER ${BULLET_INCLUDE_DIRS} )
+ELSE( )
+    MESSAGE(FATAL "Freya 3D engine is heavy dependent on Bullet!")
+ENDIF()
+
 # Link libraries to executables
 DEFINE_PROPERTY(GLOBAL PROPERTY RUNTIME_LINK_LIBRARIES_GLOBAL BRIEF_DOCS "Put libraries to link with executables here"  FULL_DOCS "Put libraries to link with executables here")
 

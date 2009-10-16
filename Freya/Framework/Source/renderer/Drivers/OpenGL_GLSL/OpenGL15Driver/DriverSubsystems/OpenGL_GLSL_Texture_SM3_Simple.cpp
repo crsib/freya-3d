@@ -2,7 +2,7 @@
 #include "renderer/Drivers/OpenGL_GLSL/OpenGL15Driver/DriverSubsystems/OpenGL_GLSL_Texture_SM3_Simple.h"
 
 
-#include "renderer/Drivers/OpenGL_GLSL/OpenGL_GLSL_ConstantsTables.h"
+#include "renderer/Drivers/OpenGL_GLSL/OpenGL15Driver/OpenGL_15_ConstantsTables.h"
 #include "core/PluginCore.h"
 
 
@@ -13,7 +13,7 @@ namespace renderer
 {
 namespace drivers
 {
-namespace opengl_glsl_sm3_simple
+namespace opengl_glsl_15
 {
 OpenGL_GLSL_Texture::OpenGL_GLSL_Texture()
 {
@@ -334,7 +334,8 @@ void		OpenGL_GLSL_Texture:: generateMipMaps(bool val)
 		bind();
 	glBindTexture(m_Target,m_Texture);
 	if(m_InternalTarget == TextureType::TEXTURE_RECTANGLE) return;
-	glTexParameteri(m_Target,GL_GENERATE_MIPMAP_SGIS,val);
+	//glTexParameteri(m_Target,GL_GENERATE_MIPMAP_SGIS,val);
+	glGenerateMipmapEXT(GL_TEXTURE_2D);
 	glBindTexture(m_Target,0);
 	if(wasBounded)
 		unbind();
