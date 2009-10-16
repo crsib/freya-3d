@@ -60,7 +60,7 @@ public:
 		rapi->setMatrixMode(renderer::MatrixMode::PROJECTION);
 		rapi->loadIdentityMatrix();
 		rapi->setPerspective(mFOW,mAspect,mNear,mFar);
-		rapi->setMatrixMode(renderer::MatrixMode::MODELVIEW);
+		rapi->setMatrixMode(renderer::MatrixMode::WORLD);
 		rapi->loadIdentityMatrix();
 	}
 	void applyRenderingSettings(float FOW,float Aspect,float Near,float Far)
@@ -73,7 +73,7 @@ public:
 		rapi->setMatrixMode(renderer::MatrixMode::PROJECTION);
 		rapi->loadIdentityMatrix();
 		rapi->setPerspective(mFOW,mAspect,mNear,mFar);
-		rapi->setMatrixMode(renderer::MatrixMode::MODELVIEW);
+		rapi->setMatrixMode(renderer::MatrixMode::WORLD);
 		rapi->loadIdentityMatrix();
 	}
 
@@ -109,7 +109,7 @@ public:
 		rapi->setPerspective(mFOW,mAspect,mNear,mFar);
 
 		rapi->multMatrix(math::matrix4x4(m));
-		rapi->setMatrixMode(renderer::MatrixMode::MODELVIEW);
+		rapi->setMatrixMode(renderer::MatrixMode::WORLD);
 		rapi->loadIdentityMatrix();
 		//rapi->multMatrix(math::matrix4x4(m));
 	}

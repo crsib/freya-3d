@@ -36,8 +36,8 @@ namespace __internal
 #endif
 class MemoryArena
 {
-	friend class core::EngineCore;
-private:
+public:
+	static MemoryArena*		instance();
 	MemoryArena();
 	virtual ~MemoryArena();
 public:

@@ -1,14 +1,14 @@
 /*This file was generated for Freya engine*/
 #include "renderer/Drivers/OpenGL_GLSL/OpenGL15Driver/DriverSubsystems/OpenGL_GLSL_Framebuffer_SM3_Simple.h"
 #include "renderer/Drivers/OpenGL_GLSL/OpenGL15Driver/DriverSubsystems/OpenGL_GLSL_Texture_SM3_Simple.h"
-#include "renderer/Drivers/OpenGL_GLSL/OpenGL_GLSL_ConstantsTables.h"
+#include "renderer/Drivers/OpenGL_GLSL/OpenGL15Driver/OpenGL_15_ConstantsTables.h"
 
 #include "renderer/3DConstants.h"
 namespace renderer
 {
 namespace drivers
 {
-namespace opengl_glsl_sm3_simple
+namespace opengl_glsl_15
 {
 OpenGL_GLSL_Framebuffer::OpenGL_GLSL_Framebuffer()
 {

@@ -26,25 +26,10 @@ public:
 	}
 	void render();
 
-	void addInstance(const renderer::InstanceData& i)
-	{
-		m_Arr.push_back(i);
-	}
-
-	renderer::InstanceData&  getInstance(unsigned i)
-	{
-		return m_Arr[i];
-	}
-
-	unsigned getInstancesCount()
-	{
-		return m_Arr.size();
-	}
-
 	renderer::Shader *getShader() const
-	{
+			{
 		return m_Shader;
-	}
+			}
 
 	void setShader(renderer::Shader *m_Shader)
 	{
@@ -52,9 +37,9 @@ public:
 	}
 
 	renderer::Texture *getDiffuse() const
-	{
+			{
 		return m_Diffuse;
-	}
+			}
 
 	void setDiffuse(renderer::Texture *m_Diffuse)
 	{
@@ -62,9 +47,9 @@ public:
 	}
 
 	renderer::Texture *getSpecular() const
-	{
+			{
 		return m_Specular;
-	}
+			}
 
 	void setSpecular(renderer::Texture *m_Specular)
 	{
@@ -72,9 +57,9 @@ public:
 	}
 
 	renderer::Texture *getBump() const
-	{
+			{
 		return m_Bump;
-	}
+			}
 
 	void setBump(renderer::Texture *m_Bump)
 	{
@@ -82,7 +67,6 @@ public:
 	}
 
 private:
-	renderer::InstanceArray					m_Arr;
 	renderer::Shader*						m_Shader;
 
 	renderer::Texture*						m_Diffuse;
@@ -183,21 +167,19 @@ Sphere<x_div,y_div>::Sphere()
 template <unsigned x_div,unsigned y_div>
 void Sphere<x_div,y_div>::render()
 {
-	m_Rapi->enableClientState(renderer::ClientState::VERTEX_ARRAY);
+	m_Rapi->setStreamSource(0,m_VBO,0,sizeof(VertexData));
 
-	m_Rapi->enableClientState(renderer::ClientState::NORMAL_ARRAY);
+	static renderer::VertexElement  fmt[] =
+	{
+			FREYA_DECLARATION(0,renderer::VertexFormat::POSITION,renderer::VertexFormat::FLOAT3,0),
+			FREYA_DECLARATION(0,renderer::VertexFormat::NORMAL,renderer::VertexFormat::FLOAT3,0),
+			FREYA_DECLARATION(0,renderer::VertexFormat::TEXT_COORD0,renderer::VertexFormat::FLOAT2,3*sizeof(math::vector3d)),
+			FREYA_DECLARATION(0,renderer::VertexFormat::TEXT_COORD1,renderer::VertexFormat::FLOAT3,sizeof(math::vector3d)),
+			FREYA_DECLARATION(0,renderer::VertexFormat::TEXT_COORD2,renderer::VertexFormat::FLOAT3,2*sizeof(math::vector3d)),
+			FREYA_LAST_DECLARATION(),
+	};
 
-	m_Rapi->enableTextureCoordState(renderer::TextureUnit::TEXTURE0);
-	m_Rapi->enableTextureCoordState(renderer::TextureUnit::TEXTURE1);
-	m_Rapi->enableTextureCoordState(renderer::TextureUnit::TEXTURE2);
-
-	m_Rapi->vertexPointer(renderer::DataType::FLOAT,3,sizeof(VertexData),m_VBO);
-
-	m_Rapi->normalPointer(renderer::DataType::FLOAT,sizeof(VertexData),m_VBO);
-
-	m_Rapi->textureCoordPointer(renderer::TextureUnit::TEXTURE0,renderer::DataType::FLOAT,2,sizeof(VertexData),m_VBO,sizeof(VertexData) - 2*sizeof(float));
-	m_Rapi->textureCoordPointer(renderer::TextureUnit::TEXTURE1,renderer::DataType::FLOAT,3,sizeof(VertexData),m_VBO,sizeof(math::vector3d));
-	m_Rapi->textureCoordPointer(renderer::TextureUnit::TEXTURE2,renderer::DataType::FLOAT,3,sizeof(VertexData),m_VBO,2*sizeof(math::vector3d));
+	m_Rapi->setVertexFormat(fmt);
 	if(m_Shader)
 	{
 		if(m_Diffuse)
@@ -215,7 +197,7 @@ void Sphere<x_div,y_div>::render()
 	if(m_Bump)
 		m_Bump->bind();
 
-	m_Rapi->drawIndexedPrimitive(renderer::Primitive::TRIANGLES,(x_div) * (y_div + 1) * 2 * 3,renderer::DataType::UNSIGNED_SHORT,m_Ind,m_Arr);
+	m_Rapi->drawIndexedPrimitive(renderer::Primitive::TRIANGLES,(x_div) * (y_div + 1) * 2 * 3,renderer::DataType::UNSIGNED_SHORT,m_Ind);
 	//m_Rapi->drawIndexedPrimitive(renderer::Primitive::TRIANGLES,6,renderer::DataType::UNSIGNED_SHORT,m_Ind,m_Arr);
 	//m_Rapi->drawPrimitive(renderer::Primitive::TRIANGLES,0,x_div * y_div * 4 * 3,m_Arr);
 	if(m_Diffuse)
@@ -224,15 +206,6 @@ void Sphere<x_div,y_div>::render()
 		m_Specular->unbind();
 	if(m_Bump)
 		m_Bump->unbind();
-
-
-	m_Rapi->enableTextureCoordState(renderer::TextureUnit::TEXTURE0);
-	m_Rapi->enableTextureCoordState(renderer::TextureUnit::TEXTURE1);
-	m_Rapi->enableTextureCoordState(renderer::TextureUnit::TEXTURE2);
-
-	m_Rapi->disableClientState(renderer::ClientState::NORMAL_ARRAY);
-
-	m_Rapi->disableClientState(renderer::ClientState::VERTEX_ARRAY);
 }
 
 

@@ -36,7 +36,7 @@ namespace sdl
 
 class OpenGLSDLAPIInit: public RenderingAPIInitialization
 {
-	friend class SDLManagerDriver;
+	friend class SDLWindowManagerDriver;
 protected:
 	OpenGLSDLAPIInit();
 	virtual ~OpenGLSDLAPIInit();

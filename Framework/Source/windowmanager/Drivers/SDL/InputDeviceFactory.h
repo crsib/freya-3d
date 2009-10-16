@@ -22,7 +22,7 @@ namespace drivers
 {
 namespace sdl
 {
-class SDLManagerDriver;
+class SDLWindowManagerDriver;
 }
 }
 
@@ -35,7 +35,7 @@ namespace sdl
 
 class InputDeviceFactory : public core::drivermodel::DriverFactory
 {
-	friend class windowmanager::drivers::sdl::SDLManagerDriver;
+	friend class windowmanager::drivers::sdl::SDLWindowManagerDriver;
 	InputDeviceFactory();
 	virtual ~InputDeviceFactory();
 public:

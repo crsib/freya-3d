@@ -30,7 +30,7 @@ namespace drivers
 namespace sdl
 {
 using namespace windowmanager::input;
-SDLManagerDriver::SDLManagerDriver()
+SDLWindowManagerDriver::SDLWindowManagerDriver()
 {
 	clog << "Starting SDL window manager" << endl;
 	if(SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -70,7 +70,7 @@ SDLManagerDriver::SDLManagerDriver()
 	m_CursorShown = false;
 }
 
-SDLManagerDriver::~SDLManagerDriver()
+SDLWindowManagerDriver::~SDLWindowManagerDriver()
 {
 	for(KeyDrivenDeviceListIterator it = m_KeyDrivenDeviceList.begin();it != m_KeyDrivenDeviceList.end();it++)
 	{
@@ -102,12 +102,12 @@ SDLManagerDriver::~SDLManagerDriver()
 	SDL_Quit();
 }
 
-EString 		SDLManagerDriver::id() const
+EString 		SDLWindowManagerDriver::id() const
 		{
 	return EString("SDL");
 		}
 
-void			SDLManagerDriver::setWindowedModeWindowSize(unsigned width,unsigned height)
+void			SDLWindowManagerDriver::setWindowedModeWindowSize(unsigned width,unsigned height)
 {
 	if(m_WindowID)
 	{
@@ -117,7 +117,7 @@ void			SDLManagerDriver::setWindowedModeWindowSize(unsigned width,unsigned heigh
 	m_Height = height;
 }
 
-void 			SDLManagerDriver::setCaption(const EString& caption)
+void 			SDLWindowManagerDriver::setCaption(const EString& caption)
 {
 	if(m_WindowID)
 	{
@@ -126,7 +126,7 @@ void 			SDLManagerDriver::setCaption(const EString& caption)
 	m_Caption = caption;
 }
 
-void			SDLManagerDriver::setWindowFormat(WindowFormat*	fmt)
+void			SDLWindowManagerDriver::setWindowFormat(WindowFormat*	fmt)
 {
 	if(m_Fmt)
 		delete m_Fmt;
@@ -134,12 +134,12 @@ void			SDLManagerDriver::setWindowFormat(WindowFormat*	fmt)
 	::memcpy(m_Fmt,fmt,sizeof(WindowFormat));
 }
 
-unsigned		SDLManagerDriver::getSupportedModesNumber()
+unsigned		SDLWindowManagerDriver::getSupportedModesNumber()
 {
 	return m_NumModes;
 }
 
-DisplayMode* 	SDLManagerDriver::getDisplayMode(unsigned id)
+DisplayMode* 	SDLWindowManagerDriver::getDisplayMode(unsigned id)
 {
 	if(id < m_NumModes)
 		return m_FreyaModes[id];
@@ -147,12 +147,12 @@ DisplayMode* 	SDLManagerDriver::getDisplayMode(unsigned id)
 		throw windowmanager::WMException(EString("Mode is not supported"));
 }
 
-void			SDLManagerDriver::setFullscreenWindowMode(DisplayMode* mode)
+void			SDLWindowManagerDriver::setFullscreenWindowMode(DisplayMode* mode)
 {
 	this->setFullscreenWindowMode(mode->id);
 }
 
-void			SDLManagerDriver::setFullscreenWindowMode(unsigned id)
+void			SDLWindowManagerDriver::setFullscreenWindowMode(unsigned id)
 {
 	if(id < m_NumModes)
 	{
@@ -164,7 +164,7 @@ void			SDLManagerDriver::setFullscreenWindowMode(unsigned id)
 		throw windowmanager::WMException(EString("Mode is not supported"));
 }
 
-void			SDLManagerDriver::toggleFullscreen(bool fs)
+void			SDLWindowManagerDriver::toggleFullscreen(bool fs)
 {
 	if(m_WindowID)
 	{
@@ -173,7 +173,7 @@ void			SDLManagerDriver::toggleFullscreen(bool fs)
 	m_Fullscreen = fs;
 }
 
-void			SDLManagerDriver::initWindow(renderer::RenderingAPIVersion*	API)
+void			SDLWindowManagerDriver::initWindow(renderer::RenderingAPIVersion*	API)
 {
 	std::clog << "Initializing window..." << std::endl;
 	if(m_WindowID)
@@ -226,17 +226,22 @@ void			SDLManagerDriver::initWindow(renderer::RenderingAPIVersion*	API)
 		m_WindowID = 0;
 		throw windowmanager::WMException("Failed to create window");
 	}
+	if(m_Fmt->Multisampled)
+		glEnable(GL_MULTISAMPLE);
 	if(usesDefaultWF)
 	{
 		delete m_Fmt;
 	}
-
 	std::clog << "Window successfully created" << std::endl;
+	clog 	 << "Started renderer:\n\tVendor: " << glGetString( GL_VENDOR )
+					<< "\n\tRenderer: " << glGetString( GL_RENDERER )
+					<< "\n\tOpenGL version: " << glGetString( GL_VERSION )
+					<< "\n\tGLSL version: "<<  glGetString(GL_SHADING_LANGUAGE_VERSION) << endl;
 
 }
 
 
-void    	SDLManagerDriver::destroyWindow()
+void    	SDLWindowManagerDriver::destroyWindow()
 {
 	if(m_GLContext)
 		SDL_GL_DeleteContext(m_GLContext);
@@ -247,27 +252,27 @@ void    	SDLManagerDriver::destroyWindow()
 }
 
 //Time
-unsigned		SDLManagerDriver::getTickCount()
+unsigned		SDLWindowManagerDriver::getTickCount()
 {
 	return SDL_GetTicks();
 }
 
 //Input
-KeyDrivenDevice*		SDLManagerDriver::createKeyDrivenDevice(const EString& type)
+KeyDrivenDevice*		SDLWindowManagerDriver::createKeyDrivenDevice(const EString& type)
 {
 	KeyDrivenDevice* dev = static_cast<KeyDrivenDevice*>(m_Factory->createDriver(type));
 	m_KeyDrivenDeviceList.push_back(dev);
 	return dev;
 }
 
-MovementDrivenDevice*	SDLManagerDriver::createMovementDrivenDevice(const EString& type)
+MovementDrivenDevice*	SDLWindowManagerDriver::createMovementDrivenDevice(const EString& type)
 {
 	MovementDrivenDevice* dev = static_cast<MovementDrivenDevice*>(m_Factory->createDriver(type));
 	m_MovementDrivenDeviceList.push_back(dev);
 	return dev;
 }
 
-void					SDLManagerDriver::destroyKeyDrivenDevice(KeyDrivenDevice* dev)
+void					SDLWindowManagerDriver::destroyKeyDrivenDevice(KeyDrivenDevice* dev)
 {
 	KeyDrivenDeviceListIterator it = std::find(m_KeyDrivenDeviceList.begin(),m_KeyDrivenDeviceList.end(),dev);
 	if(it == m_KeyDrivenDeviceList.end()) return; //No actual device exists
@@ -275,7 +280,7 @@ void					SDLManagerDriver::destroyKeyDrivenDevice(KeyDrivenDevice* dev)
 	delete dev;
 }
 
-void					SDLManagerDriver::destroyMovementDrivenDevice(MovementDrivenDevice* dev)
+void					SDLWindowManagerDriver::destroyMovementDrivenDevice(MovementDrivenDevice* dev)
 {
 	MovementDrivenDeviceListIterator it = std::find(m_MovementDrivenDeviceList.begin(),m_MovementDrivenDeviceList.end(),dev);
 	if(it == m_MovementDrivenDeviceList.end()) return; //No actual device exists
@@ -284,7 +289,7 @@ void					SDLManagerDriver::destroyMovementDrivenDevice(MovementDrivenDevice* dev
 }
 
 //Events updating
-void		SDLManagerDriver::updateEvents()
+void		SDLWindowManagerDriver::updateEvents()
 {
 	SDL_Event	event;
 	while(SDL_PollEvent(&event))
@@ -308,26 +313,26 @@ void		SDLManagerDriver::updateEvents()
 	}
 }
 
-void		SDLManagerDriver::grabInput(bool grab_state)
+void		SDLWindowManagerDriver::grabInput(bool grab_state)
 {
 	if(m_WindowID)
 		SDL_SetWindowGrab(m_WindowID,grab_state);
 	m_Grabbed = grab_state;
 }
 
-void		SDLManagerDriver::showCursor(bool cursor_state)
+void		SDLWindowManagerDriver::showCursor(bool cursor_state)
 {
 	SDL_ShowCursor(cursor_state);
 	m_CursorShown = cursor_state;
 }
 
-void		SDLManagerDriver::swapBuffers()
+void		SDLWindowManagerDriver::swapBuffers()
 {
 	if(m_WindowID)
 		SDL_GL_SwapWindow(m_WindowID);
 }
 
-void		SDLManagerDriver::setQuitCallback(const Callback& callback)
+void		SDLWindowManagerDriver::setQuitCallback(const Callback& callback)
 {
 	if(!m_QuitCallback)
 		m_QuitCallback = new Callback(callback);
@@ -335,7 +340,7 @@ void		SDLManagerDriver::setQuitCallback(const Callback& callback)
 		*m_QuitCallback = callback;
 }
 
-void			SDLManagerDriver::setMouseWheelCallback(const Callback& callback)
+void			SDLWindowManagerDriver::setMouseWheelCallback(const Callback& callback)
 {
 	if(!m_MouseWheelCallback)
 		m_MouseWheelCallback = new Callback(callback);
@@ -343,7 +348,7 @@ void			SDLManagerDriver::setMouseWheelCallback(const Callback& callback)
 		*m_MouseWheelCallback = callback;
 }
 
-void		SDLManagerDriver::setKeydrivenDeviceMode(unsigned mode)
+void		SDLWindowManagerDriver::setKeydrivenDeviceMode(unsigned mode)
 {
 	for(KeyDrivenDeviceListIterator it = m_KeyDrivenDeviceList.begin();it != m_KeyDrivenDeviceList.end();it++)
 	{
@@ -353,7 +358,7 @@ void		SDLManagerDriver::setKeydrivenDeviceMode(unsigned mode)
 
 }
 
-void		SDLManagerDriver::setMovementDrivenDevice(unsigned mode)
+void		SDLWindowManagerDriver::setMovementDrivenDevice(unsigned mode)
 {
 	for(MovementDrivenDeviceListIterator it = m_MovementDrivenDeviceList.begin();it != m_MovementDrivenDeviceList.end();it++)
 	{
@@ -361,7 +366,7 @@ void		SDLManagerDriver::setMovementDrivenDevice(unsigned mode)
 	}
 }
 
-void		SDLManagerDriver::postUserEvent(unsigned uid, void* arg1, void* arg2)
+void		SDLWindowManagerDriver::postUserEvent(unsigned uid, void* arg1, void* arg2)
 {
 	SDL_Event	event;
 	event.type = SDL_USEREVENT;
