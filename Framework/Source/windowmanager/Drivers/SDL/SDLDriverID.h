@@ -36,7 +36,7 @@ public:
 public:
 	virtual core::drivermodel::Driver*		create() const
 	{
-		return new SDLManagerDriver();
+		return new SDLWindowManagerDriver();
 	}
 
 	virtual EString							id() const

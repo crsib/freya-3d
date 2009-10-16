@@ -15,12 +15,12 @@ namespace renderer
 //!Matrix mode constants
 namespace MatrixMode
 {
-enum
+enum TYPE
 {
-	//!View/modelview matrix
-	VIEW, //View/modelview matricies
-	//!View/modelview matrix
-	MODELVIEW = VIEW,
+	//!Model matrix
+	MODEL,WORLD = MODEL, //View/modelview matricies
+	//!Modelview matrix (same as projection now)
+	MODELVIEW,
 	//!Projection matrix
 	PROJECTION,//Projection matricies
 	//!Matrix for texture unit 0
@@ -94,7 +94,7 @@ enum
 //!Texture unit constants
 namespace TextureUnit
 {
-enum
+enum TYPE
 {
 	//! Texture unit 0
 	TEXTURE0, //Texture unit
@@ -165,7 +165,7 @@ enum
 //!Texture type constants
 namespace TextureType
 {
-enum
+enum TYPE
 {
 	//!1D texture
 	TEXTURE_1D, //1d textures
@@ -182,7 +182,7 @@ enum
 //! Internal texture formats (the way texture is represented inside accelerator)
 namespace TextureInternalFormat
 {
-enum
+enum TYPE
 {
 	//! 4-bit alpha channel
 	ALPHA4,
@@ -307,7 +307,7 @@ enum
 //! Texture external storage format
 namespace TextureStorage
 {
-enum
+enum TYPE
 {
 	//! Components stored as unsigned byte
 	UNSIGNED_BYTE,
@@ -329,7 +329,7 @@ enum
 //! External texture representation format
 namespace TextureFormat
 {
-enum
+enum TYPE
 {
 	//! Stored value is an index to palet (left for compatibility only)
 	COLOR_INDEX,
@@ -358,7 +358,7 @@ enum
 //! Texture filtering modes
 namespace TextureFiltering
 {
-enum
+enum TYPE
 {
 	//! Filtering is disabled
 	NEAREST,
@@ -377,7 +377,7 @@ enum
 //! Texture clamping modes
 namespace TextureClamping
 {
-enum
+enum TYPE
 {
 	//! Clamp texture coordinates to [0,1]
 	CLAMP,
@@ -392,7 +392,7 @@ enum
 //! Sides of cube textures (NOTE: to resolve cross-api portability the default coordinate system is treated in OpenGL way. E.g. the right triplet)
 namespace CubeTextureSide
 {
-enum
+enum TYPE
 {
 	//!Positive x (e.g. right) side
 	X_POSITIVE,
@@ -411,7 +411,7 @@ enum
 //! Texture coordinates
 namespace TextureCoord
 {
-enum
+enum TYPE
 {
 	//!S coordinate
 	S,
@@ -426,7 +426,7 @@ enum
 //! Texture generation modes
 namespace TextureGenMode
 {
-enum
+enum TYPE
 {
 	//! Generate with respect to object
 	OBJECT_LINEAR,
@@ -445,7 +445,7 @@ enum
 //! Vertex buffer object target (e.g. how the vertex buffer will be threated)
 namespace VBOType //Type of a buffer
 {
-enum
+enum TYPE
 {
 	//! Buffer is a normal vertex buffer
 	VERTEX,//Vertex buffer
@@ -463,7 +463,7 @@ namespace VBOTarget = VBOType;
 //!
 namespace VBOUsage	//Comment for video driver on how to use buffer data
 {
-enum
+enum TYPE
 {
 	//! Buffer data is changed rarely and used mostly for drawing
 	STREAM_DRAW, //As described in VBO OpenGL spec
@@ -489,7 +489,7 @@ enum
 //! VBO access modes to mapped memory
 namespace VBOAccess //The way in which buffer is mapped into the client memory
 {
-enum
+enum TYPE
 {
 	//! Access is read only
 	READ_ONLY,
@@ -504,7 +504,7 @@ enum
 //! The type of primitives for rendering
 namespace Primitive
 {
-enum
+enum TYPE
 {
 	//! Each vertex is treated as a single point
 	POINTS,
@@ -534,7 +534,7 @@ enum
 // Render side modes (for various culling routines etc)
 namespace RenderSide
 {
-enum
+enum TYPE
 {
 	//! Front side
 	FRONT,
@@ -549,7 +549,7 @@ enum
 //! The way the rendering is performed
 namespace RenderMode
 {
-enum
+enum TYPE
 {
 	//! Render all vertices as points
 	POINT,
@@ -562,7 +562,7 @@ enum
 //! Type used for data storage
 namespace DataType
 {
-enum
+enum TYPE
 {
 	//! Data is represented by bytes
 	BYTE,
@@ -585,7 +585,7 @@ enum
 //! Represent state of client application data pointers (mostly for OpenGL compatibility)
 namespace ClientState
 {
-enum
+enum TYPE
 {
 	//! Pointer to color index buffer
 	COLOR_INDEX_ARRAY,
@@ -603,7 +603,7 @@ enum
 //! Constants to various test functions
 namespace TestFunction
 {
-enum
+enum TYPE
 {
 	//! return false
 	NEVER,
@@ -628,7 +628,7 @@ enum
 //! Stencil test operations
 namespace StencilOp
 {
-enum
+enum TYPE
 {
 	//! Keep
 	KEEP,
@@ -653,7 +653,7 @@ enum
 namespace AlphaFunction
 {
 
-enum
+enum TYPE
 {
 	//! \f$ f_i = (0,0,0,0) \f$
 	ZERO,
@@ -688,7 +688,7 @@ enum
  */
 namespace FogFunction
 {
-enum
+enum TYPE
 {
 	//! \f$ f=\frac{end - c}{end-start}\f$
 	LINEAR,
@@ -702,7 +702,7 @@ enum
 //! The bypass direction for front face
 namespace FrontFace
 {
-enum
+enum TYPE
 {
 	//! Clock wise bypass identifies front face
 	CLOCK_WISE,
@@ -715,7 +715,7 @@ enum
 //!Framebuffer attachments
 namespace FramebufferAttachment
 {
-enum
+enum TYPE
 {
 	//! Color attachment 0
 	COLOR_ATTACHMENT0,
@@ -758,7 +758,7 @@ enum
 //! Status of framebuffer
 namespace FramebufferStatus
 {
-enum
+enum TYPE
 {
 	//! Everything is ok
 	FRAMEBUFFER_COMPLETE,
@@ -783,7 +783,7 @@ enum
 //! Types of shader sources
 namespace ShaderType
 {
-enum
+enum TYPE
 {
 	//! Vertex shader source
 	VERTEX,
@@ -796,6 +796,62 @@ enum
 };
 }
 
+
+namespace VertexFormat
+{
+	enum USAGE
+	{
+		POSITION,
+		NORMAL,
+		COLOR,
+		TEXT_COORD,
+		TEXT_COORD0 = TEXT_COORD,
+		TEXT_COORD1,
+		TEXT_COORD2,
+		TEXT_COORD3,
+		TEXT_COORD4,
+		TEXT_COORD5,
+		TEXT_COORD6,
+		TEXT_COORD7,
+		TEXT_COORD8,
+		TEXT_COORD9,
+		TEXT_COORD10,
+		TEXT_COORD11,
+		TEXT_COORD12,
+		TEXT_COORD13,
+		TEXT_COORD14,
+		TEXT_COORD15,
+		TEXT_COORD16,
+		TEXT_COORD17,
+		TEXT_COORD18,
+		TEXT_COORD19,
+		TEXT_COORD20,
+		TEXT_COORD21,
+		TEXT_COORD22,
+		TEXT_COORD23,
+		TEXT_COORD24,
+		TEXT_COORD25,
+		TEXT_COORD26,
+		TEXT_COORD27,
+		TEXT_COORD28,
+		TEXT_COORD29,
+		TEXT_COORD30,
+		TEXT_COORD31,
+		UNUSED
+	};
+
+	enum TYPE
+	{
+		FLOAT1,
+		FLOAT2,
+		FLOAT3,
+		FLOAT4,
+		DWORD,
+		UBYTE4,
+		SHORT2,
+		SHORT4,
+	};
+}
 
 }//end of renderer namespace
 #endif  // 3DCONSTANTS_H_

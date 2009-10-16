@@ -28,7 +28,7 @@ public:
 	virtual void	update(float ms) = 0;
 
 	virtual math::vector3d	position() = 0;
-	virtual math::quaternion orientation() = 0;
+	virtual math::btQuaternion orientation() = 0;
 	virtual int				animType();
 };
 

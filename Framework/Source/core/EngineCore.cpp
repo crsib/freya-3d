@@ -91,14 +91,15 @@ core::xml::XMLParser*						EngineCore::m_XMLParser = NULL;
 //Memory allocation function
 namespace memory
 {
+extern MemoryArena		ArenaInstance;
 void* Allocate(size_t n,unsigned id)
 {
-	return EngineCore::getMemoryArena()->allocate(n,id);
+	return ArenaInstance.allocate(n,id);
 }
 
 void Free(void* p,unsigned id)
 {
-	EngineCore::getMemoryArena()->free(p,id);
+	ArenaInstance.free(p,id);
 }
 
 void* Reallocate(void* p,size_t sz,unsigned id)
@@ -143,14 +144,15 @@ EngineCore::EngineCore(int argC,char** argV,const std::string& applicationName, 
 	m_OldCLogStream = std::clog.rdbuf(m_OutBuffer);
 	m_OldCOutStream = std::cout.rdbuf(m_OutBuffer);
 	//Start memory
-	std::cout << "Starting memory subsystem" << std::endl;
-	m_MemoryArena = new core::memory::MemoryArena();
+	std::cout << "Initializing memory subsystem" << std::endl;
+	m_MemoryArena = core::memory::MemoryArena::instance();
 	m_MemoryArena->addPool(4*1024*1024,4);	//STL pool 4 mb
 	m_MemoryArena->addPool(4*1024*1024,4);	//Math pool 4 mb
 	m_MemoryArena->addPool(64*1024*1024,4);	//Generic pool 64 mb
 	m_MemoryArena->addPool(4*1024*1024,4);	//Generic class pool 4mb
 	m_MemoryArena->addPool(4*1024*1024, 4); //Lua pool 4mb
 	m_MemoryArena->addPool(4*1024*1024, 4); //XML pool 4mb
+	m_MemoryArena->addPool(4*1024*1024, 4); //CEGUI pool 4mb
 	m_ThreadImplementation = new THREAD_IMPLEMENTATION;
 	//start filesystem
 	std::cout << "Starting filesystem subsystem" << std::endl;
@@ -199,8 +201,8 @@ EngineCore::~EngineCore()
 	delete m_ThreadImplementation;
 	delete m_PluginCore;
 	delete m_PluginLoader;
-	std::cout << "Switching allocation mode" << std::endl;
-	delete m_MemoryArena;
+	//std::cout << "Switching allocation mode" << std::endl;
+	//delete m_MemoryArena;
 	
 #ifdef _FREYA_DEBUG_MEMORY
 	std::cout << "Engine memory usage at shutdown:\n"
@@ -263,7 +265,6 @@ void	EngineCore::createRenderingDriver(unsigned	futures)
 		{
 			m_WindowManager->destroyWindow();
 			created = true;
-			//Todo: redirect to log
 			std::cout << "Trying to start " << lst[id] << " renderer " << std::endl;
 			m_RenderingDriver = static_cast<renderer::RenderingAPIDriver*>(m_RAPIFactory->createDriver(lst[id]));
 		}

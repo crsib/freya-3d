@@ -11,7 +11,7 @@ unsigned   frames = 0;
 float      fps;
 
 unsigned   active = 1;
-const int winWidth = 640,winHeight = 640;
+int winWidth = 640,winHeight = 640;
 const bool	fullscreen = false;
 
 void	_quit() //Quit callback
@@ -72,7 +72,7 @@ public:
 		//Clear color and depth buffer
 		rapi->clearColor();
 		rapi->clearDepth();
-
+		rapi->beginScene();
 		//Set the light and camera position to the shader
 		shader->setUniform("lightPos",lightPos);
 		shader->setUniform("eyePos",m_Cameras[m_CamMode]->getPos());
@@ -94,6 +94,7 @@ public:
 		//Apply camera transformation
 		m_Cameras[m_CamMode]->apply();
 		//Swap buffers (one of the most costly command)
+		rapi->endScene();
 		wm->swapBuffers();
 		frames++;
 		return BumpmappingRender::MAIN_THREAD;
@@ -285,10 +286,9 @@ public:
 		static unsigned tex_load_start;
 		if(!m_RendererStarted)
 		{
-			std::cout << "Starting engine" << std::endl;
 			//Get the address of WindowManger instance
 			core::EngineCore::createWindowManager("SDL");
-
+			core::EngineCore::getTaskManager()->setThreadNumber(2);
 			wm = core::EngineCore::getWindowManager();
 			wm->setQuitCallback(windowmanager::Callback(_quit));
 			//Mount filesystems
@@ -297,11 +297,21 @@ public:
 			fs->mount("lzma","Textures.7z");
 
 			//Create window
+			windowmanager::WindowFormat*	fmt = new windowmanager::WindowFormat;
+			fmt->Multisampled = true;
+			fmt->MultisampleSamples = 8;
+			wm->setWindowFormat(fmt);
+			delete fmt;
 			wm->setWindowedModeWindowSize(winWidth,winHeight);
 			windowmanager::DisplayMode*	mode = wm->getDisplayMode(0);
 			std::cout << "Default fs mode is " << mode->width << "x" << mode->height << "@" << mode->refreshRate << std::endl;
 			wm->setFullscreenWindowMode((unsigned)0);
 			wm->toggleFullscreen(fullscreen);
+			if(fullscreen)
+			{
+				winWidth = mode->width;
+				winHeight = mode->height;
+			}
 			wm->setCaption("Bump Mapping Demo");
 			//wm->createWindow(winWidth,winHeight,"Tutorial 1: Bump mapping",fullscreen ,NULL);
 			//Start rendering subsystem
@@ -390,10 +400,8 @@ public:
 		static bool useBump = true;
 		//Sphere test
 		static primitives::Sphere<30,30>* sphere = new primitives::Sphere<30,30>;
-		sphere->addInstance(renderer::InstanceData());
 		//Create cube
 		static primitives::Cube* cube = new primitives::Cube;
-		cube->addInstance(renderer::InstanceData());//Create instance of a cube
 		//Set the diffuse texture to a cube-> Texture will be bound to 0 unit
 		cube->setDiffuse(diffuse);
 		sphere->setDiffuse(diffuse);
@@ -414,7 +422,6 @@ public:
 		primitives::Cube* lightSource = new primitives::Cube;
 		//Instance of light position source
 		//Please NOTE: we create two different cubes (and thus instances, belonging to different cubes) because cubes have different textures and shaders
-		lightSource->addInstance(renderer::InstanceData());
 		//Let's load shader sources
 		//First, create a shader container
 		renderer::Shader* shader = rapi->createShader();
@@ -460,6 +467,7 @@ private:
 int main(int argC,char** argV)
 {
 	//Create framework core::EngineCore:: Core is responsible on creating/managing various subsystems
+	std::cout << "Starting engine" << std::endl;
 	core::EngineCore Core(argC,argV,"BumpMapping");
 	try
 	{

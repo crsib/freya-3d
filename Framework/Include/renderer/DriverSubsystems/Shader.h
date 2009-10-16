@@ -25,13 +25,7 @@ namespace memory
 #include "core/EngineSubsystem.h"
 #include "core/EString.h"
 
-namespace math
-{
-class vector3d;
-class matrix4x4;
-class matrix3x3;
-class quaternion;
-}
+#include "math/math.hpp"
 
 namespace renderer
 {
@@ -192,54 +186,7 @@ public:
 	virtual void 	 setAttribute(unsigned location,const math::vector3d& val,float val1) = 0;//!< An overloaded version of setAttribute
 	virtual void 	 setAttribute(const EString& name,const math::vector3d& val,float val2) = 0;//!< An overloaded version of setAttribute
 
-	//! Set the pointer to attribute array
-	/*!
-	 * Set the pointer for attributes array to be used as data source inside shader. This pointer is set in per shader basis (and preferably each time shader is bound to the context to eliminate
-	 * API specific behavior). This pointer can be used with various DrawPrimitive/DrawIndexedPrimitive commands.
-	 * \param location is API specific id of vertex attribute to set
-	 * \param dataType is type of data,representing attributes. Described by DataType
-	 * \param numComponents is a number of components associated with one vertex. Could be from 1 to 4
-	 * \param normalized specifies whether fixed-point data values should be normalized (1) or converted directly as fixed-point values (0) when they are accessed
-	 * \param stride is an offset in bytes between each vertex attribute data
-	 * \param obj is a VBO, that holds attribute data
-	 */
-	virtual void 	 setAttributeArrayPointer(unsigned location,unsigned dataType,unsigned numComponents, unsigned normalized, size_t stride,VertexBufferObject* obj) = 0;
-	//! Set the pointer to attribute array (overloaded version)
-	/*!
-	 * Set the pointer for attributes array to be used as data source inside shader. This pointer is set in per shader basis (and preferably each time shader is bound to the context to eliminate
-	 * API specific behavior). This pointer can be used with various DrawPrimitive/DrawIndexedPrimitive commands.
-	 * \param name is name of attribute location
-	 * \param dataType is type of data,representing attributes. Described by DataType
-	 * \param numComponents is a number of components associated with one vertex. Could be from 1 to 4
-	 * \param normalized specifies whether fixed-point data values should be normalized (1) or converted directly as fixed-point values (0) when they are accessed
-	 * \param stride is an offset in bytes between each vertex attribute data
-	 * \param obj is a VBO, that holds attribute data
-	 */
-	virtual void 	 setAttributeArrayPointer(const EString& name,unsigned dataType,unsigned numComponents, unsigned normalized, size_t stride,VertexBufferObject* obj) = 0;
-	//! Enable attribute array client state (to make it valid for DP/DIP)
-	/*!
-	 * Set client state for using attribute arrays on location specified
-	 * \param location is API specific id of vertex attribute to use attribute array as data source
-	 */
-	virtual void	enableClientState(unsigned location) = 0;
-	//! Enable attribute array client state (to make it valid for DP/DIP) (overloaded version)
-	/*!
-	 * Set client state for using attribute arrays on location specified
-	 * \param name is name of vertex attribute to use attribute array as data source
-	 */
-	virtual void	enableClientState(const EString& name) = 0;
-	//! Disable attribute array client state
-	/*!
-	 * Disable using attribute arrays as data source on specified attribute
-	 * \param location is API specific id of vertex attribute
-	 */
-	virtual void	disableClientState(unsigned location) = 0;
-	//! Disable attribute array client state (overloaded version)
-	/*!
-	 * Disable using attribute arrays as data source on specified attribute
-	 * \param name is name of vertex attribute
-	 */
-	virtual void	disableClientState(const EString& name) = 0;
+
 	//Geometry shader
 	//! Set geometry shader parameter
 	/*!

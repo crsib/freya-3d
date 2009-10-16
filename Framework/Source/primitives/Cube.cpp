@@ -247,27 +247,40 @@ Cube::~Cube()
 
 void		Cube::render()
 {
-	rapi->enableClientState(renderer::ClientState::VERTEX_ARRAY);
+	//	rapi->enableClientState(renderer::ClientState::VERTEX_ARRAY);
+	//
+	//	rapi->enableClientState(renderer::ClientState::NORMAL_ARRAY);
+	//
+	//	rapi->enableTextureCoordState(renderer::TextureUnit::TEXTURE0);
+	//	rapi->enableTextureCoordState(renderer::TextureUnit::TEXTURE1);
+	//	rapi->enableTextureCoordState(renderer::TextureUnit::TEXTURE2);
+	//
+	//	rapi->vertexPointer(renderer::DataType::FLOAT,3,0,m_Verticies);
+	//
+	//	rapi->normalPointer(renderer::DataType::FLOAT,0,m_Normals);
+	//
+	//	rapi->textureCoordPointer(renderer::TextureUnit::TEXTURE0,renderer::DataType::FLOAT,2,0,m_UV);
+	//	rapi->textureCoordPointer(renderer::TextureUnit::TEXTURE1,renderer::DataType::FLOAT,3,0,m_Tangents);
+	//	rapi->textureCoordPointer(renderer::TextureUnit::TEXTURE2,renderer::DataType::FLOAT,3,0,m_Binormals);
+	rapi->setStreamSource(0,m_Verticies,0,0);
+	rapi->setStreamSource(1,m_Normals,0,0);
+	rapi->setStreamSource(2,m_UV,0,0);
+	rapi->setStreamSource(3,m_Tangents,0,0);
+	rapi->setStreamSource(4,m_Binormals,0,0);
 
-	rapi->enableClientState(renderer::ClientState::NORMAL_ARRAY);
+	static renderer::VertexElement  fmt[] =
+	{
+			FREYA_DECLARATION(0,renderer::VertexFormat::POSITION,renderer::VertexFormat::FLOAT3,0),
+			FREYA_DECLARATION(1,renderer::VertexFormat::NORMAL,renderer::VertexFormat::FLOAT3,0),
+			FREYA_DECLARATION(2,renderer::VertexFormat::TEXT_COORD0,renderer::VertexFormat::FLOAT2,0),
+			FREYA_DECLARATION(3,renderer::VertexFormat::TEXT_COORD1,renderer::VertexFormat::FLOAT3,0),
+			FREYA_DECLARATION(4,renderer::VertexFormat::TEXT_COORD2,renderer::VertexFormat::FLOAT3,0),
+			FREYA_LAST_DECLARATION(),
+	};
 
-	rapi->enableTextureCoordState(renderer::TextureUnit::TEXTURE0);
-	rapi->enableTextureCoordState(renderer::TextureUnit::TEXTURE1);
-	rapi->enableTextureCoordState(renderer::TextureUnit::TEXTURE2);
-
-	rapi->vertexPointer(renderer::DataType::FLOAT,3,0,m_Verticies);
-
-	rapi->normalPointer(renderer::DataType::FLOAT,0,m_Normals);
-
-	rapi->textureCoordPointer(renderer::TextureUnit::TEXTURE0,renderer::DataType::FLOAT,2,0,m_UV);
-	rapi->textureCoordPointer(renderer::TextureUnit::TEXTURE1,renderer::DataType::FLOAT,3,0,m_Tangents);
-	rapi->textureCoordPointer(renderer::TextureUnit::TEXTURE2,renderer::DataType::FLOAT,3,0,m_Binormals);
+	rapi->setVertexFormat(fmt);
 	if(m_Shader)
 	{
-		//m_Shader->enableClientState("tangent");
-		//m_Shader->enableClientState("binormal");
-		//m_Shader->setAttributeArrayPointer("tangent",renderer::DataType::FLOAT,3,false,0,m_Tangents);
-		//	m_Shader->setAttributeArrayPointer("binormal",renderer::DataType::FLOAT,3,false,0,m_Binormals);
 		if(m_Diffuse)
 			m_Shader->setTexture("diffuse",m_Diffuse);
 		if(m_Specular)
@@ -283,7 +296,7 @@ void		Cube::render()
 	if(m_Bump)
 		m_Bump->bind();
 
-	rapi->drawIndexedPrimitive(renderer::Primitive::TRIANGLES,6*6,renderer::DataType::UNSIGNED_SHORT,m_Indicies,m_Arr);
+	rapi->drawIndexedPrimitive(renderer::Primitive::TRIANGLES,6*6,renderer::DataType::UNSIGNED_SHORT,m_Indicies);
 
 	if(m_Diffuse)
 		m_Diffuse->unbind();
@@ -298,43 +311,10 @@ void		Cube::render()
 		//	m_Shader->disableClientState("tangent");
 		//	m_Shader->disableClientState("binormal");
 	}
-	rapi->enableTextureCoordState(renderer::TextureUnit::TEXTURE0);
-	rapi->enableTextureCoordState(renderer::TextureUnit::TEXTURE1);
-	rapi->enableTextureCoordState(renderer::TextureUnit::TEXTURE2);
-
-	rapi->disableClientState(renderer::ClientState::NORMAL_ARRAY);
-
-	rapi->disableClientState(renderer::ClientState::VERTEX_ARRAY);
 }
 
 //==============================~Method: render==============================
 
-//============================== Method: addInstance==============================
-
-void		Cube::addInstance(const renderer::InstanceData& i)
-{
-	m_Arr.push_back(i);
-}
-
-//==============================~Method: addInstance==============================
-
-//============================== Method: getInstance==============================
-
-renderer::InstanceData& 		Cube::getInstance(unsigned i)
-{
-	return m_Arr.at(i);
-}
-
-//==============================~Method: getInstance==============================
-
-//============================== Method: getInstancesCount==============================
-
-unsigned		Cube::getInstancesCount()
-{
-	return m_Arr.size();
-}
-
-//==============================~Method: getInstancesCount==============================
 
 } //End of unit_tests namespace
 

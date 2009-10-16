@@ -1,6 +1,6 @@
 /*This file was generated for Freya engine*/
 #include "renderer/Drivers/OpenGL_GLSL/OpenGL15Driver/OpenGL_GLSL_Driver_SM3_Simple.h"
-#include "renderer/Drivers/OpenGL_GLSL/OpenGL_GLSL_ConstantsTables.h"
+#include "renderer/Drivers/OpenGL_GLSL/OpenGL15Driver/OpenGL_15_ConstantsTables.h"
 #include <iostream>
 #include <algorithm>
 #include "math/vector3d.hpp"
@@ -14,10 +14,10 @@
 #include "renderer/DriverException.h"
 
 #define	assert_extension(name)	if(!GLEW_##name)\
-	{\
+		{\
 	clog << "Extension " #name " is unsupported!. Please, update your driver." << endl;\
 	throw renderer::DriverException("Hardware does not support " #name " feature");\
-	}
+		}
 
 using std::clog;
 using std::endl;
@@ -25,7 +25,7 @@ namespace renderer
 {
 namespace drivers
 {
-namespace opengl_glsl_sm3_simple
+namespace opengl_glsl_15
 {
 OpenGL_GLSL_Driver::OpenGL_GLSL_Driver()
 {
@@ -72,6 +72,7 @@ OpenGL_GLSL_Driver::OpenGL_GLSL_Driver()
 			renderer::futures::VERTEX_SHADER				|
 			renderer::futures::FRAGMENT_SHADER				|
 			renderer::futures::AUTO_TRANSPOSE_MATIRIX;
+	m_VF = NULL;
 }
 
 OpenGL_GLSL_Driver::~OpenGL_GLSL_Driver()
@@ -87,29 +88,29 @@ OpenGL_GLSL_Driver::~OpenGL_GLSL_Driver()
 }
 
 EString		OpenGL_GLSL_Driver::id() const
-{
+		{
 	return EString("OpenGL 1.5 GLSL");
-}
+		}
 
 EString		OpenGL_GLSL_Driver::getAPIName() const
-{
-	return EString("OpenGL");
-}
+		{
+	return EString("OpenGL 1.5");
+		}
 
 EString		OpenGL_GLSL_Driver::getShaderAPIName() const
-{
-	return EString("GLSL");
-}
+		{
+	return EString("GLSL_1_10");
+		}
 
 bool	OpenGL_GLSL_Driver::futuresState(unsigned futures) const
-{
+		{
 	return (m_Futures & futures) == futures;
-}
+		}
 
 unsigned OpenGL_GLSL_Driver::futures() const
-{
+		{
 	return m_Futures;
-}
+		}
 
 void		OpenGL_GLSL_Driver::setViewport(unsigned width,unsigned height)
 {
@@ -342,158 +343,262 @@ void					OpenGL_GLSL_Driver::destroyVertexBufferObject(VertexBufferObject*	buf)
 	m_VertexBufferObjectList.erase(it);
 }
 
+void		OpenGL_GLSL_Driver::setStreamSource(unsigned sourceID,VertexBufferObject* dataSource,unsigned offset,unsigned stride)
+{
+	StreamSource*	stream = m_Streams + sourceID;
+	stream->buffer = dataSource;
+	stream->offset = offset;
+	stream->stride = stride;
+}
+
+OpenGL_GLSL_Driver::VertexFormat::VertexFormat(renderer::VertexElement* format,StreamSource*	streams)
+: EngineSubsystem()
+  {
+	m_Format = format;
+	m_Streams = streams;
+	bool end = false;
+	m_Length = m_Size = 0;
+	while(!end)
+	{
+		VertexElement* fmt = format + m_Length;
+		if(fmt->usage != renderer::VertexFormat::UNUSED)
+		{
+			static unsigned char num_components[8] =
+			{
+					1,2,3,4,1,4,2,4
+			};
+			static unsigned char size_of_component[8] =
+			{
+					4,4,4,4,4,1,2,2
+			};
+			m_Size += num_components[fmt->type]*size_of_component[fmt->type];
+			m_Length++;
+		}
+		else end = true;
+	}
+
+  }
+
+void	OpenGL_GLSL_Driver::VertexFormat::enable()
+{
+	static unsigned char num_components[8] =
+	{
+			1,2,3,4,4,4,2,4
+	};
+	static unsigned  type_of_component[8] =
+	{
+			GL_FLOAT,GL_FLOAT,GL_FLOAT,GL_FLOAT,GL_UNSIGNED_BYTE,GL_UNSIGNED_BYTE,GL_SHORT,GL_SHORT
+	};
+
+	glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
+
+	int lastStream = m_Format[0].streamID;
+	m_Streams[lastStream].buffer->bind();
+	for(unsigned i = 0; i < m_Length; i ++)
+	{
+		VertexElement*	elem = m_Format + i;
+		if(lastStream != elem->streamID)
+		{
+			m_Streams[lastStream].buffer->unbind();
+			lastStream = elem->streamID;
+			m_Streams[lastStream].buffer->bind();
+		}
+		switch(elem->usage)
+		{
+		case renderer::VertexFormat::POSITION:
+			glEnableClientState(GL_VERTEX_ARRAY);
+			glVertexPointer(num_components[elem->type],type_of_component[elem->type],m_Streams[lastStream].stride,(void*)(m_Streams[lastStream].offset + elem->offset));
+			break;
+		case renderer::VertexFormat::COLOR:
+			glEnableClientState(GL_COLOR_ARRAY);
+			glColorPointer(num_components[elem->type],type_of_component[elem->type],m_Streams[lastStream].stride,(void*)(m_Streams[lastStream].offset + elem->offset));
+			break;
+		case renderer::VertexFormat::NORMAL:
+			glEnableClientState(GL_NORMAL_ARRAY);
+			glNormalPointer(type_of_component[elem->type],m_Streams[lastStream].stride,(void*)(m_Streams[lastStream].offset + elem->offset));
+			break;
+		default:
+			if(elem->usage < renderer::VertexFormat::UNUSED)
+			{
+				glClientActiveTextureARB(OpenGL_GLSL_Tables::TextureUnit[elem->usage - renderer::VertexFormat::TEXT_COORD]);
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				glTexCoordPointer(num_components[elem->type],type_of_component[elem->type],m_Streams[lastStream].stride,(void*)(m_Streams[lastStream].offset + elem->offset));
+			}
+			break;
+		}
+	}
+	m_Streams[lastStream].buffer->unbind();
+}
+
+void	OpenGL_GLSL_Driver::VertexFormat::enableImmediate(unsigned inst, void* data)
+{
+	static unsigned char num_components[8] =
+	{
+			1,2,3,4,4,4,2,4
+	};
+	static unsigned  type_of_component[8] =
+	{
+			GL_FLOAT,GL_FLOAT,GL_FLOAT,GL_FLOAT,GL_UNSIGNED_BYTE,GL_UNSIGNED_BYTE,GL_SHORT,GL_SHORT
+	};
+
+	for(unsigned i = 0; i < m_Length; i ++)
+	{
+		VertexElement*	elem = m_Format + i;
+		switch(elem->usage)
+		{
+		case renderer::VertexFormat::COLOR:
+			switch(type_of_component[elem->type])
+			{
+			case GL_FLOAT:
+				switch(num_components[elem->type])
+				{
+				case 3:
+					glColor3fv((GLfloat*)((char*)data)[elem->offset + inst*m_Size]);
+					break;
+				case 4:
+					glColor4fv((GLfloat*)((char*)data)[elem->offset + inst*m_Size]);
+					break;
+				}
+				break;
+				case GL_UNSIGNED_BYTE:
+					switch(num_components[elem->type])
+					{
+					case 3:
+						glColor3ubv((GLubyte*)((char*)data)[elem->offset + inst*m_Size]);
+						break;
+					case 4:
+						glColor4ubv((GLubyte*)((char*)data)[elem->offset + inst*m_Size]);
+						break;
+					}
+					break;
+
+					case GL_SHORT:
+						switch(num_components[elem->type])
+						{
+						case 3:
+							glColor3sv((GLshort*)((char*)data)[elem->offset + inst*m_Size]);
+							break;
+						case 4:
+							glColor4sv((GLshort*)((char*)data)[elem->offset + inst*m_Size]);
+							break;
+						}
+						break;
+			}
+			break;
+			default:
+				if(elem->usage < renderer::VertexFormat::UNUSED)
+				{
+
+					switch(type_of_component[elem->type])
+					{
+					case GL_FLOAT:
+						switch(num_components[elem->type])
+						{
+						case 1:
+							glMultiTexCoord1fv(GL_TEXTURE0 + elem->type - renderer::VertexFormat::TEXT_COORD,(GLfloat*)((char*)data)[elem->offset + inst*m_Size]);
+							break;
+
+						case 2:
+							glMultiTexCoord2fv(GL_TEXTURE0 + elem->type - renderer::VertexFormat::TEXT_COORD,(GLfloat*)((char*)data)[elem->offset + inst*m_Size]);
+							break;
+
+						case 3:
+							glMultiTexCoord3fv(GL_TEXTURE0 + elem->type - renderer::VertexFormat::TEXT_COORD,(GLfloat*)((char*)data)[elem->offset + inst*m_Size]);
+							break;
+						case 4:
+							glMultiTexCoord4fv(GL_TEXTURE0 + elem->type - renderer::VertexFormat::TEXT_COORD,(GLfloat*)((char*)data)[elem->offset + inst*m_Size]);
+							break;
+						}
+						break;
+
+						case GL_SHORT:
+							switch(num_components[elem->type])
+							{
+							case 1:
+								glMultiTexCoord1sv(GL_TEXTURE0 + elem->type - renderer::VertexFormat::TEXT_COORD,(GLshort*)((char*)data)[elem->offset + inst*m_Size]);
+								break;
+
+							case 2:
+								glMultiTexCoord2sv(GL_TEXTURE0 + elem->type - renderer::VertexFormat::TEXT_COORD,(GLshort*)((char*)data)[elem->offset + inst*m_Size]);
+								break;
+
+							case 3:
+								glMultiTexCoord3sv(GL_TEXTURE0 + elem->type - renderer::VertexFormat::TEXT_COORD,(GLshort*)((char*)data)[elem->offset + inst*m_Size]);
+								break;
+							case 4:
+								glMultiTexCoord4sv(GL_TEXTURE0 + elem->type - renderer::VertexFormat::TEXT_COORD,(GLshort*)((char*)data)[elem->offset + inst*m_Size]);
+								break;
+							}
+							break;
+					}
+				}
+				break;
+		}
+	}
+}
+
+void OpenGL_GLSL_Driver::VertexFormat::disable()
+{
+	glPopClientAttrib();
+}
+
+void		OpenGL_GLSL_Driver::setVertexFormat(VertexElement*    element)
+{
+	delete m_VF;
+	m_VF = new OpenGL_GLSL_Driver::VertexFormat(element,m_Streams);
+}
+
+void		OpenGL_GLSL_Driver::beginScene()
+{
+	//Do nothing in OpenGL driver
+}
+void		OpenGL_GLSL_Driver::endScene()
+{
+	//Do nothing in OpenGL driver
+}
+
 void		OpenGL_GLSL_Driver::drawPrimitive(unsigned primitives,unsigned first,unsigned count)
 {
+	m_VF->enable();
 	glDrawArrays(OpenGL_GLSL_Tables::Primitive[primitives],first,count);
+	m_VF->disable();
 }
 
 void		OpenGL_GLSL_Driver::drawIndexedPrimitive(unsigned primitives,unsigned count,unsigned type,VertexBufferObject* buf)
 {
+	m_VF->enable();
 	buf->bind(VBOType::INDEX);
 	glDrawElements(OpenGL_GLSL_Tables::Primitive[primitives],count,OpenGL_GLSL_Tables::DataType[type],0);
 	buf->unbind();
+	m_VF->disable();
 }
 
-void		OpenGL_GLSL_Driver::drawPrimitive(unsigned primitives,unsigned first,unsigned count,const InstanceArray& instances)
+void		OpenGL_GLSL_Driver::drawPrimitive(unsigned primitives,unsigned first,unsigned count,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData)
 {
-	unsigned prim = OpenGL_GLSL_Tables::Primitive[primitives];
-	for(unsigned i = 0; i < instances.size(); i++)
+	OpenGL_GLSL_Driver::VertexFormat*	instd = new OpenGL_GLSL_Driver::VertexFormat(instanceDeclaration,m_Streams);
+	m_VF->enable();
+	for(int i = 0; i < numInstances; i++)
 	{
-		glColor4f(instances[i].Color[0],instances[i].Color[1],instances[i].Color[2],instances[i].Alpha);
-		GLint	current;
-		glGetIntegerv(GL_MATRIX_MODE,&current);
-		GLint   currentM;
-		glGetIntegerv(GL_ACTIVE_TEXTURE,&currentM);
-		glActiveTextureARB(GL_TEXTURE1_ARB);
-		glMatrixMode(GL_TEXTURE);
-		glLoadTransposeMatrixfARB(static_cast<float*>(const_cast<math::matrix4x4&>(instances[i].ModelMatrix)));
-		glMatrixMode(current);
-		glActiveTextureARB(currentM);
-		glDrawArrays(prim,first,count);
+		instd->enableImmediate(i,instanceData);
+		glDrawArrays(OpenGL_GLSL_Tables::Primitive[primitives],first,count);
 	}
+	m_VF->disable();
+	delete instd;
 }
 
-void		OpenGL_GLSL_Driver::drawIndexedPrimitive(unsigned primitives,unsigned count,unsigned type,VertexBufferObject* buf,const InstanceArray& instances)
+void		OpenGL_GLSL_Driver::drawIndexedPrimitive(unsigned primitives,unsigned count,unsigned type,VertexBufferObject* indexBuffer,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData)
 {
-	unsigned prim = OpenGL_GLSL_Tables::Primitive[primitives];
-	for(unsigned i = 0; i < instances.size(); i++)
+	OpenGL_GLSL_Driver::VertexFormat*	instd = new OpenGL_GLSL_Driver::VertexFormat(instanceDeclaration,m_Streams);
+	m_VF->enable();
+	indexBuffer->bind(VBOType::INDEX);
+	for(int i = 0; i < numInstances; i++)
 	{
-		glColor4f(instances[i].Color[0],instances[i].Color[1],instances[i].Color[2],instances[i].Alpha);
-		GLint	current;
-		glGetIntegerv(GL_MATRIX_MODE,&current);
-		//glActiveTextureARB
-		GLint   currentM;
-		glGetIntegerv(GL_ACTIVE_TEXTURE,&currentM);
-		glActiveTextureARB(GL_TEXTURE1_ARB);
-		glMatrixMode(GL_TEXTURE);
-
-		glLoadTransposeMatrixfARB(static_cast<float*>(const_cast<math::matrix4x4&>(instances[i].ModelMatrix)));
-		glMatrixMode(current);
-		glActiveTextureARB(currentM);
-		buf->bind(VBOType::INDEX);
-		glDrawElements(prim,count,OpenGL_GLSL_Tables::DataType[type],0);
-		buf->unbind();
+		instd->enableImmediate(i,instanceData);
+		glDrawElements(OpenGL_GLSL_Tables::Primitive[primitives],count,OpenGL_GLSL_Tables::DataType[type],0);
 	}
-}
-
-void		OpenGL_GLSL_Driver::enableClientState(unsigned state)
-{
-	glEnableClientState(OpenGL_GLSL_Tables::ClientState[state]);
-}
-
-void		OpenGL_GLSL_Driver::disableClientState(unsigned state)
-{
-	glDisableClientState(OpenGL_GLSL_Tables::ClientState[state]);
-}
-
-void		OpenGL_GLSL_Driver::enableTextureCoordState(unsigned unit)
-{
-	glClientActiveTextureARB(OpenGL_GLSL_Tables::TextureUnit[unit]);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glClientActiveTextureARB(GL_TEXTURE0_ARB);
-}
-
-void		OpenGL_GLSL_Driver::disableTextureCoordState(unsigned unit)
-{
-	glClientActiveTextureARB(OpenGL_GLSL_Tables::TextureUnit[unit]);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glClientActiveTextureARB(GL_TEXTURE0_ARB);
-}
-
-void		OpenGL_GLSL_Driver::colorPointer(unsigned dataType,unsigned numComponents,unsigned stride,VertexBufferObject*	buf,unsigned offset)
-{
-	buf->bind(VBOType::VERTEX);
-	glColorPointer(numComponents,OpenGL_GLSL_Tables::DataType[dataType],stride, reinterpret_cast<void*>(offset) );
-	buf->unbind();
-}
-
-void		OpenGL_GLSL_Driver::	colorIndexPointer(unsigned dataType,unsigned stride,VertexBufferObject*	buf,unsigned offset)
-{
-	buf->bind(VBOType::VERTEX);
-	glIndexPointer(OpenGL_GLSL_Tables::DataType[dataType],stride, reinterpret_cast<void*>(offset) );
-	buf->unbind();
-}
-
-void		OpenGL_GLSL_Driver::normalPointer(unsigned dataType,unsigned stride,VertexBufferObject*	buf,unsigned offset)
-{
-	buf->bind(VBOType::VERTEX);
-	glNormalPointer(OpenGL_GLSL_Tables::DataType[dataType],stride, reinterpret_cast<void*>(offset) );
-	buf->unbind();
-}
-
-void		OpenGL_GLSL_Driver::textureCoordPointer(unsigned unit,unsigned dataType,unsigned numComponents,unsigned stride,VertexBufferObject*	buf,unsigned offset)
-{
-	glClientActiveTextureARB(OpenGL_GLSL_Tables::TextureUnit[unit]);
-	buf->bind(VBOType::VERTEX);
-	glTexCoordPointer(numComponents,OpenGL_GLSL_Tables::DataType[dataType],stride, reinterpret_cast<void*>(offset) );
-	buf->unbind();
-	glClientActiveTextureARB(OpenGL_GLSL_Tables::TextureUnit[TextureUnit::TEXTURE0]);
-}
-
-void		OpenGL_GLSL_Driver::vertexPointer(unsigned dataType,unsigned numComponents,unsigned stride,VertexBufferObject*	buf,unsigned offset)
-{
-	buf->bind(VBOType::VERTEX);
-	glVertexPointer(numComponents,OpenGL_GLSL_Tables::DataType[dataType],stride, reinterpret_cast<void*>(offset) );
-	buf->unbind();
-}
-
-void		OpenGL_GLSL_Driver::fogCoordPointer(unsigned dataType,unsigned stride,VertexBufferObject*	buf,unsigned offset)
-{
-	buf->bind(VBOType::VERTEX);
-	glFogCoordPointerEXT(OpenGL_GLSL_Tables::DataType[dataType],stride, reinterpret_cast<void*>(offset) );
-	buf->unbind();
-}
-
-void		OpenGL_GLSL_Driver::enableFog()
-{
-	glEnable(GL_FOG);
-}
-
-void		OpenGL_GLSL_Driver::   disableFog()
-{
-	glDisable(GL_FOG);
-}
-
-void		OpenGL_GLSL_Driver::setFogFunction(unsigned func)
-{
-	glFogi(GL_FOG_MODE,OpenGL_GLSL_Tables::FogFunction[func]);
-}
-
-void		OpenGL_GLSL_Driver::setLinearFogBoundaries(float start,float end)
-{
-	glFogi(GL_FOG_START,start);
-	glFogi(GL_FOG_END,end);
-}
-
-void		OpenGL_GLSL_Driver::setFogDensity(float density)
-{
-	glFogf(GL_FOG_DENSITY,density);
-}
-
-void		OpenGL_GLSL_Driver::setFogColor(float r,float g,float b,float a)
-{
-	float arr[] = {r,g,b,a};
-	glFogfv(GL_FOG_COLOR,arr);
+	indexBuffer->unbind();
+	m_VF->disable();
+	delete instd;
 }
 
 Framebuffer*		OpenGL_GLSL_Driver::createFramebuffer()

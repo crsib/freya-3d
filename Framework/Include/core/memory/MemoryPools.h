@@ -14,12 +14,14 @@ namespace memory
 //!Default memory pools location
 	enum MEMORYPOOLTYPE
 	{
-		STL_POOL = 0,
+		DEFAULT_POOL,
+		STL_POOL ,
 		MATH_POOL,
 		GENERIC_POOL,
 		CLASS_POOL,
 		LUA_POOL,
 		XML_POOL,
+		CEGUI_POOL,
 	};
 }
 }

@@ -9,29 +9,43 @@
 #include "core/memory/MemoryPool.h"
 #include "core/memory/MemoryException.h"
 
+#include <iostream>
+
 namespace core
 {
 namespace memory
 {
 
+MemoryArena		ArenaInstance;
+
+bool			ArenaCreated;
+
 #ifdef _FREYA_DEBUG_MEMORY
-	unsigned memory_allocated = 0;
-	unsigned allocation_count = 0;
-	unsigned deallocation_count = 0;
-	unsigned alloc_dealloc_dif = 0;
-	unsigned allocated_for_buffers = 0;
+unsigned memory_allocated = 0;
+unsigned allocation_count = 0;
+unsigned deallocation_count = 0;
+unsigned alloc_dealloc_dif = 0;
+unsigned allocated_for_buffers = 0;
 #endif
+
+MemoryArena*         MemoryArena::instance()
+{
+	return &ArenaInstance;
+}
 
 MemoryArena::MemoryArena()
 {
-
-
+	std::cout << "Starting memory arena" << std::endl;
+	addPool(1024*1024,4);
+	ArenaCreated = true;
 }
 
 MemoryArena::~MemoryArena()
 {
+	ArenaCreated = false;
 	for(unsigned i = 0; i < m_Pools.size(); i++)
 		delete m_Pools[i];
+	std::cout << "Memory arena destroyed" << std::endl;
 }
 
 unsigned	MemoryArena::addPool(size_t size,size_t alligment)
@@ -87,3 +101,4 @@ void		MemoryArena::free(void* p,unsigned id)
 
 }
 }
+
