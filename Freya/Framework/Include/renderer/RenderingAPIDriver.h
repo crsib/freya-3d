@@ -14,8 +14,8 @@ namespace core
 {
 namespace memory
 {
-	extern void* (*Allocate)(size_t,unsigned);
-	extern void  (*Free)(void*,unsigned);
+extern void* (*Allocate)(size_t,unsigned);
+extern void  (*Free)(void*,unsigned);
 }
 }
 #endif
@@ -27,22 +27,14 @@ namespace memory
 #include "core/EString.h"
 #include "core/memory/MemoryAllocator.h"
 #include <vector>
-#include "math/vector3d.hpp"
-#include "math/matrix4x4.hpp"
 #include "core/drivermodel/Driver.h"
+#include "math/math.hpp"
 
 namespace core
 {
 class EngineCore;
 }
-/*
-namespace math
-{
-class vector3d;
-class matrix4x4;
-class quaternion;
-}
-*/
+
 //!This namespace contains all rendering capable functions
 namespace renderer
 {
@@ -52,75 +44,62 @@ class VertexBufferObject;
 class Framebuffer;
 class Shader;
 
-//! Per-instance data structure
-typedef struct	_InstanceData
-{
-	//! A 4x4 matrix, usually used for instance transformations
-	math::matrix4x4	ModelMatrix;
-	//! A 3D vector, usually used as instance color
-	math::vector3d	Color;
-	//! A scalar value, can be used as alpha, or as some index, or as it is needed by implementation
-	float			Alpha;
-
-	_InstanceData& operator = (const _InstanceData& d)
-	{
-		ModelMatrix = d.ModelMatrix;
-		Color = d.Color;
-		Alpha = d.Alpha;
-		return *this;
-	}
-
-	_InstanceData(const _InstanceData& d) : ModelMatrix(d.ModelMatrix), Color(d.Color),Alpha(d.Alpha)
-	{
-	}
-	_InstanceData() : ModelMatrix(), Color(1.0,1.0,1.0), Alpha(1.0)
-	{
-	}
-}	InstanceData; //A per instance data
-
-//! Data type, used to hold instance arrays
-typedef std::vector<InstanceData, core::memory::MemoryAllocator<InstanceData> > InstanceArray;
-
 namespace futures
 {
 enum RenderFutures
 {
 	//Texturing
-	MULTITEXTURE 					= 0x1,
-	CUBE_MAP	   					= 0x2,
-	RECTANGLE_TEXTURE	 			= 0x4,
-	TEXTURE_3D						= 0x8,
-	FLOAT_TEXTURE					= 0x10,
-	NPOT_TEXTURE					= 0x20,
-	COMPRESSED_TEXTURE				= 0x40,
-	S3TC_TEXTURE					= 0x80,
-	DEPTH_TEXTURE					= 0x100,
-	GENERATE_MIPMAPS				= 0x200,
-	ANISOTROPIC_FILTERING			= 0x400,
+			MULTITEXTURE 					= 0x1,
+			CUBE_MAP	   					= 0x2,
+			RECTANGLE_TEXTURE	 			= 0x4,
+			TEXTURE_3D						= 0x8,
+			FLOAT_TEXTURE					= 0x10,
+			NPOT_TEXTURE					= 0x20,
+			COMPRESSED_TEXTURE				= 0x40,
+			S3TC_TEXTURE					= 0x80,
+			DEPTH_TEXTURE					= 0x100,
+			GENERATE_MIPMAPS				= 0x200,
+			ANISOTROPIC_FILTERING			= 0x400,
+			TEXTURE_ARRAY					= 0x800,
 
-	//Framebuffers
-	FRAMEBUFFER						= 0x1000,
-	MRT								= 0x2000,
-	PACKED_DEPTH_STENCIL			= 0x4000,
+			//Framebuffers
+			FRAMEBUFFER						= 0x1000,
+			MRT								= 0x2000,
+			PACKED_DEPTH_STENCIL			= 0x4000,
 
-	//VBO
-	VERTEX_BUFFER					= 0x10000,
-	TEXTURE_BUFFER					= 0x20000,
-	R2VB							= 0x40000,
+			//VBO
+			VERTEX_BUFFER					= 0x10000,
+			TEXTURE_BUFFER					= 0x20000,
+			PIXEL_BUFFER					= TEXTURE_BUFFER,
+			R2VB							= 0x40000,
 
-	//Shaders
-	VERTEX_SHADER					= 0x100000,
-	FRAGMENT_SHADER					= 0x200000,
-	GEOMETRY_SHADER					= 0x400000,
-	SM40							= 0x800000,
+			//Shaders
+			VERTEX_SHADER					= 0x100000,
+			FRAGMENT_SHADER					= 0x200000,
+			GEOMETRY_SHADER					= 0x400000,
+			SM40							= 0x800000,
 
-	//Misc
-	FOG_COORD						= 0x1000000,
-	AUTO_TRANSPOSE_MATIRIX			= 0x2000000,
+			//Misc
+			FOG_COORD						= 0x1000000,
+			AUTO_TRANSPOSE_MATIRIX			= 0x2000000,
 
 };
 
 }
+
+#define	MAX_STREAM_SOURCES 32
+
+struct VertexElement : public EngineSubsystem
+{
+	VertexElement(unsigned sid,renderer::VertexFormat::USAGE usg,renderer::VertexFormat::TYPE tp,unsigned off)
+	: streamID(sid),usage(usg),type(tp),offset(off){}
+	unsigned				streamID;
+	VertexFormat::USAGE		usage;
+	VertexFormat::TYPE		type;
+	unsigned 				offset;
+};
+#define FREYA_DECLARATION(sid,usg,tp,off) renderer::VertexElement(sid,usg,tp,off)
+#define FREYA_LAST_DECLARATION() renderer::VertexElement((unsigned)-1,renderer::VertexFormat::UNUSED,renderer::VertexFormat::DWORD,0)
 
 //! The abstraction class for generally used rendering commands
 /*!
@@ -200,11 +179,11 @@ public:
 
 	virtual void setPolygonOffset(float factor,float units) = 0;
 	//Matricies
-	virtual void loadMatrix(const math::matrix4x4& mtx) = 0;//Loades matrix in column form
+	virtual void loadMatrix(const math::matrix4x4& mtx) = 0;//Loades matrix in row form
 
 	virtual void loadIdentityMatrix() = 0;
 	//Multiplies current matrix in row form
-	virtual void multMatrix(const math::matrix4x4& mtx) = 0;//Multiplies current matrix in column form
+	virtual void multMatrix(const math::matrix4x4& mtx) = 0;//Multiplies current matrix in row form
 
 	virtual void pushMatrix() = 0; //Pushes matrix
 	virtual void popMatrix() = 0;  //Pops matrix
@@ -220,54 +199,29 @@ public:
 	virtual void rotate(const math::quaternion& quat) = 0; //Rotates by quaternion (seems to be really slow,but who really cares)
 	//Scaling
 	virtual void scale(float x,float y,float z) = 0; //Scales by x,y,z
-	//Textures
-	virtual Texture*	createTexture() = 0; //Creates the texture object. Preferably called by the texture manager
-	virtual void		destroyTexture(Texture* texture) = 0;//Destroys the texture. NB, as always, all allocated objects are freed on driver destroy
-	//Auto generatio
+
+	//Auto generation of texture coordinates
 	virtual void 		enableGeneration(unsigned coord,unsigned mode) = 0; //enables generation for coord described by TextureCoord with mode descripbed by TextureGenMode
 	virtual void		disableGeneration(unsigned coord) = 0;
 	virtual void		setEyePlane(unsigned coord,const math::vector3d& n) = 0;//Sets the eye plane normal
 	virtual void		setObjectPlane(unsigned coord,const math::vector3d& n) = 0;//Sets the object plane
+
+	virtual void		setStreamSource(unsigned sourceID,VertexBufferObject* dataSource,unsigned offset,unsigned stride) = 0;
+	virtual void		setVertexFormat(VertexElement*    element) = 0;
+
+	virtual void		beginScene() = 0;
+	virtual void		endScene() 	 = 0;
+
+	//Rendering commands (all using vbo as data source)
+	virtual void		drawPrimitive(unsigned primitives,unsigned first,unsigned count) = 0;//Render non-idexed primitive assembled as {primitves},starting from element {first} with count of elements (vertices)
+	virtual void		drawIndexedPrimitive(unsigned primitives,unsigned count,unsigned type,VertexBufferObject* indexBuffer) = 0;//Type is described by DataType
+
+	virtual void		drawPrimitive(unsigned primitives,unsigned first,unsigned count,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData) = 0;//Render non-idexed primitive assembled as {primitves},starting from element {first} with count of elements (vertices)
+	virtual void		drawIndexedPrimitive(unsigned primitives,unsigned count,unsigned type,VertexBufferObject* indexBuffer,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData) = 0;//Type is described by DataType
+
 	//VBO (all said above is applicable to functions from this section
 	virtual VertexBufferObject*	createVertexBufferObject() = 0;
 	virtual void				destroyVertexBufferObject(VertexBufferObject*	buf) = 0;
-	//Rendering commands (all using vbo as data source)
-	virtual void	drawPrimitive(unsigned primitives,unsigned first,unsigned count) = 0;//Render non-idexed primitive assembled as {primitves},starting from element {first} with count of elements (vertices)
-	virtual void	drawIndexedPrimitive(unsigned primitives,unsigned count,unsigned type,VertexBufferObject* buf) = 0;//Type is described by DataType
-	//Same as two above,but with instancing
-	virtual void	drawPrimitive(unsigned primitives,unsigned first,unsigned count,const InstanceArray& instances) = 0;
-	virtual void	drawIndexedPrimitive(unsigned primitives,unsigned count,unsigned type,VertexBufferObject* buf,const InstanceArray& instances) = 0;
-	//Enabling client states (e.g. what array types are supportes
-	virtual void	enableClientState(unsigned state) = 0;//Enable client state described in ClientState namespace
-	virtual void    disableClientState(unsigned state) = 0;
-
-	virtual void	enableTextureCoordState(unsigned unit) = 0;
-	virtual void	disableTextureCoordState(unsigned unit) = 0;
-	//setting pointer for commands above. stride is an offset between data. Client state must be managed by program
-	//dataType is described by DataType enum. numComponenets is number of componenet per data unit
-	//buf - is a valid VBO
-	virtual void	colorPointer(unsigned dataType,unsigned numComponents,unsigned stride,VertexBufferObject*	buf,unsigned offset = 0) = 0;
-	virtual void 	colorIndexPointer(unsigned dataType,unsigned stride,VertexBufferObject*	buf,unsigned offset = 0) = 0;
-
-	virtual void	normalPointer(unsigned dataType,unsigned stride,VertexBufferObject*	buf,unsigned offset = 0) = 0;
-
-	virtual void	textureCoordPointer(unsigned unit,unsigned dataType,unsigned numComponenets,unsigned stride,VertexBufferObject*	buf,unsigned offset = 0) = 0;//Unit is a texture unit
-
-	virtual void	vertexPointer(unsigned dataType,unsigned numComponenets,unsigned stride,VertexBufferObject*	buf,unsigned offset = 0) = 0;
-
-	virtual void	fogCoordPointer(unsigned dataType,unsigned stride,VertexBufferObject*	buf,unsigned offset = 0) = 0;
-	//Render mode: side is described by RenderSide namespace. mode is described by RenderMode namespace
-	virtual void	setRenderMode(unsigned side,unsigned mode) = 0;
-	//Fog settings (most of this functions are emulated by shader. Nevertheless, they give access to standart fog uniforms
-	virtual void	enableFog() = 0;
-	virtual void    disableFog() = 0;
-
-	virtual void	setFogFunction(unsigned func) = 0;//As described by FogFunction namespace
-
-	virtual void	setLinearFogBoundaries(float start,float end) = 0;
-	virtual void	setFogDensity(float density) = 0;
-
-	virtual void	setFogColor(float r,float g,float b,float a) = 0;
 	//Frame buffers
 	virtual Framebuffer*	createFramebuffer() = 0; //Creates a framebuffer
 	virtual void			destroyFramebuffer(Framebuffer* buf) = 0;
@@ -277,6 +231,10 @@ public:
 	//Write modes
 	virtual void			setColorWrite(bool r,bool g,bool b,bool a) = 0;
 	virtual void			setDepthWrite(bool d) = 0;
+
+	//Textures
+	virtual Texture*	createTexture() = 0; //Creates the texture object. Preferably called by the texture manager
+	virtual void		destroyTexture(Texture* texture) = 0;//Destroys the texture. NB, as always, all allocated objects are freed on driver destroy
 };
 
 

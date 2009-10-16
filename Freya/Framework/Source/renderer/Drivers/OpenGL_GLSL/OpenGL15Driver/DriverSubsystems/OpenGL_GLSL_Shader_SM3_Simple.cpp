@@ -1,7 +1,7 @@
 /*This file was generated for Freya engine*/
 #include "renderer/Drivers/OpenGL_GLSL/OpenGL15Driver/DriverSubsystems/OpenGL_GLSL_Shader_SM3_Simple.h"
 #include "renderer/3DConstants.h"
-#include "renderer/Drivers/OpenGL_GLSL/OpenGL_GLSL_ConstantsTables.h"
+#include "renderer/Drivers/OpenGL_GLSL/OpenGL15Driver/OpenGL_15_ConstantsTables.h"
 #include "renderer/DriverSubsystems/ShaderException.h"
 #include "renderer/DriverSubsystems/VertexBufferObject.h"
 #include <iostream>
@@ -9,16 +9,17 @@
 using std::clog;
 using std::endl;
 
-#include "math/vector3d.hpp"
-#include "math/matrix4x4.hpp"
-#include "math/matrix3x3.hpp"
+#include "math/math.hpp"
 #include "math/quaternion.hpp"
+#include "math/vector3d.hpp"
+#include "math/matrix3x3.hpp"
+#include "math/matrix4x4.hpp"
 
 namespace renderer
 {
 namespace drivers
 {
-namespace opengl_glsl_sm3_simple
+namespace opengl_glsl_15
 {
 OpenGL_GLSL_Shader::OpenGL_GLSL_Shader()
 {
@@ -681,49 +682,6 @@ void		OpenGL_GLSL_Shader:: setTexture(unsigned location,Texture* tex)
 void		OpenGL_GLSL_Shader::	 setTexture(const EString& name,Texture* tex)
 {
 	setUniform(name,(int)tex->getTextureUnit());
-}
-
-void 		 	 OpenGL_GLSL_Shader::setAttributeArrayPointer(unsigned location,unsigned dataType,unsigned numComponents, unsigned normalized, size_t stride,VertexBufferObject* obj)
-{
-	if(m_Bounded)
-	{
-		obj->bind();
-		glVertexAttribPointerARB(location, numComponents, OpenGL_GLSL_Tables::DataType[dataType], normalized, stride,0);
-		obj->unbind();
-	}
-	else
-	{
-		bind();
-		obj->bind();
-		glVertexAttribPointerARB(location, numComponents, OpenGL_GLSL_Tables::DataType[dataType], normalized, stride,0);
-		obj->unbind();
-		unbind();
-	}
-}
-
-void 	 		 OpenGL_GLSL_Shader::setAttributeArrayPointer(const EString& name,unsigned dataType,unsigned numComponents, unsigned normalized, size_t stride,VertexBufferObject* obj)
-{
-	setAttributeArrayPointer(getAttributeLocation(name),dataType,numComponents,normalized,stride,obj);
-}
-
-void			 OpenGL_GLSL_Shader::enableClientState(unsigned location)
-{
-	glEnableVertexAttribArrayARB(location);
-}
-
-void			OpenGL_GLSL_Shader::enableClientState(const EString& name)
-{
-	glEnableVertexAttribArrayARB(getAttributeLocation(name));
-}
-
-void			 OpenGL_GLSL_Shader::disableClientState(unsigned location)
-{
-	glDisableVertexAttribArrayARB(location);
-}
-
-void			 OpenGL_GLSL_Shader::disableClientState(const EString& name)
-{
-	glDisableVertexAttribArrayARB(getAttributeLocation(name));
 }
 
 }
