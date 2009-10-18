@@ -35,6 +35,7 @@ ELSE( )
     MESSAGE(FATAL "Freya 3D engine is heavy dependent on Bullet!")
 ENDIF()
 
+
 # Link libraries to executables
 DEFINE_PROPERTY(GLOBAL PROPERTY RUNTIME_LINK_LIBRARIES_GLOBAL BRIEF_DOCS "Put libraries to link with executables here"  FULL_DOCS "Put libraries to link with executables here")
 
@@ -86,6 +87,10 @@ IF( FREYA_CORE_USE_BOOST )
 	INCLUDE_DIRECTORIES ( ${Boost_INCLUDE_DIRS} )
 ENDIF()
 
+#Build math library
+INCLUDE( ${CMAKE_SOURCE_DIR}/Framework/Source/math/CMakeList.txt )
+
+#Build plugins
 INCLUDE(  BuildPlugins )
 
 #Build FreyaCore
@@ -109,4 +114,7 @@ MESSAGE( "Plugins found: ${SHARED_PLUGINS}" )
 #Build Freya test executables
 GET_PROPERTY ( RUNTIME_LINK_LIBRARIES GLOBAL PROPERTY RUNTIME_LINK_LIBRARIES_GLOBAL )
 MESSAGE ("Executables will be linked with: ${RUNTIME_LINK_LIBRARIES}")
+SET ( RUNTIME_LINK_LIBRARIES ${RUNTIME_LINK_LIBRARIES} FreyaMath_core )
+# Build tests
+
 ADD_SUBDIRECTORY ( Tests )

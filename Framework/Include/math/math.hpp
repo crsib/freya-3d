@@ -50,50 +50,50 @@ namespace math
     	return scalar > zero ? scalar : -scalar;
     }
 
-    EXPORT float     abs   (const vector2d&);
-    EXPORT float     abs   (const vector3d&);
-    EXPORT float     abs_sq(const vector2d&);
-    EXPORT float     abs_sq(const vector3d&);
+    float     abs   (const vector2d&);
+    float     abs   (const vector3d&);
+    float     abs_sq(const vector2d&);
+    float     abs_sq(const vector3d&);
 
-    EXPORT float     distance   (const vector2d&, const vector2d&);
-    EXPORT float     distance   (const vector3d&, const vector3d&);
-    EXPORT float     distance_sq(const vector2d&, const vector2d&);
-    EXPORT float     distance_sq(const vector3d&, const vector3d&);
+    float     distance   (const vector2d&, const vector2d&);
+    float     distance   (const vector3d&, const vector3d&);
+    float     distance_sq(const vector2d&, const vector2d&);
+    float     distance_sq(const vector3d&, const vector3d&);
 
     //float     sqrt(const float);
     //float     sqr (const float);
-    EXPORT float     wu_hypotenuse(const float, const float);
+    float     wu_hypotenuse(const float, const float);
 
-    EXPORT float     max(float,     float);
-    EXPORT vector2d& max(vector2d&, vector2d&);
-    EXPORT vector3d& max(vector3d&, vector3d&);
+    float     max(float,     float);
+    vector2d& max(vector2d&, vector2d&);
+    vector3d& max(vector3d&, vector3d&);
 
-    EXPORT float     min(float,     float);
-    EXPORT vector2d& min(vector2d&, vector2d&);
-    EXPORT vector3d& min(vector3d&, vector3d&);
+    float     min(float,     float);
+    vector2d& min(vector2d&, vector2d&);
+    vector3d& min(vector3d&, vector3d&);
 
-    EXPORT vector2d  normalized(const vector2d&);
-    EXPORT vector3d  normalized(const vector3d&);
+    vector2d  normalized(const vector2d&);
+    vector3d  normalized(const vector3d&);
 /*
 
-    EXPORT float     det(const matrix3x3&);
-    EXPORT float     det(const matrix4x4&);
+    float     det(const matrix3x3&);
+    float     det(const matrix4x4&);
 
-    EXPORT matrix3x3 transposed(const matrix3x3&);
-    EXPORT matrix4x4 transposed(const matrix4x4&);
+    matrix3x3 transposed(const matrix3x3&);
+    matrix4x4 transposed(const matrix4x4&);
 
-    EXPORT float     dot(const matrix3x3&, const matrix3x3&);
-    EXPORT float     dot(const matrix4x4&, const matrix4x4&);
+    float     dot(const matrix3x3&, const matrix3x3&);
+    float     dot(const matrix4x4&, const matrix4x4&);
 */
-    EXPORT float 	   norm		 (const quaternion&);
-    EXPORT bool	   	   isNormed	 (const quaternion&);
-    EXPORT float	   abs		 (const quaternion&);
-    EXPORT quaternion conjugated(const quaternion&);
-    EXPORT quaternion inversed  (const quaternion&);
-    EXPORT quaternion normalized(const quaternion&);
+    float 	   norm		 (const quaternion&);
+    bool	   	   isNormed	 (const quaternion&);
+    float	   abs		 (const quaternion&);
+    quaternion conjugated(const quaternion&);
+    quaternion inversed  (const quaternion&);
+    quaternion normalized(const quaternion&);
 
-    EXPORT matrix4x4  QuaternionToMatrix4x4(const quaternion& q);
-    EXPORT quaternion Matrix4x4ToQuaternion(const matrix4x4& m);
+    matrix4x4  QuaternionToMatrix4x4(const quaternion& q);
+    quaternion Matrix4x4ToQuaternion(const matrix4x4& m);
     //void matrix3x3ToQuaternion(const matrix3x3&, const quaternion&);
 
     //r means radian, d means degree
@@ -114,9 +114,6 @@ namespace math
     float     arctg_d (const float);
     float     arcctg_r(const float);
     float     arcctg_d(const float);*/
-
-    //dont use directly
-    //const int max_buffer_size = 3;
 }//math
 
 #endif /*MATH_HPP_*/
