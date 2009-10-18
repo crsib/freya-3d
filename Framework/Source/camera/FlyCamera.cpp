@@ -4,65 +4,65 @@ namespace camera
 {
 void FlyCamera::moveForward(float Step)
 {
-	mPos += Step*mDir;
-	mFrust->setPosition(mPos);
+	m_Position += Step*m_Direction;
+	m_Frustum->setPosition(m_Position);
 }
 void FlyCamera::moveBackward(float Step)
 {
-	mPos -= Step*mDir;
-	mFrust->setPosition(mPos);
+	m_Position -= Step*m_Direction;
+	m_Frustum->setPosition(m_Position);
 }
 
 void FlyCamera::moveLeft(float Step)
 {
-	mPos -= Step*mRight;
-	mFrust->setPosition(mPos);
+	m_Position -= Step*m_Right;
+	m_Frustum->setPosition(m_Position);
 }
 void FlyCamera::moveRight(float Step)
 {
-	mPos   += Step*mRight;
-	mFrust->setPosition(mPos);
+	m_Position   += Step*m_Right;
+	m_Frustum->setPosition(m_Position);
 }
 
 void FlyCamera::moveUp(float Step)
 {
-	mPos += Step*mUp;
-	mFrust->setPosition(mPos);
+	m_Position += Step*m_Up;
+	m_Frustum->setPosition(m_Position);
 }
 void FlyCamera::moveDown(float Step)
 {
-	mPos -= Step*mUp;
-	mFrust->setPosition(mPos);
+	m_Position -= Step*m_Up;
+	m_Frustum->setPosition(m_Position);
 }
 
 void FlyCamera::changePitch(float AngleStep)
 {
-	math::quaternion Pitch(mRight,AngleStep);
-	mUp = Pitch.rotate(mUp);
+	math::quaternion Pitch(m_Right,AngleStep);
+	m_Up = Pitch.rotate(m_Up);
 	//mRight = Pitch.rotate(mRight);
-	mDir = Pitch.rotate(mDir);
+	m_Direction = Pitch.rotate(m_Direction);
 	Pitch.w = -Pitch.w;
-	mFrust->rotate(Pitch);
-	qcheck(mUp);qcheck(mDir);
+	m_Frustum->rotate(Pitch);
+	qcheck(m_Up);qcheck(m_Direction);
 }
 void FlyCamera::changeYaw(float AngleStep)
 {
-	math::quaternion Yaw(mUp,AngleStep);
+	math::quaternion Yaw(m_Up,AngleStep);
 	//mUp = Yaw.rotate(mUp);
-	mRight = Yaw.rotate(mRight);
-	mDir = Yaw.rotate(mDir);
+	m_Right = Yaw.rotate(m_Right);
+	m_Direction = Yaw.rotate(m_Direction);
 	Yaw.w = -Yaw.w;
-	mFrust->rotate(Yaw);
-	qcheck(mRight);qcheck(mDir);
+	m_Frustum->rotate(Yaw);
+	qcheck(m_Right);qcheck(m_Direction);
 }
 void FlyCamera::changeRoll(float AngleStep)
 {
-	math::quaternion Roll(mDir,AngleStep);
-	mUp = Roll.rotate(mUp);
-	mRight = Roll.rotate(mRight);
-	qcheck(mUp);qcheck(mRight);
+	math::quaternion Roll(m_Direction,AngleStep);
+	m_Up = Roll.rotate(m_Up);
+	m_Right = Roll.rotate(m_Right);
+	qcheck(m_Up);qcheck(m_Right);
 	Roll.w = -Roll.w;
-	mFrust->rotate(Roll);
+	m_Frustum->rotate(Roll);
 	//mDir = Roll.rotate(mDir);
 }
 }

@@ -1,0 +1,21 @@
+INCLUDE_DIRECTORIES( Framework/Include/math )
+
+#
+SET ( MATH_SOURCES 
+${CMAKE_SOURCE_DIR}/Framework/Source/math/math.cpp 
+
+
+${CMAKE_SOURCE_DIR}/Framework/Include/math/math.hpp
+${CMAKE_SOURCE_DIR}/Framework/Include/math/MathSubsystem.h
+${CMAKE_SOURCE_DIR}/Framework/Include/math/matrix3x3.hpp
+${CMAKE_SOURCE_DIR}/Framework/Include/math/plane.hpp
+${CMAKE_SOURCE_DIR}/Framework/Include/math/Frustum.hpp
+${CMAKE_SOURCE_DIR}/Framework/Include/math/quaternion.hpp
+${CMAKE_SOURCE_DIR}/Framework/Include/math/vector3d.hpp
+${CMAKE_SOURCE_DIR}/Framework/Include/math/vector3d.hpp
+)
+
+ADD_LIBRARY(FreyaMath_core STATIC ${MATH_SOURCES})
+ADD_DEFINITIONS( -D_FREYA_SHARED_PLUGIN )
+ADD_LIBRARY(FreyaMath_plugin STATIC ${MATH_SOURCES})
+REMOVE_DEFINITIONS( -D_FREYA_SHARED_PLUGIN )

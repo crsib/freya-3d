@@ -4,7 +4,7 @@
 
 #include "math/vector3d.hpp"
 #include "math/quaternion.hpp"
-#include "camera/Frustum.h"
+#include "math/frustum.hpp"
 #include "math/plane.hpp"
 #include "renderer/RenderingAPIDriver.h"
 #include "core/EngineCore.h"
@@ -29,50 +29,50 @@ inline  void qcheck(math::vector3d& v)
 class EXPORT BasicCamera : virtual public ::EngineSubsystem
 {
 public:
-	BasicCamera(const math::vector3d& pos,const math::vector3d& dir,const math::vector3d& up) :  mPos(pos),mDir(dir),mUp(up),mFrust (NULL)
+	BasicCamera(const math::vector3d& pos,const math::vector3d& dir,const math::vector3d& up) :  m_Position(pos),m_Direction(dir),m_Up(up),m_Frustum (NULL)
 	{
 		rapi = core::EngineCore::getRenderingDriver();
-		mRight = mUp*mDir;
-		mRight.normalize();
+		m_Right = m_Up*m_Direction;
+		m_Right.normalize();
 	}
-	BasicCamera(const math::vector3d& pos,const math::vector3d& dir,const math::vector3d& up,float FOW,float Aspect,float zNear,float zFar) :mFrust (NULL)
+	BasicCamera(const math::vector3d& pos,const math::vector3d& dir,const math::vector3d& up,float FOW,float Aspect,float zNear,float zFar) :m_Frustum (NULL)
 	{
 		rapi = core::EngineCore::getRenderingDriver();
-		mPos = pos;
-		mDir = dir;
-		mUp  = up;
-		mFOW = FOW;
-		mAspect = Aspect;
-		mNear = zNear;
-		mFar  = zFar;
-		mRight = (mUp*mDir);
-		mRight.normalize();
+		m_Position = pos;
+		m_Direction = dir;
+		m_Up  = up;
+		m_FieldOfView = FOW;
+		m_Aspect = Aspect;
+		m_Near = zNear;
+		m_Far  = zFar;
+		m_Right = (m_Up*m_Direction);
+		m_Right.normalize();
 
 		generateFrustum();
 	}
 	~BasicCamera()
 	{
-		delete mFrust;
+		delete m_Frustum;
 	}
 
 	void applyRenderingSettings()
 	{
 		rapi->setMatrixMode(renderer::MatrixMode::PROJECTION);
 		rapi->loadIdentityMatrix();
-		rapi->setPerspective(mFOW,mAspect,mNear,mFar);
+		rapi->setPerspective(m_FieldOfView,m_Aspect,m_Near,m_Far);
 		rapi->setMatrixMode(renderer::MatrixMode::WORLD);
 		rapi->loadIdentityMatrix();
 	}
 	void applyRenderingSettings(float FOW,float Aspect,float Near,float Far)
 	{
-		mNear = Near;
-		mFar  = Far;
-		mFOW = FOW;
-		mAspect = Aspect;
+		m_Near = Near;
+		m_Far  = Far;
+		m_FieldOfView = FOW;
+		m_Aspect = Aspect;
 
 		rapi->setMatrixMode(renderer::MatrixMode::PROJECTION);
 		rapi->loadIdentityMatrix();
-		rapi->setPerspective(mFOW,mAspect,mNear,mFar);
+		rapi->setPerspective(m_FieldOfView,m_Aspect,m_Near,m_Far);
 		rapi->setMatrixMode(renderer::MatrixMode::WORLD);
 		rapi->loadIdentityMatrix();
 	}
@@ -80,21 +80,21 @@ public:
 	virtual void apply()
 	{
 		float m[16];
-		qcheck(mRight);
-		qcheck(mDir);
-		qcheck(mUp);
-		m[0] = mRight.x;
-		m[1] = mRight.y;
-		m[2] = mRight.z;
-		m[4] = mUp.x;
-		m[5] = mUp.y;
-		m[6] = mUp.z;
-		m[8] = -mDir.x;
-		m[9] = -mDir.y;
-		m[10] = -mDir.z;
-		m[3] = (-mRight, mPos);
-		m[7] = (-mUp, mPos);
-		m[11] = (mDir, mPos);
+		qcheck(m_Right);
+		qcheck(m_Direction);
+		qcheck(m_Up);
+		m[0] = m_Right.x;
+		m[1] = m_Right.y;
+		m[2] = m_Right.z;
+		m[4] = m_Up.x;
+		m[5] = m_Up.y;
+		m[6] = m_Up.z;
+		m[8] = -m_Direction.x;
+		m[9] = -m_Direction.y;
+		m[10] = -m_Direction.z;
+		m[3] = (-m_Right, m_Position);
+		m[7] = (-m_Up, m_Position);
+		m[11] = (m_Direction, m_Position);
 		m[12] = 0.0f;
 		m[13] = 0.0f;
 		m[14] = 0.0f;
@@ -106,7 +106,7 @@ public:
 		//This greatly helps in developement
 		rapi->setMatrixMode(renderer::MatrixMode::PROJECTION);
 		rapi->loadIdentityMatrix();
-		rapi->setPerspective(mFOW,mAspect,mNear,mFar);
+		rapi->setPerspective(m_FieldOfView,m_Aspect,m_Near,m_Far);
 
 		rapi->multMatrix(math::matrix4x4(m));
 		rapi->setMatrixMode(renderer::MatrixMode::WORLD);
@@ -116,22 +116,22 @@ public:
 
 	float *getModelViewInverse()
 	{
-		float *m = mModelviewInverse;
-		m[0] = mRight.x;
-		m[4] = mRight.y;
-		m[8] = mRight.z;
+		float *m = m_ViewInverse;
+		m[0] = m_Right.x;
+		m[4] = m_Right.y;
+		m[8] = m_Right.z;
 		m[12] = 0.0;
-		m[1] = mUp.x;
-		m[5] = mUp.y;
-		m[9] = mUp.z;
+		m[1] = m_Up.x;
+		m[5] = m_Up.y;
+		m[9] = m_Up.z;
 		m[13] = 0.0;
-		m[2] = -mDir.x;
-		m[6] = -mDir.y;
-		m[10] = -mDir.z;
+		m[2] = -m_Direction.x;
+		m[6] = -m_Direction.y;
+		m[10] = -m_Direction.z;
 		m[14] = 0.0;
-		float vx = (mRight, mPos);
-		float vy = (mUp, mPos);
-		float vz = (-mDir, mPos);
+		float vx = (m_Right, m_Position);
+		float vy = (m_Up, m_Position);
+		float vz = (-m_Direction, m_Position);
 		m[3] = vx * m[0] + vy * m[1] + vz * m[2];
 		m[7] = vx * m[4] + vy * m[5] + vz * m[6];
 		m[11] = vx * m[8] + vy * m[9] + vz * m[10];
@@ -153,7 +153,7 @@ public:
 	{
 		rapi->setMatrixMode(renderer::MatrixMode::PROJECTION);
 		rapi->loadIdentityMatrix();
-		rapi->setPerspective(mFOW, mAspect, mNear, mFar);
+		rapi->setPerspective(m_FieldOfView, m_Aspect, m_Near, m_Far);
 		rapi->setMatrixMode(renderer::MatrixMode::MODELVIEW);
 		rapi->loadIdentityMatrix();
 		rapi->enableDepthTest();
@@ -161,32 +161,32 @@ public:
 
 	void generateFrustum()
 	{
-		qcheck(mDir);
-		float halfAngle = 0.5f * mFOW * math::pi / 180.0;
+		qcheck(m_Direction);
+		float halfAngle = 0.5f * m_FieldOfView * math::pi / 180.0;
 		float fovValueY = 1 / (float)(tan(halfAngle));
-		float fovValueX = fovValueY / mAspect;
-		math::vector3d v(mDir * mFar);
-		math::vector3d hr(mRight * (mFar / fovValueX));
-		math::vector3d hu(mUp * (mFar / fovValueY));
+		float fovValueX = fovValueY / m_Aspect;
+		math::vector3d v(m_Direction * m_Far);
+		math::vector3d hr(m_Right * (m_Far / fovValueX));
+		math::vector3d hu(m_Up * (m_Far / fovValueY));
 		math::vector3d vv[4];
 		vv[0] = v + hr + hu;
 		vv[1] = v - hr + hu;
 		vv[2] = v - hr - hu;
 		vv[3] = v + hr - hu;
-		math::plane near(mDir, mNear * mDir);
-		math::plane far(mDir, mFar * mDir);
-		delete mFrust;
+		math::plane near(m_Direction, m_Near * m_Direction);
+		math::plane far(m_Direction, m_Far * m_Direction);
+		delete m_Frustum;
 
-		mFrust = new camera::Frustum(mPos, near, far);
-		mFrust->setVerticies(&vv[0]);
-		mFrust->reset();
-		mFrust->updateIndexBuffer();
-		mFrust->updateVertexBuffer();
+		m_Frustum = new math::frustum(m_Position, near, far);
+		m_Frustum->setVerticies(&vv[0]);
+		m_Frustum->reset();
+		m_Frustum->updateIndexBuffer();
+		m_Frustum->updateVertexBuffer();
 	}
 
-	camera::Frustum & getFrustum()
+	math::frustum & getFrustum()
 	{
-		return *mFrust;
+		return *m_Frustum;
 	}
 
 	float *getModelviewMatrix()
@@ -203,7 +203,7 @@ public:
 
 	float *getMatrAddress()
 	{
-		return mAddress;
+		return m_Address;
 	}
 
 	virtual void moveForward(float Step) =0;
@@ -217,58 +217,58 @@ public:
 	virtual void changeRoll(float AngleStep) =0;
 	math::vector3d getPos() const
 	{
-		return mPos;
+		return m_Position;
 	}
 
 	void setPos(math::vector3d mPos)
 	{
-		this->mPos = mPos;
+		this->m_Position = mPos;
 	}
 
 	math::vector3d getDir() const
 	{
-		return mDir;
+		return m_Direction;
 	}
 
 	void setDir(math::vector3d mDir)
 	{
-		this->mDir = mDir;
+		this->m_Direction = mDir;
 	}
 
 	math::vector3d getUp() const
 	{
-		return mUp;
+		return m_Up;
 	}
 
 	void setUp(math::vector3d mUp)
 	{
-		this->mUp = mUp;
+		this->m_Up = mUp;
 	}
 
 	math::vector3d getRight() const
 	{
-		return mRight;
+		return m_Right;
 	}
 
 	void setRight(math::vector3d mRight)
 	{
-		this->mRight = mRight;
+		this->m_Right = mRight;
 	}
 
 protected:
-	math::vector3d mPos;
-	math::vector3d mDir;
-	math::vector3d mUp;
-	math::vector3d mRight;
-	camera::Frustum *mFrust;
-	float mNear;
-	float mFar;
-	float mFOW;
-	float mAspect;
-	float					mModelviewInverse[16];
+	math::vector3d m_Position;
+	math::vector3d m_Direction;
+	math::vector3d m_Up;
+	math::vector3d m_Right;
+	math::frustum  *m_Frustum;
+	float m_Near;
+	float m_Far;
+	float m_FieldOfView;
+	float m_Aspect;
+	float					m_ViewInverse[16];
 	union
 	{
-		float*			mAddress;
+		float*			m_Address;
 		struct
 		{
 			float			mMVMat[16];

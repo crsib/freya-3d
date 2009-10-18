@@ -32,26 +32,26 @@ void RotateCamera::moveDown(float Step)
 void RotateCamera::changePitch(float AngleStep)
 {
 	math::quaternion Pitch(math::vector3d(1.0f,0.0f,0.0f),AngleStep);
-	mUp = Pitch(mUp);
-	mRight = Pitch(mRight);
-	mDir = Pitch(mDir);
-	mPos = Pitch(mPos-LP)+LP;
-	qcheck(mUp);qcheck(mDir);qcheck(mRight);
+	m_Up = Pitch(m_Up);
+	m_Right = Pitch(m_Right);
+	m_Direction = Pitch(m_Direction);
+	m_Position = Pitch(m_Position-LP)+LP;
+	qcheck(m_Up);qcheck(m_Direction);qcheck(m_Right);
 	Pitch.w = -Pitch.w;
-	mFrust->rotate(Pitch);
-	mFrust->setPosition(mPos);
+	m_Frustum->rotate(Pitch);
+	m_Frustum->setPosition(m_Position);
 }
 void RotateCamera::changeYaw(float AngleStep)
 {
 	math::quaternion Yaw(math::vector3d(0.0f,1.0f,0.0f),AngleStep);
-	mUp = Yaw(mUp);
-	mRight = Yaw(mRight);
-	mDir = Yaw(mDir);
-	mPos = Yaw(mPos-LP)+LP;
-	qcheck(mRight);qcheck(mDir);qcheck(mUp);
+	m_Up = Yaw(m_Up);
+	m_Right = Yaw(m_Right);
+	m_Direction = Yaw(m_Direction);
+	m_Position = Yaw(m_Position-LP)+LP;
+	qcheck(m_Right);qcheck(m_Direction);qcheck(m_Up);
 	Yaw.w = -Yaw.w;
-	mFrust->rotate(Yaw);
-	mFrust->setPosition(mPos);
+	m_Frustum->rotate(Yaw);
+	m_Frustum->setPosition(m_Position);
 }
 void RotateCamera::changeRoll(float AngleStep)
 {

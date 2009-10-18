@@ -6,25 +6,25 @@
 #include "math/plane.hpp"
 #include "renderer/DriverSubsystems/VertexBufferObject.h"
 #include "renderer/RenderingAPIDriver.h"
-#include "core/EngineCore.h"
-#include "core/EngineSubsystem.h"
+#include "core/PluginCore.h"
+#include "math/MathSubsystem.h"
 #define IN_FRUSTUM	1
 #define OUTSIDE_FRUSTUM 0
 
 #include "internal.h"
 
-namespace camera
+namespace math
 {
 inline bool AreCollinear(const math::vector3d& a,const math::vector3d& b,const math::vector3d& c)
 {
 	return abs_sq((b - a) * (c - a)) < math::eps * math::eps;
 }
-class EXPORT Frustum : virtual public ::EngineSubsystem
+class frustum : public math::MathSubsystem
 {
 public:
-	Frustum()
+	frustum()
 	{
-		rapi = core::EngineCore::getRenderingDriver();
+		rapi = core::CoreInstance->getRenderingDriver();
 
 		m_VertexBuffer = rapi->createVertexBufferObject();
 		m_VertexBuffer->setTarget(renderer::VBOTarget::VERTEX);
@@ -34,9 +34,9 @@ public:
 		m_IndexBuffer->setTarget(renderer::VBOTarget::INDEX);
 		m_IndexBuffer->setData(renderer::VBOUsage::DYNAMIC_DRAW,sizeof(unsigned short int)*22,m_Indicies);
 	}
-	Frustum(const math::vector3d& orig, const math::plane& near,const math::plane& far) : Origin(orig), NearPlane(near),FarPlane(far)
+	frustum(const math::vector3d& orig, const math::plane& near,const math::plane& far) : Origin(orig), NearPlane(near),FarPlane(far)
 	{
-		rapi = core::EngineCore::getRenderingDriver();
+		rapi = core::CoreInstance->getRenderingDriver();
 
 		m_VertexBuffer = rapi->createVertexBufferObject();
 		m_VertexBuffer->setTarget(renderer::VBOTarget::VERTEX);
@@ -46,9 +46,9 @@ public:
 		m_IndexBuffer->setTarget(renderer::VBOTarget::INDEX);
 		m_IndexBuffer->setData(renderer::VBOUsage::DYNAMIC_DRAW,sizeof(unsigned short int)*22,m_Indicies);
 	}
-	Frustum(const Frustum& fr) : Origin(fr.Origin), NearPlane(fr.NearPlane),FarPlane(fr.FarPlane)
+	frustum(const frustum& fr) : Origin(fr.Origin), NearPlane(fr.NearPlane),FarPlane(fr.FarPlane)
 	{
-		rapi = core::EngineCore::getRenderingDriver();
+		rapi = core::CoreInstance->getRenderingDriver();
 		m_Verticies[0] = fr.m_Verticies[0];
 		m_Verticies[1] = fr.m_Verticies[1];
 		m_Verticies[2] = fr.m_Verticies[2];
@@ -67,7 +67,7 @@ public:
 		m_IndexBuffer->setTarget(renderer::VBOTarget::INDEX);
 		m_IndexBuffer->setData(renderer::VBOUsage::DYNAMIC_DRAW,sizeof(unsigned short int)*22,m_Indicies);
 	}
-	~Frustum()
+	~frustum()
 	{
 	}
 
