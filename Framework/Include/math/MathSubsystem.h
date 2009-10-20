@@ -28,7 +28,13 @@ namespace memory
 namespace math
 {
 
+#ifdef _MSC_VER
+__declspec(align(16)) class MathSubsystem
+#elif __GNUC__
 class MathSubsystem
+#else
+#	error "This compiler seems to be not supported"
+#endif
 {
 public:
 	MathSubsystem(){}
@@ -53,7 +59,14 @@ public:
 	{
 		core::memory::Free(p,core::memory::MATH_POOL);
 	}
+
+#ifdef _MSC_VER
 };
+#elif __GNUC__
+} __attribute__ ((aligned(16)));
+#else
+#	error "This compiler seems to be not supported"
+#endif
 
 }
 

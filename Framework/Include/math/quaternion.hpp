@@ -43,11 +43,11 @@ public:
 		}
 	}
 	inline explicit
-	quaternion(const vector3d& dir,const float angle)//This constructor is used to create rotate quaternion
+	quaternion(const vector3d& dir,const float angle)//This constructor is used to create rotation quaternion
 	{
 		float ha = angle*0.5f;
-		w = cosf(ha);
-		u = sinf(ha)*normalized(dir);
+		w = math::cos(ha);
+		u = math::sin(ha)*normalized(dir);
 		this->normalize();
 	}
 	inline

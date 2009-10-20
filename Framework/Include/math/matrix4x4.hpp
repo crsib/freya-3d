@@ -1,8 +1,8 @@
 #ifndef MATRIX4X4_HPP_
 #define MATRIX4X4_HPP_
 
-#include "math.hpp"
-//#include "quaternion.hpp"
+#include "struct_def.hpp"
+#include "quaternion.hpp"
 namespace math {
 
 class matrix4x4 : public MATRIX4X4, public MathSubsystem
@@ -32,16 +32,16 @@ public:
 	matrix4x4() {
 		_11 = _22 = _33 = _44 = unit;
 		_21 = _31 = _41 = _12 =
-			_32 = _42 = _13 = _23 =
-				_43 = _14 = _24 = _34 = zero;
+				_32 = _42 = _13 = _23 =
+						_43 = _14 = _24 = _34 = zero;
 	}
 
 	inline explicit
 	matrix4x4(const float diag) {
 		_11 = _22 = _33 = _44 = diag;
 		_21 = _31 = _41 = _12 =
-			_32 = _42 = _13 = _23 =
-				_43 = _14 = _24 = _34 = zero;
+				_32 = _42 = _13 = _23 =
+						_43 = _14 = _24 = _34 = zero;
 	}
 
 	inline explicit
@@ -113,15 +113,16 @@ public:
 		return (*this = QuaternionToMatrix4x4(q));
 	}
 
+
 	operator float*()
-	{
+			{
 		return mat_linear;
-	}
+			}
 
 	operator const float*() const
-	{
+			{
 		return mat_linear;
-	}
+			}
 };
 
 }

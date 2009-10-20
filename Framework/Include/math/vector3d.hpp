@@ -218,11 +218,11 @@ public:
 		return *this/=abs(*this);
 	}
 
-#ifdef MATH_DEBUG
+
 friend std::ostream& operator<<(std::ostream& os, vector3d& v) {
-	return os<<"x: "<<v.x<<" y: "<<v.y<<" z: "<<v.z<<'\n';
+	return os<<"( " << v.x << ", " << v.y <<", " <<v.z<< " )";
 }
-#endif
+
 };
 
 }//math
