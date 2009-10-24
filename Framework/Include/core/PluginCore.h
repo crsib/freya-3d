@@ -17,6 +17,7 @@ namespace memory
 
 #include "core/EngineSubsystem.h"
 #include "core/EString.h"
+//#include "renderer/RenderingAPIDriver.h"
 namespace resources
 {
 class ResourceManager;

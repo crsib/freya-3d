@@ -6,7 +6,6 @@ ${CMAKE_SOURCE_DIR}/Framework/Source/math/math.cpp
 
 
 ${CMAKE_SOURCE_DIR}/Framework/Include/math/math.hpp
-${CMAKE_SOURCE_DIR}/Framework/Include/math/MathSubsystem.h
 ${CMAKE_SOURCE_DIR}/Framework/Include/math/matrix3x3.hpp
 ${CMAKE_SOURCE_DIR}/Framework/Include/math/plane.hpp
 ${CMAKE_SOURCE_DIR}/Framework/Include/math/frustum.hpp
