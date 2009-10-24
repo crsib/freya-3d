@@ -1,182 +1,291 @@
-#ifndef VECTOR2D_HPP_
-#define VECTOR2D_HPP_
+/*
+ * vector2d.h
+ *
+ *  Created on: Oct 21, 2009
+ *      Author: crsib
+ */
 
-#include "math.hpp"
+#ifndef VECTOR2D_H_
+#define VECTOR2D_H_
 
-namespace math {
+#include "math_internal.h"
 
-class vector2d : public math::VECTOR2F, public MathSubsystem
+
+namespace math
+{
+
+//!vector2d provided for convenience only, as it is implemented almost the same as vector 3d
+MATH_OBJECT_DECL class vector2d
 {
 public:
+	union
+	{
+		__m128  xmm;
+		struct
+		{
+			//! x coordinate
+			float x;
+			//! y coordinate
+			float y;
+		};
+	};
 
-	inline
-	vector2d(){
+	MATH_MEMORY_FUNCTIONS
+	//!Default constructor
+	/*!
+	 * Sets x and y to zero
+	 */
+	vector2d()
+	{
+		xmm = _mm_setzero_ps();
 	}
 
-    inline explicit
-    vector2d(const float xx, const float yy) {
-    	x = xx;
-    	y = yy;
+	//!Copy constructor
+	vector2d(const vector2d& v)
+	{
+		xmm = v.xmm;
 	}
 
-	inline explicit
-	vector2d(const vector2d* v) {
-		x = v->x;
-		y = v->y;
+	//!Initialization costructor
+	vector2d(const float x, const float y);
+	//!Operator =
+	vector2d& operator = (const vector2d& v);
+	//!Unary + (does nothing)
+	vector2d   operator + () const;
+
+	//!Unary -
+	vector2d	operator - () const;
+
+	//!binary operator +
+	vector2d	operator + (const vector2d& v) const;
+	//! Binary -
+	vector2d	operator - (const vector2d& v) const;
+	//! Float multiply
+	vector2d	operator * (const float f) const;
+	//! Float division
+	vector2d	operator / (const float f) const;
+	//! dot product
+	float       operator , (const vector2d& v) const;
+
+	//! Some operators provided for convenience
+	vector2d&	operator += (const vector2d& v);
+	vector2d&   operator -= (const vector2d& v);
+	vector2d&	operator *= (const float f);
+	vector2d&   operator /= (const float f);
+
+	//! Conversion operators
+	operator float* ();
+	operator const float* () const;
+
+	//! Self-normalizing
+	vector2d&	normalize ();
+
+	//External operators and functions
+	//! Magnitude (or absolute) value
+	friend	float	abs(const vector2d& v);
+	//! Square of magnitude
+	friend  float	abs_sq(const vector2d& v);
+	//! Normalized version of vector
+	friend vector2d normalized(const vector2d& v);
+	//! Output operator
+	friend	std::ostream&	operator << (std::ostream& s,const math::vector2d& v);
+	//! Float multiplication
+	friend	vector2d		operator*   (const float f, const vector2d& v);
+
+} MATH_OBJECT_END_DECL ;
+
+}
+
+//=========================Implementation======================================
+namespace math
+{
+inline
+vector2d::vector2d(const float _x, const float _y)
+{
+	xmm = _mm_setzero_ps();
+	x = _x;
+	y = _y;
+}
+inline
+vector2d& vector2d::operator = (const vector2d& v)
+{
+	xmm = v.xmm;
+	return *this;
+}
+
+inline
+vector2d
+vector2d::operator + () const
+{
+	return vector2d(*this);
+}
+
+//!Unary -
+inline
+vector2d	vector2d::operator - () const
+{
+	vector2d o(*this);
+	o.xmm = _mm_xor_ps(o.xmm,*reinterpret_cast<const __m128*>(_ps_sign_mask));
+	return o;
+}
+
+inline vector2d normalized(const vector2d & v)
+{
+	math::vector2d o(v);
+	__m128 tmp = _mm_mul_ps	( o.xmm,o.xmm );
+	tmp  = _mm_hadd_ps 		( tmp,tmp );
+	tmp  = _mm_hadd_ps 		( tmp,tmp );
+	__m128 tmp1 = _mm_and_ps( tmp,*reinterpret_cast<const __m128*>(_ps_norm_value_mask));
+	int r = _mm_comineq_ss	( tmp1,*reinterpret_cast<const __m128*>(_ps_0));
+	if(r)
+	{
+		tmp  = __rsqrt_ss		( tmp );
+		tmp  = _mm_shuffle_ps	( tmp, tmp, _MM_SHUFFLE(0,0,0,0) );
+		o.xmm	 = _mm_mul_ps 		( o.xmm, tmp );
 	}
+	return o;
+}
 
-	inline
-	vector2d(const vector2d& v) {
-		x = v.x;
-		y = v.y;
+inline
+vector2d::operator float*()
+{
+	return &x;
+}
+
+inline vector2d & vector2d::normalize()
+{
+	__m128 tmp = _mm_mul_ps	( xmm,xmm );
+	tmp  = _mm_hadd_ps 		( tmp,tmp );
+	tmp  = _mm_hadd_ps 		( tmp,tmp );
+	__m128 tmp1 = _mm_and_ps		( tmp,*reinterpret_cast<const __m128*>(_ps_norm_value_mask));
+	int r = _mm_comineq_ss	( tmp1,*reinterpret_cast<const __m128*>(_ps_0));
+	if(r)
+	{
+		tmp  = __rsqrt_ss		( tmp );
+		tmp  = _mm_shuffle_ps	( tmp, tmp, _MM_SHUFFLE(0,0,0,0) );
+		this->xmm	 = _mm_mul_ps 		( xmm, tmp );
 	}
+	return *this;
+}
 
-	inline
-	operator float*() {
-		return &x;
-	}
+inline float abs_sq(const vector2d & v)
+{
+	float res;
+	__m128 tmp = _mm_mul_ps(v.xmm,v.xmm);
+	tmp  = _mm_hadd_ps ( tmp,tmp );
+	tmp  = _mm_hadd_ps ( tmp,tmp );
+	_mm_store_ss (&res,tmp);
+	return res;
+}
 
-    inline
-    float& operator[](const int index) {
-    	return *(&x+index);
-	}
+inline float abs(const vector2d & v)
+{
+	float res;
+	__m128 tmp = _mm_mul_ps(v.xmm,v.xmm);
+	tmp  = _mm_hadd_ps ( tmp,tmp );
+	tmp  = _mm_hadd_ps ( tmp,tmp );
+	tmp =  _mm_sqrt_ss( tmp);
+	_mm_store_ss (&res,tmp);
+	return res;
+}
 
-    inline
-    vector2d operator+() {
-    	return *this;
-	}
+inline vector2d &
+vector2d::operator *=(const float f)
+{
+	__m128 tmp = _mm_set1_ps ( f );
+	xmm = _mm_mul_ps ( xmm, tmp );
+	return *this;
+}
 
-    inline
-    vector2d operator-() {
-    	return vector2d(-x, -y);
-	}
+inline vector2d &
+vector2d::operator -=(const vector2d & v)
+{
+	xmm = _mm_sub_ps(xmm,v.xmm);
+	return *this;
+}
 
-    inline
-    vector2d& operator=(const vector2d& v) {
-    	x = v.x;
-    	y = v.y;
-    	return *this;
-	}
+inline vector2d &
+vector2d::operator /=(const float f)
+{
+	__m128 tmp = _mm_set1_ps ( f );
+	tmp = __invert_ps ( tmp );
+	xmm = _mm_mul_ps ( xmm, tmp );
+	return *this;
+}
 
-    inline
-    vector2d& operator+=(const vector2d& v) {
-    	x += v.x;
-    	y += v.y;
-    	return *this;
-	}
+inline vector2d
+vector2d::operator /(const float f) const
+{
+	vector2d o;
+	__m128 tmp = _mm_set1_ps ( f );
+	tmp = __invert_ps ( tmp );
+	o.xmm = _mm_mul_ps ( xmm, tmp );
+	return o;
+}
 
-    inline
-    vector2d& operator-=(const vector2d& v) {
-    	x -= v.x;
-    	y -= v.y;
-    	return *this;
-	}
+inline vector2d &
+vector2d::operator +=(const vector2d & v)
+{
+	xmm = _mm_add_ps(xmm,v.xmm);
+	return *this;
+}
 
-    inline
-    vector2d& operator*=(const float scalar) {
-    	x *= scalar;
-    	y *= scalar;
-    	return *this;
-	}
+inline vector2d
+vector2d::operator -(const vector2d & v) const
+{
+	vector2d o;
+	o.xmm = _mm_sub_ps(xmm,v.xmm);
+	return o;
+}
 
-    inline
-    vector2d& operator/=(const float scalar) {
-    	x /= scalar;
-    	y /= scalar;
-    	return *this;
-	}
+inline vector2d
+vector2d::operator +(const vector2d & v) const
+{
+	vector2d o;
+	o.xmm = _mm_add_ps(xmm,v.xmm);
+	return o;
+}
 
-	inline
-	bool operator==(const vector2d& v) {
-		return (x == v.x)&&(y == v.y);
-	}
+inline vector2d
+vector2d::operator *(const float f) const
+{
+	vector2d o;
+	__m128 tmp = _mm_set1_ps ( f );
+	o.xmm = _mm_mul_ps ( xmm, tmp );
+	return o;
+}
 
-    inline
-    bool operator!=(const vector2d& v) {
-    	return (x != v.x)||(y != v.y);
-	}
+inline
+vector2d::operator const float*() const
+{
+	return &x;
+}
 
-	inline
-	bool operator||(const vector2d& v) {
-		return (x * v.y)==(y * v.x);
-	}
+inline float
+vector2d::operator ,(const vector2d & v) const
+{
+	float res;
+	__m128 tmp = _mm_mul_ps(xmm,v.xmm);
+	tmp  = _mm_hadd_ps ( tmp,tmp );
+	tmp  = _mm_hadd_ps ( tmp,tmp );
+	_mm_store_ss (&res,tmp);
+	return res;
+}
 
-	inline friend
-	vector2d operator+(const vector2d& v1, const vector2d& v2) {
-    	return vector2d(v1.x + v2.x, v1.y + v2.y);
-	}
+inline
+std::ostream&
+operator << (std::ostream& s,const math::vector2d& v)
+{
+	return s << "( " << v.x << ", " << v.y << " )";
+}
 
-	inline friend
-	vector2d operator-(const vector2d& v1, const vector2d& v2) {
-		return vector2d(v1.x - v2.x, v1.y - v2.y);
-	}
-
-	inline friend
-	vector2d operator*(const vector2d& v, const float scalar) {
-		return vector2d(v.x * scalar, v.y * scalar);
-	}
-
-	inline friend
-	vector2d operator*(const float scalar, const vector2d& v) {
-		return vector2d(v.x * scalar, v.y * scalar);
-	}
-
-	inline friend
-	vector2d operator/(const vector2d& v, const float scalar) {
-		return vector2d(v.x / scalar, v.x / scalar);
-	}
-
-	inline friend
-	float operator,(const vector2d& v1, const vector2d& v2) {
-		return (v1.x * v2.x)+(v1.y * v2.y);
-	}
-
-	inline friend
-	float abs(const vector2d& v) {
-		return sqrt((v.x * v.x)+(v.y + v.y));
-	}
-
-	inline friend
-	float abs_sq(const vector2d& v) {
-		return (v.x * v.x)+(v.y + v.y);
-	}
-
-	inline friend
-	vector2d& max(vector2d& v1, vector2d& v2) {
-		return abs_sq(v1) > abs_sq(v2) ? v1 : v2;
-	}
-
-	inline friend
-	vector2d& min(vector2d& v1, vector2d& v2) {
-		return abs_sq(v1) < abs_sq(v2) ? v1 : v2;
-	}
-
-	inline friend
-	float distance(const vector2d& v1, const vector2d& v2) {
-		return sqrt((v1.x - v2.x)*(v1.x - v2.x)
-				   +(v1.y - v2.y)*(v1.y - v2.y));
-	}
-
-	inline friend
-	float distance_sq(const vector2d& v1, const vector2d& v2) {
-		return (v1.x - v2.x)*(v1.x - v2.x)
-			  +(v1.y - v2.y)*(v1.y - v2.y);
-	}
-
-	inline friend
-	vector2d normalized(const vector2d& v) {
-		return vector2d(v/abs(v));
-	}
-
-	inline
-	vector2d& normalize() {
-		return *this/=abs(*this);
-	}
-
-	using VECTOR2F::x;
-	using VECTOR2F::y;
-};
-
-}//math
-
-#endif /*VECTOR2D_HPP_*/
+inline vector2d
+operator *(const float f, const vector2d & v)
+{
+	vector2d o(v);
+	__m128 tmp = _mm_set1_ps ( f );
+	o.xmm = _mm_mul_ps ( o.xmm, tmp );
+	return o;
+}
+}
+#endif /* VECTOR2D_H_ */

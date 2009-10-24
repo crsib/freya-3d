@@ -36,7 +36,7 @@ public:
 		m_Right.normalize();
 	}
 	BasicCamera(const math::vector3d& pos,const math::vector3d& dir,const math::vector3d& up,float FOW,float Aspect,float zNear,float zFar) :m_Frustum (NULL)
-	{
+			{
 		rapi = core::EngineCore::getRenderingDriver();
 		m_Position = pos;
 		m_Direction = dir;
@@ -49,7 +49,7 @@ public:
 		m_Right.normalize();
 
 		generateFrustum();
-	}
+			}
 	~BasicCamera()
 	{
 		delete m_Frustum;
@@ -79,36 +79,15 @@ public:
 
 	virtual void apply()
 	{
-		float m[16];
-		qcheck(m_Right);
-		qcheck(m_Direction);
-		qcheck(m_Up);
-		m[0] = m_Right.x;
-		m[1] = m_Right.y;
-		m[2] = m_Right.z;
-		m[4] = m_Up.x;
-		m[5] = m_Up.y;
-		m[6] = m_Up.z;
-		m[8] = -m_Direction.x;
-		m[9] = -m_Direction.y;
-		m[10] = -m_Direction.z;
-		m[3] = (-m_Right, m_Position);
-		m[7] = (-m_Up, m_Position);
-		m[11] = (m_Direction, m_Position);
-		m[12] = 0.0f;
-		m[13] = 0.0f;
-		m[14] = 0.0f;
-		m[15] = 1.0f;
-
 		//Please, do it in a more optimal way. And actually, there is some mis understand of ModelView matrix here
 		//We multiply our matrix with a projection (for OpenGL compatibility with only matrices for general transformation)
 		//Actually, the following happens P*Cam*Modelview*Vertex
 		//This greatly helps in developement
 		rapi->setMatrixMode(renderer::MatrixMode::PROJECTION);
-		rapi->loadIdentityMatrix();
-		rapi->setPerspective(m_FieldOfView,m_Aspect,m_Near,m_Far);
+		//rapi->loadIdentityMatrix();
+		//rapi->setPerspective(m_FieldOfView,m_Aspect,m_Near,m_Far);
 
-		rapi->multMatrix(math::matrix4x4(m));
+		rapi->loadMatrix(math::matrix4x4::perspectiveProjection(m_FieldOfView,m_Aspect,m_Near, m_Far)*math::matrix4x4::lookat(m_Position,m_Position+m_Direction,m_Up));
 		rapi->setMatrixMode(renderer::MatrixMode::WORLD);
 		rapi->loadIdentityMatrix();
 		//rapi->multMatrix(math::matrix4x4(m));
@@ -180,8 +159,8 @@ public:
 		m_Frustum = new math::frustum(m_Position, near, far);
 		m_Frustum->setVerticies(&vv[0]);
 		m_Frustum->reset();
-		m_Frustum->updateIndexBuffer();
-		m_Frustum->updateVertexBuffer();
+		//m_Frustum->updateIndexBuffer();
+		//m_Frustum->updateVertexBuffer();
 	}
 
 	math::frustum & getFrustum()
@@ -216,9 +195,9 @@ public:
 	virtual void changeYaw(float AngleStep) =0;
 	virtual void changeRoll(float AngleStep) =0;
 	math::vector3d getPos() const
-	{
+			{
 		return m_Position;
-	}
+			}
 
 	void setPos(math::vector3d mPos)
 	{
@@ -226,9 +205,9 @@ public:
 	}
 
 	math::vector3d getDir() const
-	{
+			{
 		return m_Direction;
-	}
+			}
 
 	void setDir(math::vector3d mDir)
 	{
@@ -236,9 +215,9 @@ public:
 	}
 
 	math::vector3d getUp() const
-	{
+			{
 		return m_Up;
-	}
+			}
 
 	void setUp(math::vector3d mUp)
 	{
@@ -246,9 +225,9 @@ public:
 	}
 
 	math::vector3d getRight() const
-	{
+			{
 		return m_Right;
-	}
+			}
 
 	void setRight(math::vector3d mRight)
 	{

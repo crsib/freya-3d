@@ -37,7 +37,7 @@ void FlyCamera::moveDown(float Step)
 
 void FlyCamera::changePitch(float AngleStep)
 {
-	math::quaternion Pitch(m_Right,AngleStep);
+	math::quaternion Pitch = math::quaternion::rotationQuat(AngleStep,m_Right);
 	m_Up = Pitch.rotate(m_Up);
 	//mRight = Pitch.rotate(mRight);
 	m_Direction = Pitch.rotate(m_Direction);
@@ -47,7 +47,7 @@ void FlyCamera::changePitch(float AngleStep)
 }
 void FlyCamera::changeYaw(float AngleStep)
 {
-	math::quaternion Yaw(m_Up,AngleStep);
+	math::quaternion Yaw = math::quaternion::rotationQuat(AngleStep,m_Up);
 	//mUp = Yaw.rotate(mUp);
 	m_Right = Yaw.rotate(m_Right);
 	m_Direction = Yaw.rotate(m_Direction);
@@ -57,7 +57,7 @@ void FlyCamera::changeYaw(float AngleStep)
 }
 void FlyCamera::changeRoll(float AngleStep)
 {
-	math::quaternion Roll(m_Direction,AngleStep);
+	math::quaternion Roll = math::quaternion::rotationQuat(AngleStep,m_Direction);
 	m_Up = Roll.rotate(m_Up);
 	m_Right = Roll.rotate(m_Right);
 	qcheck(m_Up);qcheck(m_Right);

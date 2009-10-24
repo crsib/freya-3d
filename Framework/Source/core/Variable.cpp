@@ -440,8 +440,7 @@ EString Variable::toString()
 		return EString(stream.str().c_str());
 		break;
 	case	QUATERNION:
-		stream  << "(" << m_Quaternion->w << ",(" << m_Quaternion->u.x << ","
-		<< m_Quaternion->u.y << "," << m_Quaternion->u.z << "))";
+		stream  << *m_Quaternion;
 		return EString(stream.str().c_str());
 		break;
 	case	MATRIX3X3:
@@ -487,7 +486,7 @@ math::vector3d Variable::toVector3d()
 		return *m_Vector3d;
 		break;
 	case	QUATERNION:
-		return m_Quaternion->u;
+		return *m_Quaternion;
 		break;
 	case	MATRIX3X3:
 		return math::vector3d(m_Matrix3x3->_11,m_Matrix3x3->_21,m_Matrix3x3->_31);
@@ -543,30 +542,30 @@ math::matrix3x3  Variable::toMatrix3x3()
 	{
 	case	BOOLEAN:
 		val = m_Boolean ? 1.0f : 0.0f;
-		return math::matrix3x3(val);
+		return math::matrix3x3(val,0,0,
+								0,val,0,
+								0,0,val);
 		break;
 	case	INT:
 		val = m_Integer;
-		return math::matrix3x3(val);
+		return math::matrix3x3(val,0,0,
+				0,val,0,
+				0,0,val);
 		break;
 	case	DOUBLE:
 		val = m_Double;
-		return math::matrix3x3(val);
+		return math::matrix3x3(val,0,0,
+				0,val,0,
+				0,0,val);
 		break;
 	case	STRING:
 		return math::matrix3x3();
 		break;
 	case	VECTOR3D:
-		val3x3[0] = val3x3[3] = val3x3[6] = m_Vector3d->x;
-		val3x3[1] = val3x3[4] = val3x3[7] = m_Vector3d->y;
-		val3x3[2] = val3x3[5] = val3x3[8] = m_Vector3d->z;
-		return math::matrix3x3(val3x3);
+		return math::matrix3x3(*m_Vector3d,*m_Vector3d,*m_Vector3d);
 		break;
 	case	QUATERNION:
-		val3x3[0] = val3x3[3] = val3x3[6] = m_Quaternion->u.x;
-		val3x3[1] = val3x3[4] = val3x3[7] = m_Quaternion->u.y;
-		val3x3[2] = val3x3[5] = val3x3[8] = m_Quaternion->u.z;
-		return math::matrix3x3(val3x3);
+		return math::matrix3x3(*m_Quaternion);
 		break;
 	case	MATRIX3X3:
 		return *m_Matrix3x3;
@@ -575,7 +574,7 @@ math::matrix3x3  Variable::toMatrix3x3()
 		val3x3[0] = m_Matrix4x4->_11; val3x3[1] = m_Matrix4x4->_12; val3x3[2] = m_Matrix4x4->_13;
 		val3x3[3] = m_Matrix4x4->_21; val3x3[4] = m_Matrix4x4->_22; val3x3[5] = m_Matrix4x4->_23;
 		val3x3[6] = m_Matrix4x4->_31; val3x3[7] = m_Matrix4x4->_32; val3x3[8] = m_Matrix4x4->_33;
-		return math::matrix3x3(val3x3);
+		return math::matrix3x3(m_Matrix4x4->row[0],m_Matrix4x4->row[1], m_Matrix4x4->row[2]);
 		break;
 	}
 	return math::matrix3x3();
@@ -590,15 +589,24 @@ math::matrix4x4  Variable::toMatrix4x4()
 	{
 	case	BOOLEAN:
 		val = m_Boolean ? 1.0f : 0.0f;
-		return math::matrix4x4(val);
+		return math::matrix4x4(val,0,0,0,
+								0,val,0,0,
+								0,0,val,0,
+								0,0,0,1);
 		break;
 	case	INT:
 		val = m_Integer;
-		return math::matrix4x4(val);
+		return math::matrix4x4(val,0,0,0,
+				0,val,0,0,
+				0,0,val,0,
+				0,0,0,1);
 		break;
 	case	DOUBLE:
 		val = m_Double;
-		return math::matrix4x4(val);
+		return math::matrix4x4(val,0,0,0,
+				0,val,0,0,
+				0,0,val,0,
+				0,0,0,1);
 		break;
 	case	STRING:
 		return math::matrix4x4();
@@ -608,14 +616,10 @@ math::matrix4x4  Variable::toMatrix4x4()
 		val4x4[1] = val4x4[5] = val4x4[9]  = m_Vector3d->y; val4x4[13] = 0.0f;
 		val4x4[2] = val4x4[6] = val4x4[10] = m_Vector3d->z; val4x4[14] = 0.0f;
 		val4x4[3] = val4x4[7] = val4x4[11] = 0.0f;		    val4x4[15] = 1.0f;
-		return math::matrix4x4(val4x4);
+		return math::matrix4x4(m_Vector3d->xmm,m_Vector3d->xmm,m_Vector3d->xmm,math::__internal::mtx4d_fourth_row.xmm);
 		break;
 	case	QUATERNION:
-		val4x4[0] = val4x4[4] = val4x4[8]  = m_Quaternion->u.x; val4x4[12] = 0.0f;
-		val4x4[1] = val4x4[5] = val4x4[9]  = m_Quaternion->u.y; val4x4[13] = 0.0f;
-		val4x4[2] = val4x4[6] = val4x4[10] = m_Quaternion->u.z; val4x4[14] = 0.0f;
-		val4x4[3] = val4x4[7] = val4x4[11] = m_Quaternion->w;   val4x4[15] = 1.0f;
-		return math::matrix4x4(val4x4);
+		return math::matrix4x4(*m_Quaternion);
 		break;
 	case	MATRIX3X3:
 		mtx._11 = m_Matrix3x3->_11;mtx._12 = m_Matrix3x3->_12;mtx._13 = m_Matrix3x3->_13;

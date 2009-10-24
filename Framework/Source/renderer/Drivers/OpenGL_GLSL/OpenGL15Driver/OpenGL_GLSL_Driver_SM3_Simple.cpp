@@ -224,7 +224,7 @@ void		OpenGL_GLSL_Driver::alphaBlendFunction(unsigned sfactor,unsigned dfactor)
 
 void		OpenGL_GLSL_Driver::loadMatrix(const math::matrix4x4& mtx)
 {
-	glLoadTransposeMatrixfARB(/*const_cast<GLfloat*>*/(mtx.mat_linear));
+	glLoadTransposeMatrixfARB(const_cast<GLfloat*>((const float*)mtx));
 }
 
 void		OpenGL_GLSL_Driver::loadIdentityMatrix()
@@ -234,7 +234,7 @@ void		OpenGL_GLSL_Driver::loadIdentityMatrix()
 
 void		OpenGL_GLSL_Driver::multMatrix(const math::matrix4x4& mtx)
 {
-	glMultTransposeMatrixfARB(const_cast<GLfloat*>(mtx.mat_linear));
+	glMultTransposeMatrixfARB(const_cast<GLfloat*>((const float*)mtx));
 }
 
 void		OpenGL_GLSL_Driver::pushMatrix()
@@ -284,7 +284,7 @@ void		OpenGL_GLSL_Driver::rotate(const math::quaternion& quat)
 {
 	math::matrix4x4 mat;
 	mat = quat;
-	glMultTransposeMatrixfARB(mat.mat_linear);
+	glMultTransposeMatrixfARB(const_cast<GLfloat*>((const float*)mat));
 }
 
 void		OpenGL_GLSL_Driver::scale(float x,float y,float z)

@@ -4,41 +4,59 @@ namespace math {
 
 class quaternion
 {
+	
 	quaternion();
-	quaternion(const float ww, const float xx,
-			   const float yy, const float zz);
-	quaternion(const float ww, const vector3d& uu);
-	quaternion(const vector3d& dir,const float angle);
+	quaternion(const float x,const float y,const float z,const float w);
+	quaternion(const float w, const vector3d& vec);
+	quaternion(const vector3d& v);
+
 	quaternion(const quaternion& q);
-	
-	~quaternion();
-	
-	operator vector3d();
-	
-	float& operator[](const int index);
-		
-	quaternion operator-();
+	quaternion& operator = (const quaternion& q);
 
-	
-	bool operator==(const quaternion& q);
-
-	quaternion& conjugate();
-
-	quaternion& inverse();
+	quaternion	rotationQuat(const float angle, const vector3d& axis);
 
 	quaternion& normalize();
-	
-	vector3d rotate(const vector3d& v);
-	
-	float 	 w;
-	vector3d u;
+	quaternion&	inverse();
+	quaternion& conjugate();
+
+	vector3d	rotate(const vector3d& v) const;
+
+	quaternion	operator + () const;
+	quaternion  operator - () const;
+
+	quaternion  operator + (const quaternion& q) const;
+	quaternion  operator - (const quaternion& q) const;
+
+	quaternion  operator * (const quaternion& q) const;
+	quaternion 	operator * (const vector3d& v) const;
+
+	operator    vector3d() const;
+
+	quaternion&	operator+= (const quaternion& q);
+	quaternion&	operator-= (const quaternion& q);
+
+	quaternion&	operator*= (const quaternion& q);
+	quaternion&	operator*= (const vector3d& v);
+
+	quaternion  operator * (const float f) const;
+	quaternion  operator / (const float f) const;
+
+	quaternion&	operator*= (const float f);
+	quaternion& operator/= (const float f);
+
 };
 
-	float norm @ norm_q(const quaternion& q) ;
-
-	bool isNormed @ isNormed_q(const quaternion& q);
 	
-	float abs @ abs_q(const quaternion& q);
+	quaternion  inversed @ inversed_q(const quaternion& q);
 
+	quaternion  conjugated(const quaternion& q);
+	
+	float 		abs @ abs_q(const quaternion& q);
+
+	float 		abs_sq @ abs_sq_q(const quaternion& q);
+
+	quaternion	normalized @ normalized_q(const quaternion& q);
+
+	std::ostream& operator << (std::ostream& s,const quaternion& q);
 
 }
