@@ -15,7 +15,7 @@
 
 #define	assert_extension(name)	if(!GLEW_##name)\
 		{\
-	clog << "Extension " #name " is unsupported!. Please, update your driver." << endl;\
+	std::clog << "Extension " #name " is unsupported!. Please, update your driver." << std::endl;\
 	throw renderer::DriverException("Hardware does not support " #name " feature");\
 		}
 
@@ -70,9 +70,21 @@ OpenGL_GLSL_Driver::OpenGL_GLSL_Driver()
 			renderer::futures::TEXTURE_BUFFER				|
 			renderer::futures::R2VB							|
 			renderer::futures::VERTEX_SHADER				|
-			renderer::futures::FRAGMENT_SHADER				|
-			renderer::futures::AUTO_TRANSPOSE_MATIRIX;
+			renderer::futures::FRAGMENT_SHADER;
 	m_VF = NULL;
+	m_RendererName = EString(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
+	m_RendererVendor = EString(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
+	glGetIntegerv(GL_MAX_TEXTURE_SIZE,reinterpret_cast<GLint*>(&m_MaxTextureSize));
+	glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE,reinterpret_cast<GLint*>(&m_MaxCubeTextureSize));
+	glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE,reinterpret_cast<GLint*>(&m_Max3DTextureSize));
+	glGetIntegerv(GL_MAX_DRAW_BUFFERS,reinterpret_cast<GLint*>(&m_NumDrawBuffers));
+	glGetIntegerv(GL_MAX_TEXTURE_UNITS,reinterpret_cast<GLint*>(&m_TextureUnits));
+
+	std::clog << "Hardware capabilities: \n\tMaximum size of 2D texture: " << m_MaxTextureSize
+			<< " px\n\tMaximum cube texture size: " << m_MaxCubeTextureSize
+			<< " px\n\tMaximum 3D texture size: " << m_Max3DTextureSize
+			<< " px\n\tNumber of draw buffers: " << m_NumDrawBuffers
+			<< " \n\tnumber of texture units: " << m_TextureUnits << std::endl;
 }
 
 OpenGL_GLSL_Driver::~OpenGL_GLSL_Driver()
@@ -112,9 +124,13 @@ unsigned OpenGL_GLSL_Driver::futures() const
 	return m_Futures;
 		}
 
-void		OpenGL_GLSL_Driver::setViewport(unsigned width,unsigned height)
+void		OpenGL_GLSL_Driver::setViewport(unsigned x, unsigned y,unsigned width,unsigned height)
 {
-	glViewport(0,0,width,height);
+	glViewport(x,y,width,height);
+	m_ViewPort[0] = x;
+	m_ViewPort[1] = y;
+	m_ViewPort[2] = width;
+	m_ViewPort[3] = height;
 }
 
 void		OpenGL_GLSL_Driver::clearColorValue(float r,float g,float b,float a)
@@ -125,16 +141,6 @@ void		OpenGL_GLSL_Driver::clearColorValue(float r,float g,float b,float a)
 void		OpenGL_GLSL_Driver::clearColor()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
-}
-
-void		OpenGL_GLSL_Driver::setPerspective(float FieldOfView,float Aspect,float Near,float Far)
-{
-	gluPerspective(FieldOfView*180.0f/math::pi,Aspect,Near,Far);
-}
-
-void		OpenGL_GLSL_Driver::setOrtho(unsigned width,unsigned height,float near,float far)
-{
-	glOrtho(0,width,0,height,near,far);
 }
 
 void		OpenGL_GLSL_Driver::enableDepthTest()
@@ -157,7 +163,7 @@ void		OpenGL_GLSL_Driver::clearDepth()
 	glClear(GL_DEPTH_BUFFER_BIT);
 }
 
-void		OpenGL_GLSL_Driver::depthFunction(unsigned func)
+void		OpenGL_GLSL_Driver::depthFunction(renderer::TestFunction::type func)
 {
 	glDepthFunc(OpenGL_GLSL_Tables::TestFunction[func]);
 }
@@ -182,12 +188,12 @@ void		OpenGL_GLSL_Driver::clearStencil()
 	glClear(GL_STENCIL_BUFFER_BIT);
 }
 
-void		OpenGL_GLSL_Driver::stencilFunction(unsigned func, int ref, unsigned mask)
+void		OpenGL_GLSL_Driver::stencilFunction(renderer::TestFunction::type func, int ref, unsigned mask)
 {
 	glStencilFunc(OpenGL_GLSL_Tables::TestFunction[func],ref,mask);
 }
 
-void		OpenGL_GLSL_Driver::stencilOp(unsigned fail,unsigned zfail,unsigned zpass)
+void		OpenGL_GLSL_Driver::stencilOp(renderer::StencilOp::type fail,renderer::StencilOp::type zfail,renderer::StencilOp::type zpass)
 {
 	glStencilOp(OpenGL_GLSL_Tables::StencilOp[fail],OpenGL_GLSL_Tables::StencilOp[zfail],OpenGL_GLSL_Tables::StencilOp[zpass]);
 }
@@ -202,95 +208,6 @@ void		OpenGL_GLSL_Driver::disableAlphaTest()
 	glDisable(GL_ALPHA_TEST);
 }
 
-void		OpenGL_GLSL_Driver::alphaTestFunction(unsigned func, float ref)
-{
-	glAlphaFunc(OpenGL_GLSL_Tables::TestFunction[func],ref);
-}
-
-void		OpenGL_GLSL_Driver::enableAlphaBlend()
-{
-	glEnable(GL_BLEND);
-}
-
-void		OpenGL_GLSL_Driver::disableAlphaBlend()
-{
-	glDisable(GL_BLEND);
-}
-
-void		OpenGL_GLSL_Driver::alphaBlendFunction(unsigned sfactor,unsigned dfactor)
-{
-	glBlendFunc(OpenGL_GLSL_Tables::AlphaFunction[sfactor],OpenGL_GLSL_Tables::AlphaFunction[dfactor]);
-}
-
-void		OpenGL_GLSL_Driver::loadMatrix(const math::matrix4x4& mtx)
-{
-	glLoadTransposeMatrixfARB(/*const_cast<GLfloat*>*/(mtx.mat_linear));
-}
-
-void		OpenGL_GLSL_Driver::loadIdentityMatrix()
-{
-	glLoadIdentity();
-}
-
-void		OpenGL_GLSL_Driver::multMatrix(const math::matrix4x4& mtx)
-{
-	glMultTransposeMatrixfARB(const_cast<GLfloat*>(mtx.mat_linear));
-}
-
-void		OpenGL_GLSL_Driver::pushMatrix()
-{
-	glPushMatrix();
-}
-
-void		OpenGL_GLSL_Driver::popMatrix()
-{
-	glPopMatrix();
-}
-
-void		OpenGL_GLSL_Driver::setMatrixMode(unsigned mode)
-{
-	if(mode < renderer::MatrixMode::TEXTURE0)
-	{
-		glMatrixMode(OpenGL_GLSL_Tables::MatrixMode[mode]);
-	}
-	else
-	{
-		glActiveTextureARB(OpenGL_GLSL_Tables::MatrixMode[mode]);
-		glMatrixMode(GL_TEXTURE);
-	}
-}
-
-void		OpenGL_GLSL_Driver::translate(float x,float y,float z)
-{
-	glTranslatef(x,y,z);
-}
-
-void		OpenGL_GLSL_Driver::translate(const math::vector3d& vec)
-{
-	glTranslatef(vec.x,vec.y,vec.z);
-}
-
-void		OpenGL_GLSL_Driver::rotate(float angle,float x,float y,float z)
-{
-	glRotatef(angle*180.0f/math::pi,x,y,z);
-}
-
-void		OpenGL_GLSL_Driver::rotate(float angle,const math::vector3d& vec)
-{
-	glRotatef(angle*180.0f/math::pi,vec.x,vec.y,vec.z);
-}
-
-void		OpenGL_GLSL_Driver::rotate(const math::quaternion& quat)
-{
-	math::matrix4x4 mat;
-	mat = quat;
-	glMultTransposeMatrixfARB(mat.mat_linear);
-}
-
-void		OpenGL_GLSL_Driver::scale(float x,float y,float z)
-{
-	glScalef(x,y,z);
-}
 
 Texture*		OpenGL_GLSL_Driver::createTexture()
 {
@@ -307,23 +224,23 @@ void		OpenGL_GLSL_Driver::	destroyTexture(Texture* texture)
 	m_TextureList.erase(it);
 }
 
-void		OpenGL_GLSL_Driver::		enableGeneration(unsigned coord,unsigned mode)
+void		OpenGL_GLSL_Driver::		enableGeneration(renderer::TextureCoord::type coord,renderer::TextureGenMode::type mode)
 {
 	glEnable(OpenGL_GLSL_Tables::TexGenSwitchEnum[coord]);
 	glTexGeni(OpenGL_GLSL_Tables::TextureCoord[coord],GL_TEXTURE_GEN_MODE,OpenGL_GLSL_Tables::TextureGenMode[mode]);
 }
 
-void		OpenGL_GLSL_Driver::	disableGeneration(unsigned coord)
+void		OpenGL_GLSL_Driver::	disableGeneration(renderer::TextureCoord::type coord)
 {
 	glDisable(OpenGL_GLSL_Tables::TexGenSwitchEnum[coord]);
 }
 
-void		OpenGL_GLSL_Driver::	setEyePlane(unsigned coord,const math::vector3d& n)
+void		OpenGL_GLSL_Driver::	setEyePlane(renderer::TextureCoord::type coord,const math::vector3d& n)
 {
 	glTexGenfv(OpenGL_GLSL_Tables::TexGenSwitchEnum[coord],GL_EYE_PLANE,const_cast<math::vector3d&>(n));
 }
 
-void		OpenGL_GLSL_Driver::	setObjectPlane(unsigned coord,const math::vector3d& n)
+void		OpenGL_GLSL_Driver::	setObjectPlane(renderer::TextureCoord::type coord,const math::vector3d& n)
 {
 	glTexGenfv(OpenGL_GLSL_Tables::TexGenSwitchEnum[coord],GL_OBJECT_PLANE,const_cast<math::vector3d&>(n));
 }
@@ -405,26 +322,26 @@ void	OpenGL_GLSL_Driver::VertexFormat::enable()
 		}
 		switch(elem->usage)
 		{
-		case renderer::VertexFormat::POSITION:
-			glEnableClientState(GL_VERTEX_ARRAY);
-			glVertexPointer(num_components[elem->type],type_of_component[elem->type],m_Streams[lastStream].stride,(void*)(m_Streams[lastStream].offset + elem->offset));
-			break;
-		case renderer::VertexFormat::COLOR:
-			glEnableClientState(GL_COLOR_ARRAY);
-			glColorPointer(num_components[elem->type],type_of_component[elem->type],m_Streams[lastStream].stride,(void*)(m_Streams[lastStream].offset + elem->offset));
-			break;
-		case renderer::VertexFormat::NORMAL:
-			glEnableClientState(GL_NORMAL_ARRAY);
-			glNormalPointer(type_of_component[elem->type],m_Streams[lastStream].stride,(void*)(m_Streams[lastStream].offset + elem->offset));
-			break;
-		default:
-			if(elem->usage < renderer::VertexFormat::UNUSED)
-			{
-				glClientActiveTextureARB(OpenGL_GLSL_Tables::TextureUnit[elem->usage - renderer::VertexFormat::TEXT_COORD]);
-				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-				glTexCoordPointer(num_components[elem->type],type_of_component[elem->type],m_Streams[lastStream].stride,(void*)(m_Streams[lastStream].offset + elem->offset));
-			}
-			break;
+			case renderer::VertexFormat::POSITION:
+				glEnableClientState(GL_VERTEX_ARRAY);
+				glVertexPointer(num_components[elem->type],type_of_component[elem->type],m_Streams[lastStream].stride,(void*)(m_Streams[lastStream].offset + elem->offset));
+				break;
+			case renderer::VertexFormat::COLOR:
+				glEnableClientState(GL_COLOR_ARRAY);
+				glColorPointer(num_components[elem->type],type_of_component[elem->type],m_Streams[lastStream].stride,(void*)(m_Streams[lastStream].offset + elem->offset));
+				break;
+			case renderer::VertexFormat::NORMAL:
+				glEnableClientState(GL_NORMAL_ARRAY);
+				glNormalPointer(type_of_component[elem->type],m_Streams[lastStream].stride,(void*)(m_Streams[lastStream].offset + elem->offset));
+				break;
+			default:
+				if(elem->usage < renderer::VertexFormat::UNUSED)
+				{
+					glClientActiveTextureARB(OpenGL_GLSL_Tables::TextureUnit[elem->usage - renderer::VertexFormat::TEXT_COORD]);
+					glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+					glTexCoordPointer(num_components[elem->type],type_of_component[elem->type],m_Streams[lastStream].stride,(void*)(m_Streams[lastStream].offset + elem->offset));
+				}
+				break;
 		}
 	}
 	m_Streams[lastStream].buffer->unbind();
@@ -446,93 +363,93 @@ void	OpenGL_GLSL_Driver::VertexFormat::enableImmediate(unsigned inst, void* data
 		VertexElement*	elem = m_Format + i;
 		switch(elem->usage)
 		{
-		case renderer::VertexFormat::COLOR:
-			switch(type_of_component[elem->type])
-			{
-			case GL_FLOAT:
-				switch(num_components[elem->type])
+			case renderer::VertexFormat::COLOR:
+				switch(type_of_component[elem->type])
 				{
-				case 3:
-					glColor3fv((GLfloat*)((char*)data)[elem->offset + inst*m_Size]);
-					break;
-				case 4:
-					glColor4fv((GLfloat*)((char*)data)[elem->offset + inst*m_Size]);
-					break;
-				}
-				break;
-				case GL_UNSIGNED_BYTE:
-					switch(num_components[elem->type])
-					{
-					case 3:
-						glColor3ubv((GLubyte*)((char*)data)[elem->offset + inst*m_Size]);
-						break;
-					case 4:
-						glColor4ubv((GLubyte*)((char*)data)[elem->offset + inst*m_Size]);
-						break;
-					}
-					break;
-
-					case GL_SHORT:
-						switch(num_components[elem->type])
-						{
-						case 3:
-							glColor3sv((GLshort*)((char*)data)[elem->offset + inst*m_Size]);
-							break;
-						case 4:
-							glColor4sv((GLshort*)((char*)data)[elem->offset + inst*m_Size]);
-							break;
-						}
-						break;
-			}
-			break;
-			default:
-				if(elem->usage < renderer::VertexFormat::UNUSED)
-				{
-
-					switch(type_of_component[elem->type])
-					{
 					case GL_FLOAT:
 						switch(num_components[elem->type])
 						{
-						case 1:
-							glMultiTexCoord1fv(GL_TEXTURE0 + elem->type - renderer::VertexFormat::TEXT_COORD,(GLfloat*)((char*)data)[elem->offset + inst*m_Size]);
-							break;
-
-						case 2:
-							glMultiTexCoord2fv(GL_TEXTURE0 + elem->type - renderer::VertexFormat::TEXT_COORD,(GLfloat*)((char*)data)[elem->offset + inst*m_Size]);
-							break;
-
-						case 3:
-							glMultiTexCoord3fv(GL_TEXTURE0 + elem->type - renderer::VertexFormat::TEXT_COORD,(GLfloat*)((char*)data)[elem->offset + inst*m_Size]);
-							break;
-						case 4:
-							glMultiTexCoord4fv(GL_TEXTURE0 + elem->type - renderer::VertexFormat::TEXT_COORD,(GLfloat*)((char*)data)[elem->offset + inst*m_Size]);
-							break;
-						}
-						break;
-
-						case GL_SHORT:
-							switch(num_components[elem->type])
-							{
-							case 1:
-								glMultiTexCoord1sv(GL_TEXTURE0 + elem->type - renderer::VertexFormat::TEXT_COORD,(GLshort*)((char*)data)[elem->offset + inst*m_Size]);
-								break;
-
-							case 2:
-								glMultiTexCoord2sv(GL_TEXTURE0 + elem->type - renderer::VertexFormat::TEXT_COORD,(GLshort*)((char*)data)[elem->offset + inst*m_Size]);
-								break;
-
 							case 3:
-								glMultiTexCoord3sv(GL_TEXTURE0 + elem->type - renderer::VertexFormat::TEXT_COORD,(GLshort*)((char*)data)[elem->offset + inst*m_Size]);
+								glColor3fv((GLfloat*)((char*)data)[elem->offset + inst*m_Size]);
 								break;
 							case 4:
-								glMultiTexCoord4sv(GL_TEXTURE0 + elem->type - renderer::VertexFormat::TEXT_COORD,(GLshort*)((char*)data)[elem->offset + inst*m_Size]);
+								glColor4fv((GLfloat*)((char*)data)[elem->offset + inst*m_Size]);
 								break;
-							}
-							break;
-					}
+						}
+						break;
+							case GL_UNSIGNED_BYTE:
+								switch(num_components[elem->type])
+								{
+									case 3:
+										glColor3ubv((GLubyte*)((char*)data)[elem->offset + inst*m_Size]);
+										break;
+									case 4:
+										glColor4ubv((GLubyte*)((char*)data)[elem->offset + inst*m_Size]);
+										break;
+								}
+								break;
+
+									case GL_SHORT:
+										switch(num_components[elem->type])
+										{
+											case 3:
+												glColor3sv((GLshort*)((char*)data)[elem->offset + inst*m_Size]);
+												break;
+											case 4:
+												glColor4sv((GLshort*)((char*)data)[elem->offset + inst*m_Size]);
+												break;
+										}
+										break;
 				}
 				break;
+					default:
+						if(elem->usage < renderer::VertexFormat::UNUSED)
+						{
+
+							switch(type_of_component[elem->type])
+							{
+								case GL_FLOAT:
+									switch(num_components[elem->type])
+									{
+										case 1:
+											glMultiTexCoord1fv(GL_TEXTURE0 + elem->type - renderer::VertexFormat::TEXT_COORD,(GLfloat*)((char*)data)[elem->offset + inst*m_Size]);
+											break;
+
+										case 2:
+											glMultiTexCoord2fv(GL_TEXTURE0 + elem->type - renderer::VertexFormat::TEXT_COORD,(GLfloat*)((char*)data)[elem->offset + inst*m_Size]);
+											break;
+
+										case 3:
+											glMultiTexCoord3fv(GL_TEXTURE0 + elem->type - renderer::VertexFormat::TEXT_COORD,(GLfloat*)((char*)data)[elem->offset + inst*m_Size]);
+											break;
+										case 4:
+											glMultiTexCoord4fv(GL_TEXTURE0 + elem->type - renderer::VertexFormat::TEXT_COORD,(GLfloat*)((char*)data)[elem->offset + inst*m_Size]);
+											break;
+									}
+									break;
+
+										case GL_SHORT:
+											switch(num_components[elem->type])
+											{
+												case 1:
+													glMultiTexCoord1sv(GL_TEXTURE0 + elem->type - renderer::VertexFormat::TEXT_COORD,(GLshort*)((char*)data)[elem->offset + inst*m_Size]);
+													break;
+
+												case 2:
+													glMultiTexCoord2sv(GL_TEXTURE0 + elem->type - renderer::VertexFormat::TEXT_COORD,(GLshort*)((char*)data)[elem->offset + inst*m_Size]);
+													break;
+
+												case 3:
+													glMultiTexCoord3sv(GL_TEXTURE0 + elem->type - renderer::VertexFormat::TEXT_COORD,(GLshort*)((char*)data)[elem->offset + inst*m_Size]);
+													break;
+												case 4:
+													glMultiTexCoord4sv(GL_TEXTURE0 + elem->type - renderer::VertexFormat::TEXT_COORD,(GLshort*)((char*)data)[elem->offset + inst*m_Size]);
+													break;
+											}
+											break;
+							}
+						}
+						break;
 		}
 	}
 }
@@ -557,14 +474,14 @@ void		OpenGL_GLSL_Driver::endScene()
 	//Do nothing in OpenGL driver
 }
 
-void		OpenGL_GLSL_Driver::drawPrimitive(unsigned primitives,unsigned first,unsigned count)
+void		OpenGL_GLSL_Driver::drawPrimitive(renderer::Primitive::type primitives,unsigned first,unsigned count)
 {
 	m_VF->enable();
 	glDrawArrays(OpenGL_GLSL_Tables::Primitive[primitives],first,count);
 	m_VF->disable();
 }
 
-void		OpenGL_GLSL_Driver::drawIndexedPrimitive(unsigned primitives,unsigned count,unsigned type,VertexBufferObject* buf)
+void		OpenGL_GLSL_Driver::drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* buf)
 {
 	m_VF->enable();
 	buf->bind(VBOType::INDEX);
@@ -573,7 +490,7 @@ void		OpenGL_GLSL_Driver::drawIndexedPrimitive(unsigned primitives,unsigned coun
 	m_VF->disable();
 }
 
-void		OpenGL_GLSL_Driver::drawPrimitive(unsigned primitives,unsigned first,unsigned count,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData)
+void		OpenGL_GLSL_Driver::drawPrimitive(renderer::Primitive::type primitives,unsigned first,unsigned count,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData)
 {
 	OpenGL_GLSL_Driver::VertexFormat*	instd = new OpenGL_GLSL_Driver::VertexFormat(instanceDeclaration,m_Streams);
 	m_VF->enable();
@@ -586,7 +503,7 @@ void		OpenGL_GLSL_Driver::drawPrimitive(unsigned primitives,unsigned first,unsig
 	delete instd;
 }
 
-void		OpenGL_GLSL_Driver::drawIndexedPrimitive(unsigned primitives,unsigned count,unsigned type,VertexBufferObject* indexBuffer,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData)
+void		OpenGL_GLSL_Driver::drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* indexBuffer,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData)
 {
 	OpenGL_GLSL_Driver::VertexFormat*	instd = new OpenGL_GLSL_Driver::VertexFormat(instanceDeclaration,m_Streams);
 	m_VF->enable();
@@ -632,7 +549,7 @@ void		OpenGL_GLSL_Driver::destroyShader(Shader* shad)
 }
 
 
-void		OpenGL_GLSL_Driver::setRenderMode(unsigned side,unsigned mode)
+void 		OpenGL_GLSL_Driver::setRenderMode(renderer::RenderSide::type side,renderer::RenderMode::type mode)
 {
 	glPolygonMode(OpenGL_GLSL_Tables::RenderSide[side],OpenGL_GLSL_Tables::RenderMode[mode]);
 }
@@ -658,12 +575,12 @@ void		OpenGL_GLSL_Driver::disableCulling()
 	glDisable(GL_CULL_FACE);
 }
 
-void		OpenGL_GLSL_Driver::setCullFace(unsigned face)
+void		OpenGL_GLSL_Driver::setCullFace(renderer::RenderSide::type face)
 {
 	glCullFace(OpenGL_GLSL_Tables::RenderSide[face]);
 }
 
-void		OpenGL_GLSL_Driver::setFrontFace(unsigned FrontFace)
+void		OpenGL_GLSL_Driver::setFrontFace(renderer::FrontFace::type FrontFace)
 {
 	glFrontFace(OpenGL_GLSL_Tables::FrontFace[FrontFace]);
 }
@@ -686,6 +603,102 @@ void		OpenGL_GLSL_Driver::setPolygonOffset(float factor,float units)
 {
 	glPolygonOffset(factor,units);
 }
+
+const float*
+OpenGL_GLSL_Driver::getViewport() const
+{
+	return m_ViewPort;
+}
+
+//Renderer capabilities
+int
+OpenGL_GLSL_Driver::maxTextureSize() const
+{
+	return m_MaxTextureSize;
+}
+int
+OpenGL_GLSL_Driver::maxCubeTextureSize() const
+{
+	return m_MaxCubeTextureSize;
+}
+
+int
+OpenGL_GLSL_Driver::max3DTextureSize() const
+{
+	return m_Max3DTextureSize;
+}
+
+int
+OpenGL_GLSL_Driver::numDrawBuffers() const
+{
+	return m_NumDrawBuffers;
+}
+
+int
+OpenGL_GLSL_Driver::numTextureUnits() const
+{
+	return m_TextureUnits;
+}
+
+void		OpenGL_GLSL_Driver::setTexture(renderer::TextureUnit::type unit, Texture* tex)
+{
+	static_cast<OpenGL_GLSL_Texture*>(tex)->bind(unit);
+}
+
+void 		OpenGL_GLSL_Driver::setMatrix(renderer::Matrix::type mode,const math::matrix4x4& mtx)
+{
+	if(mode == renderer::Matrix::VIEW)
+	{
+		glActiveTextureARB(GL_TEXTURE0);
+		glMatrixMode(GL_TEXTURE);
+	}
+	else if(mode < renderer::Matrix::TEXTURE0)
+	{
+		glMatrixMode(OpenGL_GLSL_Tables::MatrixMode[mode]);
+	}
+	else
+	{
+		glActiveTextureARB(OpenGL_GLSL_Tables::MatrixMode[mode]);
+		glMatrixMode(GL_TEXTURE);
+	}
+
+	//glLoadTransposeMatrixfARB(const_cast<GLfloat*>((const float*)mtx));
+	glLoadMatrixf(math::transposed(mtx));
+	glActiveTextureARB(GL_TEXTURE0);
+}
+
+void 		OpenGL_GLSL_Driver::enableAlphaBlend()
+{
+	glEnable(GL_BLEND);
+}
+
+void 		OpenGL_GLSL_Driver::disableAlphaBlend()
+{
+	glDisable(GL_BLEND);
+}
+
+void 		OpenGL_GLSL_Driver::alphaBlendFunction(renderer::AlphaFunction::type sfactor,renderer::AlphaFunction::type dfactor) //sfactor and dfactor are described in AlphaFunction namespace. for more information refer to openGL specs
+{
+	glBlendFunc(OpenGL_GLSL_Tables::AlphaFunction[sfactor],OpenGL_GLSL_Tables::AlphaFunction[dfactor]);
+}
+
+void 		OpenGL_GLSL_Driver::alphaTestFunction(renderer::TestFunction::type func, float ref)
+{
+	glAlphaFunc(OpenGL_GLSL_Tables::TestFunction[func],ref);
+}
+
+EString
+OpenGL_GLSL_Driver::getRendererName() const
+{
+	return m_RendererName;
+}
+
+EString
+OpenGL_GLSL_Driver::getRendererVendor() const
+{
+	return m_RendererVendor;
+}
+
 
 }
 }

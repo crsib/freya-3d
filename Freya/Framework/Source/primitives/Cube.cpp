@@ -290,20 +290,14 @@ void		Cube::render()
 		m_Shader->bind();
 	}
 	if(m_Diffuse)
-		m_Diffuse->bind();
+		rapi->setTexture(renderer::TextureUnit::TEXTURE0,m_Diffuse);
 	if(m_Specular)
-		m_Specular->bind();
+		rapi->setTexture(renderer::TextureUnit::TEXTURE1,m_Specular);
 	if(m_Bump)
-		m_Bump->bind();
+		rapi->setTexture(renderer::TextureUnit::TEXTURE2,m_Bump);
 
 	rapi->drawIndexedPrimitive(renderer::Primitive::TRIANGLES,6*6,renderer::DataType::UNSIGNED_SHORT,m_Indicies);
 
-	if(m_Diffuse)
-		m_Diffuse->unbind();
-	if(m_Specular)
-		m_Specular->unbind();
-	if(m_Bump)
-		m_Bump->unbind();
 
 
 	if(m_Shader)

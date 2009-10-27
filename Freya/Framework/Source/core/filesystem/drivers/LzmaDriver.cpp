@@ -56,11 +56,26 @@ SZ_RESULT SzFileSeekImp(void *object, CFileSize pos)
 
 }//namespace __lzma_local
 using namespace __lzma_local;
-//============================== Derived constructors==============================
-LzmaDriver::LzmaDriver() : m_Ready(0)
+
+void*
+_LZMA_Alloc(size_t sz)
 {
-	InitCrcTable();
+	return core::memory::Allocate(sz,core::memory::GENERIC_POOL);
 }
+
+void		_LZMA_Free(void* p)
+{
+	core::memory::Free(p,core::memory::GENERIC_POOL);
+}
+
+//============================== Derived constructors==============================
+LzmaDriver::LzmaDriver()
+: m_Ready(0)
+
+  {
+	m_Mutex = core::CoreInstance->createMutex();
+	InitCrcTable();
+  }
 //==============================~Derived constructors==============================
 
 //============================== Destructor==============================
@@ -70,22 +85,16 @@ LzmaDriver::~LzmaDriver()
 	if(m_Ready)
 	{
 		fclose(m_ArchiveStream.File);
+
 	}
+	SzArDbExFree(&m_Db,_LZMA_Free);
+	core::CoreInstance->destroyMutex(m_Mutex);
 }
 
 //==============================~Destructor==============================
 
 //============================== Method: setMountPoint==============================
 
-inline void*	_LZMA_Alloc(size_t sz)
-{
-	return core::memory::Allocate(sz,core::memory::GENERIC_POOL);
-}
-
-inline void		_LZMA_Free(void* p)
-{
-	core::memory::Free(p,core::memory::GENERIC_POOL);
-}
 
 void		LzmaDriver::setMountPoint(const EString& path)
 {
@@ -94,6 +103,7 @@ void		LzmaDriver::setMountPoint(const EString& path)
 	{
 		throw core::filesystem::FilesystemException(EString("Failed to start lzma driver: file " +path + " not found"));
 	}
+
 	SzArDbExInit(&m_Db);
 	m_ArchiveStream.InStream.Read = SzFileReadImp;
 	m_ArchiveStream.InStream.Seek = SzFileSeekImp;
@@ -101,6 +111,7 @@ void		LzmaDriver::setMountPoint(const EString& path)
 	ISzAlloc Alloc;
 	Alloc.Alloc = _LZMA_Alloc;
 	Alloc.Free  = _LZMA_Free;
+
 
 	if(SzArchiveOpen(&m_ArchiveStream.InStream, &m_Db, &Alloc, &Alloc) != SZ_OK)
 	{
@@ -120,14 +131,17 @@ void		LzmaDriver::setMountPoint(const EString& path)
 			m_FileList.push_back(filed);
 		}
 	}
+
 	m_Ready = 1;
+
 }
 
 //==============================~Method: setMountPoint==============================
 
 //============================== Method: id==============================
 
-EString		LzmaDriver::id() const
+EString
+LzmaDriver::id() const
 {
 	return EString("lzma");
 }
@@ -239,8 +253,12 @@ void*		LzmaDriver::read(const EString& path)
 	ISzAlloc Alloc;
 	Alloc.Alloc = _LZMA_Alloc;
 	Alloc.Free  = _LZMA_Free;
-	res = SzExtract(&m_ArchiveStream.InStream,&m_Db,fileIndex,&m_BlockIndex,
-			&outBuffer,&outBufferSize,&offset,&outSizeProcessed,&Alloc,&Alloc);
+	synchronize(m_Mutex)
+	{
+		//std::clog << "Extacting " << path << "..." << std::endl;
+		res = SzExtract(&m_ArchiveStream.InStream,&m_Db,fileIndex,&m_BlockIndex,&outBuffer,&outBufferSize,&offset,&outSizeProcessed,&Alloc,&Alloc);
+	}
+
 	if(res != SZ_OK)
 	{
 		std::clog << "Internal LZMA driver error: failed to extract file" << std::endl;

@@ -1,357 +1,392 @@
+/*
+ * quaternion.hpp
+ *	This file is part of Freya 3D engine. For licensing information
+ *  from LICENCE file 
+ *  Created on: Oct 22, 2009
+ *      Author: Dmitri crsib Vedenko
+ */
+
 #ifndef QUATERNION_HPP_
 #define QUATERNION_HPP_
 
-#include "math.hpp"
+#include "math_internal.h"
 #include "vector3d.hpp"
-#include "matrix4x4.hpp"
 
-namespace math {
+namespace math
+{
 
-class quaternion : public MathSubsystem
+MATH_OBJECT_DECL	class quaternion
 {
 public:
-	inline
-	quaternion() {
-		w 	= unit;
-		u.x = zero;
-		u.y = zero;
-		u.z = zero;
-	}
+	MATH_MEMORY_FUNCTIONS
 
-	inline explicit
-	quaternion(const float ww, const float xx,
-			const float yy, const float zz) {
-		float q_norm = (ww * ww)+(xx * xx)+(yy * yy)+(zz * zz);
-		w 	= ww;
-		u.x = xx;
-		u.y = yy;
-		u.z = zz;
-		if(abs(q_norm - unit) > eps) {
-			w /= q_norm;
-			u /= q_norm;
-		}
-	}
-
-	inline explicit
-	quaternion(const float ww, const vector3d& uu) {
-		float q_norm = (ww * ww)+abs_sq(uu);
-		w = ww;
-		u = uu;
-		if(abs(q_norm - unit) > eps) {
-			w /= q_norm;
-			u /= q_norm;
-		}
-	}
-	inline explicit
-	quaternion(const vector3d& dir,const float angle)//This constructor is used to create rotate quaternion
+	union
 	{
-		float ha = angle*0.5f;
-		w = cosf(ha);
-		u = sinf(ha)*normalized(dir);
-		this->normalize();
-	}
-	inline
-	quaternion(const quaternion& q) {
-		float q_norm = (q.w * q.w)+abs_sq(q.u);
-		w = q.w;
-		u = q.u;
-		if(abs(q_norm - unit) > eps) {
-			w /= q_norm;
-			u /= q_norm;
-		}
-	}
+		struct
+		{
+			float x,y,z,w;
+		};
+		__m128		xmm;
+	};
 
-	inline
-	operator float*() {
-		return &w;
-	}
-	inline
-	operator const float*()  const{
-		return &w;
-	}
-	inline
-	operator vector3d()
+	quaternion();
+	quaternion(__m128 m);
+	quaternion(const float x,const float y,const float z,const float w);
+	quaternion(const float w, const vector3d& vec);
+	quaternion(const vector3d& v);
+
+	quaternion(const quaternion& q);
+	quaternion& operator = (const quaternion& q);
+
+	static
+	quaternion	rotationQuat(const float angle, const vector3d& axis);
+
+	quaternion& normalize();
+	quaternion&	inverse();
+	quaternion& conjugate();
+
+	vector3d	rotate(const vector3d& v) const;
+
+	friend
+	quaternion  inversed(const quaternion& q);
+
+	friend
+	quaternion  conjugated(const quaternion& q);
+
+	friend
+	float 		abs(const quaternion& q);
+
+	friend
+	float 		abs_sq(const quaternion& q);
+
+	friend
+	quaternion	normalized(const quaternion& q);
+
+	quaternion	operator + () const;
+	quaternion  operator - () const;
+
+	quaternion  operator + (const quaternion& q) const;
+	quaternion  operator - (const quaternion& q) const;
+
+	quaternion  operator * (const quaternion& q) const;
+	quaternion 	operator * (const vector3d& v) const;
+
+	operator    vector3d() const;
+	operator	float*();
+	operator	const float* () const;
+
+	quaternion&	operator+= (const quaternion& q);
+	quaternion&	operator-= (const quaternion& q);
+
+	quaternion&	operator*= (const quaternion& q);
+	quaternion&	operator*= (const vector3d& v);
+
+	quaternion  operator * (const float f) const;
+	quaternion  operator / (const float f) const;
+
+	quaternion&	operator*= (const float f);
+	quaternion& operator/= (const float f);
+
+	friend
+	quaternion operator * (const float f, const quaternion& q);
+
+	friend
+	std::ostream& operator << (std::ostream& s,const quaternion& q);
+
+} MATH_OBJECT_END_DECL;
+
+} // namespace math
+//========================Implementation=====================================================
+namespace math
+{
+inline
+quaternion::quaternion(__m128 m)
+{
+	xmm = m;
+}
+
+inline
+quaternion::quaternion()
+{
+	xmm = _mm_setzero_ps();
+}
+
+inline
+quaternion::quaternion(const float _x,const float _y,const float _z,const float _w)
+{
+	x = _x;
+	y = _y;
+	z = _z;
+	w = _w;
+}
+
+inline
+quaternion::quaternion(const float _w, const vector3d& vec)
+{
+	xmm = vec.xmm;
+	w = _w;
+}
+
+inline
+quaternion::quaternion(const vector3d& v)
+{
+	xmm = v.xmm;
+}
+
+inline
+quaternion::quaternion(const quaternion& q)
+{
+	xmm = q.xmm;
+}
+
+inline
+quaternion& quaternion::operator = (const quaternion& q)
+{
+	xmm = q.xmm;
+	return *this;
+}
+
+inline
+quaternion	quaternion::rotationQuat(const float angle, const vector3d& axis)
+{
+	quaternion q;
+	float s,c;
+	math::sincos(angle*0.5f,&s,&c);
+	q.xmm = (normalized(axis)*s).xmm;
+	q.w = c;
+	return q;
+}
+
+inline
+quaternion& quaternion::normalize()
+{
+	__m128 tmp = _mm_mul_ps	( xmm,xmm );
+	tmp  = _mm_hadd_ps 		( tmp,tmp );
+	tmp  = _mm_hadd_ps 		( tmp,tmp );
+	__m128 tmp1 = _mm_and_ps		( tmp,*reinterpret_cast<const __m128*>(_ps_norm_value_mask));
+	int r = _mm_comineq_ss	( tmp1,*reinterpret_cast<const __m128*>(_ps_0));
+	if(r)
 	{
-		return u;
+		tmp  = __rsqrt_ss		( tmp );
+		tmp  = _mm_shuffle_ps	( tmp, tmp, _MM_SHUFFLE(0,0,0,0) );
+		this->xmm	 = _mm_mul_ps 		( xmm, tmp );
 	}
-	inline
-	float& operator[](const int index) {
-		return *(&w + index);
-	}
+	return *this;
+}
 
-	inline
-	quaternion operator+() {
-		return *this;
-	}
-
-	inline
-	quaternion operator-() {
-		return quaternion(-w, -u);
-	}
-
-	inline
-	quaternion& operator=(const quaternion& q) {
-		w = q.w;
-		u = q.u;
-		normalize();
-		return *this;
-	}
-
-	inline
-	quaternion& operator+=(const quaternion& q) {
-		w += q.w;
-		u += q.u;
-		normalize();
-		return *this;
-	}
-
-	inline
-	quaternion& operator+=(const float scalar) {
-		w += scalar;
-		normalize();
-		return *this;
-	}
-
-	inline
-	quaternion& operator+=(const vector3d& uu) {
-		u += uu;
-		normalize();
-		return *this;
-	}
-
-	inline
-	quaternion& operator-=(const quaternion& q) {
-		w -= q.w;
-		u -= q.u;
-		normalize();
-		return *this;
-	}
-
-	inline
-	quaternion& operator-=(const float scalar) {
-		w -= scalar;
-		normalize();
-		return *this;
-	}
-
-	inline
-	quaternion& operator-=(const vector3d& uu) {
-		u -= uu;
-		normalize();
-		return *this;
-	}
-
-	inline
-	quaternion& operator*=(const quaternion& q) {
-		*this = quaternion((w * q.w) - (u , q.u),
-				(u * q.u) + (w * q.u) + (u * q.w));
-		normalize();
-		return *this;
-	}
-
-	inline
-	quaternion& operator*=(const float scalar) {
-		w *= scalar;
-		u *= scalar;
-		normalize();
-		return *this;
-	}
-
-	inline
-	quaternion& operator*=(const vector3d& uu) {
-		u = (u * uu)+(w * uu);
-		w = zero;
-		normalize();
-		return *this;
-	}
-
-	inline
-	quaternion& operator/=(const float scalar) {
-		w /= scalar;
-		u /= scalar;
-		normalize();
-		return *this;
-	}
-
-	inline
-	bool operator==(const quaternion& q) {
-		return (w == q.w)&&(u == q.u);
-	}
-
-	inline
-	bool operator!=(const quaternion& q) {
-		return (w != q.w)||(u != q.u);
-	}
-
-	inline
-	vector3d rotate(const vector3d& vec)
+inline
+quaternion&	quaternion::inverse()
+{
+	xmm = _mm_xor_ps(xmm,*reinterpret_cast<const __m128*>(_ps_sign_mask));
+	w *= -1.0;
+	__m128 tmp = _mm_mul_ps	( xmm,xmm );
+	tmp  = _mm_hadd_ps 		( tmp,tmp );
+	tmp  = _mm_hadd_ps 		( tmp,tmp );
+	__m128 tmp1 = _mm_and_ps		( tmp,*reinterpret_cast<const __m128*>(_ps_norm_value_mask));
+	int r = _mm_comineq_ss	( tmp1,*reinterpret_cast<const __m128*>(_ps_0));
+	if(r)
 	{
-		if(!isNormed(*this)) normalize();
-		return (vector3d) ((*this) * vec *conjugated(*this));
+		tmp  = __rsqrt_ss		( tmp );
+		tmp  = _mm_shuffle_ps	( tmp, tmp, _MM_SHUFFLE(0,0,0,0) );
+		this->xmm	 = _mm_mul_ps 		( xmm, tmp );
 	}
+	return *this;
+}
 
-	inline friend
-	quaternion operator+(const quaternion& q1, const quaternion& q2) {
-		return quaternion(q1.w + q2.w, q1.u + q2.u);
-	}
+inline
+quaternion& quaternion::conjugate()
+{
+	xmm = _mm_xor_ps(xmm,*reinterpret_cast<const __m128*>(_ps_sign_mask));
+	w *= -1.0;
+	return *this;
+}
 
-	inline friend
-	quaternion operator+(const quaternion& q, const float scalar) {
-		return quaternion(q.w + scalar, q.u);
-	}
+inline
+quaternion  inversed(const quaternion& q)
+{
+	return quaternion(q).inverse();
+}
 
-	inline friend
-	quaternion operator+(const float scalar, const quaternion& q) {
-		return quaternion(q.w + scalar, q.u);
-	}
+inline
+quaternion  conjugated(const quaternion& q)
+{
+	return quaternion(q.w,-vector3d(q.xmm));
+}
 
-	inline friend
-	quaternion operator+(const quaternion& q, const vector3d& uu) {
-		return quaternion(q.w, q.u + uu);
-	}
+inline
+float 		abs(const quaternion& q)
+{
+	float res;
+	__m128 tmp = _mm_mul_ps(q.xmm,q.xmm);
+	tmp  = _mm_hadd_ps ( tmp,tmp );
+	tmp  = _mm_hadd_ps ( tmp,tmp );
+	tmp =  _mm_sqrt_ss( tmp);
+	_mm_store_ss (&res,tmp);
+	return res;
+}
 
-	inline friend
-	quaternion operator+(const vector3d& uu, const quaternion& q) {
-		return quaternion(q.w, q.u + uu);
-	}
+inline
+float 		abs_sq(const quaternion& q)
+{
+	float res;
+	__m128 tmp = _mm_mul_ps(q.xmm,q.xmm);
+	tmp  = _mm_hadd_ps ( tmp,tmp );
+	tmp  = _mm_hadd_ps ( tmp,tmp );
+	_mm_store_ss (&res,tmp);
+	return res;
+}
 
-	inline friend
-	quaternion operator-(const quaternion& q1, const quaternion& q2) {
-		return quaternion(q1.w - q2.w, q1.u - q2.u);
-	}
-
-	inline friend
-	quaternion operator-(const quaternion& q, const float scalar) {
-		return quaternion(q.w - scalar, q.u);
-	}
-
-	inline friend
-	quaternion operator-(const float scalar, quaternion& q) {
-		return quaternion(scalar - q.w, -q.u);
-	}
-
-	inline friend
-	quaternion operator-(const quaternion& q, const vector3d& uu) {
-		return quaternion(q.w, q.u - uu);
-	}
-
-	inline friend
-	quaternion operator-(const vector3d& uu, const quaternion& q) {
-		return quaternion(-q.w, uu - q.u);
-	}
-
-	inline friend
-	quaternion operator*(const quaternion& q1, const quaternion& q2) {
-		return quaternion((q1.w * q2.w)-(q1.u , q2.u),
-				(q1.u * q2.u)+(q1.w * q2.u)+(q1.u * q2.w));
-	}
-
-	inline friend
-	quaternion operator*(const quaternion& q, const float scalar) {
-		return quaternion(q.w * scalar, q.u * scalar);
-	}
-
-	inline friend
-	quaternion operator*(const float scalar, const quaternion& q) {
-		return quaternion(q.w * scalar, q.u * scalar);
-	}
-
-	inline friend
-	quaternion operator*(const quaternion& q, const vector3d& uu) {
-		return quaternion(-(q.u,uu), (q.w * uu)+(q.u * uu));
-	}
-
-	inline friend
-	quaternion operator*(const vector3d& uu, const quaternion& q) {
-		return quaternion(-(q.u,uu), (uu * q.w)+(uu * q.u));
-	}
-
-	inline friend
-	quaternion operator/(const quaternion& q, const float scalar) {
-		return quaternion(q.w / scalar,
-				q.u / scalar);
-	}
-
-	inline friend
-	float operator,(const quaternion& q1, const quaternion& q2) {
-		return (q1.w * q2.w)+(q1.u , q2.u);
-	}
-
-	inline
-	quaternion& conjugate() {
-		u = -u;
-		return *this;
-	}
-
-	inline
-	quaternion& inverse() {
-		u = -u;
-		return *this;
-	}
-
-	inline friend
-	float norm(const quaternion& q) {
-		return (q.w * q.w)+abs_sq(q.u);
-	}
-
-	inline
-	quaternion& normalize() {
-		float q_norm = abs(*this);
-		if(abs(q_norm - unit) > eps)
-			*this /= q_norm;
-		return *this;
-	}
-
-	inline friend
-	bool isNormed(const quaternion& q) {
-		float q_norm = norm(q);
-		if(abs(q_norm - unit) < eps)
-			return true;
-		return false;
-	}
-
-	inline friend
-	float abs(const quaternion& q) {
-		float q_norm = norm(q);
-		if(abs(q_norm - unit) < eps) return q_norm;
-		return sqrt(q_norm);
-	}
-
-	inline friend
-	quaternion conjugated(quaternion& q) {
-		return quaternion(q.w, -q.u);
-	}
-
-	inline friend
-	quaternion inversed(quaternion& q) {
-		float n = norm(q);
-		if(n == 0) return quaternion(zero,zero,zero,zero);
-		n = 1.0f/n;
-		return quaternion(q.w*n, -q.u*n);
-	}
-
-	inline friend
-	quaternion normalized(const quaternion& q) {
-		float q_norm = norm(q);
-		if(abs(q_norm - unit) > eps)
-			return quaternion(q / q_norm);
-		return q;
-	}
-
-	inline
-	vector3d operator()(const vector3d& v) {
-		quaternion q = (*this)*( v)*conjugated(*this);
-		return q.u;
-	}
-
-	quaternion& operator = (const matrix4x4& mtx)
+inline
+quaternion	normalized(const quaternion& _q)
+{
+	quaternion q(_q);
+	__m128 tmp = _mm_mul_ps	( q.xmm,q.xmm );
+	tmp  = _mm_hadd_ps 		( tmp,tmp );
+	tmp  = _mm_hadd_ps 		( tmp,tmp );
+	__m128 tmp1 = _mm_and_ps		( tmp,*reinterpret_cast<const __m128*>(_ps_norm_value_mask));
+	int r = _mm_comineq_ss	( tmp1,*reinterpret_cast<const __m128*>(_ps_0));
+	if(r)
 	{
-		return (*this = Matrix4x4ToQuaternion(mtx));
+		tmp  = __rsqrt_ss		( tmp );
+		tmp  = _mm_shuffle_ps	( tmp, tmp, _MM_SHUFFLE(0,0,0,0) );
+		q.xmm	 = _mm_mul_ps 		( q.xmm, tmp );
 	}
-	float 	 w;
-	vector3d u;
-};
+	return q;
+}
+
+inline
+quaternion	quaternion::operator + () const
+{
+	return *this;
+}
+
+inline
+quaternion  quaternion::operator - () const
+{
+	return quaternion (_mm_xor_ps(xmm,*reinterpret_cast<const __m128*>(_ps_sign_mask)));
+}
+
+inline
+quaternion  quaternion::operator + (const quaternion& q) const
+{
+	return quaternion(_mm_add_ps(xmm,q.xmm));
+}
+
+inline
+quaternion  quaternion::operator - (const quaternion& q) const
+{
+	return quaternion(_mm_sub_ps(xmm,q.xmm));
+}
+
+inline
+quaternion  quaternion::operator * (const quaternion& q) const
+{
+	vector3d v1 = *this;
+	vector3d v2 = q;
+	return quaternion(w*q.w - (v1,v2), v1*v2 + w*v2 + q.w*v1);
+}
+
+inline
+quaternion 	quaternion::operator * (const vector3d& v) const
+{
+	return *this * quaternion(v);
+}
+
+inline
+quaternion::operator    vector3d() const
+{
+	vector3d v(xmm);
+	v._int[3] = 0; //Correct due to iEEE754-2008
+	return v;
+}
+
+inline
+quaternion::operator	float*()
+{
+	return &x;
+}
+
+inline
+quaternion::operator	const float* () const
+{
+	return &x;
+}
+
+inline
+quaternion&	quaternion::operator+= (const quaternion& q)
+{
+	xmm = _mm_add_ps(xmm,q.xmm);
+	return *this;
+}
+
+inline
+quaternion&	quaternion::operator-= (const quaternion& q)
+{
+	xmm = _mm_sub_ps(xmm,q.xmm);
+	return *this;
+}
+
+inline
+quaternion&	quaternion::operator*= (const quaternion& q)
+{
+	vector3d v1 = *this;
+	vector3d v2 = q;
+	return (*this = quaternion(w*q.w - (v1,v2), v1*v2 + w*v2 + q.w*v1));
+}
+
+inline
+quaternion&	quaternion::operator*= (const vector3d& v2)
+{
+	vector3d v1 = *this;
+	return (*this = quaternion( - (v1,v2), v1*v2 + w*v2));
+}
+
+inline
+quaternion  quaternion::operator * (const float f) const
+{
+	return quaternion(_mm_mul_ps(xmm,_mm_set1_ps(f)));
+}
+
+inline
+quaternion  quaternion::operator / (const float f) const
+{
+	return quaternion(_mm_mul_ps(xmm,__invert_ps(_mm_set1_ps(f))));
+}
+
+inline
+quaternion&	quaternion::operator*= (const float f)
+{
+	xmm = _mm_mul_ps(xmm,_mm_set1_ps(f));
+	return *this;
+}
+
+inline
+quaternion& quaternion::operator/= (const float f)
+{
+	xmm = _mm_mul_ps(xmm,__invert_ps(_mm_set1_ps(f)));
+	return *this;
+}
+
+inline
+quaternion operator * (const float f, const quaternion& q)
+{
+	return quaternion(_mm_mul_ps(q.xmm,_mm_set1_ps(f)));
+}
+
+inline
+std::ostream& operator << (std::ostream& s,const quaternion& q)
+{
+	return s << "( " << q.w << ", ( " << q.x << ", " << q.y << ", " << q.z << " ))";
+}
+
+inline
+vector3d	quaternion::rotate(const vector3d& v) const
+{
+	quaternion rt(xmm);
+	rt.normalize();
+	return rt*v*conjugated(rt);
+}
 
 }
 
-#endif /*QUATERNION_HPP_*/
+#endif /* QUATERNION_HPP_ */

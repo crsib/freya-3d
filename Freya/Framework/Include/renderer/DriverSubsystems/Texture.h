@@ -23,6 +23,7 @@ namespace memory
  *
  */
 #include "core/EngineSubsystem.h"
+#include "renderer/3DConstants.h"
 
 namespace renderer
 {
@@ -49,7 +50,7 @@ public:
 	 * \param data is a pointer to data to be loaded. Could be NULL
 	 * \throw renderer::DriverException on any error occured (mostly the incorrect format errors)
 	 */
-	virtual void loadTexture(unsigned textureType,unsigned level,unsigned textureInternalFormat,unsigned textureStorageFormat,unsigned textureStorage,unsigned width,unsigned height,void* data) = 0;
+	virtual void loadTexture(renderer::TextureType::type textureType,unsigned level,renderer::TextureInternalFormat::type textureInternalFormat,renderer::TextureFormat::type textureStorageFormat,renderer::TextureStorage::type textureStorage,unsigned width,unsigned height,void* data) = 0;
 	//! Load texture from data to accelerator (3D and cube textures <STRONG>only</STRONG>)
 	/*!
 	 * This function loads either 3D, either cube texture.
@@ -67,20 +68,16 @@ public:
 	 * \param data is a pointer to data to be loaded. Could be NULL
 	 * \throw renderer::DriverException on any error occured (mostly the incorrect format errors)
 	 */
-	virtual void loadTexture(unsigned textureType,unsigned level,unsigned textureInternalFormat,unsigned textureStorageFormat,unsigned textureStorage,unsigned width,unsigned height,unsigned side_or_depth,void* data) = 0;
+	virtual void loadTexture(renderer::TextureType::type textureType,unsigned level,renderer::TextureInternalFormat::type textureInternalFormat,renderer::TextureFormat::type textureStorageFormat,renderer::TextureStorage::type textureStorage,unsigned width,unsigned height,unsigned side_or_depth,void* data) = 0;
 	//! Retrieve the texture type (as set by previous functions)
 	/*!
 	 *  Returns the type of current texture.
 	 *  \return Type of current texture as one of TextureType constants
 	 */
-	virtual unsigned getTextureType() const = 0 ;
+	virtual renderer::TextureType::type getTextureType() const = 0 ;
 
-	//! Retrieve the texture unit used by this texture
-	/*!
-	 *  Returns the unit, where texture is bound or a default unit for the texture
-	 *  \return unit, where texture is bound or a default unit for the texture
-	 */
-	virtual unsigned getTextureUnit() const = 0; //If texture is bound - returns unit of binding, returns default unit otherwise
+	//! Retrieve a unit to which texture is bound
+	virtual renderer::TextureUnit::type getTextureUnit() const = 0;
 
 	//! Map a memory region with texture data to RAM for both reading and writing
 	/*!
@@ -103,30 +100,6 @@ public:
 	 */
 	virtual void  unmap(unsigned level = 0,unsigned side = 0) = 0;//Unmaps texture memory from client
 
-	//! Set the default texture unit to texture
-	/*!
-	 *  Set the default texture unit.
-	 *  \param unit is a texture unit described by TextureUnit
-	 */
-	virtual void  setUnit(unsigned unit) = 0;//Set default texture unit to one of unit,described in TextureUnit namespace
-	//binding
-	//! Bind the texture
-	/*!
-	 *  Binds the texture on default unit
-	 */
-	virtual void  bind() = 0; //Binds the texture to the default unit
-	//! Bind the texture (overloaded version)
-	/*!
-	 *  Binds the texture on selected unit
-	 *  \param unit is a texture unit described by TextureUnit
-	 */
-	virtual void  bind(unsigned unit) = 0; //binds the texture to unit {unit}. Does not change the default unit
-	//! Unbind the texture
-	/*!
-	 * Unbinds the texture from the unit it was bound to earlier
-	 */
-	virtual void  unbind() = 0;//Unbinds the texture from unit. This method must unbind the texture correctly in any case
-
 	//Filtering
 	//! Set minifying filter
 	/*!
@@ -136,7 +109,7 @@ public:
 	 *	    than one texture element.
 	 * \param filter is minifying filter. Could be any of TextureFilter constants
 	 */
-	virtual void  setMinFilter(unsigned filter) = 0;//filter described by TextureFilter namespace
+	virtual void  setMinFilter(renderer::TextureFiltering::type filter) = 0;//filter described by TextureFilter namespace
     //! Set the magnification filter
 	/*!
 	 * Sets the magnification filter.
@@ -145,7 +118,7 @@ public:
 	 *	    or equal to	one texture element.
 	 * \param filter is magnification filter. Could be TextureFilter::NEAREST or TextureFilter::LINEAR
 	 */
-	virtual void  setMagFilter(unsigned filter) = 0;
+	virtual void  setMagFilter(renderer::TextureFiltering::type filter) = 0;
 	//! Set anisotropy value
 	/*!
 	 *  Sets the tangent of anisotropy angle
@@ -153,12 +126,11 @@ public:
 	 */
 	virtual void  setAnisotropy(float val) = 0;
 	//Auto mip-map
-	//! Set the mip-map auto generation mode
+	//! Force mipmap genderation
 	/*!
-	 *  Sets the mode for mip-map auto generation.
-	 *  \param val sets whether auto generation is needed
+	 *  Forces the device to generate all sufficient mipmap levels
 	 */
-	virtual void  generateMipMaps(bool val) = 0;//Sets the mip map auto generation
+	virtual void  generateMipMaps() = 0;//Sets the mip map auto generation
 
 	//clamping
 	//! Set the texture clamping mode for S coordinate
@@ -166,25 +138,25 @@ public:
 	 *  Sets the texture clamping mode for S coordinate.
 	 *  \param clamp is a clamping mode described by TextureClamping
 	 */
-	virtual void    clampS(unsigned clamp) = 0;//Clamping is described by TextureClamping enum
+	virtual void    clampS(renderer::TextureClamping::type clamp) = 0;//Clamping is described by TextureClamping enum
 	//! Set the texture clamping mode for T coordinate
 	/*!
 	 *  Sets the texture clamping mode for T coordinate.
 	 *  \param clamp is a clamping mode described by TextureClamping
 	 */
-	virtual void    clampT(unsigned clamp) = 0;//Clamping is described by TextureClamping enum
+	virtual void    clampT(renderer::TextureClamping::type clamp) = 0;//Clamping is described by TextureClamping enum
 	//! Set the texture clamping mode for R(P) coordinate (if supported)
 	/*!
 	 *  Sets the texture clamping mode for R(P) coordinate.
 	 *  \param clamp is a clamping mode described by TextureClamping
 	 */
-	virtual void    clampR(unsigned clamp) = 0;//Clamping is described by TextureClamping enum
+	virtual void    clampR(renderer::TextureClamping::type clamp) = 0;//Clamping is described by TextureClamping enum
 	//! Set the texture clamping mode for Q coordinate (if supported)
 	/*!
 	 *  Sets the texture clamping mode for Q coordinate.
 	 *  \param clamp is a clamping mode described by TextureClamping
 	 */
-	virtual void    clampQ(unsigned clamp) = 0;//Clamping is described by TextureClamping enum
+	virtual void    clampQ(renderer::TextureClamping::type clamp) = 0;//Clamping is described by TextureClamping enum
 };
 
 }

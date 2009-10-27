@@ -190,22 +190,16 @@ void Sphere<x_div,y_div>::render()
 			m_Shader->setTexture("bump",m_Bump);
 		m_Shader->bind();
 	}
+
 	if(m_Diffuse)
-		m_Diffuse->bind();
+		m_Rapi->setTexture(renderer::TextureUnit::TEXTURE0,m_Diffuse);
 	if(m_Specular)
-		m_Specular->bind();
+		m_Rapi->setTexture(renderer::TextureUnit::TEXTURE1,m_Specular);
 	if(m_Bump)
-		m_Bump->bind();
+		m_Rapi->setTexture(renderer::TextureUnit::TEXTURE2,m_Bump);
 
 	m_Rapi->drawIndexedPrimitive(renderer::Primitive::TRIANGLES,(x_div) * (y_div + 1) * 2 * 3,renderer::DataType::UNSIGNED_SHORT,m_Ind);
-	//m_Rapi->drawIndexedPrimitive(renderer::Primitive::TRIANGLES,6,renderer::DataType::UNSIGNED_SHORT,m_Ind,m_Arr);
-	//m_Rapi->drawPrimitive(renderer::Primitive::TRIANGLES,0,x_div * y_div * 4 * 3,m_Arr);
-	if(m_Diffuse)
-		m_Diffuse->unbind();
-	if(m_Specular)
-		m_Specular->unbind();
-	if(m_Bump)
-		m_Bump->unbind();
+
 }
 
 

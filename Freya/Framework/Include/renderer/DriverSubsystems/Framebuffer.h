@@ -24,6 +24,8 @@ namespace memory
  */
 #include "core/EngineSubsystem.h"
 
+#include "renderer/3DConstants.h"
+
 namespace renderer
 {
 class Texture;
@@ -66,13 +68,13 @@ public:
 	 * \param attach_to is point of attachment described by FramebufferAttachment
 	 * \param internalFormat is a internal storage format described by TextureInternalFormat
 	 */
-	virtual void 	attachRenderBuffer(unsigned attach_to,unsigned internalFormat) = 0;
+	virtual void 	attachRenderBuffer(renderer::FramebufferAttachment::type attach_to,renderer::TextureInternalFormat::type internalFormat) = 0;
 	//! Detach render buffer
 	/*!
 	 * Detaches previously attached render buffer from described frame buffer. All sufficient binding routines are done automatically.
 	 * \param detach_from is point where render buffer was attachment (described by FramebufferAttachment)
 	 */
-	virtual void	detachRenderBuffer(unsigned detach_from) = 0;
+	virtual void	detachRenderBuffer(renderer::FramebufferAttachment::type detach_from) = 0;
 	//Attaches texture tex to attach_to
 	//! Attach texture to described frame buffer
 	/*!
@@ -82,7 +84,7 @@ public:
 	 * \param tex is pointer to previously created texture object.
 	 * \param level is a mip level of an attachment point with numeration from 0
 	 */
-	virtual void 	attachTexture(unsigned attach_to,const Texture* tex,unsigned level = 0) = 0;
+	virtual void 	attachTexture(renderer::FramebufferAttachment::type attach_to,const Texture* tex,unsigned level = 0) = 0;
 	//! Attach texture to described frame buffer (overloaded version for cube and 3d textures)
 	/*!
 	 * Attaches texture to described frame buffer. All sufficient binding routines are done automatically.
@@ -92,7 +94,7 @@ public:
 	 * \param side is either a cube texture side described by CubeTextureSide, either depth level of 3d texture
 	 * \param level is a mip level of an attachment point with enumeration from 0
 	 */
-	virtual void 	attachTexture(unsigned attach_to,const Texture* tex,unsigned side,unsigned level = 0) = 0; //Version for cubic textures
+	virtual void 	attachTexture(renderer::FramebufferAttachment::type attach_to,const Texture* tex,unsigned side,unsigned level = 0) = 0; //Version for cubic textures
 
 	//Draw targets/read target
 	//! Set draw buffers
@@ -102,13 +104,13 @@ public:
 	 * \param size is a number of draw buffers to be attached.
 	 * \param bufs is an array of draw buffer ID's (described by FramebufferAttachment)
 	 */
-	virtual void 	drawBuffers(unsigned size,unsigned* bufs) = 0; //Bufs are described by FramebufferAttachment namespace
+	virtual void 	drawBuffers(unsigned size,renderer::FramebufferAttachment::type * bufs) = 0; //Bufs are described by FramebufferAttachment namespace
 	//! Set read buffer
 	/*!
 	 * Sets the buffer the data will be read from.
 	 * \param buf is a read buffer ID (described by FramebufferAttachment)
 	 */
-	virtual void	readBuffer(unsigned buf) = 0;
+	virtual void	readBuffer(renderer::FramebufferAttachment::type buf) = 0;
 	//Maximum attachement supported
 	//! Get the maximum number of color attachments
 	/*!
