@@ -46,141 +46,113 @@ public:
 	typedef std::list<OpenGL_GLSL_Framebuffer*,core::memory::MemoryAllocator<OpenGL_GLSL_Framebuffer*> >::iterator FramebufferListIterator;
 	typedef std::list<OpenGL_GLSL_Shader*,core::memory::MemoryAllocator<OpenGL_GLSL_Shader*> >::iterator ShaderListIterator;
 
-	virtual EString		id() const;
+	virtual EString id() const;
+	virtual EString getAPIName() const;
+	virtual EString getShaderAPIName() const;
 
-	virtual EString		getAPIName() const;
+	virtual EString getRendererName() const;
+	virtual EString	getRendererVendor() const;
 
-	virtual EString		getShaderAPIName() const;
-
+	//Any combination of render futures
 	virtual bool	futuresState(unsigned futures) const;
-
 	virtual unsigned futures() const;
 
-	virtual void		setViewport(unsigned width,unsigned height);
+	//Viewport settings
+	virtual void 		setViewport(unsigned x, unsigned y,unsigned width,unsigned height); //Sets the viewport
+	virtual const float*	 	getViewport() const;
 
-	virtual void		clearColorValue(float r,float g,float b,float a);
+	//Renderer capabilities
+	virtual int			maxTextureSize() const;
+	virtual int 		maxCubeTextureSize() const;
+	virtual int			max3DTextureSize() const;
+	virtual int 		numDrawBuffers() const;
+	virtual int			numTextureUnits() const;
 
-	virtual void		clearColor();
+	//Clearing
+	virtual void 		clearColorValue(float r,float g,float b,float a); //Sets the clear color
+	virtual void 		clearColor();//Clears current color buffer
+	//Depth test
+	virtual void 		enableDepthTest();//enables deth test
+	virtual void 		disableDepthTest();
 
-	virtual void		setPerspective(float FieldOfView,float Aspect,float Near,float Far);
+	virtual void 		clearDepthValue(float val);//sets the depth default value
+	virtual void 		clearDepth();//Clears depth
 
-	virtual void		setOrtho(unsigned width,unsigned height,float near = -1.0f,float far = 1.0f);
+	virtual void 		depthFunction(renderer::TestFunction::type func);//Func is described in TestFunction namespace
+	//Stencil test
+	virtual void 		enableStencilTest();
+	virtual void 		disableStencilTest();
 
-	virtual void		enableDepthTest();
+	virtual void 		clearStencilValue(int val);
+	virtual void 		clearStencil();
 
-	virtual void		disableDepthTest();
+	virtual void 		stencilFunction(renderer::TestFunction::type func, int ref, unsigned mask);//func is compared to ref using mask
+	virtual void 		stencilOp(renderer::StencilOp::type fail,renderer::StencilOp::type  zfail,renderer::StencilOp::type  zpass);//parameter are decribed in StencilOp namespace
+	//Alpha test
+	virtual void 		enableAlphaTest();
+	virtual void 		disableAlphaTest();
 
-	virtual void		clearDepthValue(float val);
+	virtual void 		alphaTestFunction(renderer::TestFunction::type func, float ref);
+	//Alpha blend
+	virtual void 		enableAlphaBlend();
+	virtual void 		disableAlphaBlend();
 
-	virtual void		clearDepth();
+	virtual void 		alphaBlendFunction(renderer::AlphaFunction::type sfactor,renderer::AlphaFunction::type dfactor); //sfactor and dfactor are described in AlphaFunction namespace. for more information refer to openGL specs
+	//Culling
+	virtual void 		enableCulling();
+	virtual void 		disableCulling();
 
-	virtual void		depthFunction(unsigned func);
+	virtual void 		setFrontFace(renderer::FrontFace::type FrontFace);//As described by FrontFace namespace
 
-	virtual void		enableStencilTest();
+	virtual void 		setRenderMode(renderer::RenderSide::type side,renderer::RenderMode::type mode);
 
-	virtual void		disableStencilTest();
+	virtual void 		setCullFace(renderer::RenderSide::type Face); //As described by RenderSide namespace
+	//Polygon offser
+	virtual void 		enablePolygonOffset();
+	virtual void 		disablePolygonOffset();
 
-	virtual void		clearStencilValue(int val);
+	virtual void 		setPolygonOffset(float factor,float units);
+	//Matricies
+	virtual void 		setMatrix(renderer::Matrix::type,const math::matrix4x4& mtx);//Loades matrix in row-major form
 
-	virtual void		clearStencil();
-
-	virtual void		stencilFunction(unsigned func, int ref, unsigned mask);
-
-	virtual void		stencilOp(unsigned fail,unsigned zfail,unsigned zpass);
-
-	virtual void		enableAlphaTest();
-
-	virtual void		disableAlphaTest();
-
-	virtual void		alphaTestFunction(unsigned func, float ref);
-
-	virtual void		enableAlphaBlend();
-
-	virtual void		disableAlphaBlend();
-
-	virtual void		alphaBlendFunction(unsigned sfactor,unsigned dfactor);
-
-	virtual void		loadMatrix(const math::matrix4x4& mtx);
-
-	virtual void 		loadIdentityMatrix();
-
-	virtual void		multMatrix(const math::matrix4x4& mtx);
-
-	virtual void		pushMatrix();
-
-	virtual void		popMatrix();
-
-	virtual void		setMatrixMode(unsigned mode);
-
-	virtual void		translate(float x,float y,float z);
-
-	virtual void		translate(const math::vector3d& vec);
-
-	virtual void		rotate(float angle,float x,float y,float z);
-
-	virtual void		rotate(float angle,const math::vector3d& vec);
-
-	virtual void		rotate(const math::quaternion& quat);
-
-	virtual void		scale(float x,float y,float z);
-
-	virtual Texture*	createTexture();
-
-	virtual void		destroyTexture(Texture* texture);
-
-	virtual void		enableGeneration(unsigned coord,unsigned mode);
-
-	virtual void		disableGeneration(unsigned coord);
-
-	virtual void		setEyePlane(unsigned coord,const math::vector3d& n);
-
-	virtual void		setObjectPlane(unsigned coord,const math::vector3d& n);
-
-	virtual VertexBufferObject*		createVertexBufferObject();
-
-	virtual void					destroyVertexBufferObject(VertexBufferObject*	buf);
+	//Auto generation of texture coordinates
+	virtual void 		enableGeneration(renderer::TextureCoord::type coord,renderer::TextureGenMode::type mode); //enables generation for coord described by TextureCoord with mode descripbed by TextureGenMode
+	virtual void		disableGeneration(renderer::TextureCoord::type coord);
+	virtual void		setEyePlane(renderer::TextureCoord::type coord,const math::vector3d& n);//Sets the eye plane normal
+	virtual void		setObjectPlane(renderer::TextureCoord::type coord,const math::vector3d& n);//Sets the object plane
 
 	virtual void		setStreamSource(unsigned sourceID,VertexBufferObject* dataSource,unsigned offset,unsigned stride);
 	virtual void		setVertexFormat(VertexElement*    element);
 
 	virtual void		beginScene();
-	virtual void		endScene();
+	virtual void		endScene() 	;
 
-	virtual void		drawPrimitive(unsigned primitives,unsigned first,unsigned count);
+	//Rendering commands (all using vbo as data source)
+	virtual void		drawPrimitive(renderer::Primitive::type primitives,unsigned first,unsigned count);//Render non-idexed primitive assembled as {primitves},starting from element {first} with count of elements (vertices)
+	virtual void		drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* indexBuffer);//Type is described by DataType
 
-	virtual void		drawIndexedPrimitive(unsigned primitives,unsigned count,unsigned type,VertexBufferObject* buf);
+	virtual void		drawPrimitive(renderer::Primitive::type primitives,unsigned first,unsigned count,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData);//Render non-idexed primitive assembled as {primitves},starting from element {first} with count of elements (vertices)
+	virtual void		drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* indexBuffer,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData);//Type is described by DataType
 
-	virtual void		drawPrimitive(unsigned primitives,unsigned first,unsigned count,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData);//Render non-idexed primitive assembled as {primitves},starting from element {first} with count of elements (vertices)
-	virtual void		drawIndexedPrimitive(unsigned primitives,unsigned count,unsigned type,VertexBufferObject* indexBuffer,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData);//Type is described by DataType
-
-	virtual void		setRenderMode(unsigned side,unsigned mode);
-
-
-	virtual Framebuffer*		createFramebuffer();
-
-	virtual void				destroyFramebuffer(Framebuffer* buf);
-
-	virtual Shader*				createShader();
-
-	virtual void		destroyShader(Shader* shad);
-
+	//VBO (all said above is applicable to functions from this section
+	virtual VertexBufferObject*
+						createVertexBufferObject();
+	virtual void		destroyVertexBufferObject(VertexBufferObject*	buf);
+	//Frame buffers
+	virtual Framebuffer*	createFramebuffer(); //Creates a framebuffer
+	virtual void			destroyFramebuffer(Framebuffer* buf);
+	//Shaders
+	virtual Shader*			createShader();
+	virtual void			destroyShader(Shader* shad);
+	//Write modes
 	virtual void			setColorWrite(bool r,bool g,bool b,bool a);
-
 	virtual void			setDepthWrite(bool d);
 
-	virtual void enableCulling();
+	//Textures
+	virtual Texture*	createTexture(); //Creates the texture object. Preferably called by the texture manager
+	virtual void		destroyTexture(Texture* texture);//Destroys the texture. NB, as always, all allocated objects are freed on driver destroy
+	virtual void		setTexture(renderer::TextureUnit::type unit, Texture* tex);
 
-	virtual void disableCulling();
-
-	virtual void setFrontFace(unsigned FrontFace);//As described by FrontFace namespace
-
-	virtual void setCullFace(unsigned Face); //As described by RenderSide namespace
-
-	virtual void enablePolygonOffset();
-
-	virtual void disablePolygonOffset();
-
-	virtual void setPolygonOffset(float factor,float units);
 private:
 	//Geometry shader support
 	unsigned				m_Futures;
@@ -214,6 +186,14 @@ private:
 	};
 
 	VertexFormat*		m_VF;
+	float				m_ViewPort[4];
+	EString				m_RendererName;
+	EString				m_RendererVendor;
+	int					m_MaxTextureSize;
+	int					m_MaxCubeTextureSize;
+	int					m_Max3DTextureSize;
+	int					m_NumDrawBuffers;
+	int					m_TextureUnits;
 };
 }
 }

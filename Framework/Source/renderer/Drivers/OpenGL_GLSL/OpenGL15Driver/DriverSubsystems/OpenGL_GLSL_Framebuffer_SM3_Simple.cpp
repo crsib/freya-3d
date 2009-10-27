@@ -60,7 +60,7 @@ void		OpenGL_GLSL_Framebuffer::unbind()
 
 }
 
-void		OpenGL_GLSL_Framebuffer::attachRenderBuffer(unsigned attach_to,unsigned internalFormat)
+void		OpenGL_GLSL_Framebuffer::attachRenderBuffer(renderer::FramebufferAttachment::type attach_to,renderer::TextureInternalFormat::type internalFormat)
 {
 	GLuint  rb;
 	glGenRenderbuffersEXT(1,&rb);
@@ -85,7 +85,7 @@ void		OpenGL_GLSL_Framebuffer::attachRenderBuffer(unsigned attach_to,unsigned in
 	m_RenderBuffers.push_back(rb);
 }
 
-void		OpenGL_GLSL_Framebuffer::detachRenderBuffer(unsigned detach_from)
+void		OpenGL_GLSL_Framebuffer::detachRenderBuffer(renderer::FramebufferAttachment::type detach_from)
 {
 	if(m_Bounded)
 	{
@@ -104,7 +104,7 @@ void		OpenGL_GLSL_Framebuffer::detachRenderBuffer(unsigned detach_from)
 
 }
 
-void		OpenGL_GLSL_Framebuffer::	attachTexture(unsigned attach_to,const Texture* tex,unsigned level)
+void		OpenGL_GLSL_Framebuffer::	attachTexture(renderer::FramebufferAttachment::type attach_to,const Texture* tex,unsigned level)
 {
 	unsigned type = tex->getTextureType();
 	if(m_Bounded)
@@ -141,7 +141,7 @@ void		OpenGL_GLSL_Framebuffer::	attachTexture(unsigned attach_to,const Texture* 
 	}
 }
 
-void		OpenGL_GLSL_Framebuffer::	attachTexture(unsigned attach_to,const Texture* tex,unsigned side,unsigned level)
+void		OpenGL_GLSL_Framebuffer::	attachTexture(renderer::FramebufferAttachment::type attach_to,const Texture* tex,unsigned side,unsigned level)
 {
 	unsigned type = tex->getTextureType();
 	if(m_Bounded)
@@ -177,14 +177,14 @@ void		OpenGL_GLSL_Framebuffer::	attachTexture(unsigned attach_to,const Texture* 
 }
 
 
-void		OpenGL_GLSL_Framebuffer::	drawBuffers(unsigned size,unsigned* bufs)
+void		OpenGL_GLSL_Framebuffer::	drawBuffers(unsigned size,renderer::FramebufferAttachment::type * bufs)
 {
 	m_DrawBuffers.clear();
 	for(unsigned i = 0; i < size; i++)
 		m_DrawBuffers.push_back(OpenGL_GLSL_Tables::FramebufferAttachment[bufs[i]]);
 }
 
-void		OpenGL_GLSL_Framebuffer::readBuffer(unsigned buf)
+void		OpenGL_GLSL_Framebuffer::readBuffer(renderer::FramebufferAttachment::type buf)
 {
 	m_ReadBuffer = OpenGL_GLSL_Tables::FramebufferAttachment[buf];
 }

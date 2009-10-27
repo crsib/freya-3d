@@ -39,17 +39,17 @@ public:
 
 	virtual void		unbind();
 
-	virtual void		attachRenderBuffer(unsigned attach_to,unsigned internalFormat);
+	virtual void		attachRenderBuffer(renderer::FramebufferAttachment::type attach_to,renderer::TextureInternalFormat::type internalFormat);
 
-	virtual void		detachRenderBuffer(unsigned detach_from);
+	virtual void		detachRenderBuffer(renderer::FramebufferAttachment::type detach_from);
 
-	virtual void		attachTexture(unsigned attach_to,const Texture* tex,unsigned level = 0);
+	virtual void		attachTexture(renderer::FramebufferAttachment::type attach_to,const Texture* tex,unsigned level = 0);
 
-	virtual void		attachTexture(unsigned attach_to,const Texture* tex,unsigned side,unsigned level = 0);
+	virtual void		attachTexture(renderer::FramebufferAttachment::type attach_to,const Texture* tex,unsigned side,unsigned level = 0);
 
-	virtual void		drawBuffers(unsigned size,unsigned* bufs);
+	virtual void		drawBuffers(unsigned size,renderer::FramebufferAttachment::type * bufs);
 
-	virtual void		readBuffer(unsigned buf);
+	virtual void		readBuffer(renderer::FramebufferAttachment::type buf);
 
 	virtual unsigned	maxColorAttachments() const;
 

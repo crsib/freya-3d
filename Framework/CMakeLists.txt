@@ -1,4 +1,5 @@
 MESSAGE("Generating build dependencies for FreyaCore")
+MESSAGE(STATUS "Building Framework using: ${CMAKE_BUILD_TYPE}")
 SET(FREYA_CORE_SOURCES 
 #Application settings global include
 Include/application-settings.h

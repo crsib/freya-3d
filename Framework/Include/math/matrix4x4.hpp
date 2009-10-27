@@ -92,7 +92,7 @@ public:
 
 	//Projection
 	static
-	matrix4x4   orthoProjection(float top,float left,float bootom,float right,float nearPlane,float farPlane);
+	matrix4x4   orthoProjection(float left,float top,float right,float bottom,float nearPlane,float farPlane);
 
 	static
 	matrix4x4	perspectiveProjection(float fovy,float aspect, float nearPlane, float farPlane);
@@ -726,7 +726,7 @@ matrix4x4 fast_inversed(const matrix4x4& m)
 
 //Projection
 inline
-matrix4x4   matrix4x4::orthoProjection(float top,float left,float bottom,float right,float nearPlane,float farPlane)
+matrix4x4   matrix4x4::orthoProjection(float left,float top,float right,float bottom,float nearPlane,float farPlane)
 {
 	float _1_rl, _1_tb,_1_fn;
 

@@ -23,7 +23,7 @@ void main(void)
 	lt = vec3 ( dot ( l, t ), dot ( l, b ), dot ( l, n ) );
 	ht = vec3 ( dot ( h, t ), dot ( h, b ), dot ( h, n ) );
 
-	gl_Position     = gl_ModelViewProjectionMatrix * gl_Vertex;
+	gl_Position     = gl_ProjectionMatrix * gl_TextureMatrix[0] * gl_ModelViewMatrix * gl_Vertex;
 	gl_TexCoord [0] = gl_MultiTexCoord0;
 }
 
