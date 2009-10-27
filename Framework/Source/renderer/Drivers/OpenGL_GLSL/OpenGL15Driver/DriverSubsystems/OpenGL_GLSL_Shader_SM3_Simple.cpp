@@ -38,7 +38,7 @@ OpenGL_GLSL_Shader::~OpenGL_GLSL_Shader()
 	m_ShaderList.clear();
 }
 
-void		OpenGL_GLSL_Shader::addShader(unsigned type,const EString& data)
+void		OpenGL_GLSL_Shader::addShader(renderer::ShaderType::type type,const EString& data)
 {
 	GLhandleARB		shader;
 	//Create a correct object to hold our shader
@@ -670,7 +670,7 @@ void		OpenGL_GLSL_Shader::	 setAttribute(const EString& name,const math::vector3
 	setAttribute(getAttributeLocation(name),val,val2);
 }
 
-void		OpenGL_GLSL_Shader:: setGeometryShader(unsigned maxOutVerts,unsigned inType,unsigned outType)
+void		OpenGL_GLSL_Shader:: setGeometryShader(unsigned maxOutVerts,renderer::Primitive::type inType,renderer::Primitive::type outType)
 {
 	glProgramParameteriEXT(m_ShaderObject,GL_GEOMETRY_VERTICES_OUT_EXT,maxOutVerts);
 	glProgramParameteriEXT(m_ShaderObject,GL_GEOMETRY_INPUT_TYPE_EXT,inType);

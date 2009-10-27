@@ -24,27 +24,27 @@ protected:
 	OpenGL_GLSL_VertexBufferObject();
 	virtual ~OpenGL_GLSL_VertexBufferObject();
 public:
-	virtual void		setTarget(unsigned target);
+	virtual void		setTarget(renderer::VBOTarget::type target);
 
 	virtual void		bind();
 
-	virtual void		bind(unsigned target);
+	virtual void		bind(renderer::VBOTarget::type target);
 
 	virtual void		unbind();
 
-	virtual void*		map(unsigned access);
+	virtual void*		map(renderer::VBOAccess::type access);
 
 	virtual void		unmap();
 
-	virtual void		setData(unsigned target,unsigned usage,size_t size,void* p);
+	virtual void		setData(renderer::VBOTarget::type target,renderer::VBOUsage::type usage,size_t size,void* p);
 
-	virtual void		setData(unsigned usage,size_t size,void* p);
+	virtual void		setData(renderer::VBOUsage::type usage,size_t size,void* p);
 
-	virtual void		setSubData(unsigned target,size_t offs,size_t size,void *p);
+	virtual void		setSubData(renderer::VBOTarget::type target,size_t offs,size_t size,void *p);
 
 	virtual void		setSubData(size_t offs,size_t size,void* p);
 
-	virtual void		getSubData(unsigned target,size_t offs,size_t size,void *p);
+	virtual void		getSubData(renderer::VBOTarget::type target,size_t offs,size_t size,void *p);
 
 	virtual void		getSubData(size_t offs,size_t size,void* p);
 

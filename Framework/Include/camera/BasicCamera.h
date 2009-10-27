@@ -57,11 +57,7 @@ public:
 
 	void applyRenderingSettings()
 	{
-		rapi->setMatrixMode(renderer::MatrixMode::PROJECTION);
-		rapi->loadIdentityMatrix();
-		rapi->setPerspective(m_FieldOfView,m_Aspect,m_Near,m_Far);
-		rapi->setMatrixMode(renderer::MatrixMode::WORLD);
-		rapi->loadIdentityMatrix();
+		rapi->setMatrix(renderer::Matrix::PROJECTION,math::matrix4x4::perspectiveProjection(m_FieldOfView,m_Aspect,m_Near, m_Far));
 	}
 	void applyRenderingSettings(float FOW,float Aspect,float Near,float Far)
 	{
@@ -70,27 +66,12 @@ public:
 		m_FieldOfView = FOW;
 		m_Aspect = Aspect;
 
-		rapi->setMatrixMode(renderer::MatrixMode::PROJECTION);
-		rapi->loadIdentityMatrix();
-		rapi->setPerspective(m_FieldOfView,m_Aspect,m_Near,m_Far);
-		rapi->setMatrixMode(renderer::MatrixMode::WORLD);
-		rapi->loadIdentityMatrix();
+		rapi->setMatrix(renderer::Matrix::PROJECTION,math::matrix4x4::perspectiveProjection(m_FieldOfView,m_Aspect,m_Near, m_Far));
 	}
 
 	virtual void apply()
 	{
-		//Please, do it in a more optimal way. And actually, there is some mis understand of ModelView matrix here
-		//We multiply our matrix with a projection (for OpenGL compatibility with only matrices for general transformation)
-		//Actually, the following happens P*Cam*Modelview*Vertex
-		//This greatly helps in developement
-		rapi->setMatrixMode(renderer::MatrixMode::PROJECTION);
-		//rapi->loadIdentityMatrix();
-		//rapi->setPerspective(m_FieldOfView,m_Aspect,m_Near,m_Far);
-
-		rapi->loadMatrix(math::matrix4x4::perspectiveProjection(m_FieldOfView,m_Aspect,m_Near, m_Far)*math::matrix4x4::lookat(m_Position,m_Position+m_Direction,m_Up));
-		rapi->setMatrixMode(renderer::MatrixMode::WORLD);
-		rapi->loadIdentityMatrix();
-		//rapi->multMatrix(math::matrix4x4(m));
+		rapi->setMatrix(renderer::Matrix::VIEW,math::matrix4x4::lookat(m_Position,m_Position+m_Direction,m_Up));
 	}
 
 	float *getModelViewInverse()
@@ -120,22 +101,12 @@ public:
 
 	void enter2D(int width, int height)
 	{
-		rapi->setMatrixMode(renderer::MatrixMode::PROJECTION);
-		rapi->loadIdentityMatrix();
-		rapi->setOrtho(width, height);
-		rapi->setMatrixMode(renderer::MatrixMode::MODELVIEW);
-		rapi->loadIdentityMatrix();
-		rapi->disableDepthTest();
+		rapi->setMatrix(renderer::Matrix::PROJECTION,math::matrix4x4::orthoProjection(0,0,width,height,-1,1));
 	}
 
 	void leave2D()
 	{
-		rapi->setMatrixMode(renderer::MatrixMode::PROJECTION);
-		rapi->loadIdentityMatrix();
-		rapi->setPerspective(m_FieldOfView, m_Aspect, m_Near, m_Far);
-		rapi->setMatrixMode(renderer::MatrixMode::MODELVIEW);
-		rapi->loadIdentityMatrix();
-		rapi->enableDepthTest();
+		rapi->setMatrix(renderer::Matrix::PROJECTION,math::matrix4x4::perspectiveProjection(m_FieldOfView,m_Aspect,m_Near, m_Far));
 	}
 
 	void generateFrustum()

@@ -24,6 +24,8 @@ namespace memory
 #include "core/filesystem/drivers/3party/7zip/7zIn.h"
 #include "core/filesystem/drivers/3party/7zip/7zExtract.h"
 
+#include "core/multithreading/Mutex.h"
+#include "core/multithreading/Lock.h"
 
 namespace core
 {
@@ -102,11 +104,12 @@ public:
 	virtual void remove(const EString& path);
 
 private:
-	FileList				m_FileList;
-	CFileInStream 			m_ArchiveStream;
-	CArchiveDatabaseEx 		m_Db;
-	UInt32 					m_BlockIndex;
-	unsigned				m_Ready;
+	FileList						m_FileList;
+	CFileInStream 					m_ArchiveStream;
+	CArchiveDatabaseEx 				m_Db;
+	UInt32 							m_BlockIndex;
+	unsigned						m_Ready;
+	core::multithreading::Mutex*	m_Mutex;
 
 }; //End of LzmaDriver class
 

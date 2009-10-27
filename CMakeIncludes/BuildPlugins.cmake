@@ -4,9 +4,11 @@ INCLUDE( AddPlugin )
 
 #Defaults are Local & LZMA filesystems. Both build dynamicaly
 MESSAGE( "Configuring filesystem plugins" )
+SET(BUILD_LOCAL_FILESYSTEM_DRIVER_RELEASE YES)
 SET(BUILD_LOCAL_FILESYSTEM_DRIVER YES)
 SET(BUILD_SHARED_LOCAL_FILESYSTEM_DRIVER YES)
 
+SET(BUILD_LZMA_FILESYSTEM_DRIVER_RELEASE YES )
 SET(BUILD_LZMA_FILESYSTEM_DRIVER  YES)
 SET(BUILD_SHARED_LZMA_FILESYSTEM_DRIVER  YES)
 GET_PROPERTY ( FREYA_CORE_LINK_LIBRARIES GLOBAL PROPERTY FREYA_CORE_LINK_LIBRARIES_GLOBAL )
@@ -17,7 +19,7 @@ ADD_SUBDIRECTORY( Framework/Source/core/filesystem/drivers )
 GET_PROPERTY ( FREYA_CORE_LINK_LIBRARIES GLOBAL PROPERTY FREYA_CORE_LINK_LIBRARIES_GLOBAL )
 
 #Default is SDL driver.
-MESSAGE( "Configuring windowmanager plugins. This will be changed with with input plugins in future releases" )
+MESSAGE( "Configuring windowmanager plugins." )
 
 SET( BUILD_SDL_WINDOWMANAGER_DRIVER YES )
 SET( BUILD_SHARED_SDL_WINDOWMANAGER_DRIVER YES )
@@ -28,7 +30,7 @@ ADD_SUBDIRECTORY ( Framework/Source/windowmanager/Drivers/SDL )
 
 #Default is various version of OpenGL plugins.
 
-MESSAGE( "Configuring renderer plugins. This will highly changed in the future" )
+MESSAGE( "Configuring renderer plugins." )
 
 GET_PROPERTY ( FREYA_CORE_LINK_LIBRARIES GLOBAL PROPERTY FREYA_CORE_LINK_LIBRARIES_GLOBAL )
 

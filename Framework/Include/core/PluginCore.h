@@ -196,7 +196,7 @@ public:
 	 */
 	virtual void								destroyThread(core::multithreading::Thread* thrd) = 0;
 	//! Create a mutex
-	 core::multithreading::Mutex*		createMutex();
+	virtual core::multithreading::Mutex*		createMutex() = 0;
 	//! Destroy a mutex
 	virtual void								destroyMutex(core::multithreading::Mutex*  mutex) = 0;
 	//! Create a condition variable

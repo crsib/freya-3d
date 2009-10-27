@@ -8,4 +8,7 @@ $pfile "math/matrix3x3.lpkg"
 $pfile "math/matrix4x4.lpkg"
 $pfile "math/wrap_math.lpkg"
 $pfile "math/plane.lpkg"
+
+
+//CEGUI
 $pfile "../../../../3party/cegui/src/ScriptingModules/LuaScriptModule/package/CEGUI.pkg"
