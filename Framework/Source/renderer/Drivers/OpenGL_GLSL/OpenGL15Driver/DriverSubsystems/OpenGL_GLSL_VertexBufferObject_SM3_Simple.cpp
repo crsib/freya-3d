@@ -22,7 +22,7 @@ OpenGL_GLSL_VertexBufferObject::~OpenGL_GLSL_VertexBufferObject()
 	glDeleteBuffersARB(1,&m_Buffer);
 }
 
-void		OpenGL_GLSL_VertexBufferObject::setTarget(unsigned target)
+void		OpenGL_GLSL_VertexBufferObject::setTarget(renderer::VBOTarget::type target)
 {
 	m_DefaultTarget = OpenGL_GLSL_Tables::VBOType[target];
 	m_DefaultInternal = target;
@@ -36,7 +36,7 @@ void		OpenGL_GLSL_VertexBufferObject::bind()
 	m_IsBounded	=	true;
 }
 
-void		OpenGL_GLSL_VertexBufferObject::bind(unsigned target)
+void		OpenGL_GLSL_VertexBufferObject::bind(renderer::VBOTarget::type target)
 {
 	m_BoundedTarget = OpenGL_GLSL_Tables::VBOType[target];
 	m_BoundedInternal = target;
@@ -56,7 +56,7 @@ void		OpenGL_GLSL_VertexBufferObject::	unbind()
 	}
 }
 
-void*		OpenGL_GLSL_VertexBufferObject::map(unsigned access)
+void*		OpenGL_GLSL_VertexBufferObject::map(renderer::VBOAccess::type access)
 {
 	GLint active;
 	void* addr;
@@ -111,7 +111,7 @@ void		OpenGL_GLSL_VertexBufferObject::   unmap()
 	if(!addr) throw 0;
 }
 
-void		OpenGL_GLSL_VertexBufferObject::setData(unsigned target,unsigned usage,size_t size,void* p)
+void		OpenGL_GLSL_VertexBufferObject::setData(renderer::VBOTarget::type target,renderer::VBOUsage::type usage,size_t size,void* p)
 {
 	if(m_IsBounded)
 	{
@@ -135,7 +135,7 @@ void		OpenGL_GLSL_VertexBufferObject::setData(unsigned target,unsigned usage,siz
 	}
 }
 
-void		OpenGL_GLSL_VertexBufferObject::setData(unsigned usage,size_t size,void* p)
+void		OpenGL_GLSL_VertexBufferObject::setData(renderer::VBOUsage::type usage,size_t size,void* p)
 {
 	if(m_IsBounded)
 	{
@@ -159,7 +159,7 @@ void		OpenGL_GLSL_VertexBufferObject::setData(unsigned usage,size_t size,void* p
 	}
 }
 
-void		OpenGL_GLSL_VertexBufferObject::setSubData(unsigned target,size_t offs,size_t size,void *p)
+void		OpenGL_GLSL_VertexBufferObject::setSubData(renderer::VBOTarget::type target,size_t offs,size_t size,void *p)
 {
 	if(m_IsBounded)
 	{
@@ -207,7 +207,7 @@ void		OpenGL_GLSL_VertexBufferObject::setSubData(size_t offs,size_t size,void* p
 	}
 }
 
-void		OpenGL_GLSL_VertexBufferObject::getSubData(unsigned target,size_t offs,size_t size,void *p)
+void		OpenGL_GLSL_VertexBufferObject::getSubData(renderer::VBOTarget::type target,size_t offs,size_t size,void *p)
 {
 	if(m_IsBounded)
 	{

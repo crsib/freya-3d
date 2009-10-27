@@ -29,7 +29,7 @@ OpenGL_GLSL_Texture::~OpenGL_GLSL_Texture()
 	//VBO is auto-cleaned
 }
 
-void		OpenGL_GLSL_Texture::loadTexture(unsigned TextureType,unsigned level,unsigned TextureInternalFormat,unsigned TextureStorageFormat,unsigned TextureStorage,unsigned width,unsigned height,void* data)
+void		OpenGL_GLSL_Texture::loadTexture(renderer::TextureType::type TextureType,unsigned level,renderer::TextureInternalFormat::type TextureInternalFormat,renderer::TextureFormat::type TextureStorageFormat,renderer::TextureStorage::type TextureStorage,unsigned width,unsigned height,void* data)
 {
 	m_Target = OpenGL_GLSL_Tables::TextureType[TextureType];
 	m_InternalTarget = TextureType;
@@ -94,7 +94,7 @@ void		OpenGL_GLSL_Texture::loadTexture(unsigned TextureType,unsigned level,unsig
 }
 
 
-void		OpenGL_GLSL_Texture::loadTexture(unsigned TextureType,unsigned level,unsigned TextureInternalFormat,unsigned TextureStorageFormat,unsigned TextureStorage,unsigned width,unsigned height,unsigned side_or_depth,void* data)
+void		OpenGL_GLSL_Texture::loadTexture(renderer::TextureType::type TextureType,unsigned level,renderer::TextureInternalFormat::type TextureInternalFormat,renderer::TextureFormat::type TextureStorageFormat,renderer::TextureStorage::type TextureStorage,unsigned width,unsigned height,unsigned side_or_depth,void* data)
 {
 	m_SourceStorage  = OpenGL_GLSL_Tables::TextureStorage[TextureStorage];
 	m_SourceFormat   = OpenGL_GLSL_Tables::TextureFormat[TextureStorageFormat];
@@ -119,7 +119,7 @@ void		OpenGL_GLSL_Texture::loadTexture(unsigned TextureType,unsigned level,unsig
 			throw renderer::DriverException("Invalid texture internal format");
 		m_VBO[ind].setDepth(side_or_depth);
 		m_VBO[ind]->bind();
-		m_VBO[ind]->setData(VBOUsage::STATIC_DRAW,side_or_depth,width*height*OpenGL_GLSL_Tables::TextureStorageSize[TextureStorage]*OpenGL_GLSL_Tables::TextureComponentsNumber[TextureStorageFormat],data);
+		m_VBO[ind]->setData(VBOUsage::STATIC_DRAW,side_or_depth*width*height*OpenGL_GLSL_Tables::TextureStorageSize[TextureStorage]*OpenGL_GLSL_Tables::TextureComponentsNumber[TextureStorageFormat],data);
 		m_VBO[ind].setComponentSize(side_or_depth*OpenGL_GLSL_Tables::TextureStorageSize[TextureStorage]*OpenGL_GLSL_Tables::TextureComponentsNumber[TextureStorageFormat]);
 		glBindTexture(m_Target,m_Texture);
 		glPixelStorei ( GL_UNPACK_ALIGNMENT, 1 );
@@ -176,12 +176,12 @@ void		OpenGL_GLSL_Texture::loadTexture(unsigned TextureType,unsigned level,unsig
 	m_VBO[ind].setVBO(NULL);
 }
 
-unsigned		OpenGL_GLSL_Texture::getTextureType() const
+renderer::TextureType::type		OpenGL_GLSL_Texture::getTextureType() const
 {
 	return m_InternalTarget;
 }
 
-unsigned		OpenGL_GLSL_Texture::getTextureUnit() const
+renderer::TextureUnit::type 	OpenGL_GLSL_Texture::getTextureUnit() const
 {
 	return m_Bounded ? m_BoundedUnit : m_DefaultUnit;
 }
@@ -251,7 +251,7 @@ void		OpenGL_GLSL_Texture:: unmap(unsigned level,unsigned side)
 	m_VBO[ind].setVBO(NULL);
 }
 
-void		OpenGL_GLSL_Texture:: setUnit(unsigned unit)
+void		OpenGL_GLSL_Texture:: setUnit(renderer::TextureUnit::type unit)
 {
 	m_DefaultUnit = unit;
 }
@@ -266,7 +266,7 @@ void		OpenGL_GLSL_Texture:: bind()
 	glActiveTextureARB(OpenGL_GLSL_Tables::TextureUnit[TextureUnit::TEXTURE0]);
 }
 
-void		OpenGL_GLSL_Texture:: bind(unsigned unit)
+void		OpenGL_GLSL_Texture:: bind(renderer::TextureUnit::type unit)
 {
 	m_Bounded = true;
 	m_BoundedUnit = unit;
@@ -288,7 +288,7 @@ void		OpenGL_GLSL_Texture:: unbind()
 	}
 }
 
-void		OpenGL_GLSL_Texture:: setMinFilter(unsigned filter)
+void		OpenGL_GLSL_Texture:: setMinFilter(renderer::TextureFiltering::type filter)
 {
 	unsigned wasBounded = !m_Bounded;
 	if(wasBounded)
@@ -301,7 +301,7 @@ void		OpenGL_GLSL_Texture:: setMinFilter(unsigned filter)
 		unbind();
 }
 
-void		OpenGL_GLSL_Texture:: setMagFilter(unsigned filter)
+void		OpenGL_GLSL_Texture:: setMagFilter(renderer::TextureFiltering::type filter)
 {
 	unsigned wasBounded = !m_Bounded;
 	if(wasBounded)
@@ -327,7 +327,7 @@ void		OpenGL_GLSL_Texture:: setAnisotropy(float val)
 		unbind();
 }
 
-void		OpenGL_GLSL_Texture:: generateMipMaps(bool val)
+void		OpenGL_GLSL_Texture:: generateMipMaps()
 {
 	unsigned wasBounded = !m_Bounded;
 	if(wasBounded)
@@ -341,7 +341,7 @@ void		OpenGL_GLSL_Texture:: generateMipMaps(bool val)
 		unbind();
 }
 
-void		OpenGL_GLSL_Texture::   clampS(unsigned clamp)
+void		OpenGL_GLSL_Texture::   clampS(renderer::TextureClamping::type clamp)
 {
 	unsigned wasBounded = !m_Bounded;
 	if(wasBounded)
@@ -353,7 +353,7 @@ void		OpenGL_GLSL_Texture::   clampS(unsigned clamp)
 		unbind();
 }
 
-void		OpenGL_GLSL_Texture::   clampT(unsigned clamp)
+void		OpenGL_GLSL_Texture::   clampT(renderer::TextureClamping::type clamp)
 {
 	unsigned wasBounded = !m_Bounded;
 	if(wasBounded)
@@ -365,7 +365,7 @@ void		OpenGL_GLSL_Texture::   clampT(unsigned clamp)
 		unbind();
 }
 
-void		OpenGL_GLSL_Texture::   clampR(unsigned clamp)
+void		OpenGL_GLSL_Texture::   clampR(renderer::TextureClamping::type clamp)
 {
 	unsigned wasBounded = !m_Bounded;
 	if(wasBounded)
@@ -377,7 +377,7 @@ void		OpenGL_GLSL_Texture::   clampR(unsigned clamp)
 		unbind();
 }
 
-void		OpenGL_GLSL_Texture::   clampQ(unsigned clamp)
+void		OpenGL_GLSL_Texture::   clampQ(renderer::TextureClamping::type clamp)
 {
 	//glTexParameteri(m_Target,GL_TEXTURE_WRAP_Q,OpenGL_GLSL_Tables::TextureClamping[clamp]);
 }

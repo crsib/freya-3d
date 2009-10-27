@@ -1,14 +1,16 @@
 #ifndef CPLANE_H_
 #define CPLANE_H_
 
-#include "math/vector3d.hpp"
-#include "math/quaternion.hpp"
+#include "math_internal.h"
+#include "vector3d.hpp"
+#include "quaternion.hpp"
 
 namespace math
 {
-class plane : public MathSubsystem
+class plane
 {
 public:
+	MATH_MEMORY_FUNCTIONS
 	enum
 	{
 		IN_FRONT =  1,
@@ -81,7 +83,7 @@ public:
 	void rotate(const vector3d & Dir, float angle)
 	{
 		vector3d p(-m_Distance * m_Normal);
-		quaternion quat(Dir, angle);
+		quaternion quat = quaternion::rotationQuat(angle,Dir);
 		m_Normal = quat.rotate(m_Normal);
 		m_Distance = -(p, m_Normal);
 	}

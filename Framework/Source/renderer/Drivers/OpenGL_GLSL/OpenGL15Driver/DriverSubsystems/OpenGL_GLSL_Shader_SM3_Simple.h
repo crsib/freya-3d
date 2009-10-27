@@ -34,7 +34,7 @@ public:
 	 * \param data is a string, containing shader source
 	 * \throw ShaderException on any error occurred (detailed description is written to log)
 	 */
-	virtual void addShader(unsigned type,const EString& data);//adds a compiled from data source shader of type {type} (described by ShaderType namespace)
+	virtual void addShader(renderer::ShaderType::type type,const EString& data);//adds a compiled from data source shader of type {type} (described by ShaderType namespace)
 	//! Add sources for vertex and fragment (pixel) shader
 	/*!
 	 * Compiles and adds source for both vertex and fragment (pixel) shaders. Linkage is not done.
@@ -177,7 +177,7 @@ public:
 	 *\param inType is a type of input primitive described by Primitive
 	 *\param outType is a type of output primitive described by Primitive
 	 */
-	virtual void	 setGeometryShader(unsigned maxOutVerts,unsigned inType,unsigned outType);//inType and outType are decribed by Primitives namespace
+	virtual void	 setGeometryShader(unsigned maxOutVerts,renderer::Primitive::type inType,renderer::Primitive::type outType);//inType and outType are decribed by Primitives namespace
 
 	//Samplers (are uniforms)
 	//! Set the texture to shader

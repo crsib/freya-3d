@@ -13,14 +13,14 @@ namespace renderer
 //Matrix mode
 
 //!Matrix mode constants
-namespace MatrixMode
+namespace Matrix
 {
-enum TYPE
+enum type
 {
 	//!Model matrix
 	MODEL,WORLD = MODEL, //View/modelview matricies
 	//!Modelview matrix (same as projection now)
-	MODELVIEW,
+	VIEW,
 	//!Projection matrix
 	PROJECTION,//Projection matricies
 	//!Matrix for texture unit 0
@@ -94,7 +94,7 @@ enum TYPE
 //!Texture unit constants
 namespace TextureUnit
 {
-enum TYPE
+enum type
 {
 	//! Texture unit 0
 	TEXTURE0, //Texture unit
@@ -165,7 +165,7 @@ enum TYPE
 //!Texture type constants
 namespace TextureType
 {
-enum TYPE
+enum type
 {
 	//!1D texture
 	TEXTURE_1D, //1d textures
@@ -182,7 +182,7 @@ enum TYPE
 //! Internal texture formats (the way texture is represented inside accelerator)
 namespace TextureInternalFormat
 {
-enum TYPE
+enum type
 {
 	//! 4-bit alpha channel
 	ALPHA4,
@@ -307,7 +307,7 @@ enum TYPE
 //! Texture external storage format
 namespace TextureStorage
 {
-enum TYPE
+enum type
 {
 	//! Components stored as unsigned byte
 	UNSIGNED_BYTE,
@@ -329,7 +329,7 @@ enum TYPE
 //! External texture representation format
 namespace TextureFormat
 {
-enum TYPE
+enum type
 {
 	//! Stored value is an index to palet (left for compatibility only)
 	COLOR_INDEX,
@@ -358,7 +358,7 @@ enum TYPE
 //! Texture filtering modes
 namespace TextureFiltering
 {
-enum TYPE
+enum type
 {
 	//! Filtering is disabled
 	NEAREST,
@@ -377,7 +377,7 @@ enum TYPE
 //! Texture clamping modes
 namespace TextureClamping
 {
-enum TYPE
+enum type
 {
 	//! Clamp texture coordinates to [0,1]
 	CLAMP,
@@ -392,7 +392,7 @@ enum TYPE
 //! Sides of cube textures (NOTE: to resolve cross-api portability the default coordinate system is treated in OpenGL way. E.g. the right triplet)
 namespace CubeTextureSide
 {
-enum TYPE
+enum type
 {
 	//!Positive x (e.g. right) side
 	X_POSITIVE,
@@ -411,7 +411,7 @@ enum TYPE
 //! Texture coordinates
 namespace TextureCoord
 {
-enum TYPE
+enum type
 {
 	//!S coordinate
 	S,
@@ -426,7 +426,7 @@ enum TYPE
 //! Texture generation modes
 namespace TextureGenMode
 {
-enum TYPE
+enum type
 {
 	//! Generate with respect to object
 	OBJECT_LINEAR,
@@ -445,7 +445,7 @@ enum TYPE
 //! Vertex buffer object target (e.g. how the vertex buffer will be threated)
 namespace VBOType //Type of a buffer
 {
-enum TYPE
+enum type
 {
 	//! Buffer is a normal vertex buffer
 	VERTEX,//Vertex buffer
@@ -463,7 +463,7 @@ namespace VBOTarget = VBOType;
 //!
 namespace VBOUsage	//Comment for video driver on how to use buffer data
 {
-enum TYPE
+enum type
 {
 	//! Buffer data is changed rarely and used mostly for drawing
 	STREAM_DRAW, //As described in VBO OpenGL spec
@@ -489,7 +489,7 @@ enum TYPE
 //! VBO access modes to mapped memory
 namespace VBOAccess //The way in which buffer is mapped into the client memory
 {
-enum TYPE
+enum type
 {
 	//! Access is read only
 	READ_ONLY,
@@ -504,7 +504,7 @@ enum TYPE
 //! The type of primitives for rendering
 namespace Primitive
 {
-enum TYPE
+enum type
 {
 	//! Each vertex is treated as a single point
 	POINTS,
@@ -534,7 +534,7 @@ enum TYPE
 // Render side modes (for various culling routines etc)
 namespace RenderSide
 {
-enum TYPE
+enum type
 {
 	//! Front side
 	FRONT,
@@ -549,7 +549,7 @@ enum TYPE
 //! The way the rendering is performed
 namespace RenderMode
 {
-enum TYPE
+enum type
 {
 	//! Render all vertices as points
 	POINT,
@@ -562,7 +562,7 @@ enum TYPE
 //! Type used for data storage
 namespace DataType
 {
-enum TYPE
+enum type
 {
 	//! Data is represented by bytes
 	BYTE,
@@ -585,7 +585,7 @@ enum TYPE
 //! Represent state of client application data pointers (mostly for OpenGL compatibility)
 namespace ClientState
 {
-enum TYPE
+enum type
 {
 	//! Pointer to color index buffer
 	COLOR_INDEX_ARRAY,
@@ -603,7 +603,7 @@ enum TYPE
 //! Constants to various test functions
 namespace TestFunction
 {
-enum TYPE
+enum type
 {
 	//! return false
 	NEVER,
@@ -628,7 +628,7 @@ enum TYPE
 //! Stencil test operations
 namespace StencilOp
 {
-enum TYPE
+enum type
 {
 	//! Keep
 	KEEP,
@@ -653,7 +653,7 @@ enum TYPE
 namespace AlphaFunction
 {
 
-enum TYPE
+enum type
 {
 	//! \f$ f_i = (0,0,0,0) \f$
 	ZERO,
@@ -688,7 +688,7 @@ enum TYPE
  */
 namespace FogFunction
 {
-enum TYPE
+enum type
 {
 	//! \f$ f=\frac{end - c}{end-start}\f$
 	LINEAR,
@@ -702,7 +702,7 @@ enum TYPE
 //! The bypass direction for front face
 namespace FrontFace
 {
-enum TYPE
+enum type
 {
 	//! Clock wise bypass identifies front face
 	CLOCK_WISE,
@@ -715,7 +715,7 @@ enum TYPE
 //!Framebuffer attachments
 namespace FramebufferAttachment
 {
-enum TYPE
+enum type
 {
 	//! Color attachment 0
 	COLOR_ATTACHMENT0,
@@ -758,7 +758,7 @@ enum TYPE
 //! Status of framebuffer
 namespace FramebufferStatus
 {
-enum TYPE
+enum type
 {
 	//! Everything is ok
 	FRAMEBUFFER_COMPLETE,
@@ -783,7 +783,7 @@ enum TYPE
 //! Types of shader sources
 namespace ShaderType
 {
-enum TYPE
+enum type
 {
 	//! Vertex shader source
 	VERTEX,

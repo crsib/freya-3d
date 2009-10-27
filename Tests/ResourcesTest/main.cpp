@@ -82,7 +82,7 @@ int main(int argc, char** argV)
 		fs->mount("pwd");
 		fs->mount("lzma","Base.7z");
 
-		core.createRenderingDriver(renderer::futures::MULTITEXTURE | renderer::futures::AUTO_TRANSPOSE_MATIRIX |
+		core.createRenderingDriver(renderer::futures::MULTITEXTURE  |
 				renderer::futures::VERTEX_BUFFER | renderer::futures::TEXTURE_BUFFER |
 				renderer::futures::VERTEX_SHADER | renderer::futures::FRAGMENT_SHADER);
 		renderer::RenderingAPIDriver*		rapi = core.getRenderingDriver();
@@ -90,11 +90,8 @@ int main(int argc, char** argV)
 		resources::ResourceManager* rm =    core.getResourceManager();
 
 		//Setup renderer
-		rapi->setViewport(winWidth,winHeight);
-		rapi->setMatrixMode(renderer::MatrixMode::PROJECTION);
-		rapi->setOrtho(winWidth,winHeight,-1,1);
-		rapi->setMatrixMode(renderer::MatrixMode::MODELVIEW);
-		rapi->loadIdentityMatrix();
+		rapi->setViewport(0,0,winWidth,winHeight);
+	//	rapi->loadIdentityMatrix();
 		rapi->clearColorValue(0.2,0.4,0.8,1.0);
 		//Create keyboard
 		windowmanager::input::KeyDrivenDevice*		kbd = wm->createKeyDrivenDevice("keyboard");
