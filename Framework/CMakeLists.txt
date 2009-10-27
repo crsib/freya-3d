@@ -1,10 +1,10 @@
 MESSAGE("Generating build dependencies for FreyaCore")
+MESSAGE(STATUS "Building Framework using: ${CMAKE_BUILD_TYPE}")
 SET(FREYA_CORE_SOURCES 
 #Application settings global include
 Include/application-settings.h
 Include/camera/BasicCamera.h
 Include/camera/FlyCamera.h
-Include/camera/Frustum.h
 Include/camera/RotateCamera.h
 Include/config.h
 Include/core/PluginCore.h
@@ -118,7 +118,6 @@ Source/windowmanager/MouseButtonsNames.cpp
 Source/windowmanager/WindowManagerFactory.cpp
 Source/windowmanager/WMException.cpp
 Source/core/PluginCore.cpp
-Source/math/operations.cpp
 #Plugin subsystem
 Include/core/PluginLoader.h
 Source/core/PluginLoader.cpp
@@ -731,7 +730,7 @@ ENDIF()
 #Build cegui
 ADD_DEFINITIONS( -DCEGUI_STATIC -DCEGUI_WITH_XERCES -DCEGUI_FALAGARD_RENDERER -DCEGUI_CODEC_TGA )
 ADD_LIBRARY(cegui-freya STATIC ${CEGUI_SOURCE} )
-SET(FREYA_CORE_LINK_LIBRARIES ${FREYA_CORE_LINK_LIBRARIES} cegui-freya ${BULLET_LIBRARIES})
+SET(FREYA_CORE_LINK_LIBRARIES ${FREYA_CORE_LINK_LIBRARIES} cegui-freya ${BULLET_LIBRARIES} FreyaMath_core )
 
 #Generate library target depending on FREYA_CORE_SHARED
 	

@@ -36,14 +36,14 @@ public:
 	//! Generate message by shader type (described by ShaderType)
 	ShaderException(unsigned type)
 	{
-		m_Message = EString("Shader exception ocured while processing ") +
+		m_Message = EString("[renderer]: Shader exception ocured while processing ") +
 					EString((type != ShaderType::VERTEX) ? ((type == ShaderType::GEOMETRY) ? "geometry" : "fragment") : ("vertex"))  +
-					EString("shader");
+					EString("shader. See log for details");
 		m_Type = type;
 	}
 	ShaderException()
 	{
-		m_Message = EString("Shader exception ocured");
+		m_Message = EString("[renderer]: Unknown shader exception ocured");
 		m_Type = static_cast<unsigned>(-1);
 	}
 	virtual ~ShaderException()

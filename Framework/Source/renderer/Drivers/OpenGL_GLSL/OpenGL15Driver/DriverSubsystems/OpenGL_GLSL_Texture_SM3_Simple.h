@@ -26,49 +26,49 @@ protected:
 	OpenGL_GLSL_Texture();
 	virtual ~OpenGL_GLSL_Texture();
 public:
-	virtual void		loadTexture(unsigned TextureType,unsigned level,unsigned TextureInternalFormat,unsigned TextureStorageFormat,unsigned TextureStorage,unsigned width,unsigned height,void* data);
+	virtual void		loadTexture(renderer::TextureType::type textureType,unsigned level,renderer::TextureInternalFormat::type textureInternalFormat,renderer::TextureFormat::type textureStorageFormat,renderer::TextureStorage::type textureStorage,unsigned width,unsigned height,void* data);
 
-	virtual void		loadTexture(unsigned TextureType,unsigned level,unsigned TextureInternalFormat,unsigned TextureStorageFormat,unsigned TextureStorage,unsigned width,unsigned height,unsigned side_or_depth,void* data);
+	virtual void		loadTexture(renderer::TextureType::type textureType,unsigned level,renderer::TextureInternalFormat::type textureInternalFormat,renderer::TextureFormat::type textureStorageFormat,renderer::TextureStorage::type textureStorage,unsigned width,unsigned height,unsigned side_or_depth,void* data);
 
-	virtual unsigned		getTextureType() const;
+	virtual renderer::TextureType::type		getTextureType() const;
 
-	virtual unsigned		getTextureUnit() const;
+	virtual renderer::TextureUnit::type		getTextureUnit() const;
 
 	virtual void*		map(unsigned level = 0,unsigned side = 0);
 
 	virtual void		 unmap(unsigned level = 0,unsigned side = 0);
 
-	virtual void		 setUnit(unsigned unit);
+	virtual void		 setUnit(renderer::TextureUnit::type unit);
 
 	virtual void		 bind();
 
-	virtual void		 bind(unsigned unit);
+	virtual void		 bind(renderer::TextureUnit::type unit);
 
 	virtual void		 unbind();
 
-	virtual void		 setMinFilter(unsigned filter);
+	virtual void		 setMinFilter(renderer::TextureFiltering::type filter);
 
-	virtual void		 setMagFilter(unsigned filter);
+	virtual void		 setMagFilter(renderer::TextureFiltering::type filter);
 
 	virtual void		 setAnisotropy(float val);
 
-	virtual void		 generateMipMaps(bool val);
+	virtual void		 generateMipMaps();
 
-	virtual void		   clampS(unsigned clamp);
+	virtual void		   clampS(renderer::TextureClamping::type clamp);
 
-	virtual void		   clampT(unsigned clamp);
+	virtual void		   clampT(renderer::TextureClamping::type clamp);
 
-	virtual void		   clampR(unsigned clamp);
+	virtual void		   clampR(renderer::TextureClamping::type clamp);
 
-	virtual void		   clampQ(unsigned clamp);
+	virtual void		   clampQ(renderer::TextureClamping::type clamp);
 private:
 	GLuint					m_Texture;
 
-	unsigned				m_DefaultUnit;
-	unsigned				m_BoundedUnit;
+	TextureUnit::type				m_DefaultUnit;
+	TextureUnit::type				m_BoundedUnit;
 
 	unsigned				m_Target; //OpenGL
-	unsigned				m_InternalTarget;
+	TextureType::type		m_InternalTarget;
 
 	unsigned				m_Bounded;
 
