@@ -1,32 +1,26 @@
 /*
- * vector3d.hpp
+ * vector4d.hpp
  *	This file is part of Freya 3D engine. For licencing information
  *  from LICENCE file 
  *  Created on: Oct 22, 2009
  *      Author: Dmitri crsib Vedenko
  */
 
-#ifndef VECTOR3D_HPP_
-#define VECTOR3D_HPP_
+#ifndef VECTOR4D_HPP_
+#define VECTOR4D_HPP_
 
 #include "math_internal.h"
-#include "vector2d.hpp"
+#include "vector3d.hpp"
 
 namespace math
 {
 
-//!vector3d provided for convenience only, as it is implemented almost the same as vector 3d
-MATH_OBJECT_DECL class vector3d
+//!vector4d provided for convenience only, as it is implemented almost the same as vector 3d
+MATH_OBJECT_DECL class vector4d
 {
 public:
-
-	static const vector3d i;
-	static const vector3d j;
-	static const vector3d k;
-
 	union
 	{
-		unsigned int _int[4]; //Needed for speeding up cross product
 		__m128  xmm;
 		struct
 		{
@@ -36,6 +30,8 @@ public:
 			float y;
 			//! z coordinate
 			float z;
+			//! w coordinate
+			float w;
 		};
 	};
 
@@ -44,72 +40,69 @@ public:
 	/*!
 	 * Sets x and y to zero
 	 */
-	vector3d()
+	vector4d()
 	{
 		xmm = _mm_setzero_ps();
-	}
-
-	vector3d(__m128 m)
-	{
-		xmm = m;
+		w = 1.0;
 	}
 
 	//!Copy constructor
-	vector3d(const vector3d& v)
+	vector4d(const vector4d& v)
 	{
 		xmm = v.xmm;
 	}
 
 	//!Initialization costructor
-	vector3d(const float x, const float y, const float z);
-	//! Initialize as homogeneous vector from vector2d
-	vector3d(const vector2d& v2d);
+	vector4d(const float x, const float y, const float z);
+	vector4d(const float x, const float y, const float z, const float w);
+
+	//! Making vector3d a homogeneous vector
+	vector4d(const vector3d& v3d);
 	//!Operator =
-	vector3d& operator = (const vector3d& v);
+	vector4d& operator = (const vector4d& v);
 	//!Unary + (does nothing)
-	vector3d   operator + () const;
+	vector4d   operator + () const;
 
 	//!Unary -
-	vector3d	operator - () const;
+	vector4d	operator - () const;
 
 	//!binary operator +
-	vector3d	operator + (const vector3d& v) const;
+	vector4d	operator + (const vector4d& v) const;
 	//! Binary -
-	vector3d	operator - (const vector3d& v) const;
+	vector4d	operator - (const vector4d& v) const;
 	//! Float multiply
-	vector3d	operator * (const float f) const;
+	vector4d	operator * (const float f) const;
 	//! Float division
-	vector3d	operator / (const float f) const;
-	//! Cross product (strictly defined only for 3D vectors. Defined as outer product for higher dimension, thus, defined only for vector3d)
-	vector3d	operator * (const vector3d& v) const;
+	vector4d	operator / (const float f) const;
 	//! dot product
-	float       operator , (const vector3d& v) const;
+	float       operator , (const vector4d& v) const;
 
 	//! Some operators provided for convenience
-	vector3d&	operator += (const vector3d& v);
-	vector3d&   operator -= (const vector3d& v);
-	vector3d&	operator *= (const float f);
-	vector3d&   operator /= (const float f);
+	vector4d&	operator += (const vector4d& v);
+	vector4d&   operator -= (const vector4d& v);
+	vector4d&	operator *= (const float f);
+	vector4d&   operator /= (const float f);
 
 	//! Conversion operators
 	operator float* ();
 	operator const float* () const;
-	//! vector2d(x/z,y/z) if z ≠ 0, vector2d(math::inf,math::inf) otherwise
-	operator vector2d	() const;
+
+	// returns v3d(x/w,y/w,z/w) if w != 0 and vectors if infs otherwise (please note, that OpenGL behavior is a little different)
+	operator vector3d	() const;
 	//! Self-normalizing
-	vector3d&	normalize ();
+	vector4d&	normalize ();
 
 	//External operators and functions
 	//! Magnitude (or absolute) value
-	friend	float	abs(const vector3d& v);
+	friend	float	abs(const vector4d& v);
 	//! Square of magnitude
-	friend  float	abs_sq(const vector3d& v);
+	friend  float	abs_sq(const vector4d& v);
 	//! Normalized version of vector
-	friend vector3d normalized(const vector3d& v);
+	friend vector4d normalized(const vector4d& v);
 	//! Output operator
-	friend	std::ostream&	operator << (std::ostream& s,const math::vector3d& v);
+	friend	std::ostream&	operator << (std::ostream& s,const math::vector4d& v);
 	//! Float multiplication
-	friend	vector3d		operator*   (const float f, const vector3d& v);
+	friend	vector4d		operator*   (const float f, const vector4d& v);
 
 } MATH_OBJECT_END_DECL ;
 
@@ -119,30 +112,40 @@ public:
 namespace math
 {
 inline
-vector3d::vector3d(const float _x, const float _y,const float _z)
+vector4d::vector4d(const float _x, const float _y,const float _z)
 {
-	xmm = _mm_setzero_ps();
 	x = _x;
 	y = _y;
 	z = _z;
+	w = 1.0;
 }
 
 inline
-vector3d::vector3d(const math::vector2d& v)
+vector4d::vector4d(const float _x, const float _y,const float _z,const float _w)
+{
+	x = _x;
+	y = _y;
+	z = _z;
+	w = _w;
+}
+
+inline
+vector4d::vector4d(const vector3d& v)
 {
 	xmm = v.xmm;
-	z   = math::unit;
+	w = 1.0;
 }
+
 inline
-vector3d::operator vector2d () const
+vector4d::operator vector3d () const
 {
 	if( (*reinterpret_cast<const unsigned*>(&z)) & 0x7F7FFFFF) //Non-zero value (due to encoding of IEEE 874-2008 for binary32 floats) + denormal handling
 	{
-		__m128 tmp = _mm_shuffle_ps(xmm,xmm,_MM_SHUFFLE(2,2,2,2));
+		__m128 tmp = _mm_shuffle_ps(xmm,xmm,_MM_SHUFFLE(3,3,3,3));
 		tmp = __invert_ps ( tmp );
-		vector2d o;
+		vector3d o;
 		o.xmm = _mm_mul_ps ( xmm,tmp );
-		memset(&o.x + 2, 0, 2*sizeof(float));
+		*(&o.x + 3) = 0.0;
 		return o;
 	}
 	else
@@ -153,46 +156,31 @@ vector3d::operator vector2d () const
 }
 
 inline
-vector3d	vector3d::operator *(const math::vector3d& v) const
-{
-	vector3d o;
-	__m128 t1 = _mm_shuffle_ps (v.xmm,xmm,_MM_SHUFFLE(3,0,2,2));
-	__m128 t2 = _mm_shuffle_ps (xmm,v.xmm,_MM_SHUFFLE(3,1,0,1));
-	__m128 t3 = _mm_mul_ps (t1,t2);
-	t1 = _mm_shuffle_ps (xmm,v.xmm,_MM_SHUFFLE(3,0,2,2));
-	t2 = _mm_shuffle_ps (v.xmm,xmm,_MM_SHUFFLE(3,1,0,1));
-	t1 = _mm_mul_ps (t1,t2);
-	o.xmm = _mm_sub_ps(t3,t1);
-	o._int[1] = (o._int[1]  ^ 0x80000000);
-	return o;
-}
-
-inline
-vector3d& vector3d::operator = (const vector3d& v)
+vector4d& vector4d::operator = (const vector4d& v)
 {
 	xmm = v.xmm;
 	return *this;
 }
 
 inline
-vector3d
-vector3d::operator + () const
+vector4d
+vector4d::operator + () const
 {
-	return vector3d(*this);
+	return vector4d(*this);
 }
 
 //!Unary -
 inline
-vector3d	vector3d::operator - () const
+vector4d	vector4d::operator - () const
 {
-	vector3d o(*this);
+	vector4d o(*this);
 	o.xmm = _mm_xor_ps(o.xmm,*reinterpret_cast<const __m128*>(_ps_sign_mask));
 	return o;
 }
 
-inline vector3d normalized(const vector3d & v)
+inline vector4d normalized(const vector4d & v)
 {
-	math::vector3d o(v);
+	math::vector4d o(v);
 	__m128 tmp = _mm_mul_ps	( o.xmm,o.xmm );
 	tmp  = _mm_hadd_ps 		( tmp,tmp );
 	tmp  = _mm_hadd_ps 		( tmp,tmp );
@@ -208,12 +196,12 @@ inline vector3d normalized(const vector3d & v)
 }
 
 inline
-vector3d::operator float*()
+vector4d::operator float*()
 {
 	return &x;
 }
 
-inline vector3d & vector3d::normalize()
+inline vector4d & vector4d::normalize()
 {
 	__m128 tmp = _mm_mul_ps	( xmm,xmm );
 	tmp  = _mm_hadd_ps 		( tmp,tmp );
@@ -229,7 +217,7 @@ inline vector3d & vector3d::normalize()
 	return *this;
 }
 
-inline float abs_sq(const vector3d & v)
+inline float abs_sq(const vector4d & v)
 {
 	float res;
 	__m128 tmp = _mm_mul_ps(v.xmm,v.xmm);
@@ -239,7 +227,7 @@ inline float abs_sq(const vector3d & v)
 	return res;
 }
 
-inline float abs(const vector3d & v)
+inline float abs(const vector4d & v)
 {
 	float res;
 	__m128 tmp = _mm_mul_ps(v.xmm,v.xmm);
@@ -250,23 +238,23 @@ inline float abs(const vector3d & v)
 	return res;
 }
 
-inline vector3d &
-vector3d::operator *=(const float f)
+inline vector4d &
+vector4d::operator *=(const float f)
 {
 	__m128 tmp = _mm_set1_ps ( f );
 	xmm = _mm_mul_ps ( xmm, tmp );
 	return *this;
 }
 
-inline vector3d &
-vector3d::operator -=(const vector3d & v)
+inline vector4d &
+vector4d::operator -=(const vector4d & v)
 {
 	xmm = _mm_sub_ps(xmm,v.xmm);
 	return *this;
 }
 
-inline vector3d &
-vector3d::operator /=(const float f)
+inline vector4d &
+vector4d::operator /=(const float f)
 {
 	__m128 tmp = _mm_set1_ps ( f );
 	tmp = __invert_ps ( tmp );
@@ -274,56 +262,56 @@ vector3d::operator /=(const float f)
 	return *this;
 }
 
-inline vector3d
-vector3d::operator /(const float f) const
+inline vector4d
+vector4d::operator /(const float f) const
 {
-	vector3d o;
+	vector4d o;
 	__m128 tmp = _mm_set1_ps ( f );
 	tmp = __invert_ps ( tmp );
 	o.xmm = _mm_mul_ps ( xmm, tmp );
 	return o;
 }
 
-inline vector3d &
-vector3d::operator +=(const vector3d & v)
+inline vector4d &
+vector4d::operator +=(const vector4d & v)
 {
 	xmm = _mm_add_ps(xmm,v.xmm);
 	return *this;
 }
 
-inline vector3d
-vector3d::operator -(const vector3d & v) const
+inline vector4d
+vector4d::operator -(const vector4d & v) const
 {
-	vector3d o;
+	vector4d o;
 	o.xmm = _mm_sub_ps(xmm,v.xmm);
 	return o;
 }
 
-inline vector3d
-vector3d::operator +(const vector3d & v) const
+inline vector4d
+vector4d::operator +(const vector4d & v) const
 {
-	vector3d o;
+	vector4d o;
 	o.xmm = _mm_add_ps(xmm,v.xmm);
 	return o;
 }
 
-inline vector3d
-vector3d::operator *(const float f) const
+inline vector4d
+vector4d::operator *(const float f) const
 {
-	vector3d o;
+	vector4d o;
 	__m128 tmp = _mm_set1_ps ( f );
 	o.xmm = _mm_mul_ps ( xmm, tmp );
 	return o;
 }
 
 inline
-vector3d::operator const float*() const
+vector4d::operator const float*() const
 {
 	return &x;
 }
 
 inline float
-vector3d::operator ,(const vector3d & v) const
+vector4d::operator ,(const vector4d & v) const
 {
 	float res;
 	__m128 tmp = _mm_mul_ps(xmm,v.xmm);
@@ -335,20 +323,19 @@ vector3d::operator ,(const vector3d & v) const
 
 inline
 std::ostream&
-operator << (std::ostream& s,const math::vector3d& v)
+operator << (std::ostream& s,const math::vector4d& v)
 {
-	return s << "( " << v.x << ", " << v.y << ", " << v.z << " )";
+	return s << "( " << v.x << ", " << v.y << ", " << v.z << ", " << v.w << " )";
 }
 
-inline vector3d
-operator *(const float f, const vector3d & v)
+inline vector4d
+operator *(const float f, const vector4d & v)
 {
-	vector3d o(v);
+	vector4d o(v);
 	__m128 tmp = _mm_set1_ps ( f );
 	o.xmm = _mm_mul_ps ( o.xmm, tmp );
 	return o;
 }
 }
 
-
-#endif /* VECTOR3D_HPP_ */
+#endif /* VECTOR4D_HPP_ */

@@ -26,6 +26,7 @@ namespace memory
 #include <cstdlib>
 
 #include "core/EngineSubsystem.h"
+#include "renderer/3DConstants.h"
 
 namespace renderer
 {
@@ -44,7 +45,7 @@ public:
 	 * Sets the default VBO target for binding
 	 * \param target is a new default target to set (described by VBOTarget)
 	 */
-	virtual void 	setTarget(unsigned target) = 0; //Sets the default target to target (described in VBOTarget namespace)
+	virtual void 	setTarget(renderer::VBOTarget::type target) = 0; //Sets the default target to target (described in VBOTarget namespace)
 	//Binding
 	//!Bind VBO to default target
 	/*!
@@ -56,7 +57,7 @@ public:
 	 * Binds VBO to target, that can be different from default
 	 * \param target is a target (described by VBOTarget) to bind VBO on
 	 */
-	virtual void 	bind(unsigned target) = 0; //Binds buffer to target {target}. Default target is not affected
+	virtual void 	bind(renderer::VBOTarget::type target) = 0; //Binds buffer to target {target}. Default target is not affected
 	//!Unbind VBO
 	/*!
 	 * Unbinds VBO from target and returns system to previous state (with respect to VBO)
@@ -69,7 +70,7 @@ public:
 	 * \param access is the way, in which memory should be accessed (described by VBOAccess)
 	 * \return a pointer to memory region mapped
 	 */
-	virtual void*	map(unsigned access) = 0; //Map buffer to client memory with access type of {access} described in VBOAccess namespace
+	virtual void*	map(renderer::VBOAccess::type access) = 0; //Map buffer to client memory with access type of {access} described in VBOAccess namespace
 	//!Unmap VBO from RAM
 	/*!
 	 * Unmaps previously mapped VBO from RAM. Data copying between RAM and VRAM will possibly occur at this point.
@@ -84,7 +85,7 @@ public:
 	 * \param size   is a size of data in bytes to be transmitted. It does affect internal VBO size
 	 * \param p      is a pointer to a block of data to be transmitted. Could be NULL(in this case method just allocates internal memory for VBO)
 	 */
-	virtual void	setData(unsigned target,unsigned usage,size_t size,void* p) = 0; //Sets the data pointed by p of size {size} to VBO with target {target} (default not affected) and usage {usage} (described in VBOUsage namespace)
+	virtual void	setData(renderer::VBOTarget::type target,renderer::VBOUsage::type usage,size_t size,void* p) = 0; //Sets the data pointed by p of size {size} to VBO with target {target} (default not affected) and usage {usage} (described in VBOUsage namespace)
 	//! Set VBO data
 	/*!
 	 * Sets the VBO data. Must be called at least once (the overloaded version does the same) for correct usage of various mapping/updating routines. Binding is done to default VBO target.
@@ -92,7 +93,7 @@ public:
 	 * \param size   is a size of data in bytes to be transmitted. It does affect internal VBO size
 	 * \param p      is a pointer to a block of data to be transmitted. Could be NULL(in this case method just allocates internal memory for VBO)
 	 */
-	virtual void	setData(unsigned usage,size_t size,void* p) = 0;//Same as above,but using default target
+	virtual void	setData(renderer::VBOUsage::type usage,size_t size,void* p) = 0;//Same as above,but using default target
 	//Manipulating sub data
 	//Target is same as everywhere above
 	//Sends sub-data pointed by p to buffer starting from offset offs of size {size}
@@ -104,7 +105,7 @@ public:
 	 * \param size   is a size of data to be transmitted. It does not affect internal VBO size. offs + size must not exceed the size of VBO
 	 * \param p      is a pointer to a block of data to be transmitted.
 	 */
-	virtual void	setSubData(unsigned target,size_t offs,size_t size,void *p) = 0;
+	virtual void	setSubData(renderer::VBOTarget::type target,size_t offs,size_t size,void *p) = 0;
 	//! Update VBO sub-data
 	/*!
 	 * Updates VBO sub-data. Binding is done to default VBO target.
@@ -122,7 +123,7 @@ public:
 	 * \param size   is a size of data to be transmitted. It does not affect internal VBO size. offs + size must not exceed the size of VBO
 	 * \param p      is a pointer to a block of data inside client memory. It's size should be at least {size}. Client is capable of memory management
 	 */
-	virtual void	getSubData(unsigned target,size_t offs,size_t size,void *p) = 0;
+	virtual void	getSubData(renderer::VBOTarget::type target,size_t offs,size_t size,void *p) = 0;
 	//! Retrieve VBO sub-data
 	/*!
 	 * Retrieves VBO sub-data. Binding is done to default VBO target.

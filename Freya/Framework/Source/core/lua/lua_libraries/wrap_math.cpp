@@ -58,18 +58,6 @@ quaternion __quatADD(const quaternion& q1, const quaternion& q2)
 }
 
 
-quaternion __quatADD(const float q1, const quaternion& q2)
-{
-	return q1 + q2;
-}
-
-
-quaternion __quatADD(const quaternion& q1, const float q2)
-{
-	return q1 + q2;
-}
-
-
 quaternion __vec3dADD(const vector3d& q1, const quaternion& q2)
 {
 	return q1 + q2;
@@ -86,13 +74,6 @@ quaternion __quatADD(const quaternion& q1, const vector3d& q2)
 
 
 quaternion __quatSUB(const quaternion& q1, const quaternion& q2)
-{
-	return q1 - q2;
-}
-
-
-
-quaternion __quatSUB(const quaternion& q1, const float q2)
 {
 	return q1 - q2;
 }
@@ -141,13 +122,6 @@ quaternion __quatMUL(const quaternion& q1, const vector3d& q2)
 	return q1 * q2;
 }
 
-
-//other
-
-float __innerProductQuat(const quaternion& q1, const quaternion& q2)
-{
-	return (q1,q2);
-}
 
 quaternion __quatDIV(const quaternion& q1, const float q2)
 {

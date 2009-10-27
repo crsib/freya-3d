@@ -77,18 +77,14 @@ public:
 		shader->setUniform("lightPos",lightPos);
 		shader->setUniform("eyePos",m_Cameras[m_CamMode]->getPos());
 		//Render cube
+		rapi->setMatrix(renderer::Matrix::MODEL,math::matrix4x4::identity);
 		m_Sphere->render();
-		//cube->render();
-		//Save matrix state
-		rapi->pushMatrix();
 		//Translate to light position
-		rapi->translate(lightPos);
-		//Scale light source cube
-		rapi->scale(0.05,0.05,0.05);
-		//Render light source
+		math::matrix4x4 transf = math::matrix4x4::translationMatrix(lightPos)*math::matrix4x4::scaleMatrix(0.05,0.05,0.05);
+		rapi->setMatrix(renderer::Matrix::MODEL,transf);
 		lightSource->render();
 		//Restore matrix state
-		rapi->popMatrix();
+		//rapi->popMatrix();
 		//Swap buffers
 
 		//Apply camera transformation
@@ -230,7 +226,7 @@ public:
 				}
 			}//End of fake paranthesis for input handling
 			//Animate light source
-			math::quaternion  lightRot(math::vector3d(-1,0,0),math::pi*secs/2); //Rotate with 0.25 hertz speed
+			math::quaternion  lightRot = math::quaternion::rotationQuat(math::pi*secs/2,math::vector3d(-1,0,0)); //Rotate with 0.25 hertz speed
 			lightPos = lightRot.rotate(lightPos);
 			renderer->setLightPos(lightPos);
 			//Swap time values
@@ -315,7 +311,7 @@ public:
 			wm->setCaption("Bump Mapping Demo");
 			//wm->createWindow(winWidth,winHeight,"Tutorial 1: Bump mapping",fullscreen ,NULL);
 			//Start rendering subsystem
-			core::EngineCore::createRenderingDriver(renderer::futures::MULTITEXTURE | renderer::futures::AUTO_TRANSPOSE_MATIRIX | renderer::futures::VERTEX_BUFFER | renderer::futures::TEXTURE_BUFFER |
+			core::EngineCore::createRenderingDriver(renderer::futures::MULTITEXTURE | renderer::futures::VERTEX_BUFFER | renderer::futures::TEXTURE_BUFFER |
 					renderer::futures::VERTEX_SHADER | renderer::futures::FRAGMENT_SHADER);
 			//Get the address of rendering subsystem
 			rapi = core::EngineCore::getRenderingDriver();
@@ -331,7 +327,7 @@ public:
 			unsigned oldTime = wm->getTickCount(),newTime;
 			float secs;
 			//Set up view parameters.
-			rapi->setViewport(winWidth,winHeight);
+			rapi->setViewport(0,0,winWidth,winHeight);
 
 
 
@@ -406,12 +402,12 @@ public:
 		cube->setDiffuse(diffuse);
 		sphere->setDiffuse(diffuse);
 		//Set the specular texture to a cube-> Texture will be bound to first unit
-		specular->setUnit(renderer::TextureUnit::TEXTURE1);
+		//specular->setUnit(renderer::TextureUnit::TEXTURE1);
 		cube->setSpecular(specular);
 		sphere->setSpecular(specular);
 		//Set the specular texture to a cube-> Texture will be bound to second unit
-		bump->setUnit(renderer::TextureUnit::TEXTURE2);
-		fake->setUnit(renderer::TextureUnit::TEXTURE2);
+		//bump->setUnit(renderer::TextureUnit::TEXTURE2);
+		//fake->setUnit(renderer::TextureUnit::TEXTURE2);
 		cube->setBump(bump);
 		sphere->setBump(bump);
 		//fine, let us set lighting
@@ -449,7 +445,12 @@ public:
 						new camera::FlyCamera(math::vector3d(3.0,0.0,3.0),math::vector3d(-1.0,0.0,-1.0),math::vector3d(0.0,1.0,0.0),
 								1.04,(float)winWidth/(float)winHeight,1,1000)
 		};
-
+		math::matrix4x4 m = math::matrix4x4::lookat(math::vector3d(3.0,0.0,3.0),math::vector3d(-1.0,0,-1.0),math::vector3d(0.0,1.0,0.0));
+		std::cout << "MV MTX: " << m << std::endl;
+		float* mp = m;
+		for(int i = 0; i < 16;i++)
+			std::cout << mp[i] << " ";
+		std::cout << std::endl;
 		//Initialization done
 		cams[0]->applyRenderingSettings();
 		BumpmappingRender*	renderer =  new BumpmappingRender(camMode,cams,sphere,cube,useBump,shader,lightSource);
@@ -489,5 +490,6 @@ int main(int argC,char** argV)
 		std::cout << "Unknown exception" << std::endl;
 	}
 	//Everything is fine, just exit (again, all stack allocated object are cleared
+	std::cout << "quat: "<< sizeof(math::quaternion) << " v3d " << sizeof(math::vector3d) << std::endl;
 	return 0;
 }
