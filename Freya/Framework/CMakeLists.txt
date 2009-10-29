@@ -645,6 +645,17 @@ SET( CEGUI_SOURCE
 ./3party/cegui/src/ImageCodecModules/TGAImageCodec/CEGUITGAImageCodecModule.cpp
 )
 
+SET( FREYA_CEGUI_SRC 
+./3party/cegui/src/freya/FreyaResourceProvider.cpp
+./3party/cegui/src/freya/FreyaGeometryBuffer.cpp
+./3party/cegui/src/freya/FreyaRenderer.cpp
+./3party/cegui/src/freya/FreyaRenderTarget.cpp
+./3party/cegui/src/freya/FreyaTexture.cpp
+./3party/cegui/src/freya/FreyaTextureTarget.cpp
+./3party/cegui/src/freya/FreyaWindowTarget.cpp
+)
+
+
 IF ( APPLE )
     SET(CEGUI_SOURCE ${CEGUI_SOURCE} ./3party/cegui/src/implementations/mac/macPlugins.cpp ./3party/cegui/src/implementations/mac/macPlugins.h )
     INCLUDE_DIRECTORIES( ./3party/cegui/src/implementations/mac )
@@ -738,7 +749,7 @@ SET(FREYA_CORE_LINK_LIBRARIES ${FREYA_CORE_LINK_LIBRARIES} cegui-freya ${BULLET_
 IF(FREYA_CORE_SHARED)   #Dynamic linkage
 	ADD_DEFINITIONS( -D_SHARED_BUILD )
 	MESSAGE("Building shared version of FreyaCore")
-	ADD_LIBRARY( FreyaCore SHARED ${FREYA_CORE_SOURCES} )
+	ADD_LIBRARY( FreyaCore SHARED ${FREYA_CORE_SOURCES} ${FREYA_CEGUI_SRC})
 	IF( UNIX AND NOT APPLE)
 		#SET_PROPERTY( TARGET FreyaCore PROPERTY LINK_FLAGS "-rpath ." )
 	ENDIF( UNIX AND NOT APPLE)
@@ -747,7 +758,7 @@ IF(FREYA_CORE_SHARED)   #Dynamic linkage
 	TARGET_LINK_LIBRARIES( FreyaCore ${FREYA_CORE_LINK_LIBRARIES} ${GLOBAL_LINK_LIBRARIES} )
 ELSE( FREYA_CORE_SHARED ) #Static linkage
 	MESSAGE("Building shared version of FreyaCore")
-	ADD_LIBRARY( FreyaCore STATIC ${FREYA_CORE_SOURCES} )
+	ADD_LIBRARY( FreyaCore STATIC ${FREYA_CORE_SOURCES} ${FREYA_CEGUI_SRC})
 	#Setup correct link flags
 	SET( RUNTIME_LINK_LIBRARIES ${RUNTIME_LINK_LIBRARIES} ${FREYA_CORE_LINK_LIBRARIES})
 ENDIF( FREYA_CORE_SHARED )

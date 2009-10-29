@@ -132,7 +132,7 @@ public:
 
 	//Viewport settings
 	virtual void 		setViewport(unsigned x, unsigned y,unsigned width,unsigned height) = 0; //Sets the viewport
-	virtual const float*	 	getViewport() const = 0;
+	virtual const unsigned*	 	getViewport() const = 0;
 
 	//Renderer capabilities
 	virtual int			maxTextureSize() const = 0;
@@ -152,6 +152,11 @@ public:
 	virtual void 		clearDepth() = 0;//Clears depth
 
 	virtual void 		depthFunction(renderer::TestFunction::type func) = 0;//Func is described in TestFunction namespace
+	//Scissor test
+	virtual void		enableScissorTest() = 0;
+	virtual void		disableScissorTest() = 0;
+	virtual void		clipArea(float left,float top, float right,float bottom) = 0;
+
 	//Stencil test
 	virtual void 		enableStencilTest() = 0;
 	virtual void 		disableStencilTest() = 0;
@@ -185,7 +190,7 @@ public:
 	virtual void 		setPolygonOffset(float factor,float units) = 0;
 	//Matricies
 	virtual void 		setMatrix(renderer::Matrix::type,const math::matrix4x4& mtx) = 0;//Loades matrix in row-major form
-
+	virtual const math::matrix4x4 getMatrix(renderer::Matrix::type) const = 0;
 	//Auto generation of texture coordinates
 	virtual void 		enableGeneration(renderer::TextureCoord::type coord,renderer::TextureGenMode::type mode) = 0; //enables generation for coord described by TextureCoord with mode descripbed by TextureGenMode
 	virtual void		disableGeneration(renderer::TextureCoord::type coord) = 0;

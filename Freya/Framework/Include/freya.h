@@ -13,4 +13,6 @@
 #include "camera/FlyCamera.h"
 #include "camera/RotateCamera.h"
 #include "primitives/Sphere.h"
+
+#include "../3party/cegui/include/CEGUI.h"
 #endif /*FREYA_H_*/
