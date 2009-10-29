@@ -113,6 +113,11 @@ class RenderingAPIFactory;
 class RenderingAPIDriver;
 }
 
+namespace CEGUI
+{
+	class System;
+}
+
 namespace core
 {
 //! Main class of Freya 3D engine
@@ -144,7 +149,9 @@ public:
 	*/
 	static void createWindowManager(const EString& type);
 
+	static void	startCEGUI();
 
+	static CEGUI::System* getCEGUISystem();
 
 	//! retrieves the current task manager created
 	/*!

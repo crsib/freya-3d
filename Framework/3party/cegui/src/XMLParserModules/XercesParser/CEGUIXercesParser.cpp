@@ -56,7 +56,7 @@ namespace CEGUI
     XercesParser::XercesParser(void)
     {
         // set ID string
-        d_identifierString = "CEGUI::XercesParser - Official Xerces-C++ based parser module for CEGUI";
+        d_identifierString = "CEGUI::XercesParser - Official Xerces-C++ based parser module for CEGUI (modified for use with Freya 3D engine)";
         // add property
         addProperty(&s_schemaDefaultResourceGroupProperty);
     }
@@ -120,33 +120,11 @@ namespace CEGUI
 
     bool XercesParser::initialiseImpl(void)
     {
-        XERCES_CPP_NAMESPACE_USE;
-
-        // initialise Xerces-C XML system
-        try
-        {
-            XMLPlatformUtils::Initialize();
-        }
-        catch(XMLException& exc)
-        {
-            // prepare a message about the failure
-            char* excmsg = XMLString::transcode(exc.getMessage());
-            String message("An exception occurred while initialising the Xerces-C XML system.  Additional information: ");
-            message += excmsg;
-            XMLString::release(&excmsg);
-
-            // throw a C string (because it won't try and use logger, which may not be available)
-            throw message.c_str();
-        }
-
         return true;
     }
 
     void XercesParser::cleanupImpl(void)
     {
-        // cleanup XML stuff
-        XERCES_CPP_NAMESPACE_USE;
-        XMLPlatformUtils::Terminate();
     }
     
     void XercesParser::populateAttributesBlock(const XERCES_CPP_NAMESPACE::Attributes& src, XMLAttributes& dest)

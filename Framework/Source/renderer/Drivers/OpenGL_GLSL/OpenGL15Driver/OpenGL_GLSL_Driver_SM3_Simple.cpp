@@ -604,7 +604,7 @@ void		OpenGL_GLSL_Driver::setPolygonOffset(float factor,float units)
 	glPolygonOffset(factor,units);
 }
 
-const float*
+const unsigned*
 OpenGL_GLSL_Driver::getViewport() const
 {
 	return m_ViewPort;
@@ -642,7 +642,8 @@ OpenGL_GLSL_Driver::numTextureUnits() const
 
 void		OpenGL_GLSL_Driver::setTexture(renderer::TextureUnit::type unit, Texture* tex)
 {
-	static_cast<OpenGL_GLSL_Texture*>(tex)->bind(unit);
+	if(tex)
+		static_cast<OpenGL_GLSL_Texture*>(tex)->bind(unit);
 }
 
 void 		OpenGL_GLSL_Driver::setMatrix(renderer::Matrix::type mode,const math::matrix4x4& mtx)
@@ -665,6 +666,7 @@ void 		OpenGL_GLSL_Driver::setMatrix(renderer::Matrix::type mode,const math::mat
 	//glLoadTransposeMatrixfARB(const_cast<GLfloat*>((const float*)mtx));
 	glLoadMatrixf(math::transposed(mtx));
 	glActiveTextureARB(GL_TEXTURE0);
+	m_Matricies[mode] = mtx;
 }
 
 void 		OpenGL_GLSL_Driver::enableAlphaBlend()
@@ -699,6 +701,26 @@ OpenGL_GLSL_Driver::getRendererVendor() const
 	return m_RendererVendor;
 }
 
+//Scissor test
+void		OpenGL_GLSL_Driver::enableScissorTest()
+{
+	glEnable(GL_SCISSOR_TEST);
+}
+
+void		OpenGL_GLSL_Driver::disableScissorTest()
+{
+	glDisable(GL_SCISSOR_TEST);
+}
+
+void		OpenGL_GLSL_Driver::clipArea(float left,float top, float right,float bottom)
+{
+	glScissor(left,top,math::abs(right - left), math::abs(top - bottom));
+}
+
+const math::matrix4x4 OpenGL_GLSL_Driver::getMatrix(renderer::Matrix::type mtx) const
+{
+	return m_Matricies[mtx];
+}
 
 }
 }

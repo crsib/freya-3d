@@ -48,6 +48,19 @@
 #include "core/freya_buf.hpp"
 
 #include "core/xml/XMLParser.h"
+
+#include "CEGUI.h"
+#include "freya/FreyaRenderer.h"
+#include "freya/FreyaResourceProvider.h"
+
+#include "CEGUILua.h"
+//#include "CEGUIImageset.h"
+//#include "CEGUIFont.h"
+//#include "CEGUIScheme.h"
+//#include "CEGUIWindowManager.h"
+#include "CEGUIXercesParser.h"
+//#include "CEGUIFalWidgetLookManager.h"
+
 using namespace renderer;
 
 
@@ -182,6 +195,7 @@ EngineCore::EngineCore(int argC,char** argV,const std::string& applicationName, 
 
 EngineCore::~EngineCore()
 {
+	CEGUI::System::destroy();
 	std::cout << "Stopping Xerces-C++" << std::endl;
 	delete m_XMLParser;
 	std::cout << "Destroying Lua engine " << std::endl;
@@ -410,4 +424,45 @@ core::lua::LuaCore*					EngineCore::getLuaCore()
 {
 	return m_LuaCore;
 }
+
+core::xml::XMLParser*				EngineCore::getXMLParser()
+{
+	return m_XMLParser;
+}
+
+void								EngineCore::startCEGUI()
+{
+	//using namespace CEGUI;
+
+	CEGUI::freya::FreyaRenderer*			rend = new CEGUI::freya::FreyaRenderer;
+	CEGUI::freya::FreyaResourceProvider*	rp	 = new CEGUI::freya::FreyaResourceProvider;
+
+	CEGUI::LuaScriptModule*					lm	 = &CEGUI::LuaScriptModule::create(m_LuaCore->m_VirtualMachine);
+
+	CEGUI::System::create(*rend,rp,NULL,NULL,lm);
+
+	rp->setResourceGroupDirectory("schemes", "/GUI/schemes/");
+	rp->setResourceGroupDirectory("imagesets", "/GUI/imagesets/");
+	rp->setResourceGroupDirectory("fonts", "/GUI/fonts/");
+	rp->setResourceGroupDirectory("layouts", "/GUI/layouts/");
+	rp->setResourceGroupDirectory("looknfeels", "/GUI/looknfeel/");
+	rp->setResourceGroupDirectory("lua_scripts", "/scripts/");
+
+	rp->setResourceGroupDirectory("schemas", "/GUI/xml_schemas/");
+
+	CEGUI::Imageset::setDefaultResourceGroup("imagesets");
+	CEGUI::Font::setDefaultResourceGroup("fonts");
+	CEGUI::Scheme::setDefaultResourceGroup("schemes");
+	CEGUI::WidgetLookManager::setDefaultResourceGroup("looknfeels");
+	CEGUI::WindowManager::setDefaultResourceGroup("layouts");
+	CEGUI::ScriptModule::setDefaultResourceGroup("lua_scripts");
+
+	CEGUI::XercesParser::setSchemaDefaultResourceGroup("schemas");
+}
+
+CEGUI::System*					EngineCore::getCEGUISystem()
+{
+	return CEGUI::System::getSingletonPtr();
+}
+
 }
