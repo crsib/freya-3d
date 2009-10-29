@@ -86,7 +86,8 @@ enum type
 	//!Matrix for texture unit 30
 	TEXTURE30,
 	//!Matrix for texture unit 31
-	TEXTURE31
+	TEXTURE31,
+	LAST_MATRIX
 };
 }
 

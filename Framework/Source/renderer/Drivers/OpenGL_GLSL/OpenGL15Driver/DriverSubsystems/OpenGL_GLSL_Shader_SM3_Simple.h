@@ -186,14 +186,14 @@ public:
 	 * \param location is an ID of sampler parameter
 	 * \param tex is pointer to Texture object
 	 */
-	virtual void	 setTexture(unsigned location,Texture* tex);
+	virtual void	 setTexture(unsigned location,renderer::TextureUnit::type unit);
 	//! Set the texture to shader (overloaded version)
 	/*!
 	 * Sets the texture to shader
 	 * \param name is name string of sampler parameter
 	 * \param tex is pointer to Texture object
 	 */
-	virtual void 	 setTexture(const EString& name,Texture* tex);
+	virtual void 	 setTexture(const EString& name,renderer::TextureUnit::type unit);
 
 private:
 
