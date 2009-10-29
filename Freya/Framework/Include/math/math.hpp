@@ -43,7 +43,8 @@ union bin_float
 inline
 float abs(const float scalar) {
 	bin_float bf = {scalar};
-	bf.i ^= 0x80000000;
+	if(bf.i & 0x80000000)
+		bf.i ^= 0x80000000;
 	return bf.f;
 }
 

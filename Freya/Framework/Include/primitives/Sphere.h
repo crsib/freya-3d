@@ -183,11 +183,11 @@ void Sphere<x_div,y_div>::render()
 	if(m_Shader)
 	{
 		if(m_Diffuse)
-			m_Shader->setTexture("diffuse",m_Diffuse);
+			m_Shader->setTexture("diffuse",renderer::TextureUnit::TEXTURE0);
 		if(m_Specular)
-			m_Shader->setTexture("specular",m_Specular);
+			m_Shader->setTexture("specular",renderer::TextureUnit::TEXTURE1);
 		if(m_Bump)
-			m_Shader->setTexture("bump",m_Bump);
+			m_Shader->setTexture("bump",renderer::TextureUnit::TEXTURE2);
 		m_Shader->bind();
 	}
 
@@ -200,6 +200,8 @@ void Sphere<x_div,y_div>::render()
 
 	m_Rapi->drawIndexedPrimitive(renderer::Primitive::TRIANGLES,(x_div) * (y_div + 1) * 2 * 3,renderer::DataType::UNSIGNED_SHORT,m_Ind);
 
+	if(m_Shader)
+		m_Shader->unbind();
 }
 
 

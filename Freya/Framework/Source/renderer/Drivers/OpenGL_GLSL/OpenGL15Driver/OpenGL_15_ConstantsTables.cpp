@@ -124,7 +124,7 @@ unsigned	TextureInternalFormat[] = {
 		GL_RGBA2,	/*RGBA2*/
 		GL_RGBA4,	/*RGBA4*/
 		GL_RGB5_A1,	/*RGB5_A1*/
-		GL_RGB8,	/*RGBA8*/
+		GL_RGBA8,	/*RGBA8*/
 		GL_RGB10_A2,	/*RGB10_A2*/
 		GL_RGBA12,	/*RGBA12*/
 		GL_RGBA16,	/*RGBA16*/

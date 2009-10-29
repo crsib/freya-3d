@@ -70,6 +70,9 @@ public:
 		if(!core::EngineCore::getResourceManager()->isReady())
 			return BumpmappingRender::MAIN_THREAD;
 		//Clear color and depth buffer
+		m_Cameras[m_CamMode]->apply();
+		//*
+		rapi->clearColorValue(0.3,0.4,0.5,1.0);
 		rapi->clearColor();
 		rapi->clearDepth();
 		rapi->beginScene();
@@ -86,9 +89,10 @@ public:
 		//Restore matrix state
 		//rapi->popMatrix();
 		//Swap buffers
-
-		//Apply camera transformation
-		m_Cameras[m_CamMode]->apply();
+//*/
+		//rapi->disableDepthTest();
+		core::EngineCore::getCEGUISystem()->renderGUI();
+		//rapi->enableDepthTest();
 		//Swap buffers (one of the most costly command)
 		rapi->endScene();
 		wm->swapBuffers();
@@ -436,6 +440,11 @@ public:
 		//Set freshly linked shader to our cube to automate various uniform setting
 		cube->setShader(shader);
 		sphere->setShader(shader);
+		lightSource->setShader(shader);
+
+		lightSource->setDiffuse(diffuse);
+		lightSource->setSpecular(specular);
+		lightSource->setBump(fake);
 
 		//Create two cameras (fly and rotate)
 		//Rotate camera by default
@@ -453,6 +462,30 @@ public:
 		std::cout << std::endl;
 		//Initialization done
 		cams[0]->applyRenderingSettings();
+		core::EngineCore::startCEGUI();
+		CEGUI::System::getSingleton().getRenderer()->setDisplaySize(CEGUI::Size(winWidth,winHeight));
+		CEGUI::SchemeManager::getSingleton().create("TaharezLook.scheme");
+		CEGUI::System::getSingleton().setDefaultMouseCursor("TaharezLook", "MouseArrow");
+		CEGUI::WindowManager& winMgr = CEGUI::WindowManager::getSingleton();
+
+		CEGUI::DefaultWindow* root = (CEGUI::DefaultWindow*)winMgr.createWindow("DefaultWindow", "Root");
+
+		CEGUI::System::getSingleton().setGUISheet(root);
+
+		CEGUI::FrameWindow* wnd = (CEGUI::FrameWindow*)winMgr.createWindow("TaharezLook/FrameWindow", "Demo Window");
+
+		root->addChildWindow(wnd);
+		{
+			using namespace CEGUI;
+			wnd->setPosition(UVector2(cegui_reldim(0.25f), cegui_reldim( 0.25f)));
+			wnd->setSize(UVector2(cegui_reldim(0.5f), cegui_reldim( 0.5f)));
+
+			wnd->setMaxSize(UVector2(cegui_reldim(1.0f), cegui_reldim( 1.0f)));
+			wnd->setMinSize(UVector2(cegui_reldim(0.1f), cegui_reldim( 0.1f)));
+
+			wnd->setText("Hello World!");
+		}
+
 		BumpmappingRender*	renderer =  new BumpmappingRender(camMode,cams,sphere,cube,useBump,shader,lightSource);
 		core::EngineCore::getTaskManager()->addTask(new HandleInput(camMode,cams,sphere,cube,useBump,bump,fake,renderer));
 		core::EngineCore::getTaskManager()->addTask(renderer);

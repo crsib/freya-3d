@@ -42,7 +42,10 @@ bool		OpenGL_GLSL_Framebuffer::bind()
 	glGetIntegerv(GL_VIEWPORT, m_OldViewport);
 	glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, m_Framebuffer );
 	glReadBuffer(m_ReadBuffer);
-	glDrawBuffersARB(m_DrawBuffers.size(),&m_DrawBuffers[0]);
+	if(m_DrawBuffers.size() > 1)
+		return false;//glDrawBuffersARB(m_DrawBuffers.size(),&m_DrawBuffers[0]);
+	else
+		glDrawBuffer(m_DrawBuffers[0]);
 	glViewport(0, 0, m_Width, m_Height);
 	m_Bounded = true;
 	return true;

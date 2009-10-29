@@ -677,14 +677,14 @@ void		OpenGL_GLSL_Shader:: setGeometryShader(unsigned maxOutVerts,renderer::Prim
 	glProgramParameteriEXT(m_ShaderObject,GL_GEOMETRY_OUTPUT_TYPE_EXT,outType);
 }
 
-void		OpenGL_GLSL_Shader:: setTexture(unsigned location,Texture* tex)
+void		OpenGL_GLSL_Shader:: setTexture(unsigned location,renderer::TextureUnit::type unit)
 {
-	setUniform(location,(int)tex->getTextureUnit());
+	setUniform(location,(int)unit);
 }
 
-void		OpenGL_GLSL_Shader::	 setTexture(const EString& name,Texture* tex)
+void		OpenGL_GLSL_Shader::	 setTexture(const EString& name,renderer::TextureUnit::type unit)
 {
-	setUniform(name,(int)tex->getTextureUnit());
+	setUniform(name,(int)unit);
 }
 
 }

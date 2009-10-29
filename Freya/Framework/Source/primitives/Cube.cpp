@@ -247,21 +247,6 @@ Cube::~Cube()
 
 void		Cube::render()
 {
-	//	rapi->enableClientState(renderer::ClientState::VERTEX_ARRAY);
-	//
-	//	rapi->enableClientState(renderer::ClientState::NORMAL_ARRAY);
-	//
-	//	rapi->enableTextureCoordState(renderer::TextureUnit::TEXTURE0);
-	//	rapi->enableTextureCoordState(renderer::TextureUnit::TEXTURE1);
-	//	rapi->enableTextureCoordState(renderer::TextureUnit::TEXTURE2);
-	//
-	//	rapi->vertexPointer(renderer::DataType::FLOAT,3,0,m_Verticies);
-	//
-	//	rapi->normalPointer(renderer::DataType::FLOAT,0,m_Normals);
-	//
-	//	rapi->textureCoordPointer(renderer::TextureUnit::TEXTURE0,renderer::DataType::FLOAT,2,0,m_UV);
-	//	rapi->textureCoordPointer(renderer::TextureUnit::TEXTURE1,renderer::DataType::FLOAT,3,0,m_Tangents);
-	//	rapi->textureCoordPointer(renderer::TextureUnit::TEXTURE2,renderer::DataType::FLOAT,3,0,m_Binormals);
 	rapi->setStreamSource(0,m_Verticies,0,0);
 	rapi->setStreamSource(1,m_Normals,0,0);
 	rapi->setStreamSource(2,m_UV,0,0);
@@ -282,11 +267,11 @@ void		Cube::render()
 	if(m_Shader)
 	{
 		if(m_Diffuse)
-			m_Shader->setTexture("diffuse",m_Diffuse);
+			m_Shader->setTexture("diffuse",renderer::TextureUnit::TEXTURE0);
 		if(m_Specular)
-			m_Shader->setTexture("specular",m_Specular);
+			m_Shader->setTexture("specular",renderer::TextureUnit::TEXTURE1);
 		if(m_Bump)
-			m_Shader->setTexture("bump",m_Bump);
+			m_Shader->setTexture("bump",renderer::TextureUnit::TEXTURE2);
 		m_Shader->bind();
 	}
 	if(m_Diffuse)
@@ -302,8 +287,7 @@ void		Cube::render()
 
 	if(m_Shader)
 	{
-		//	m_Shader->disableClientState("tangent");
-		//	m_Shader->disableClientState("binormal");
+		m_Shader->unbind();
 	}
 }
 
