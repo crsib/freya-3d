@@ -91,6 +91,8 @@ public:
 	//! Destroys window (does not destroys RAPIDriver)
 	virtual void		destroyWindow() = 0;
 
+	virtual unsigned	getWindowWidth() const = 0;
+	virtual unsigned	getWindowHeight() const = 0;
 	//Time
 	virtual unsigned	getTickCount() = 0;
 	//Input

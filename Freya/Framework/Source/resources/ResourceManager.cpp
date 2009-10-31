@@ -10,7 +10,7 @@
 #include "resources/ResourceManagerDriver.h"
 #include "core/multithreading/Mutex.h"
 //Default drivers
-//#include "resources/drivers/TGADriver.h"
+#include "resources/drivers/std/ShaderLoaderDriver.h"
 //TODO: DBG
 #include <iostream>
 
@@ -21,7 +21,7 @@ ResourceManager::ResourceManager()
 {
 	m_ResourceLibrary = new __internal::ResourceLibrary;
 	//Default drivers registration
-	//registerDriver(new resources::drivers::TGADriverID());
+	registerDriver(new resources::drivers::__std::ShaderLoaderDriverID());
 }
 
 ResourceManager::~ResourceManager()
@@ -65,7 +65,7 @@ Resource*	ResourceManager::load(const EString& ID,immediately t)
 			return drv->loadSynchronous(ID);
 		}
 	}
-	throw resources::ResourceException(EString("Failed to find driver to manage query:" + ID));
+	throw resources::ResourceException(EString("Failed to find driver to manage query: " + ID));
 }
 
 Resource *ResourceManager::load(const EString & ID, asynchronous t)
@@ -94,7 +94,7 @@ Resource *ResourceManager::load(const EString & ID, asynchronous t)
 			return drv->loadAsynchronous(ID);
 		}
 	}
-	throw resources::ResourceException(EString("Failed to find driver to manage query:" + ID));
+	throw resources::ResourceException(EString("Failed to find driver to manage query: " + ID));
 }
 
 void ResourceManager::free(Resource *res)

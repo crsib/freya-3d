@@ -77,6 +77,10 @@ private:
 	Textures								m_Textures;
 	TextureTargets							m_TextureTargets;
 	GeometryBuffers							m_GeometryBuffers;
+
+	math::matrix4x4				m_OldProjection;
+	math::matrix4x4				m_OldView;
+	math::matrix4x4				m_OldWorld;
 };
 
 }
