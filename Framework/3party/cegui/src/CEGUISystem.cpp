@@ -58,6 +58,7 @@
 #include "CEGUIRenderingContext.h"
 #include "CEGUIDefaultResourceProvider.h"
 #include "CEGUIImageCodec.h"
+#include "CEGUIRenderTarget.h"
 #include "elements/CEGUIAll.h"
 #include <ctime>
 #include <clocale>
@@ -421,7 +422,9 @@ void System::renderGUI(void)
 	}
 
     d_renderer->getDefaultRenderingRoot().draw();
+    //d_renderer->getDefaultRenderingRoot().getRenderTarget().activate();
 	MouseCursor::getSingleton().draw();
+	//d_renderer->getDefaultRenderingRoot().getRenderTarget().deactivate();
     d_renderer->endRendering();
 
     // do final destruction on dead-pool windows

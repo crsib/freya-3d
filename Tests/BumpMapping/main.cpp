@@ -9,6 +9,8 @@
 
 unsigned   frames = 0;
 float      fps;
+char	   fpsbuf[8];
+bool	   fpsup = false;
 
 unsigned   active = 1;
 int winWidth = 640,winHeight = 640;
@@ -26,27 +28,33 @@ public:
 	{
 		wm = core::EngineCore::getWindowManager();
 		lastt = wm->getTickCount();
+		lastf = lastt;
+		//
 	}
 
 	virtual
 	int operator() ()
 	{
 		newt = wm->getTickCount();
+
+		CEGUI::System::getSingleton().injectTimePulse((newt-lastf)*0.001);
+		lastf = newt;
 		if((newt - lastt) > 1000 ) //Update once per second
 		{
 			fps  = frames * 1000.0f / float(newt-lastt);
 			lastt = newt;
 			frames = 0;
-			std::stringstream str;
-			str << "Bump Mapping Demo [FPS " << fps << "]";
-			wm->setCaption(str.str().c_str());
+			sprintf(fpsbuf,"% 5.2f",fps);
+			fpsup = true;
 		}
 		return FPSCounter::SECONDARY_THREAD;
 	}
 private:
 	unsigned lastt;
+	unsigned lastf;
 	unsigned newt;
 	windowmanager::WindowManagerDriver*	wm;
+
 };
 
 class BumpmappingRender : public core::taskmanager::Task
@@ -58,6 +66,7 @@ public:
 	  {
 		rapi = core::EngineCore::getRenderingDriver();
 		wm = core::EngineCore::getWindowManager();
+		fpsv  = CEGUI::System::getSingleton().getGUISheet()->getChildRecursive(3);
 	  }
 	virtual ~BumpmappingRender()
 	{
@@ -71,28 +80,32 @@ public:
 			return BumpmappingRender::MAIN_THREAD;
 		//Clear color and depth buffer
 		m_Cameras[m_CamMode]->apply();
-		//*
+
 		rapi->clearColorValue(0.3,0.4,0.5,1.0);
 		rapi->clearColor();
 		rapi->clearDepth();
 		rapi->beginScene();
+		//*
 		//Set the light and camera position to the shader
 		shader->setUniform("lightPos",lightPos);
 		shader->setUniform("eyePos",m_Cameras[m_CamMode]->getPos());
-		//Render cube
+		//Render cube/sphere
 		rapi->setMatrix(renderer::Matrix::MODEL,math::matrix4x4::identity);
 		m_Sphere->render();
 		//Translate to light position
 		math::matrix4x4 transf = math::matrix4x4::translationMatrix(lightPos)*math::matrix4x4::scaleMatrix(0.05,0.05,0.05);
 		rapi->setMatrix(renderer::Matrix::MODEL,transf);
 		lightSource->render();
-		//Restore matrix state
-		//rapi->popMatrix();
-		//Swap buffers
-//*/
-		//rapi->disableDepthTest();
+
+		//*/
+		if(fpsup)
+		{
+			fpsv->setText(CEGUI::String(fpsbuf));
+			fpsup = false;
+		}
+
 		core::EngineCore::getCEGUISystem()->renderGUI();
-		//rapi->enableDepthTest();
+
 		//Swap buffers (one of the most costly command)
 		rapi->endScene();
 		wm->swapBuffers();
@@ -116,6 +129,7 @@ private:
 	renderer::Shader*					shader;
 	primitives::Cube*					lightSource;
 	math::vector3d						lightPos;
+	CEGUI::Window*				fpsv;
 
 };
 
@@ -131,8 +145,12 @@ public:
 		wm = core::EngineCore::getWindowManager();
 		kbd = wm->createKeyDrivenDevice("keyboard");
 		mouse = wm->createMovementDrivenDevice("mouse");
+		mbut = wm->createKeyDrivenDevice("mouse_buttons");
 		oldTime = bumpCallTime = camCallTime = wm->getTickCount();
 		lightPos = math::vector3d (1.5,1.5,1.5);
+		bumpEnable_w = CEGUI::System::getSingleton().getGUISheet()->getChildRecursive(10);
+		x_pos = CEGUI::System::getSingleton().getGUISheet()->getChildRecursive(1000);
+		y_pos = CEGUI::System::getSingleton().getGUISheet()->getChildRecursive(1001);
 	  }
 	virtual
 	int operator() ()
@@ -164,12 +182,14 @@ public:
 							m_Cube->setBump(fake);//Not anymore, haha
 							m_Sphere->setBump(fake);
 							m_UseBump = false;
+							bumpEnable_w->setProperty("Selected","False");
 						}
 						else
 						{
 							m_Cube->setBump(bump);
 							m_Sphere->setBump(bump);
 							m_UseBump = true;
+							bumpEnable_w->setProperty("Selected","True");
 						}
 						bumpCallTime = newTime;
 					}
@@ -216,17 +236,51 @@ public:
 
 					// Uncoment this to enable mouse. Yet by the time it does not work good in SDL 1.3
 
-					wm->grabInput(true);
-					wm->showCursor(false);
+				}
+				int x = 0,y = 0;
 
-					if(m_CamMode)
+				mouse->absoluteState(&x,&y);
+				sprintf(tbuf,"%i",x);
+				x_pos->setText(tbuf);
+				sprintf(tbuf,"%i",y);
+				y_pos->setText(tbuf);
+
+				CEGUI::System::getSingleton().injectMousePosition(x,y);
+				static unsigned left = 0;
+				static unsigned right = 0;
+				if(mbut->getKeyState(windowmanager::input::BUTTON_LEFT))
+				{
+					if(left == 0)
 					{
-						int x = 0,y = 0;
-						mouse->relativeState(&x,&y);
-						//m_Cameras[1]->changeYaw(secs*x*0.5);
-						//m_Cameras[1]->changePitch(secs*y*0.5);
-					}
+						CEGUI::System::getSingleton().injectMouseButtonDown(CEGUI::LeftButton);
+						left = 1;
 
+					}
+				}
+				else if(left)
+				{
+					CEGUI::System::getSingleton().injectMouseButtonUp(CEGUI::LeftButton);
+					left = 0;
+				}
+
+				if(mbut->getKeyState(windowmanager::input::BUTTON_RIGHT))
+				{
+					if(right == 0)
+					{
+						CEGUI::System::getSingleton().injectMouseButtonDown(CEGUI::RightButton);
+						right = 1;
+					}
+				}
+				else if(right)
+				{
+					CEGUI::System::getSingleton().injectMouseButtonUp(CEGUI::RightButton);
+					right = 0;
+				}
+				if(m_CamMode)
+				{
+					//m_Cameras[1]->changeYaw(secs*x*0.5);
+					//	m_Cameras[1]->changePitch(secs*y*0.5);
+					//std::cout << x << " " << y << std::endl;
 				}
 			}//End of fake paranthesis for input handling
 			//Animate light source
@@ -259,11 +313,16 @@ private:
 	float 	  secs;
 	windowmanager::WindowManagerDriver*		wm;
 	windowmanager::input::KeyDrivenDevice*   kbd;
+	windowmanager::input::KeyDrivenDevice*	 mbut;
 	windowmanager::input::MovementDrivenDevice* mouse;
 	renderer::Texture*						bump;
 	renderer::Texture*						fake;
 	BumpmappingRender*						renderer;
 	math::vector3d							lightPos;
+	CEGUI::Window*							bumpEnable_w;
+	char									tbuf[5];
+	CEGUI::Window*							x_pos;
+	CEGUI::Window*							y_pos;
 };
 
 class Initialize		: public core::taskmanager::Task
@@ -282,6 +341,7 @@ public:
 		static resources::Resource*	specular_r;
 		static resources::Resource*	bump_r;
 		static resources::Resource*	fake_r;
+		static resources::Resource* shader_r;
 		static unsigned camMode = 0;
 		static unsigned tex_load_start;
 		if(!m_RendererStarted)
@@ -295,6 +355,8 @@ public:
 			fs = core::EngineCore::getFilesystem();
 			fs->mount("pwd");
 			fs->mount("lzma","Textures.7z");
+			fs->mount("lzma","StdGUI.7z");
+			fs->mount("lzma","StdShaders.7z");
 
 			//Create window
 			windowmanager::WindowFormat*	fmt = new windowmanager::WindowFormat;
@@ -302,6 +364,8 @@ public:
 			fmt->MultisampleSamples = 8;
 			wm->setWindowFormat(fmt);
 			delete fmt;
+			wm->showCursor(false);
+			wm->grabInput(true);
 			wm->setWindowedModeWindowSize(winWidth,winHeight);
 			windowmanager::DisplayMode*	mode = wm->getDisplayMode(0);
 			std::cout << "Default fs mode is " << mode->width << "x" << mode->height << "@" << mode->refreshRate << std::endl;
@@ -325,7 +389,7 @@ public:
 			rapi->clearDepth();
 			wm->swapBuffers();
 			//Create keyboard and mouse
-			windowmanager::input::KeyDrivenDevice* kbd = wm->createKeyDrivenDevice("keyboard");
+			//windowmanager::input::KeyDrivenDevice* kbd = wm->createKeyDrivenDevice("keyboard");
 			//windowmanager::input::MovementDrivenDevice* mouse = wm->createMovementDrivenDevice("mouse");
 			//Time variables. We need to know, how much time previuos frame has taken to do the correct animation/camera controlling
 			unsigned oldTime = wm->getTickCount(),newTime;
@@ -368,6 +432,8 @@ public:
 			std::cout << "Loading fake normal map" << std::endl;
 			fake_r = rm->load(":tga:/Textures/fake_normal.tga:mipmaps");
 
+			shader_r = rm->load(":shader:vertex:/Shaders/bump.vert:fragment:/Shaders/bump.frag");
+
 		}
 		while(!diffuse_r->ready())
 			return core::taskmanager::Task::MAIN_THREAD;
@@ -376,6 +442,8 @@ public:
 		while(!bump_r->ready())
 			return core::taskmanager::Task::MAIN_THREAD;
 		while(!fake_r->ready())
+			return core::taskmanager::Task::MAIN_THREAD;
+		while(!shader_r->ready())
 			return core::taskmanager::Task::MAIN_THREAD;
 
 		renderer::Texture* diffuse = diffuse_r->get<renderer::Texture*>();
@@ -420,23 +488,9 @@ public:
 		//math::vector3d lightPos(0,10.5,0);
 		//Cube for visualation of light position
 		primitives::Cube* lightSource = new primitives::Cube;
-		//Instance of light position source
-		//Please NOTE: we create two different cubes (and thus instances, belonging to different cubes) because cubes have different textures and shaders
-		//Let's load shader sources
-		//First, create a shader container
-		renderer::Shader* shader = rapi->createShader();
-		//Load vertex shader source code
-		std::cout << "Loading shaders" << std::endl;
-		size_t sz;
-		char* data = reinterpret_cast<char*>(fs->read("/Shaders/bump.vert",&sz));
-		EString vertex(data,sz);
-		core::memory::Free(data,core::memory::GENERIC_POOL);
-		data = reinterpret_cast<char*>(fs->read("/Shaders/bump.frag",&sz));
-		EString fragment(data,sz);
-		core::memory::Free(data,core::memory::GENERIC_POOL);
-		shader->addShaders(vertex,fragment);
-		//And finally link
-		shader->link();
+
+		renderer::Shader* shader = shader_r->get<renderer::Shader*>();
+		//shader->link();
 		//Set freshly linked shader to our cube to automate various uniform setting
 		cube->setShader(shader);
 		sphere->setShader(shader);
@@ -454,36 +508,34 @@ public:
 						new camera::FlyCamera(math::vector3d(3.0,0.0,3.0),math::vector3d(-1.0,0.0,-1.0),math::vector3d(0.0,1.0,0.0),
 								1.04,(float)winWidth/(float)winHeight,1,1000)
 		};
-		math::matrix4x4 m = math::matrix4x4::lookat(math::vector3d(3.0,0.0,3.0),math::vector3d(-1.0,0,-1.0),math::vector3d(0.0,1.0,0.0));
-		std::cout << "MV MTX: " << m << std::endl;
-		float* mp = m;
-		for(int i = 0; i < 16;i++)
-			std::cout << mp[i] << " ";
-		std::cout << std::endl;
+
 		//Initialization done
 		cams[0]->applyRenderingSettings();
 		core::EngineCore::startCEGUI();
-		CEGUI::System::getSingleton().getRenderer()->setDisplaySize(CEGUI::Size(winWidth,winHeight));
-		CEGUI::SchemeManager::getSingleton().create("TaharezLook.scheme");
-		CEGUI::System::getSingleton().setDefaultMouseCursor("TaharezLook", "MouseArrow");
-		CEGUI::WindowManager& winMgr = CEGUI::WindowManager::getSingleton();
+		//CEGUI::System::getSingleton().getRenderer()->setDisplaySize(CEGUI::Size(winWidth,winHeight));
+		CEGUI::SchemeManager::getSingleton().create( "TaharezLook.scheme" );
 
-		CEGUI::DefaultWindow* root = (CEGUI::DefaultWindow*)winMgr.createWindow("DefaultWindow", "Root");
+		CEGUI::FontManager::getSingleton().create( "DejaVuSans-10.font" );
 
-		CEGUI::System::getSingleton().setGUISheet(root);
+		CEGUI::System::getSingleton().setDefaultMouseCursor( "TaharezLook", "MouseArrow" );
 
-		CEGUI::FrameWindow* wnd = (CEGUI::FrameWindow*)winMgr.createWindow("TaharezLook/FrameWindow", "Demo Window");
-
-		root->addChildWindow(wnd);
 		{
 			using namespace CEGUI;
-			wnd->setPosition(UVector2(cegui_reldim(0.25f), cegui_reldim( 0.25f)));
-			wnd->setSize(UVector2(cegui_reldim(0.5f), cegui_reldim( 0.5f)));
+			Window* root = WindowManager::getSingleton().loadWindowLayout( "BumpMapping.layout" );
+			System::getSingleton().setGUISheet( root );
+			root->getChildRecursive(5)->setText(String(core::EngineCore::getRenderingDriver()->getRendererName().c_str()));
+			root->getChildRecursive(4)->setText(String((core::EngineCore::getRenderingDriver()->getAPIName() + " " + core::EngineCore::getRenderingDriver()->getShaderAPIName()).c_str()));
 
-			wnd->setMaxSize(UVector2(cegui_reldim(1.0f), cegui_reldim( 1.0f)));
-			wnd->setMinSize(UVector2(cegui_reldim(0.1f), cegui_reldim( 0.1f)));
-
-			wnd->setText("Hello World!");
+			Window*	descr = WindowManager::getSingleton().getWindow("Root/desc");
+			descr->setText(
+					"\'C\' - toggle camera mode (rotate/flight)\n"
+					"\'B\' - toggle bumpmapping on/of\n"
+					"Rotate camera mode:\n"
+					"Arrows - angle control\n"
+					"Flight camera:\n"
+					"\'W\',\'A\',\'S\',\'D\',Up,Down - move\n"
+					"\'Q\',\'E\' - change pitch\n"
+					"Left/Right - rotate left/right");
 		}
 
 		BumpmappingRender*	renderer =  new BumpmappingRender(camMode,cams,sphere,cube,useBump,shader,lightSource);
@@ -523,6 +575,5 @@ int main(int argC,char** argV)
 		std::cout << "Unknown exception" << std::endl;
 	}
 	//Everything is fine, just exit (again, all stack allocated object are cleared
-	std::cout << "quat: "<< sizeof(math::quaternion) << " v3d " << sizeof(math::vector3d) << std::endl;
 	return 0;
 }

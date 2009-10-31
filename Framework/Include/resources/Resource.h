@@ -51,6 +51,8 @@ namespace __internal
 class ResourceLibrary;
 template<typename T>
 resources::Resource* 	createResource(T*	res);
+template<typename T>
+resources::Resource* 	setResource(Resource* res,T*);
 // Sets resource as ready
 void					finalizeResource(resources::Resource*);
 void					destroyResource(resources::Resource*);
@@ -67,6 +69,8 @@ class Resource: virtual public ::EngineSubsystem
 	friend class __internal::ResourceLibrary;
 	template<typename T>
 	friend resources::Resource* 	resources::__internal::createResource(T*);
+	template<typename T>
+	friend resources::Resource* 	resources::__internal::setResource(Resource* res,T*);
 	friend void						resources::__internal::destroyResource(resources::Resource*);
 	friend void						resources::__internal::finalizeResource(resources::Resource*);
 private://TODO: make this private

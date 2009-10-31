@@ -9,7 +9,7 @@ FreyaGeometryBuffer::FreyaGeometryBuffer()
 {
 	m_Effect 		= NULL;
 	m_ActiveTexture = NULL;
-	m_VBOSize		= 64;
+	m_VBOSize		= 256;
 	m_Rapi			= core::EngineCore::getRenderingDriver();
 	m_MatrixDirty 	= m_VBOSync = true;
 	m_VBO			= m_Rapi->createVertexBufferObject();
@@ -36,6 +36,8 @@ FreyaGeometryBuffer::draw() const
 	updateTransform();
 
 	m_Rapi->enableScissorTest();
+	//assert(m_ClipRegion.d_left != m_ClipRegion.d_right);
+	//assert(m_ClipRegion.d_top  != m_ClipRegion.d_bottom);
 	m_Rapi->clipArea(m_ClipRegion.d_left,m_ClipRegion.d_top,m_ClipRegion.d_right,m_ClipRegion.d_bottom);
 
 	m_Rapi->setMatrix(renderer::Matrix::WORLD,m_Transf);
@@ -58,6 +60,7 @@ FreyaGeometryBuffer::draw() const
 		Batches::const_iterator it = m_Batches.begin();
 		for(; it != m_Batches.end(); ++it )
 		{
+			//std::cout << "Rendering batch with texture " << it->first << " from " << pos << " to " << it->second << std::endl;
 			m_Rapi->setTexture(renderer::TextureUnit::TEXTURE0,it->first);
 			m_Rapi->setStreamSource(0,m_VBO,0,sizeof(FVertex));
 			m_Rapi->drawPrimitive(renderer::Primitive::TRIANGLES,pos,it->second);
@@ -68,7 +71,7 @@ FreyaGeometryBuffer::draw() const
 	if(m_Effect)
 		m_Effect->performPostRenderFunctions();
 
-	m_Rapi->disableScissorTest();
+	//m_Rapi->disableScissorTest();
 }
 
 
@@ -135,9 +138,11 @@ void FreyaGeometryBuffer::appendGeometry(const Vertex *const vbuff, uint vertex_
 		v.u = vs.tex_coords.d_x;
 		v.v = vs.tex_coords.d_y;
 		m_Verticies.push_back(v);
+//		std::cout << "Appended vertex \n\t( " << v.x << ", " << v.y << ", " << v.z <<
+//				" )\n\t( " << v.r << ", " <<  v.g << ", "  << v.b << ", " << v.a <<
+//				" )\n\t( " << v.u << ", " << v.v << " )" << std::endl;
 	}
 	m_VBOSync = true;
-	std::cout << "[CEGUI]: Apeending geometry: " << vertex_count << " verticies to "<< (void*)this << std::endl;
 }
 
 
@@ -195,8 +200,9 @@ RenderEffect *FreyaGeometryBuffer::getRenderEffect()
 	return m_Effect;
 }
 
-void FreyaGeometryBuffer::updateVBO() const
-		{
+void
+FreyaGeometryBuffer::updateVBO() const
+{
 	if(m_VBOSync)
 	{
 		size_t required_size = m_Verticies.size() * sizeof(FVertex);
@@ -206,15 +212,21 @@ void FreyaGeometryBuffer::updateVBO() const
 				m_VBOSize *= 2;
 			m_VBO->setData(renderer::VBOTarget::VERTEX,renderer::VBOUsage::DYNAMIC_DRAW,m_VBOSize,0);
 		}
-
-		memcpy(m_VBO->map(renderer::VBOAccess::WRITE_ONLY),&m_Verticies[0],required_size);
+		void* vmem = m_VBO->map(renderer::VBOAccess::WRITE_ONLY);
+		assert(vmem);
+		memcpy(vmem,&m_Verticies[0],required_size);
 		m_VBO->unmap();
 		m_VBOSync = false;
+//		std::cout << "Updating vbo to size " << m_VBOSize << std::endl;
+//		for (int i = 0; i < (required_size >> 2); i++)
+//			std::cout << *(reinterpret_cast<const float*>(&m_Verticies[0]) + i) << " ";
+//		std::cout << std::endl;
 	}
-		}
+}
 
-void FreyaGeometryBuffer::updateTransform() const
-		{
+void
+FreyaGeometryBuffer::updateTransform() const
+{
 	if(m_MatrixDirty)
 	{
 		m_Transf = math::matrix4x4::translationMatrix(math::vector3d(m_Translation.d_x + m_Pivot.d_x,m_Translation.d_y + m_Pivot.d_y,m_Translation.d_z + m_Pivot.d_z))
@@ -223,9 +235,10 @@ void FreyaGeometryBuffer::updateTransform() const
 		* math::matrix4x4::translationMatrix(math::vector3d(-m_Pivot.d_x,-m_Pivot.d_y,-m_Pivot.d_z));
 		m_MatrixDirty = false;
 	}
-		}
+}
 
-const math::matrix4x4 FreyaGeometryBuffer::getTransformation() const
+const
+math::matrix4x4 FreyaGeometryBuffer::getTransformation() const
 {
 	updateTransform();
 	return m_Transf;

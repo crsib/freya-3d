@@ -29,8 +29,8 @@ class TGADriver : public resources::ResourceManagerDriver
 	TGADriver();
 	virtual ~TGADriver();
 public:
-	virtual bool	unique() const;
-	virtual EString id() const;
+	virtual bool		unique() const;
+	virtual EString 	id() const;
 	virtual Resource*	loadSynchronous(const EString& ID);
 	virtual Resource*	loadAsynchronous(const EString& ID);
 	virtual void 		destroy(Resource* res);

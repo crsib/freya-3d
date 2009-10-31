@@ -173,6 +173,8 @@ Source/core/xml/xerces/FreyaFileManager.cpp
 Source/core/xml/xerces/FreyaMemoryManager.cpp
 Source/core/xml/xerces/FreyaPanicHandler.cpp
 
+Source/resources/drivers/std/ShaderLoaderDriver.cpp
+
 #Generated sources
 "${INTERMIDIATE_DIRECTORY}/StaticPluginsLoader.cpp"
 "${INTERMIDIATE_DIRECTORY}/freya_lua_bind.cpp"

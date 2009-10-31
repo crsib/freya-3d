@@ -33,12 +33,20 @@ void FreyaTextureTarget::declareRenderSize(const Size & sz)
 {
 	if ((m_Viewport.getWidth() >= sz.d_width) && (m_Viewport.getHeight() >=sz.d_height))
 	        return;
+	m_Texture->getFreyaTexture()->loadTexture(renderer::TextureType::TEXTURE_2D,0,renderer::TextureInternalFormat::RGBA8,renderer::TextureFormat::RGBA,renderer::TextureStorage::BYTE,static_cast<unsigned>(sz.d_width),static_cast<unsigned>(sz.d_height),NULL);
+	//m_Texture->loadFromMemory(0,sz,Texture::PF_RGBA);
+
+	//FreyaRenderTarget::setArea(Rect(m_Viewport.getPosition(), m_Texture->getSize()));
 	FreyaRenderTarget::setArea(Rect(m_Viewport.getPosition(), sz));
-	//m_Texture->getFreyaTexture()->loadTexture(renderer::TextureType::TEXTURE_2D,0,renderer::TextureInternalFormat::RGBA8,renderer::TextureFormat::RGBA,renderer::TextureStorage::BYTE,static_cast<unsigned>(sz.d_width),static_cast<unsigned>(sz.d_height),NULL);
-	m_Texture->loadFromMemory(0,sz,Texture::PF_RGBA);
+	m_Texture->setFreyaTexture(m_Texture->getFreyaTexture(),static_cast<unsigned>(sz.d_width),static_cast<unsigned>(sz.d_height));
+
+	//m_Fbo->setDimensions(static_cast<unsigned>(m_Texture->getSize().d_width),static_cast<unsigned>(m_Texture->getSize().d_height));
 	m_Fbo->setDimensions(static_cast<unsigned>(sz.d_width),static_cast<unsigned>(sz.d_height));
-	//m_Texture->setFreyaTexture(m_Texture->getFreyaTexture(),static_cast<unsigned>(sz.d_width),static_cast<unsigned>(sz.d_height));
 	m_Fbo->attachTexture(renderer::FramebufferAttachment::COLOR_ATTACHMENT0,m_Texture->getFreyaTexture());
+	if(!m_Fbo->status() == renderer::FramebufferStatus::FRAMEBUFFER_COMPLETE)
+	{
+		throw RendererException("CEGUI::FreyaTextureTarget - failed to resize target");
+	}
 	clear();
 }
 

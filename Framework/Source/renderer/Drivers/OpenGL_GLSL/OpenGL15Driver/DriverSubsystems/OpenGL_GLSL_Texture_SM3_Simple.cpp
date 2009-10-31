@@ -21,6 +21,7 @@ OpenGL_GLSL_Texture::OpenGL_GLSL_Texture()
 	m_Bounded = false;
 	m_DefaultUnit = TextureUnit::TEXTURE0;
 	m_IsCompressed = false;
+	m_Target = GL_TEXTURE_2D;
 }
 
 OpenGL_GLSL_Texture::~OpenGL_GLSL_Texture()
@@ -261,7 +262,7 @@ void		OpenGL_GLSL_Texture:: bind()
 	m_Bounded = true;
 	m_BoundedUnit = m_DefaultUnit;
 	glActiveTextureARB(OpenGL_GLSL_Tables::TextureUnit[m_BoundedUnit]);
-	glEnable(m_Target);
+	//glEnable(m_Target);
 	glBindTexture(m_Target,m_Texture);
 	glActiveTextureARB(OpenGL_GLSL_Tables::TextureUnit[TextureUnit::TEXTURE0]);
 }
@@ -271,7 +272,7 @@ void		OpenGL_GLSL_Texture:: bind(renderer::TextureUnit::type unit)
 	m_Bounded = true;
 	m_BoundedUnit = unit;
 	glActiveTextureARB(OpenGL_GLSL_Tables::TextureUnit[m_BoundedUnit]);
-	glEnable(m_Target);
+	//glEnable(m_Target);
 	glBindTexture(m_Target,m_Texture);
 	glActiveTextureARB(OpenGL_GLSL_Tables::TextureUnit[TextureUnit::TEXTURE0]);
 }
@@ -281,7 +282,7 @@ void		OpenGL_GLSL_Texture:: unbind()
 	if(m_Bounded)
 	{
 		glActiveTextureARB(OpenGL_GLSL_Tables::TextureUnit[m_BoundedUnit]);
-		glDisable(m_Target);
+		//glDisable(m_Target);
 		glBindTexture(m_Target,0);
 		glActiveTextureARB(OpenGL_GLSL_Tables::TextureUnit[TextureUnit::TEXTURE0]);
 		m_Bounded = false;
