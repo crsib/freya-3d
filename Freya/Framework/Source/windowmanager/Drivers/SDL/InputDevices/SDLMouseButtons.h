@@ -62,6 +62,7 @@ public:
 
 private:
 	int		m_Mouse;
+	int 	m_State;
 };
 
 }

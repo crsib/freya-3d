@@ -16,6 +16,9 @@ SET ( PLUGIN_OUTPUT_DIRECTORY 		 ${CMAKE_SOURCE_DIR}/Build/Bin/Plugins )
 SET ( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Build/Bin )
 SET ( INTERMIDIATE_DIRECTORY		 ${CMAKE_SOURCE_DIR}/Build/Intermediate )	
 SET ( GENERATORS_DIRECTORY           ${CMAKE_SOURCE_DIR}/Generators )
+SET ( APP_DATA                       ${CMAKE_SOURCE_DIR}/Data )
+SET ( APP_STD_DATA                   ${CMAKE_SOURCE_DIR}/Data/STD )
+
 #Global includes for all Freya Subprojects 
 INCLUDE_DIRECTORIES( Framework/Include ${INTERMIDIATE_DIRECTORY})
 
@@ -86,6 +89,9 @@ IF(APPLE)
 	FIND_LIBRARY(COREFOUNDATION CoreFoundation)
 	MESSAGE("Using CoreFoundation as ${COREFOUNDATION}")
 	SET(GLOBAL_LINK_LIBRARIES ${STLPORT_LIBRARIES} ${COREFOUNDATION})
+	FIND_LIBRARY(APP_SERVICES ApplicationServices)
+	MESSAGE("Using ApplicationServices as ${APP_SERVICES}")
+	SET(GLOBAL_LINK_LIBRARIES ${STLPORT_LIBRARIES} ${APP_SERVICES})
 ENDIF(APPLE)
 # Link libraries to FreyaCore in case of its static building
 DEFINE_PROPERTY(GLOBAL PROPERTY FREYA_CORE_LINK_LIBRARIES_GLOBAL BRIEF_DOCS "Put libraries to link with FreyaCore here"  FULL_DOCS "Put libraries to link with FreyaCore here")

@@ -195,6 +195,9 @@ EngineCore::EngineCore(int argC,char** argV,const std::string& applicationName, 
 
 EngineCore::~EngineCore()
 {
+	std::cout << "Destroying task manager" << std::endl;
+	delete m_TaskManager;
+	std::cout << "Stopping CEGUI" << std::endl;
 	CEGUI::System::destroy();
 	std::cout << "Stopping Xerces-C++" << std::endl;
 	delete m_XMLParser;
@@ -202,8 +205,6 @@ EngineCore::~EngineCore()
 	delete m_LuaCore;
 	std::cout << "Destroying resource manager" << std::endl;
 	delete m_ResourceManager;
-	std::cout << "Destroying task manager" << std::endl;
-	delete m_TaskManager;
 	std::cout << "Destroying rendering driver" << std::endl;
 	delete m_RenderingDriver;
 	std::cout << "Destroying window manager" << std::endl;
@@ -433,8 +434,10 @@ core::xml::XMLParser*				EngineCore::getXMLParser()
 void								EngineCore::startCEGUI()
 {
 	//using namespace CEGUI;
-
+	if(!m_RenderingDriver)
+		throw renderer::DriverException("No RAPI started before CEGUI");
 	CEGUI::freya::FreyaRenderer*			rend = new CEGUI::freya::FreyaRenderer;
+	rend->setDisplaySize(CEGUI::Size(m_WindowManager->getWindowWidth(),m_WindowManager->getWindowHeight()));
 	CEGUI::freya::FreyaResourceProvider*	rp	 = new CEGUI::freya::FreyaResourceProvider;
 
 	CEGUI::LuaScriptModule*					lm	 = &CEGUI::LuaScriptModule::create(m_LuaCore->m_VirtualMachine);

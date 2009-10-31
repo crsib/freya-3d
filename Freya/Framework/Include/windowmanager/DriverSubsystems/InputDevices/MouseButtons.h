@@ -18,7 +18,7 @@ enum MouseButtons
 {
 	BUTTON_LEFT = 1,
 	BUTTON_MIDDLE,
-	BUTTON_RIGT,
+	BUTTON_RIGHT,
 	BUTTON_X4,
 	BUTTON_X5,
 };

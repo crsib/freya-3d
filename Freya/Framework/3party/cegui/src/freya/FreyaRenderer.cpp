@@ -2,6 +2,8 @@
 
 #include <algorithm>
 
+#include "resources/ResourceManager.h"
+#include "resources/Resource.h"
 namespace CEGUI
 {
 namespace freya
@@ -9,35 +11,12 @@ namespace freya
 
 namespace __internal
 {
-const char		_v_shader_source [] =
-{
-		"void main()\n"
-		"{\n"
-		"	gl_FrontColor = gl_Color;\n"
-		"	gl_TexCoord[0] = gl_MultiTexCoord0;\n"
-		"	gl_Position = ftransform();\n"
-		"}\n"
-};
 
-const char	 	_f_shader_source [] =
-{
-		"uniform sampler2D guiTex;\n"
-		"\n"
-		"void main()\n"
-		"{\n"
-		"	gl_FragColor = gl_Color * texture2D(guiTex, gl_TexCoord[0].xy);\n"
-		"}"
-};
 }
 FreyaRenderer::FreyaRenderer()
 {
 	m_Rapi = core::EngineCore::getRenderingDriver();
-	m_Shader = m_Rapi->createShader();
-	//Todo: change it for some better way of loading shader
-	m_Shader->addShaders(EString(__internal::_v_shader_source),EString(__internal::_f_shader_source));
-	m_Shader->link();
-	if(!m_Shader->isOk())
-		throw CEGUI::RendererException("[CEGUI::FreyaRenderer]: Failed to compile display shader");
+	m_Shader = core::EngineCore::getResourceManager()->load(":shader:CEGUI",resources::ResourceManager::IMMEDIATELY)->get<renderer::Shader*>();
 	m_SamplerLoc = m_Shader->getUniformLocation("guiTex");
 
 	m_DefaultTarget	= new FreyaWindowTarget;
@@ -102,6 +81,9 @@ void FreyaRenderer::endRendering()
 	m_Rapi->disableAlphaBlend();
 	m_Shader->unbind();
 	m_Rapi->enableDepthTest();
+	m_Rapi->setMatrix(renderer::Matrix::PROJECTION,m_OldProjection);
+	m_Rapi->setMatrix(renderer::Matrix::VIEW,m_OldView);
+	m_Rapi->setMatrix(renderer::Matrix::WORLD,m_OldWorld);
 }
 
 Texture & FreyaRenderer::createTexture(const String & filename, const String & resourceGroup)
@@ -127,6 +109,9 @@ FreyaRenderer::getIdentifierString() const
 
 void FreyaRenderer::beginRendering()
 {
+	m_OldProjection = m_Rapi->getMatrix(renderer::Matrix::PROJECTION);
+	m_OldView 	= m_Rapi->getMatrix(renderer::Matrix::VIEW);
+	m_OldWorld 	= m_Rapi->getMatrix(renderer::Matrix::WORLD);
 	m_Shader->bind();
 	m_Rapi->disableCulling();
 	m_Shader->setTexture(m_SamplerLoc,renderer::TextureUnit::TEXTURE0);

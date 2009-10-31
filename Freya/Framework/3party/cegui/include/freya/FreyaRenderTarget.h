@@ -54,9 +54,7 @@ protected:
 	mutable float				m_ViewDistance;
     const unsigned*					m_Vp;
 	renderer::RenderingAPIDriver* m_Rapi;
-	math::matrix4x4				m_OldProjection;
-	math::matrix4x4				m_OldView;
-	math::matrix4x4				m_OldWorld;
+
 };
 
 }

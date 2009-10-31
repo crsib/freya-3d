@@ -36,7 +36,7 @@
 #include "CEGUIImageset.h"
 #include "CEGUIImage.h"
 #include "CEGUIGeometryBuffer.h"
-
+#include <iostream>
 // Start of CEGUI namespace section
 namespace CEGUI
 {
