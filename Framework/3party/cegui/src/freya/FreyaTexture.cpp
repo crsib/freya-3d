@@ -105,7 +105,6 @@ void FreyaTexture::loadFromMemory(const void *buffer, const Size & buffer_size, 
 		}
 		if( xs == static_cast<size_t>(buffer_size.d_width))
 		{
-			std::cout << "Checking mbm" << std::endl;
 			for(unsigned i = 0; i < xs * ys * 4; i++)
 			{
 				assert(((char*)bmb)[i] == ((char*)mb)[i]);
@@ -127,7 +126,6 @@ void FreyaTexture::loadFromMemory(const void *buffer, const Size & buffer_size, 
 	m_Texture->setMinFilter(renderer::TextureFiltering::LINEAR);
 	m_Texture->clampS(renderer::TextureClamping::CLAMP);
 	m_Texture->clampT(renderer::TextureClamping::CLAMP);
-	std::cout << "[CEGUI]: Texture created: " << xs << " " << ys << std::endl;
 }
 
 void FreyaTexture::saveToMemory(void *buffer)
@@ -151,6 +149,10 @@ void FreyaTexture::setFreyaTexture(renderer::Texture *tex,size_t w,size_t h)
 	m_Scaling.d_x = 1.0 / w;
 	m_Scaling.d_y = 1.0 / h;
 	m_DataSize = m_TextureSize;
+	m_Texture->setMagFilter(renderer::TextureFiltering::LINEAR);
+	m_Texture->setMinFilter(renderer::TextureFiltering::LINEAR);
+	m_Texture->clampS(renderer::TextureClamping::CLAMP);
+	m_Texture->clampT(renderer::TextureClamping::CLAMP);
 }
 
 }

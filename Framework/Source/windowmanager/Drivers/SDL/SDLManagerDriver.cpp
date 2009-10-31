@@ -20,6 +20,12 @@
 #include <algorithm>
 #include <SDL/SDL_opengl.h>
 #include <iostream>
+
+#ifdef __APPLE__
+#	include <CoreFoundation/CoreFoundation.h>
+#	include <ApplicationServices/ApplicationServices.h>
+#endif
+
 using std::clog;
 using std::endl;
 
@@ -159,6 +165,10 @@ void			SDLWindowManagerDriver::setFullscreenWindowMode(unsigned id)
 
 		SDL_SetFullscreenDisplayMode(m_SDLDisplayModes[id]);
 		m_FullScreenMode = id;
+		if(m_WindowID && m_Fullscreen)
+		{
+			SDL_SetWindowSize(m_WindowID,m_FreyaModes[id]->width,m_FreyaModes[id]->height);
+		}
 	}
 	else
 		throw windowmanager::WMException(EString("Mode is not supported"));
@@ -169,6 +179,16 @@ void			SDLWindowManagerDriver::toggleFullscreen(bool fs)
 	if(m_WindowID)
 	{
 		SDL_SetWindowFullscreen(m_WindowID,fs);
+		if(fs)
+		{
+			SDL_SetWindowSize(m_WindowID,m_FreyaModes[m_FullScreenMode]->width,m_FreyaModes[m_FullScreenMode]->height);
+			SDL_SetWindowPosition(m_WindowID,0,0);
+		}
+		else
+		{
+			SDL_SetWindowSize(m_WindowID,m_Width,m_Height);
+			SDL_SetWindowPosition(m_WindowID,SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED);
+		}
 	}
 	m_Fullscreen = fs;
 }
@@ -216,8 +236,9 @@ void			SDLWindowManagerDriver::initWindow(renderer::RenderingAPIVersion*	API)
 	m_WindowID = SDL_CreateWindow(m_Caption.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,m_Width,m_Height,SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 	if(m_WindowID == 0)
 		throw windowmanager::WMException("Failed to create window");
-	SDL_SetWindowGrab(m_WindowID,m_Grabbed);
-	SDL_SetWindowFullscreen(m_WindowID,m_Fullscreen);
+	toggleFullscreen(m_Fullscreen);
+	this->grabInput(m_Grabbed);
+	this->showCursor(m_CursorShown);
 
 	m_GLContext = SDL_GL_CreateContext(m_WindowID);
 	if(m_GLContext == 0)
@@ -234,9 +255,9 @@ void			SDLWindowManagerDriver::initWindow(renderer::RenderingAPIVersion*	API)
 	}
 	std::clog << "Window successfully created" << std::endl;
 	clog 	 << "Started renderer:\n\tVendor: " << glGetString( GL_VENDOR )
-					<< "\n\tRenderer: " << glGetString( GL_RENDERER )
-					<< "\n\tOpenGL version: " << glGetString( GL_VERSION )
-					<< "\n\tGLSL version: "<<  glGetString(GL_SHADING_LANGUAGE_VERSION) << endl;
+													<< "\n\tRenderer: " << glGetString( GL_RENDERER )
+													<< "\n\tOpenGL version: " << glGetString( GL_VERSION )
+													<< "\n\tGLSL version: "<<  glGetString(GL_SHADING_LANGUAGE_VERSION) << endl;
 
 }
 
@@ -296,14 +317,14 @@ void		SDLWindowManagerDriver::updateEvents()
 	{
 		switch(event.type)
 		{
-		case SDL_QUIT:
-			if(m_QuitCallback)
-				m_QuitCallback->call();
-			break;
-		case SDL_MOUSEWHEEL:
-			if(m_MouseWheelCallback)
-				m_MouseWheelCallback->call(event.wheel.which,event.wheel.y);
-			break;
+			case SDL_QUIT:
+				if(m_QuitCallback)
+					m_QuitCallback->call();
+				break;
+			case SDL_MOUSEWHEEL:
+				if(m_MouseWheelCallback)
+					m_MouseWheelCallback->call(event.wheel.which,event.wheel.y);
+				break;
 		}
 
 	}
@@ -315,14 +336,39 @@ void		SDLWindowManagerDriver::updateEvents()
 
 void		SDLWindowManagerDriver::grabInput(bool grab_state)
 {
+#ifndef __APPLE__
 	if(m_WindowID)
 		SDL_SetWindowGrab(m_WindowID,grab_state);
+
+#else
+	if(grab_state)
+	{
+		CGPoint		cgp = CGPointMake(1280 >> 1,800 >> 1);
+		CGSetLocalEventsSuppressionInterval (0.0);
+		CGWarpMouseCursorPosition (cgp);
+		CGAssociateMouseAndMouseCursorPosition (1);
+	}
+	else
+	{
+		CGAssociateMouseAndMouseCursorPosition (1);
+	}
+	//std::cout << "AppServices hack to " << (grab_state ? "grab" : "ungrab") << " input" << std::endl;
+#endif
 	m_Grabbed = grab_state;
 }
 
 void		SDLWindowManagerDriver::showCursor(bool cursor_state)
 {
+
+#ifndef __APPLE__
 	SDL_ShowCursor(cursor_state);
+#else
+	if(cursor_state)
+		CGDisplayShowCursor (kCGNullDirectDisplay);
+	else
+		CGDisplayHideCursor (kCGNullDirectDisplay);
+	//std::cout << "AppServices hack to " << (cursor_state ? "show" : "hide") << " cursor" << std::endl;
+#endif
 	m_CursorShown = cursor_state;
 }
 
@@ -374,6 +420,17 @@ void		SDLWindowManagerDriver::postUserEvent(unsigned uid, void* arg1, void* arg2
 	event.user.data1 = arg1;
 	event.user.data2 = arg2;
 	SDL_PushEvent(&event);
+}
+
+unsigned
+SDLWindowManagerDriver::getWindowWidth() const
+{
+	return m_Width;
+}
+unsigned
+SDLWindowManagerDriver::getWindowHeight() const
+{
+	return m_Height;
 }
 
 }

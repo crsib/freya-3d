@@ -31,9 +31,6 @@ void FreyaRenderTarget::draw(const GeometryBuffer & buffer)
 void FreyaRenderTarget::deactivate()
 {
 	m_Rapi->setViewport(m_Vp[0],m_Vp[1],m_Vp[2],m_Vp[3]);
-	m_Rapi->setMatrix(renderer::Matrix::PROJECTION,m_OldProjection);
-	m_Rapi->setMatrix(renderer::Matrix::VIEW,m_OldView);
-	m_Rapi->setMatrix(renderer::Matrix::WORLD,m_OldWorld);
 }
 
 void FreyaRenderTarget::setArea(const Rect & area)
@@ -47,10 +44,6 @@ void FreyaRenderTarget::activate()
 	if(!m_MatrixValid)
 		updateMatrix();
 	m_Vp = m_Rapi->getViewport();
-
-	m_OldProjection = m_Rapi->getMatrix(renderer::Matrix::PROJECTION);
-	m_OldView 	= m_Rapi->getMatrix(renderer::Matrix::VIEW);
-	m_OldWorld 	= m_Rapi->getMatrix(renderer::Matrix::WORLD);
 
 	m_Rapi->setViewport(m_Viewport.d_left,m_Viewport.d_top,m_Viewport.d_right,m_Viewport.d_bottom);
 	m_Rapi->setMatrix(renderer::Matrix::PROJECTION,m_Matrix);
@@ -155,10 +148,6 @@ FreyaRenderTarget::updateMatrix() const
 	mtx.elem[3][3] = m_ViewDistance;
 
 	m_Matrix = mtx;
-
-	std::cout << "Target projection: " << m_Matrix << std::endl;
-	std::cout << "View distance: " << m_ViewDistance << std::endl;
-	std::cout << "Viewport: " << w << " " << h << std::endl;
 }
 
 }

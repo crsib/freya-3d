@@ -32,7 +32,6 @@ void 	FreyaResourceProvider::loadRawDataContainer(const String& filename, RawDat
 
 	EString path = getGroupPath(resGrp) + filename.c_str();
 
-	std::cout << "[CEGUI::ResourceProvider]: Trying to load " << path << std::endl;
 	if(core::EngineCore::getFilesystem()->fileExists(path))
 	{
 		size_t sz  = core::EngineCore::getFilesystem()->fileSize(path);
@@ -47,7 +46,7 @@ void 	FreyaResourceProvider::loadRawDataContainer(const String& filename, RawDat
 				"resource file '" + filename + "' in resource group '" + resGrp +
 				"'.");
 	}
-	std::cout << "[CEGUI::ResourceProvider]: Resource successfully loaded" << std::endl;
+
 }
 
 void 	FreyaResourceProvider::unloadRawDataContainer(RawDataContainer& output)
