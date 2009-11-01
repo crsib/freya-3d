@@ -68,7 +68,9 @@ public:
 
 	virtual void    unlock()
 	{
+		//if(m_Locked)
 			m_Mutex->unlock();
+		m_Locked = 0;
 		/*if(*m_Owner != core::multithreading::getCurrentThreadID())
 			std::cout << "WTF Mutex " << m_Mutex << " is unlocked by " << &core::multithreading::getCurrentThreadID() << " owned by " << m_Owner << std::endl;*/
 	}

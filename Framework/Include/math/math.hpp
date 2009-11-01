@@ -34,20 +34,7 @@
 namespace math
 {
 
-union bin_float
-{
-	float f;
-	unsigned i;
-};
-
-inline
-float abs(const float scalar) {
-	bin_float bf = {scalar};
-	if(bf.i & 0x80000000)
-		bf.i ^= 0x80000000;
-	return bf.f;
-}
-
+float abs(const float scalar);
 
 //SSE based functions
 
@@ -58,23 +45,23 @@ inline std::ostream& operator << (std::ostream& s,const float4& _);
 inline std::ostream& operator << (std::ostream& s,const int4& _);
 
 float 		sqrt(float);
-float4		sqrt(float4);
+float4		sqrt(float4&);
 float4		sqrt(float,float,float,float);
 
 float 		floor(float);
-float4		floor(float4);
+float4		floor(float4&);
 float4		floor(float,float,float,float);
 
 float 		rcp(float);
-float4		rcp(float4);
+float4		rcp(float4&);
 float4		rcp(float,float,float,float);
 
 float 		rcp_sqrt(float);
-float4		rcp_sqrt(float4);
+float4		rcp_sqrt(float4&);
 float4		rcp_sqrt(float,float,float,float);
 
-float4		rcp_mull(float4,float4);
-float4		rcp_sqrt_mull(float4,float4);
+float4		rcp_mull(float4&,float4&);
+float4		rcp_sqrt_mull(float4&,float4&);
 
 float		sin	(float);
 float		cos (float);
