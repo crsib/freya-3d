@@ -202,6 +202,7 @@ void			SDLWindowManagerDriver::initWindow(renderer::RenderingAPIVersion*	API)
 	if(m_Fmt == NULL)
 	{
 		m_Fmt = new WindowFormat;
+		usesDefaultWF = true;
 	}
 
 	if(API->type() != renderer::RenderingAPIVersion::OPENGL)
@@ -229,8 +230,6 @@ void			SDLWindowManagerDriver::initWindow(renderer::RenderingAPIVersion*	API)
 
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES,m_Fmt->MultisampleSamples);
 
-	SDL_GL_SetSwapInterval(m_Fmt->VSync);
-
 	//Now we are ready to create window
 
 	m_WindowID = SDL_CreateWindow(m_Caption.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,m_Width,m_Height,SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
@@ -249,6 +248,10 @@ void			SDLWindowManagerDriver::initWindow(renderer::RenderingAPIVersion*	API)
 	}
 	if(m_Fmt->Multisampled)
 		glEnable(GL_MULTISAMPLE);
+
+	
+	SDL_GL_SetSwapInterval(m_Fmt->VSync);
+
 	if(usesDefaultWF)
 	{
 		delete m_Fmt;

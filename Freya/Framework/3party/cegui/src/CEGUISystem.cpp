@@ -64,7 +64,7 @@
 #include <clocale>
 
 //This block includes the proper headers when static linking
-#if defined(CEGUI_STATIC)
+#if 1 || defined(CEGUI_STATIC)
     // XML Parser
 	#ifdef CEGUI_WITH_EXPAT
 		#include "XMLParserModules/ExpatParser/CEGUIExpatParserModule.h"
@@ -91,6 +91,10 @@
 
 #define S_(X) #X
 #define STRINGIZE(X) S_(X)
+
+#ifdef _MSC_VER
+#	pragma comment(lib, "winmm.lib")
+#endif
 
 // Start of CEGUI namespace section
 namespace CEGUI

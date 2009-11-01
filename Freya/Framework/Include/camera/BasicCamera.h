@@ -170,7 +170,7 @@ public:
 		return m_Position;
 			}
 
-	void setPos(math::vector3d mPos)
+	void setPos(math::vector3d& mPos)
 	{
 		this->m_Position = mPos;
 	}
@@ -180,7 +180,7 @@ public:
 		return m_Direction;
 			}
 
-	void setDir(math::vector3d mDir)
+	void setDir(math::vector3d& mDir)
 	{
 		this->m_Direction = mDir;
 	}
@@ -190,7 +190,7 @@ public:
 		return m_Up;
 			}
 
-	void setUp(math::vector3d mUp)
+	void setUp(math::vector3d& mUp)
 	{
 		this->m_Up = mUp;
 	}
@@ -200,7 +200,7 @@ public:
 		return m_Right;
 			}
 
-	void setRight(math::vector3d mRight)
+	void setRight(math::vector3d& mRight)
 	{
 		this->m_Right = mRight;
 	}
