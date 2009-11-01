@@ -1511,7 +1511,7 @@ void System::setupXMLParser()
     // handle creation / initialisation of XMLParser
     if (!d_xmlParser)
     {
-#ifndef CEGUI_STATIC
+#if 0
         setXMLParser(d_defaultXMLParserName);
 #else
         //Static Linking Call
@@ -1552,7 +1552,7 @@ void System::cleanupXMLParser()
         delete d_parserModule;
         d_parserModule = 0;
     }
-#ifdef CEGUI_STATIC
+#if 1
     else
         //Static Linking Call
         destroyParser(d_xmlParser);
@@ -1564,7 +1564,7 @@ void System::cleanupXMLParser()
 //----------------------------------------------------------------------------//
 void System::setXMLParser(const String& parserName)
 {
-#ifndef CEGUI_STATIC
+#if 0
     cleanupXMLParser();
     // load dynamic module
     d_parserModule = new DynamicModule(String("CEGUI") + parserName);
@@ -1694,7 +1694,7 @@ void System::setupImageCodec(const String& codecName)
     // Test whether we should use the default codec or not
     if (codecName.empty())
         // when statically linked the default codec is already in the system
-        #if defined(CEGUI_STATIC)
+        #if 1
             d_imageCodecModule = 0;
         #else
             d_imageCodecModule =
@@ -1714,7 +1714,7 @@ void System::setupImageCodec(const String& codecName)
     }
     else
     {
-        #if defined(CEGUI_STATIC)
+        #if 1
             d_imageCodec = createImageCodec();
         #else
             throw InvalidRequestException("Unable to load codec " + codecName);
@@ -1737,7 +1737,7 @@ void System::cleanupImageCodec()
     }
     else
     {
-        #if defined(CEGUI_STATIC)
+        #if 1
             destroyImageCodec(d_imageCodec);
         #endif
     }
