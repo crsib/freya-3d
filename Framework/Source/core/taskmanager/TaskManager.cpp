@@ -132,7 +132,7 @@ void TaskManager::addTask(Task* task)
 		synchronize(m_MutexPri)
 						{
 			task->retain();
-			//std::cout << "Adding task to main thread scheduler " << task << " " << task->retainCount() << std::endl;
+		//	std::cout << "Adding task to main thread scheduler " << task << " " << task->retainCount() << std::endl;
 			m_MainThreadSchedule.push_back(task);
 			assert(m_MainThreadSchedule.back() == task);
 						}
@@ -187,7 +187,7 @@ void TaskManager::enterMainLoop()
 			switch(retval)
 			{
 			case core::taskmanager::Task::MAIN_THREAD:
-				//std::cout << "Adding task to main queue " << task << std::endl;
+		//		std::cout << "Adding task to main queue " << task << std::endl;
 				addTask(task);
 				break;
 			case core::taskmanager::Task::SECONDARY_THREAD:

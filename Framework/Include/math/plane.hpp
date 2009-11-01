@@ -77,7 +77,7 @@ public:
 	}
 	float distance(vector3d& point)
 	{
-		return (float)((fabs((m_Normal, point) + m_Distance)));
+		return (float)((math::abs((m_Normal, point) + m_Distance)));
 	}
 
 	void rotate(const vector3d & Dir, float angle)
