@@ -30,6 +30,8 @@
  ***************************************************************************/
 #include "ImageCodecModules/TGAImageCodec/CEGUITGAImageCodecModule.h"
 
+extern "C"
+{
 
 CEGUI::ImageCodec* createImageCodec(void)
 {
@@ -41,4 +43,6 @@ void destroyImageCodec(CEGUI::ImageCodec* imageCodec)
 {
   delete imageCodec;
   
+}
+
 }
