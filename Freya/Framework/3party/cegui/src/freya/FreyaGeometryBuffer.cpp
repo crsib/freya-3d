@@ -217,10 +217,10 @@ FreyaGeometryBuffer::updateVBO() const
 		memcpy(vmem,&m_Verticies[0],required_size);
 		m_VBO->unmap();
 		m_VBOSync = false;
-//		std::cout << "Updating vbo to size " << m_VBOSize << std::endl;
-//		for (int i = 0; i < (required_size >> 2); i++)
-//			std::cout << *(reinterpret_cast<const float*>(&m_Verticies[0]) + i) << " ";
-//		std::cout << std::endl;
+	//	std::cout << "Updating vbo to size " << m_VBOSize << std::endl;
+	//	for (int i = 0; i < (required_size >> 2); i++)
+	//		std::cout << *(reinterpret_cast<const float*>(&m_Verticies[0]) + i) << " ";
+	//	std::cout << std::endl;
 	}
 }
 

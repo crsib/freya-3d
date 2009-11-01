@@ -40,7 +40,7 @@ private:
 	size_t				m_Alligment;
 	size_t				m_Size;
 
-	boost::mutex		m_Mutex;
+	boost::mutex*		m_Mutex;
 };
 }
 }
