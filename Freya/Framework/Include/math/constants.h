@@ -9,6 +9,11 @@
 #ifndef CONSTANTS_H_
 #define CONSTANTS_H_
 
+#ifdef _MSC_VER
+#	pragma warning(disable:4305) 
+#endif
+
+
 namespace math
 {
 

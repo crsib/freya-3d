@@ -130,7 +130,7 @@ FreyaRenderer::getDisplayDPI() const
 uint
 FreyaRenderer::getMaxTextureSize() const
 {
-	m_Rapi->maxTextureSize();
+	return m_Rapi->maxTextureSize();
 }
 
 FreyaRenderer::~FreyaRenderer()
