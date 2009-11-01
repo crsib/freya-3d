@@ -510,7 +510,7 @@ inline float acos(float _)
 
 inline void sincos(float _,float* sin,float* cos)
 {
-	__m128	  xmm7	= _mm_xor_ps			( xmm7,xmm7);
+	__m128	  xmm7	= _mm_setzero_ps();
 
 	__m128 xmm8  	= _mm_load_ss 			( &_2_pi );
 	__m128  xmm1	= _mm_load_ss			( &_ );
@@ -551,7 +551,7 @@ inline void sincos(float _,float* sin,float* cos)
 	__m128	xmm2	= _mm_load_ss			( math::__internal::cos_table + n );
 	__m128	xmm3	= _mm_load_ss			( math::__internal::cos_table + n + 1 );
 	//__m128  xmm4	= _mm_load_ss			( zero.val );
-	__m128	  xmm4	= _mm_xor_ps			( xmm4,xmm4);
+	__m128	  xmm4	= _mm_setzero_ps			();
 	xmm4	= _mm_cvtsi32_ss		( xmm4, n );
 	//Now, compute xmm0 - xmm4 -> xmm0
 	xmm5	= _mm_sub_ss			( xmm0,xmm4 );
@@ -659,7 +659,7 @@ inline   float   cot(float _)
 {
 	//First of all, convert _ to -PI,PI range
 	//__m128 xmm7  	= _mm_load_ss 			( zero.val );
-	__m128	  xmm7	= _mm_xor_ps			( xmm7,xmm7);
+	__m128	  xmm7	= _mm_setzero_ps			( );
 	__m128 xmm8  	= _mm_load_ss 			( &_2_pi );
 	__m128  xmm1	= _mm_load_ss			( &_ );
 	loop:
@@ -699,7 +699,7 @@ inline   float   cot(float _)
 	__m128	xmm2	= _mm_load_ss			( math::__internal::cos_table + n );
 	__m128	xmm3	= _mm_load_ss			( math::__internal::cos_table + n + 1 );
 	//__m128  xmm4	= _mm_load_ss			( zero.val );
-	__m128	  xmm4	= _mm_xor_ps			( xmm4,xmm4);
+	__m128	  xmm4	= _mm_setzero_ps			();
 	xmm4	= _mm_cvtsi32_ss		( xmm4, n );
 	//Now, compute xmm0 - xmm4 -> xmm0
 	xmm5	= _mm_sub_ss			( xmm0,xmm4 );

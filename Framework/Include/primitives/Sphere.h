@@ -83,12 +83,44 @@ private:
 		math::vector3d b;
 		float u;
 		float v;
+		void* operator new(size_t sz)
+		{
+			return core::memory::Allocate(sz,core::memory::GENERIC_POOL);
+		}
+		void* operator new[](size_t sz)
+		{
+			return core::memory::Allocate(sz,core::memory::GENERIC_POOL);
+		}
+		void	operator delete(void * p)
+		{
+			core::memory::Free(p,core::memory::GENERIC_POOL);
+		}
+		void	operator delete[](void * p)
+		{
+			core::memory::Free(p,core::memory::GENERIC_POOL);
+		}
 	};
 	struct IndexData
 	{
 		unsigned short t1;
 		unsigned short t2;
 		unsigned short t3;
+		void* operator new(size_t sz)
+		{
+			return core::memory::Allocate(sz,core::memory::GENERIC_POOL);
+		}
+		void* operator new[](size_t sz)
+		{
+			return core::memory::Allocate(sz,core::memory::GENERIC_POOL);
+		}
+		void	operator delete(void * p)
+		{
+			core::memory::Free(p,core::memory::GENERIC_POOL);
+		}
+		void	operator delete[](void * p)
+		{
+			core::memory::Free(p,core::memory::GENERIC_POOL);
+		}
 	};
 };
 
