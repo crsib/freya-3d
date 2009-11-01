@@ -121,8 +121,16 @@ void* 	MemoryPool::allocate(size_t sz)
 {
 	MemoryPool::MemoryBufferListItem* _start = m_First;
 	void* p;
-	while((_start != NULL)&&(p = _start->This->allocate(sz)) == NULL)
-		_start = _start->Next;
+	while((_start != NULL))
+	{
+		assert(_start);
+		while(_start->This == NULL)//It seems that memory is allocated by another thread
+			core::multithreading::pause();
+		if((p = _start->This->allocate(sz)) == NULL)
+			_start = _start->Next;
+		else
+			break;
+	}
 	if(_start != NULL)
 		return p;
 	else //We need to allocate an additional buffer
@@ -130,41 +138,13 @@ void* 	MemoryPool::allocate(size_t sz)
 		try
 		{
 			m_Last->Next = new MemoryPool::MemoryBufferListItem;
-			//const core::multithreading::ThreadID& id =  core::multithreading::getMainThreadID();
-			//const core::multithreading::ThreadID& cid = core::multithreading::getCurrentThreadID();
-			//if(1&&(cid == id))
-			//{
-#ifdef _FREYA_DEBUG_MEMORY
-				std::cout  << "[Memory]: pre-Allocating memory: inside" << std::endl;
-#endif
-				m_Last->Next->This = new MemoryBuffer((sz < m_AllocSize) ?  m_AllocSize : sz,m_Alligment);
-			//}
-			/*else
-			{
-				std::cout  << "Pre-Allocating memory: outside" << std::endl;
-			spin_wait:
-				if(m_Blocked)
-				{
-					core::multithreading::yield();
-					goto spin_wait;
-				}
-				else
-					m_Blocked = 1;
 
-				__UpdatePools* task = new(m_TaskControl) __UpdatePools;
-				__Result* result = task->Result;
-				task->Size = (sz < m_AllocSize) ?  m_AllocSize : sz;
-				task->Alligment = m_Alligment;
-				core::EngineCore::getTaskManager()->addTask(task);
-				std::cout << "Allocation task sent. Avaiting" << std::endl;
-				while(result->Ready == 0)
-					core::multithreading::yield();
-				m_Last->Next->This = result->Buffer;
-				delete result;
-				m_Blocked = 0;
-				std::cout << "Successfully allocated pool memory for sec thread task" << std::endl;
-			}
-			*/
+#ifdef _FREYA_DEBUG_MEMORY
+			//	std::cout  << "[Memory]: pre-Allocating memory: inside" << std::endl;
+#endif
+
+			m_Last->Next->This = new MemoryBuffer((sz < m_AllocSize) ?  m_AllocSize : sz,m_Alligment);
+			assert(m_Last->Next->This);
 			m_Last = m_Last->Next;
 			m_Last->Next = NULL;
 			if((p = m_Last->This->allocate(sz)) != NULL)

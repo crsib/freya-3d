@@ -100,12 +100,12 @@ template<typename T,unsigned pool> void   MemoryAllocator<T,pool>::operator dele
 //!Provided for STL compatibility
 template<typename T,unsigned pool> T*  MemoryAllocator<T,pool>::allocate(size_t n,const void* hint)
 {
-	return static_cast<T*> (Allocate(n*sizeof(T),pool));
+	return static_cast<T*> (Allocate(n*sizeof(T),core::memory::STL_POOL));
 }
 //!Provided for STL compatibility
 template<typename T,unsigned pool> void  MemoryAllocator<T,pool>::deallocate(T* p,size_t n)
 {
-	Free(p,pool);
+	Free(p,core::memory::STL_POOL);
 }
 
 //typedef MemoryAllocator <T,0> MemAllocator<T>;

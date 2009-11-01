@@ -26,6 +26,7 @@ namespace __internal
 {
 MemoryBuffer::MemoryBuffer(size_t size,size_t alligment)
 {
+	m_Mutex = new boost::mutex;
 	m_Alligment = alligment;
 	//size += sizeof(MemoryHeader) + sizeof(MemoryHeaderList);
 	m_Size = ((size >> alligment) << alligment); //This a purely size of buffer
@@ -59,7 +60,7 @@ MemoryBuffer::MemoryBuffer(size_t size,size_t alligment)
 	_start->m_Size = m_Size - (reinterpret_cast<char*>(_start->pointer()) - reinterpret_cast<char*>(m_Memory));
 	//_start->m_Size
 #ifdef _FREYA_DEBUG_MEMORY
-	std::cout << "[Memory]: Allocated buffer of size: " << m_Size / 1024.0f << " Kb " << std::endl;
+	std::cout << (char*)"[Memory]: Allocated buffer of size: " << m_Size / 1024.0f << " Kb " << std::endl;
 	allocated_for_buffers += m_Size;
 #endif
 
@@ -67,14 +68,16 @@ MemoryBuffer::MemoryBuffer(size_t size,size_t alligment)
 
 MemoryBuffer::~MemoryBuffer()
 {
+	delete m_Mutex;
 	free(m_Memory);
 }
 
 void *		MemoryBuffer::allocate(size_t size)
 {
+	assert(this);
 	void* p;
 	{//synchronized
-		boost::mutex::scoped_lock lock(m_Mutex);
+		boost::mutex::scoped_lock lock(*m_Mutex);
 		p = m_List->allocate(size,m_Alligment);
 	}
 	return p;
@@ -84,7 +87,7 @@ bool		MemoryBuffer::dispose (void* p)
 {
 	bool r;
 	{//synchronized
-		boost::mutex::scoped_lock lock(m_Mutex);
+		boost::mutex::scoped_lock lock(*m_Mutex);
 		r = m_List->dispose(p);
 	}
 	//TODO: TEMPORARY WORKAROUND
