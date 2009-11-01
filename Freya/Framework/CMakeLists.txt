@@ -39,11 +39,6 @@ Include/core/Utils/StringUtils.h
 Include/core/Variable.h
 Include/core.h
 Include/doxygen.h
-Include/framework/AIObject.h
-Include/framework/EmissionObject.h
-Include/framework/OcclusionObject.h
-Include/framework/RenderObject.h
-Include/framework/SimulationObject.h
 Include/freya.h
 Include/internal.h
 Include/primitives/Cube.h
