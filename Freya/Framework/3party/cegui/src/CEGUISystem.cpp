@@ -239,7 +239,7 @@ System::System(Renderer& renderer,
     // constructor, we mark it as so and leave the logger untouched. This allows
     // the user to fully customize the logger as he sees fit without fear of
     // seeing its configuration overwritten by this.
-#ifdef CEGUI_HAS_DEFAULT_LOGGER
+#if 1
     if (d_ourLogger)
         new DefaultLogger();
 #endif

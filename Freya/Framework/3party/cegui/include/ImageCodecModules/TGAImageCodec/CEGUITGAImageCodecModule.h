@@ -38,14 +38,14 @@
   exported function that creates the ImageCodec based object and 
   returns a pointer to that object.
 */
-extern "C" CEGUITGAIMAGECODEC_API CEGUI::ImageCodec* createImageCodec(void);
+extern "C"  CEGUI::ImageCodec* createImageCodec(void);
 
 /*!
   \brief
   exported function that deletes an ImageCodec based object previously 
   created by this module.
 */
-extern "C" CEGUITGAIMAGECODEC_API void destroyImageCodec(CEGUI::ImageCodec* imageCodec);
+extern "C"  void destroyImageCodec(CEGUI::ImageCodec* imageCodec);
 
 
 #endif // end of guard _CEGUITGAImageCodecModule_h_
