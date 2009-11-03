@@ -267,7 +267,7 @@ public:
 		{
 			case	LOADING:
 			{
-				std::cout << "Loading tga texture: "  << path << std::endl;
+				//std::cout << "Loading tga texture: "  << path << std::endl;
 				unsigned char*	file = reinterpret_cast<unsigned char*> (core::CoreInstance->getFilesystem()->read(path));
 				unsigned char*  data = file + sizeof(TGAHeader);
 				//BYTES per pixel
@@ -376,13 +376,13 @@ public:
 				w = width;
 				h = height;
 				core::memory::Free(file,core::memory::GENERIC_POOL);
-				std::cout << "Switching to main thread " << path << std::endl;
+				//std::cout << "Switching to main thread " << path << std::endl;
 				return ASyncTGALoader::MAIN_THREAD;
 			}
 			break;
 			case 	MIPMAP:
 			{
-				std::cout << "Creating mipmap " << level << path << std::endl;
+				//std::cout << "Creating mipmap " << level << path << std::endl;
 				w = width >> level;
 				if(w == 0)
 					w = 1;
@@ -413,7 +413,7 @@ public:
 						}
 					}
 				mode = TEXTUREFILL;
-				std::cout << "Switching to main thread " << path << std::endl;
+				//std::cout << "Switching to main thread " << path << std::endl;
 				return ASyncTGALoader::MAIN_THREAD;
 			}
 			break;
@@ -424,7 +424,7 @@ public:
 					tex = core::CoreInstance->getRenderingDriver()->createTexture();
 					res = __internal::setResource(res,tex);
 				}
-				std::cout << "Uploading texture to accelerator " << level << " " << path << std::endl;
+			//std::cout << "Uploading texture to accelerator " << level << " " << path << std::endl;
 				if(level <= maxlevel)
 				{
 					if(Bpp == 3)
@@ -439,7 +439,7 @@ public:
 						core::memory::Free(nmem,core::memory::GENERIC_POOL);
 					level++;
 					mode = MIPMAP;
-					std::cout << "Switching to sec thread" << path << std::endl;
+					//std::cout << "Switching to sec thread" << path << std::endl;
 					if(level <= maxlevel)
 						return ASyncTGALoader::SECONDARY_THREAD;
 				}
@@ -448,7 +448,7 @@ public:
 		}
 		core::memory::Free(memory,core::memory::GENERIC_POOL);
 		resources::__internal::finalizeResource(res);
-		std::cout << "Loaded " << path << std::endl;
+		//std::cout << "Loaded " << path << std::endl;
 		return ASyncTGALoader::DONE;
 	}
 

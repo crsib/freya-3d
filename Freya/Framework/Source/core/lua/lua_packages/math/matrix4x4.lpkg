@@ -4,82 +4,19 @@ namespace math
 {
 class matrix4x4
 {
-	 const matrix4x4 identity;
+	const  matrix4x4 identity;
 
 	matrix4x4();
+	~matrix4x4();
 
-	matrix4x4(
-			const float _11,const float _12,const float _13, const float _14,
-			const float _21,const float _22,const float _23, const float _24,
-			const float _31,const float _32,const float _33, const float _34,
-			const float _41,const float _42,const float _43, const float _44);
+	operator quaternion () ;
 
-
-	matrix4x4(const math::vector4d& _1, const math::vector4d& _2,const math::vector4d& _3,const math::vector4d& _4);
-
-	matrix4x4(const matrix4x4& m);
-
-	matrix4x4(const matrix3x3& m);
-
-	matrix4x4& operator = (const matrix4x4&);
-
-	matrix4x4(const quaternion& q);
-	operator quaternion () const;
-
-	
-	matrix4x4  	xRotationMatrix(const float angle);
-
-	
-	matrix4x4  	yRotationMatrix(const float angle);
-
-	
-	matrix4x4  	zRotationMatrix(const float angle);
-
-	
-	matrix4x4	rotationMatrix(const float  angle,const vector3d& v3d);
-	
-	matrix4x4	scaleMatrix(const float sx,const float sy, const float sz);
-
-	
-	matrix4x4  	translationMatrix(const vector3d& v3d);
-
-	//Projection
-	
-	matrix4x4   orthoProjection(float top,float left,float bootom,float right,float nearPlane,float farPlane);
-
-	
-	matrix4x4	perspectiveProjection(float fovy,float aspect, float nearPlane, float farPlane);
-
-	
-	matrix4x4	frustumMatrix (float top,float left,float bootom,float right,float nearPlane,float farPlane);
-
-	//view
-	
-	matrix4x4 lookat(const vector3d& from, const vector3d& to, const vector3d up);
-
-	
-	matrix4x4 billboard(const vector3d& from, const vector3d& to, const vector3d up);
-
-	matrix4x4 	operator + () const;
-	matrix4x4 	operator - () const;
-
-	matrix4x4 	operator + (const matrix4x4& ) const;
-	matrix4x4 	operator - (const matrix4x4& ) const;
-
-	matrix4x4 	operator * (const matrix4x4& ) const;
-	math::vector4d  	operator * (const math::vector4d& )  const;
-	vector3d  	operator * (const vector3d& )  const;
-
-	matrix4x4&	operator+= (const matrix4x4& );
-	matrix4x4&  operator-= (const matrix4x4& );
-
-	matrix4x4&	operator*= (const matrix4x4& );
-
-	matrix4x4   operator * (const float ) const;
-	matrix4x4&  operator*= (const float );
-
-	matrix4x4	operator / (const float ) const;
-	matrix4x4&  operator/= (const float );
+	matrix4x4 	operator + () ;
+	matrix4x4 	operator - () ;
+	matrix4x4 	operator + ( matrix4x4& ) ;
+	matrix4x4 	operator - ( matrix4x4& ) ;
+	matrix4x4 	operator * ( matrix4x4& ) ;
+	vector3d  	operator * ( vector3d& )  ;
 
 	matrix4x4&	inverse();
 	//!Inverse a transformation matrix, i.e. composition of rotations and translations (NOT SCALE)
@@ -87,16 +24,14 @@ class matrix4x4
 	matrix4x4&  transpose();
 };
 
-	std::ostream& operator << (std::ostream& , const matrix4x4& );
-
 	//!Inverse a transformation matrix, i.e. composition of rotations and translations (NOT SCALE)
 	
-	matrix4x4	  fast_inversed(const matrix4x4&);
+	matrix4x4	  fast_inversed( matrix4x4&);
 
 	
-	matrix4x4	  inversed @ inversed_m4x4(const matrix4x4&);
+	matrix4x4	  inversed @ inversed_m4x4( matrix4x4&);
 	
-	matrix4x4	  transposed @ transposed_m4x4(const matrix4x4&);
+	matrix4x4	  transposed @ transposed_m4x4( matrix4x4&);
 	
-	float		  det @ det_m4x4(const matrix4x4&);
+	float		  det @ det_m4x4( matrix4x4&);
 }

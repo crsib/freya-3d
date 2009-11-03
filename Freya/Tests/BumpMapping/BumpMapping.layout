@@ -19,10 +19,17 @@
         
         <Window Type="TaharezLook/StaticText" Name="Root/desc">
         	<Property Name="ID" Value="12001" />
-        	<Property Name="Text" Value="0000[break]1111" />
+        	<Property Name="Text" Value=" " />
         	<Property Name="HorzFormatting" Value="WordWrapLeftAligned" />
-        	<Property Name="VertFormatting" Value="WordWrapLeftAligned" />
         	<Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.73,0},{0.4,0},{0.99,0}}" />
+        </Window>
+        
+        <Window Type="TaharezLook/StaticText" Name="Root/Memory">
+        	<Property Name="ID" Value="1002" />
+        	<Property Name="Text" Value="0 B / 0 Mb" />
+        	<Property Name="Font" Value="DejaVuSans-10" />
+        	<Property Name="HorzFormatting" Value="WordWrapRightAligned" />
+        	<Property Name="UnifiedAreaRect" Value="{{0.7,0},{0.93,0},{0.99,0},{0.99,0}}" />
         </Window>
         
         <Window Type="TaharezLook/FrameWindow" Name="Root/BumpControl" >
