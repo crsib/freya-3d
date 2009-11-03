@@ -95,7 +95,7 @@ Each item in here has a comment to describe what it's for.
 // compiled in (default).  If you want to build CEGUI /without/ freetype
 // support, comment the following line.
 //////////////////////////////////////////////////////////////////////////
-#define CEGUI_HAS_FREETYPE
+//#define CEGUI_HAS_FREETYPE
 
 //////////////////////////////////////////////////////////////////////////
 // PCRE library

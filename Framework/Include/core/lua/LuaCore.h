@@ -31,8 +31,6 @@ class LuaCore: public EngineSubsystem
 	friend class core::EngineCore;
 	friend class LuaFunction;
 protected:
-	typedef std::vector<Variable*,core::memory::MemoryAllocator<Variable*> > VariableVector;
-	typedef std::vector<LuaFunction*, core::memory::MemoryAllocator<LuaFunction*> > LuaFunctionVector;
 	LuaCore();
 	virtual ~LuaCore();
 public:
@@ -44,25 +42,20 @@ public:
 		FULL_OPTIMIZATION
 	};
 
-	void	startJIT(unsigned OptLevel = FULL_OPTIMIZATION);
-	void	stopJIT();
+	void			startJIT(unsigned OptLevel = FULL_OPTIMIZATION);
+	void			stopJIT();
 
-	void	compileFunction(const LuaFunction& func);
+	void			compileFunction(const LuaFunction& func);
 
 	//Variables
-	Variable&	getValue(const EString& name);//modules are parsed correctly
-	void		setValue(const EString& name,const Variable& var);
+	Variable		getValue(const EString& name);//modules are parsed correctly
+	void			setValue(const EString& name,const Variable& var);
 
-	template<typename T>
-	Variable& createValue(const T& val);
 
-	void	destroyValue(Variable* var);
-
-	void	pushValue(const Variable& var);
-	Variable& popValue();
+	void			pushValue(const Variable& var);
+	Variable 		popValue();
 	//Functions
-	LuaFunction&	createFunction(const EString& name,unsigned NumArgs,unsigned NumRet);
-	void			destroyFunction(LuaFunction* func);
+	LuaFunction		getFuction(const EString& name,unsigned NumArgs,unsigned NumRet);
 	//Now, some scripts inclusion/runnig (otherwise, what the hell this parser needed)
 	void			runScript(const EString& script);
 	void			includeModule(const EString& module_name,const EString& script);
@@ -82,19 +75,8 @@ private:
 	unsigned			m_JITInstalled;
 	unsigned			m_JITStarted;
 
-	VariableVector		m_Variables;
-	LuaFunctionVector	m_Functions;
-
 	unsigned			m_OptLevel;
 };
-
-template<typename T>
-Variable& LuaCore::createValue(const T& val)
-{
-	Variable*	var = new Variable(val);
-	m_Variables.push_back(var);
-	return *var;
-}
 
 }
 }

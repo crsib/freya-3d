@@ -4,81 +4,32 @@ namespace math
 {
 class matrix3x3
 {
-	 const matrix3x3 identity;
+	const  matrix3x3 identity;
 
 	matrix3x3();
+	~matrix3x3();
 
-	matrix3x3(
-			const float _11,const float _12,const float _13,
-			const float _21,const float _22,const float _23,
-			const float _31,const float _32,const float _33);
+	operator quaternion () ;
 
+	matrix3x3 	operator + () ;
+	matrix3x3 	operator - () ;
 
-	matrix3x3(const vector3d& _1, const vector3d& _2,const vector3d& _3);
+	matrix3x3 	operator + ( matrix3x3& ) ;
+	matrix3x3 	operator - ( matrix3x3& ) ;
 
-	matrix3x3(const matrix3x3& m);
-
-	matrix3x3(const math::matrix2x2& m);
-
-	matrix3x3& operator = (const matrix3x3&);
-
-	matrix3x3(const quaternion& q);
-
-	operator quaternion () const;
-
-	
-	matrix3x3  	xRotationMatrix(const float angle);
-
-	
-	matrix3x3  	yRotationMatrix(const float angle);
-
-	
-	matrix3x3  	zRotationMatrix(const float angle);
-
-	
-	matrix3x3	rotationMatrix(const float  angle,const vector3d& v3d);
-	
-	matrix3x3	scaleMatrix(const float sx,const float sy, const float sz);
-	
-	matrix3x3  	rotationMatrix2D(const float angle);
-	
-	matrix3x3  	translationMatrix2D(const math::vector2d& v2d);
-
-	
-	matrix3x3	scaleMatrix2d(const float sx, const float sy);
-
-	matrix3x3 	operator + () const;
-	matrix3x3 	operator - () const;
-
-	matrix3x3 	operator + (const matrix3x3& ) const;
-	matrix3x3 	operator - (const matrix3x3& ) const;
-
-	matrix3x3 	operator * (const matrix3x3& ) const;
-	math::vector2d  	operator * (const math::vector2d& )  const;
-	vector3d  	operator * (const vector3d& )  const;
-
-	matrix3x3&	operator+= (const matrix3x3& );
-	matrix3x3&  operator-= (const matrix3x3& );
-
-	matrix3x3&	operator*= (const matrix3x3& );
-
-	matrix3x3   operator * (const float ) const;
-	matrix3x3&  operator*= (const float );
-
-	matrix3x3	operator / (const float ) const;
-	matrix3x3&  operator/= (const float );
+	matrix3x3 	operator * ( matrix3x3& ) ;
+	math::vector2d  	operator * ( math::vector2d& )  ;
+	vector3d  	operator * ( vector3d& )  ;
 
 	matrix3x3&	inverse();
 	matrix3x3&  transpose();
 
 };
 
-
-	std::ostream& operator << (std::ostream& , const matrix3x3& );
 	
-	matrix3x3	  inversed @ inversed_m3x3(const matrix3x3&);
+	matrix3x3	  inversed @ inversed_m3x3( matrix3x3&);
 	
-	matrix3x3	  transposed @ transposed_m3x3(const matrix3x3&);
+	matrix3x3	  transposed @ transposed_m3x3( matrix3x3&);
 	
-	float		  det @ det_m3x3(const matrix3x3&);
+	float		  det @ det_m3x3( matrix3x3&);
 }

@@ -4,59 +4,53 @@ namespace math {
 
 class quaternion
 {
+	float x;
+	float y;
+	float z;
+	float w;
 	
 	quaternion();
-	quaternion(const float x,const float y,const float z,const float w);
-	quaternion(const float w, const vector3d& vec);
-	quaternion(const vector3d& v);
-
-	quaternion(const quaternion& q);
-	quaternion& operator = (const quaternion& q);
-
-	quaternion	rotationQuat(const float angle, const vector3d& axis);
+	~quaternion();
 
 	quaternion& normalize();
 	quaternion&	inverse();
 	quaternion& conjugate();
 
-	vector3d	rotate(const vector3d& v) const;
+	vector3d	rotate( vector3d& v) ;
 
-	quaternion	operator + () const;
-	quaternion  operator - () const;
+	quaternion	operator + () ;
+	quaternion  operator - () ;
 
-	quaternion  operator + (const quaternion& q) const;
-	quaternion  operator - (const quaternion& q) const;
+	quaternion  operator + ( quaternion& q) ;
+	quaternion  operator - ( quaternion& q) ;
 
-	quaternion  operator * (const quaternion& q) const;
-	quaternion 	operator * (const vector3d& v) const;
+	quaternion  operator * ( quaternion& q) ;
+	quaternion 	operator * ( vector3d& v) ;
 
-	operator    vector3d() const;
+	operator    vector3d() ;
 
-	quaternion&	operator+= (const quaternion& q);
-	quaternion&	operator-= (const quaternion& q);
-
-	quaternion&	operator*= (const quaternion& q);
-	quaternion&	operator*= (const vector3d& v);
-
-	quaternion  operator * (const float f) const;
-	quaternion  operator / (const float f) const;
-
-	quaternion&	operator*= (const float f);
-	quaternion& operator/= (const float f);
 
 };
 
+$[
+math.quaternion.create = function (self)
+	local cobj = math.quaternion.new()
+ 	cobj.x = self.x or 0
+ 	cobj.y = self.y or 0
+ 	cobj.z = self.z or 0
+ 	cobj.w = self.w or 0
+ 	return cobj
+end
+$]
 	
-	quaternion  inversed @ inversed_q(const quaternion& q);
+	quaternion  inversed @ inversed_q( quaternion& q);
 
-	quaternion  conjugated(const quaternion& q);
+	quaternion  conjugated( quaternion& q);
 	
-	float 		abs @ abs_q(const quaternion& q);
+	float 		abs @ abs_q( quaternion& q);
 
-	float 		abs_sq @ abs_sq_q(const quaternion& q);
+	float 		abs_sq @ abs_sq_q( quaternion& q);
 
-	quaternion	normalized @ normalized_q(const quaternion& q);
-
-	std::ostream& operator << (std::ostream& s,const quaternion& q);
+	quaternion	normalized @ normalized_q( quaternion& q);
 
 }

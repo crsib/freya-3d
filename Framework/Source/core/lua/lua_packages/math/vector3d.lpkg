@@ -4,60 +4,55 @@ namespace math {
 
 class vector3d
 {
+	float x;
+	float y;
+	float z;
+	 
 	const vector3d i;
 	const vector3d j;
 	const vector3d k;
 	
 	vector3d();
-	//!Copy constructor
-	vector3d(const vector3d& v);
+	~vector3d();
+	//!Copy ructor
+//	vector3d( vector3d& v);
 
-
-	//!Initialization costructor
-	vector3d(const float x, const float y, const float z);
-	//! Initialize as homogeneous vector from math::vector2d
-	vector3d(const math::vector2d& v2d);
-	//!Operator =
-	vector3d& operator = (const vector3d& v);
-	//!Unary + (does nothing)
-	vector3d   operator + () const;
+//	vector3d( float x,  float y,  float z);
 
 	//!Unary -
-	vector3d	operator - () const;
+	vector3d	operator - () ;
 
 	//!binary operator +
-	vector3d	operator + (const vector3d& v) const;
+	vector3d	operator + ( vector3d& v) ;
 	//! Binary -
-	vector3d	operator - (const vector3d& v) const;
+	vector3d	operator - ( vector3d& v) ;
 	//! Float multiply
-	vector3d	operator * (const float f) const;
+	vector3d	operator * ( float f) ;
 	//! Float division
-	vector3d	operator / (const float f) const;
+	vector3d	operator / ( float f) ;
 	//! Cross product (strictly defined only for 3D vectors. Defined as outer product for higher dimension, thus, defined only for vector3d)
-	vector3d	operator * (const vector3d& v) const;
-	//! dot product
-	float       operator , (const vector3d& v) const;
+	vector3d	operator * ( vector3d& v) ;
 
-	//! Some operators provided for convenience
-	vector3d&	operator += (const vector3d& v);
-	vector3d&   operator -= (const vector3d& v);
-	vector3d&	operator *= (const float f);
-	vector3d&   operator /= (const float f);
-
-	//! math::vector2d(x/z,y/z) if z ≠ 0, math::vector2d(math::inf,math::inf) otherwise
-	operator math::vector2d	() const;
-	//! Self-normalizing
 	vector3d&	normalize ();
     
 };
+
+$[
+math.vector3d.create = function (self)
+	local cobj = math.vector3d:new()
+ 	cobj.x = self.x or 0
+ 	cobj.y = self.y or 0
+ 	cobj.z = self.z or 0
+ 	return cobj
+end
+$]
 	//External operators and functions
 	//! Magnitude (or absolute) value
-		float	abs @ abs_v3d(const vector3d& v);
+		float	abs @ abs_v3d( vector3d& v);
 	//! Square of magnitude
-	  float	abs_sq @ abs_sq_v3d(const vector3d& v);
+	  float	abs_sq @ abs_sq_v3d( vector3d& v);
 	//! Normalized version of vector
-	 vector3d normalized @ normalized_v3d(const vector3d& v);
-	//! Output operator
-		std::ostream&	operator << (std::ostream& s,const math::vector3d& v);
+	 vector3d normalized @ normalized_v3d( vector3d& v);
            
 }//math
+

@@ -9,126 +9,158 @@
 
 namespace math
 {
-
-float __innerProduct3(const vector3d& v1, const vector3d& v2)
+float dot(const vector3d& _1,const vector3d& _2)
 {
-	return (v1,v2);
+	return (_1,_2);
 }
-//Internals
-vector3d __vec3dADD(const vector3d& v1, const vector3d& v2)
+
+matrix3x3 createYRotationMatrix3x3(const float angle)
 {
-	return v1+v2;
+	return math::matrix3x3::yRotationMatrix(angle);
 }
 
 
-vector3d __vec3dSUB(const vector3d& v1, const vector3d& v2)
+
+matrix4x4 createLookatMatrix4x4(const vector3d & from, const vector3d & to, const vector3d & up)
 {
-	return v1-v2;
+	return matrix4x4::lookat(from,to,up);
 }
 
 
-vector3d __vec3dMUL(const vector3d& v1, const vector3d& v2)
+
+matrix4x4 createYRotationMatrix4x4(const float angle)
 {
-	return v1 * v2;
+	return matrix4x4::yRotationMatrix(angle);
 }
 
 
-vector3d __vec3dMUL(const vector3d& v, const float scalar)
+
+quaternion quaternionFromMatrix4x4(const matrix4x4 & mtx)
 {
-	return v*scalar;
+	return static_cast<quaternion>(mtx);
 }
 
 
-vector3d __vec3dMUL(const float scalar,const vector3d& v)
+
+matrix3x3 createRotationMatrix3x3(const float angle, const vector3d & v3d)
 {
-	return scalar*v;
+	return matrix3x3::rotationMatrix(angle,v3d);
 }
 
 
-vector3d __vec3dDIV(const vector3d& v, const float scalar)
+
+matrix3x3 createScaleMatrix3x3(const float sx, const float sy, const float sz)
 {
-	return v/scalar;
+	return matrix3x3::scaleMatrix(sx,sy,sz);
 }
 
-//quats
 
-quaternion __quatADD(const quaternion& q1, const quaternion& q2)
+
+matrix4x4 createPerspectiveProjectionMatrix4x4(float fovy, float aspect, float nearPlane, float farPlane)
 {
-	return q1 + q2;
+	return matrix4x4::perspectiveProjection(fovy,aspect,nearPlane,farPlane);
 }
 
 
-quaternion __vec3dADD(const vector3d& q1, const quaternion& q2)
+
+matrix4x4 createZRotationMatrix4x4(const float angle)
 {
-	return q1 + q2;
+	return matrix4x4::zRotationMatrix(angle);
 }
 
 
-quaternion __quatADD(const quaternion& q1, const vector3d& q2)
+
+matrix4x4 createTranslationMatrix4x4(const vector3d & v3d)
 {
-	return q1 + q2;
+	return matrix4x4::translationMatrix(v3d);
 }
 
 
-//sub
 
-
-quaternion __quatSUB(const quaternion& q1, const quaternion& q2)
+matrix4x4 createFrustumMatrix4x4(float top, float left, float bottom, float right, float nearPlane, float farPlane)
 {
-	return q1 - q2;
+	return matrix4x4::frustumMatrix(top,left,bottom,right,nearPlane,farPlane);
 }
 
 
-quaternion __vec3dSUB(const vector3d& q1, const quaternion& q2)
+
+matrix4x4 createBillboardMatrix4x4(const vector3d & from, const vector3d & to, const vector3d & up)
 {
-	return q1 - q2;
+	return matrix4x4::billboard(from,to,up);
 }
 
 
-quaternion __quatSUB(const quaternion& q1, const vector3d& q2)
+
+matrix3x3 createZRotationMatrix3x3(const float angle)
 {
-	return q1 - q2;
+	return matrix3x3::zRotationMatrix(angle);
 }
 
-//mul
 
 
-quaternion __quatMUL(const quaternion& q1, const quaternion& q2)
+matrix3x3 matrix3x3FromQuaternion(const quaternion & q)
 {
-	return q1 * q2;
+	return matrix3x3(q);
 }
 
 
-quaternion __quatMUL(const float q1, const quaternion& q2)
+
+matrix4x4 createOrthoProjectionMatrix4x4(float left,float top,float right,float bottom, float nearPlane, float farPlane)
 {
-	return q1 * q2;
+	return matrix4x4::orthoProjection(left,top,right,bottom,nearPlane,farPlane);
 }
 
 
-quaternion __quatMUL(const quaternion& q1, const float q2)
+
+quaternion quaternionFromMatrix3x3(const matrix3x3 & mtx)
 {
-	return q1 * q2;
+	return static_cast<quaternion>(mtx);
 }
 
 
-quaternion __vec3dMUL(const vector3d& q1, const quaternion& q2)
+
+matrix4x4 createScaleMatrix4x4(const float sx, const float sy, const float sz)
 {
-	return q1 * q2;
+	return matrix4x4::scaleMatrix(sx,sy,sz);
 }
 
 
-quaternion __quatMUL(const quaternion& q1, const vector3d& q2)
+
+matrix4x4 createXRotationMatrix4x4(const float angle)
 {
-	return q1 * q2;
+	return matrix4x4::xRotationMatrix(angle);
 }
 
 
-quaternion __quatDIV(const quaternion& q1, const float q2)
+
+matrix4x4 createRotationMatrix4x4(const float angle, const vector3d & v3d)
 {
-	return q1/q2;
+	return matrix4x4::rotationMatrix(angle,v3d);
 }
 
 
-//vec4d
 
+quaternion createRotationQuat(const float angle, const vector3d & axis)
+{
+	return quaternion::rotationQuat(angle,axis);
 }
+
+
+
+matrix3x3 createXRotationMatrix3x3(const float angle)
+{
+	return matrix3x3::xRotationMatrix(angle);
+}
+
+matrix4x4 matrix4x4FromQuaternion(const quaternion & q)
+{
+	return matrix4x4(q);
+}
+
+bool				pointInFrustum(const frustum& f, const vector3d& p)
+{
+	return f(p);
+}
+}
+
+

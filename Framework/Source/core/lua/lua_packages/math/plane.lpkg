@@ -12,20 +12,20 @@ enum
 		IN_PLANE = 0
 	};
 	plane();
-	plane(const vector3d& normal,float dist);
-	plane(const vector3d& normal,const vector3d& p);
+	plane( vector3d& normal,float dist);
+	plane( vector3d& normal, vector3d& p);
 	plane(float nx,float ny,float nz,float dist);
-	plane(const vector3d& p1,const vector3d& p2, const vector3d& p3);
-	plane(const plane& p);
+	plane( vector3d& p1, vector3d& p2,  vector3d& p3);
+	plane( plane& p);
 	~plane();
 
-	int   classify(const vector3d& point);
+	int   classify( vector3d& point) ;
 
-	float signedDistance(const vector3d& point);
+	float signedDistance( vector3d& point) ;
 	float distance(vector3d& point);
-	void rotate(const vector3d & Dir, float angle);
+	void rotate( vector3d & Dir, float angle);
 	void rotate(quaternion & q);
-	void move(const vector3d & mv);
+	void move( vector3d & mv);
 	void flip();
 	math::vector3d getNormal();
 

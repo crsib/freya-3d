@@ -60,7 +60,7 @@ public:
 	}
 	~plane(){}
 
-	int   classify(const vector3d& point)
+	int   classify(const vector3d& point) const
 	{
 		float   v = signedDistance (point);
 		if (v > math::eps)
@@ -71,7 +71,7 @@ public:
 		return IN_PLANE;
 	}
 
-	float signedDistance(const vector3d& point)
+	float signedDistance(const vector3d& point) const
 	{
 		return (m_Normal , point) + m_Distance;
 	}
