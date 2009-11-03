@@ -39,7 +39,7 @@ LuaCore::LuaCore()
 	//Startup tolua
 	::luaopen_freya(m_VirtualMachine);
 	//checkout math
-	core::__lua_internal::init_math(m_VirtualMachine);
+	//core::__lua_internal::init_math(m_VirtualMachine);
 
 	//Setting default values
 	m_JITInstalled = m_JITStarted = 0;
@@ -47,12 +47,6 @@ LuaCore::LuaCore()
 
 LuaCore::~LuaCore()
 {
-	// TODO Auto-generated destructor stub
-	//Collect objects
-	for(unsigned i = 0;i < m_Variables.size(); i++)
-		delete m_Variables[i];
-	for(unsigned i = 0;i < m_Functions.size(); i++)
-		delete m_Functions[i];
 	//For some reason, when using luaJIT VM GC full cycle is absolutely ruined, trying to access high memory ranges
 	//The problem is possibly because of some internal LuaJIT error (as everything is absolutely ok when  using standard Lua VM
 	//(without JIT compiler)
@@ -221,19 +215,11 @@ void LuaCore::restartGarbageCollector()
 #endif
 }
 
-Variable& LuaCore::getValue(const EString& name)
+Variable LuaCore::getValue(const EString& name)
 {
-	Variable* var = new Variable(m_VirtualMachine,name);
-	m_Variables.push_back(var);
-	return *var;
+	return Variable(m_VirtualMachine,name);;
 }
 
-void LuaCore::destroyValue(Variable* var)
-{
-	VariableVector::iterator it = std::find(m_Variables.begin(),m_Variables.end(),var);
-	delete *it;
-	m_Variables.erase(it);
-}
 
 void LuaCore::pushValue(const Variable& var)
 {
@@ -315,25 +301,15 @@ void LuaCore::setValue(const EString& name,const core::Variable& var)
 	}
 }
 
-LuaFunction& LuaCore::createFunction(const EString& name,unsigned NumArgs,unsigned NumRet)
+LuaFunction LuaCore::getFuction(const EString& name,unsigned NumArgs,unsigned NumRet)
 {
-	LuaFunction* func = new LuaFunction(name,NumArgs,NumRet);
-	m_Functions.push_back(func);
-	return *func;
+	return LuaFunction(name,NumArgs,NumRet);
 }
 
-void LuaCore::destroyFunction(LuaFunction* f)
-{
-	LuaFunctionVector::iterator it = std::find(m_Functions.begin(),m_Functions.end(),f);
-	delete *it;
-	m_Functions.erase(it);
-}
 
-Variable& LuaCore::popValue()
+Variable LuaCore::popValue()
 {
-	Variable* var = new Variable(m_VirtualMachine,"");
-	m_Variables.push_back(var);
-	return *var;
+	return Variable(m_VirtualMachine,"");
 }
 
 void	LuaCore::compileFunction(const LuaFunction& f)

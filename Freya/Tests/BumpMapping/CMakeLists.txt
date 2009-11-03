@@ -1,9 +1,10 @@
 #TODO: 
-SET ( RESOURCES Textures.7z Shaders/bump.frag Shaders/bump.vert "${SHARED_PLUGINS}" ${APP_STD_DATA}/StdGUI.7z ${APP_STD_DATA}/StdShaders.7z BumpMapping.layout)
+SET ( RESOURCES Textures.7z Shaders/bump.frag Shaders/bump.vert "${SHARED_PLUGINS}" ${APP_STD_DATA}/StdGUI.7z ${APP_STD_DATA}/StdShaders.7z BumpMapping.layout Demo.lua)
 IF( APPLE )
 	SET_SOURCE_FILES_PROPERTIES( Textures.7z ${APP_STD_DATA}/StdGUI.7z ${APP_STD_DATA}/StdShaders.7z PROPERTIES MACOSX_PACKAGE_LOCATION Resources )
 	SET_SOURCE_FILES_PROPERTIES( Shaders/bump.vert Shaders/bump.frag PROPERTIES MACOSX_PACKAGE_LOCATION Resources/Shaders )
 	SET_SOURCE_FILES_PROPERTIES( BumpMapping.layout     PROPERTIES MACOSX_PACKAGE_LOCATION Resources/GUI/layouts )
+	SET_SOURCE_FILES_PROPERTIES( Demo.lua               PROPERTIES MACOSX_PACKAGE_LOCATION Resources/Scripts )
 	SET_SOURCE_FILES_PROPERTIES( ${SHARED_PLUGINS} PROPERTIES GENERATED YES MACOSX_PACKAGE_LOCATION Plugins )
 	ADD_EXECUTABLE( BumpMapping MACOSX_BUNDLE main.cpp ${RESOURCES})
 	#installation routines

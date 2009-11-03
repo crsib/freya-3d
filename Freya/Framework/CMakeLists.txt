@@ -1,7 +1,7 @@
 MESSAGE("Generating build dependencies for FreyaCore")
 MESSAGE(STATUS "Building Framework using: ${CMAKE_BUILD_TYPE}")
 SET(FREYA_CORE_SOURCES 
-#Application settings global include
+#Application settings global include  
 Include/application-settings.h
 Include/camera/BasicCamera.h
 Include/camera/FlyCamera.h
@@ -222,13 +222,13 @@ SET( CEGUI_SOURCE
 ./3party/cegui/include/CEGUIIteratorBase.h
 ./3party/cegui/include/CEGUIJustifiedRenderedString.h
 ./3party/cegui/include/CEGUILeftAlignedRenderedString.h
-./3party/cegui/include/CEGUILogger.h
+./3party/cegui/include/CEGUILogger.h   
 ./3party/cegui/include/CEGUIMemberFunctionSlot.h
 ./3party/cegui/include/CEGUIMinibidiVisualMapping.h
-./3party/cegui/include/CEGUIMouseCursor.h
+./3party/cegui/include/CEGUIMouseCursor.h 
 ./3party/cegui/include/CEGUINamedXMLResourceManager.h
 ./3party/cegui/include/CEGUIPCRERegexMatcher.h
-./3party/cegui/include/CEGUIPixmapFont.h
+./3party/cegui/include/CEGUIPixmapFont.h 
 ./3party/cegui/include/CEGUIProperty.h
 ./3party/cegui/include/CEGUIPropertyHelper.h
 ./3party/cegui/include/CEGUIPropertySet.h
@@ -238,7 +238,7 @@ SET( CEGUI_SOURCE
 ./3party/cegui/include/CEGUIRenderedString.h
 ./3party/cegui/include/CEGUIRenderedStringComponent.h
 ./3party/cegui/include/CEGUIRenderedStringImageComponent.h
-./3party/cegui/include/CEGUIRenderedStringParser.h
+./3party/cegui/include/CEGUIRenderedStringParser.h   
 ./3party/cegui/include/CEGUIRenderedStringTextComponent.h
 ./3party/cegui/include/CEGUIRenderedStringWidgetComponent.h
 ./3party/cegui/include/CEGUIRenderedStringWordWrapper.h
@@ -592,8 +592,7 @@ SET( CEGUI_SOURCE
 #
 ./3party/cegui/src/minibidi.cpp
 ./3party/cegui/src/ScriptingModules/LuaScriptModule/CEGUILua.cpp
-./3party/cegui/src/ScriptingModules/LuaScriptModule/CEGUILuaFunctor.cpp
-./3party/cegui/src/ScriptingModules/LuaScriptModule/lua_CEGUI.cpp
+./3party/cegui/src/ScriptingModules/LuaScriptModule/CEGUILuaFunctor.cpp  
 ./3party/cegui/src/ScriptingModules/LuaScriptModule/required.cpp
 ./3party/cegui/src/WindowRendererSets/Falagard/FalButton.cpp
 ./3party/cegui/src/WindowRendererSets/Falagard/FalDefault.cpp

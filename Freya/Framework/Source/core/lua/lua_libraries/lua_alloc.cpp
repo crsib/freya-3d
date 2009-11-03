@@ -25,7 +25,6 @@ void *lua_alloc (void *ud, void *ptr, size_t osize,size_t nsize)
 	{
 		if(osize == 0)//Act as alloc
 			return EngineCore::getMemoryArena()->allocate(nsize,core::memory::LUA_POOL);
-
 		else//Act as realloc
 		{
 			void*	mem = EngineCore::getMemoryArena()->allocate(nsize,core::memory::LUA_POOL);

@@ -21,6 +21,7 @@ namespace lua
 #define Lua core::EngineCore::getLuaCore()->m_VirtualMachine
 LuaFunction::LuaFunction(const EString& name,unsigned NumArgs,unsigned NumRet)
 {
+	//	std::cout << "LuaFunction::LuaFunction( " << name << ", " << NumArgs << ", " << NumRet <<  " )" << std::endl;
 	//First, parse names to tockens
 	EString temp = name;
 	while(true)
@@ -39,6 +40,12 @@ LuaFunction::LuaFunction(const EString& name,unsigned NumArgs,unsigned NumRet)
 	//Check, that functions exists
 	//Get our first table/function from globals top
 	lua_getglobal(Lua, m_TockensList[0].c_str());
+	if(lua_gettop(Lua) == 0)
+	{
+		//lua_pop(Lua,2);
+		std::clog << "Function \"" << name << "\" is not found" << std::endl;
+		throw core::lua::FunctionException(name);
+	}
 	for(unsigned i = 1; i < m_TockensList.size() - 1; i++)
 	{
 		lua_getfield(Lua,-1,m_TockensList[i].c_str());
@@ -59,31 +66,102 @@ LuaFunction::LuaFunction(const EString& name,unsigned NumArgs,unsigned NumRet)
 		throw core::lua::FunctionException(name);
 	}
 	//Ok, that is a function
-	lua_pop(Lua,2);
+	//std::cout << "top value " << lua_gettop(Lua) << std::endl;
+	lua_settop(Lua,0);
+	//std::cout << "top value " << lua_gettop(Lua) << std::endl;
 	//Reserve space for num arg and rets
 	m_NumArgs = NumArgs;
 	m_NumRet =  NumRet;
-	m_Args.reserve(NumArgs);
-	m_RetVals.reserve(NumRet);
+	if(m_NumArgs)
+		m_Args = new Variable[m_NumArgs];
+	else
+		m_Args = NULL;
+
+	if(m_NumRet)
+		m_RetVals = new Variable[m_NumRet];
+	else
+		m_RetVals = NULL;
 	//Our function is not on top
 	m_OnTop = false;
+	//std::cout << "Function " << name << " found " << std::endl;
 }
 
 LuaFunction::~LuaFunction()
 {
-	// TODO Auto-generated destructor stub
+	//	std::cout << "LuaFunction::~LuaFunction(const LuaFunction& f)" << std::endl;
+	delete [] m_Args;
+	delete [] m_RetVals;
+}
+
+LuaFunction::LuaFunction(const LuaFunction& f)
+{
+	//	std::cout << "LuaFunction::LuaFunction(const LuaFunction& f)" << std::endl;
+	m_TockensList = f.m_TockensList;
+
+	m_NumArgs = f.m_NumArgs;
+	if(m_NumArgs)
+		m_Args = new Variable[m_NumArgs];
+	else
+		m_Args = NULL;
+	for(size_t i = 0; i < m_NumArgs; i++)
+	{
+		m_Args[i] = f.m_Args[i];
+	}
+
+	m_OnTop = f.m_OnTop;
+
+	m_NumRet = f.m_NumRet;
+	if(m_NumRet)
+		m_RetVals = new Variable[m_NumRet];
+	else
+		m_RetVals = NULL;
+	for(size_t i = 0; i < m_NumRet; i++)
+	{
+		m_RetVals[i] = f.m_RetVals[i];
+	}
+}
+
+LuaFunction&	LuaFunction::operator = (const LuaFunction& f)
+{
+	//	std::cout << "LuaFunction::operator =(const LuaFunction& f)" << std::endl;
+	m_TockensList = f.m_TockensList;
+
+	m_NumArgs = f.m_NumArgs;
+	delete [] m_Args;
+	if(m_NumArgs)
+		m_Args = new Variable[m_NumArgs];
+	else
+		m_Args = NULL;
+	for(size_t i = 0; i < m_NumArgs; i++)
+	{
+		m_Args[i] = f.m_Args[i];
+	}
+
+	m_OnTop = f.m_OnTop;
+
+	m_NumRet = f.m_NumRet;
+	delete [] m_RetVals;
+	if(m_NumRet)
+		m_RetVals = new Variable[m_NumRet];
+	else
+		m_RetVals = NULL;
+	for(size_t i = 0; i < m_NumRet; i++)
+	{
+		m_RetVals[i] = f.m_RetVals[i];
+	}
+	return *this;
 }
 
 void LuaFunction::setParameter(unsigned index,const Variable& var)
 {
-	m_Args[index] = const_cast<Variable*>(&var);
+	m_Args[index] = var;
 }
 
-void LuaFunction::setParameters(core::Variable* var)
+void LuaFunction::setParameters(const Variable*  var)
 {
-	for(unsigned i = 0;i < m_NumArgs; i++)
+	for(size_t i = 0; i < m_NumArgs; i++)
 	{
-		m_Args[i] = const_cast<Variable*>(&var[i]);
+		m_Args[i] = var[i];
 	}
 }
 
@@ -91,27 +169,39 @@ void LuaFunction::pushOnTop()
 {
 	if(!m_OnTop)
 	{
+		EString name = m_TockensList.back();
 		lua_getglobal(Lua, m_TockensList[0].c_str());
-		std::cout << "Pushing table up: " << lua_gettop(Lua) << std::endl;
+		//*
+		if(lua_gettop(Lua) == 0)
+		{
+			//lua_pop(Lua,2);
+			std::clog << "Function \"" << name << "\" is not found" << std::endl;
+			throw core::lua::FunctionException(name);
+		}
+		//*
 		for(unsigned i = 1; i < m_TockensList.size() - 1; i++)
 		{
 			lua_getfield(Lua,-1,m_TockensList[i].c_str());
 			if(!lua_istable(Lua,-1))
 			{
 				lua_pop(Lua,2);
-				std::clog << "Function is not found as lua state changed" << std::endl;
-				throw lua::FunctionException("Lua state criticaly changed","something changed the stack");
+				std::clog << "Function \"" << name << "\" is not found" << std::endl;
+				throw core::lua::FunctionException(name);
 			}
 			lua_remove(Lua,-2);
-			std::cout << "Pushing table up: " << lua_gettop(Lua) << std::endl;
 		}
-		std::cout << "Pushing up: " << lua_gettop(Lua) << std::endl;
 		if(m_TockensList.size() != 1)
-		{
 			lua_getfield(Lua,-1,m_TockensList[m_TockensList.size() - 1].c_str());
-			lua_remove(Lua,-2);
+		//*/
+		//Our function is now on top. Check it (and throw an exception, if the value is not a function. e.g. is a nill value)
+		//*
+		if(!lua_isfunction(Lua,-1))
+		{
+			std::clog << "\"" << name << "\" is not a function" << std::endl;
+			throw core::lua::FunctionException(name);
 		}
-		std::cout << "Pushed up: " << lua_gettop(Lua) << std::endl;
+		//*/
+		//		std::cout << "pushOnTop: top value " << lua_gettop(Lua) << std::endl;
 		m_OnTop = true;
 	}
 }
@@ -125,31 +215,56 @@ void LuaFunction::clear()
 	}
 }
 
-LuaFunction::VariableVector	LuaFunction::call(core::Variable* var)
+const Variable&	LuaFunction::call(const Variable*  var)
 {
 	setParameters(var);
 	return call();
 }
 
-LuaFunction::VariableVector	LuaFunction::call()
+const Variable&	LuaFunction::call()
 {
+	//	std::cout << "Calling lua fuction: ( " << m_NumArgs << ", " << m_NumRet << " )" << std::endl;
 	pushOnTop();
+
 	for(unsigned i = 0;i < m_NumArgs;i++)
-		core::EngineCore::getLuaCore()->pushValue(*m_Args[i]);
+		core::EngineCore::getLuaCore()->pushValue(m_Args[i]);
+#if 1
 	if(lua_pcall(Lua,m_NumArgs,m_NumRet,0))
 	{
 		//Error while parsing string
 		const char* err = lua_tostring(Lua,-1);
 		throw lua::FunctionException("Error calling a function",err);
 	}
-	for(unsigned i = 0;i < m_NumRet; i++)
-	{
-		Variable& var = core::EngineCore::getLuaCore()->popValue();
-		m_RetVals.push_back(&var);
-	}
-	std::reverse(m_RetVals.begin(),m_RetVals.end());
+#else
+	lua_settop(Lua,0);
+#endif
+	if(m_NumRet)
+		for(int i = m_NumRet - 1;i >= 0; i--)
+		{
+		//	std::cout << "Popping var " << i << std::endl;
+			m_RetVals[i] = core::EngineCore::getLuaCore()->popValue();
+		//	std::cout << "Result: " << m_RetVals[i] << std::endl;
+		}
+
 	m_OnTop = false;
-	return m_RetVals;
+	//	std::cout << "top value " << lua_gettop(Lua) << std::endl;
+	if(m_NumRet)
+		return m_RetVals[0];
+	else
+		return m_Fake;
 }
+
+const Variable&
+LuaFunction::getRetVal(unsigned index) const
+{
+	if(index < m_NumRet)
+	{
+		//std::cout << "Ret val " << index << " is " << m_RetVals[index] << std::endl;
+		return m_RetVals[index];
+	}
+	else
+		return m_Fake;
+}
+
 }
 }
