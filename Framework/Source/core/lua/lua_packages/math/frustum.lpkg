@@ -1,0 +1,37 @@
+$#include "math/frustum.hpp"
+
+namespace math
+{
+	
+bool AreCollinear( math::vector3d& a, math::vector3d& b, math::vector3d& c);
+
+class frustum
+{
+public:
+	
+	frustum();
+	~frustum();
+
+	void 	setVertex( math::vector3d& vert,unsigned pos);
+
+	void    setVerticies( math::vector3d vert[4]);
+	void    reset();
+
+	void   move( math::vector3d& d);
+
+	void setPosition( math::vector3d& p);
+
+	void   rotate(math::quaternion& d);
+
+	void setOrientation( math::quaternion& q);
+
+	//As in camera, everything is public,as speed is in favour
+	math::vector3d  		Origin;
+	//Set at the begining
+	math::plane	   			NearPlane;
+	math::plane     		FarPlane;
+
+
+};
+
+}

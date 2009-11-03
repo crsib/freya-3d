@@ -112,7 +112,7 @@ public:
 	}
 
 	int
-	operator ()(const math::vector3d& point)
+	operator ()(const math::vector3d& point) const
 	{
 		if(NearPlane.classify(point) == math::plane::IN_BACK)
 			return false;

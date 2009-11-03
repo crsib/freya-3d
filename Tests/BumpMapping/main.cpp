@@ -7,10 +7,36 @@
 #include "freya.h"
 #include <iostream>
 
+#include "core/lua/LuaCore.h"
+
 unsigned   frames = 0;
 float      fps;
 char	   fpsbuf[8];
 bool	   fpsup = false;
+
+char	   memory_buf[255];
+bool	   mem_buf_up = false;
+
+namespace core
+{
+namespace memory {
+#ifdef _FREYA_DEBUG_MEMORY
+	extern unsigned memory_allocated;
+	extern unsigned allocated_for_buffers;
+#endif
+}
+}
+
+void	format_memory()
+{
+	if(core::memory::memory_allocated > 1024*1024)
+		sprintf(memory_buf,"%5.5f Mb / %5.5f Mb", core::memory::memory_allocated / (1024.0*1024.0),core::memory::allocated_for_buffers / (1024.0*1024.0));
+	else if(core::memory::memory_allocated > 1024)
+		sprintf(memory_buf,"%3.5f Kb / %5.5f Mb", core::memory::memory_allocated / (1024.0),core::memory::allocated_for_buffers / (1024.0*1024.0));
+	else if(core::memory::memory_allocated > 1024*1024)
+		sprintf(memory_buf,"%i B / %5.5f mb", core::memory::memory_allocated ,core::memory::allocated_for_buffers / (1024.0*1024.0));
+	mem_buf_up = true;
+}
 
 unsigned   active = 1;
 int winWidth = 640,winHeight = 640;
@@ -46,6 +72,7 @@ public:
 			frames = 0;
 			sprintf(fpsbuf,"% 5.2f",fps);
 			fpsup = true;
+			format_memory();
 		}
 		return FPSCounter::SECONDARY_THREAD;
 	}
@@ -67,6 +94,7 @@ public:
 		rapi = core::EngineCore::getRenderingDriver();
 		wm = core::EngineCore::getWindowManager();
 		fpsv  = CEGUI::System::getSingleton().getGUISheet()->getChildRecursive(3);
+		mem  = CEGUI::System::getSingleton().getGUISheet()->getChildRecursive("Root/Memory");
 	  }
 	virtual ~BumpmappingRender()
 	{
@@ -104,6 +132,12 @@ public:
 			fpsup = false;
 		}
 
+		if(mem_buf_up)
+		{
+			mem->setText(memory_buf);
+			mem_buf_up = false;
+		}
+
 		core::EngineCore::getCEGUISystem()->renderGUI();
 
 		//Swap buffers (one of the most costly command)
@@ -130,6 +164,7 @@ private:
 	primitives::Cube*					lightSource;
 	math::vector3d						lightPos;
 	CEGUI::Window*				fpsv;
+	CEGUI::Window*				mem;
 
 };
 
@@ -542,6 +577,26 @@ public:
 		core::EngineCore::getTaskManager()->addTask(new HandleInput(camMode,cams,sphere,cube,useBump,bump,fake,renderer));
 		core::EngineCore::getTaskManager()->addTask(renderer);
 		core::EngineCore::getTaskManager()->addTask(new FPSCounter);
+		//Various initial lua tests
+		core::lua::LuaCore*	lua = core::EngineCore::getLuaCore();
+		lua->startJIT();
+
+		size_t ssz;
+		void* s_src = fs->read("/Scripts/Demo.lua",&ssz);
+		EString scr(reinterpret_cast<char*>(s_src),ssz);
+		lua->runScript(scr);
+
+		core::Variable var = lua->getValue("test");
+
+		std::cout << var.toDouble() << std::endl;
+		core::lua::LuaFunction	fn = lua->getFuction("simple_test",0,0);
+		fn();
+		core::lua::LuaFunction  fn1("par1",1,1);
+		std::cout << "fn1(\"test\") = " << fn1(EString("test")).toString() << std::endl;
+		core::lua::LuaFunction  fn2("par2",2,2);
+		fn2((int)10,3.0);
+		std::cout << "fn2(10,3.0) = " << fn2.getRetVal(0).toString() << " " << fn2.getRetVal(1).toString() << std::endl;
+ 		core::memory::Free(s_src,core::memory::GENERIC_POOL);
 		return core::taskmanager::Task::DONE;
 	}
 private:
