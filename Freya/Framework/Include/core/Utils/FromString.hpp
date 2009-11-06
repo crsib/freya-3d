@@ -9,22 +9,6 @@
 
 #include <core/EString.h>
 
-// the third parameter of from_string() should be
-// one of std::hex, std::dec or std::oct
-//!Convert string to value
-/*!
- * Get an item of type T from string.
- * \tparam T is a real type (not reference) of a value to be read
- * \param t is reference to value to be read
- * \param s is a string to be parsed
- * \param f is std::ios_base to use with integer numbers
- * \return true on success, false otherwise
- */
-template <class T> bool from_string(T& t, const std::string& s,std::ios_base& (*f)(std::ios_base&) = std::dec)
-{
-	std::istringstream iss(s);
-	return !(iss >> f >> t).fail();
-}
 //!Convert string to value (overloaded version to work with engine strings
 /*!
  * Get an item of type T from string.

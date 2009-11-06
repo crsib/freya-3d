@@ -148,6 +148,7 @@ Source/core/lua/tolua++/tolua_map.c
 Source/core/lua/tolua++/tolua_push.c
 Source/core/lua/tolua++/tolua_to.c
 
+Source/core/lua/lua_libraries/3party/bit.c
 #XML integration
 #Global includes
 Include/core/xml/XMLParser.h
@@ -173,6 +174,19 @@ Source/resources/drivers/std/ShaderLoaderDriver.cpp
 #Generated sources
 "${INTERMIDIATE_DIRECTORY}/StaticPluginsLoader.cpp"
 "${INTERMIDIATE_DIRECTORY}/freya_lua_bind.cpp"
+
+#World
+#public includes
+Include/framework/World.h
+Include/framework/SceneNode.h
+Include/framework/SceneNodeController.h
+Include/framework/Structures.h
+
+#Sources & private includes
+Source/framework/World.cpp
+Source/framework/SceneNode.cpp
+Source/framework/SceneNodeController.cpp
+Source/framework/FrameworkImpl.cpp
 )
 
 SET( CEGUI_SOURCE 
@@ -742,7 +756,10 @@ ADD_LIBRARY(cegui-freya STATIC ${CEGUI_SOURCE} )
 SET(FREYA_CORE_LINK_LIBRARIES ${FREYA_CORE_LINK_LIBRARIES} cegui-freya ${BULLET_LIBRARIES} FreyaMath_core )
 
 #Generate library target depending on FREYA_CORE_SHARED
-	
+
+IF(APPLE)
+    ADD_DEFINITIONS( -DTOLUA_RELEASE )
+ENDIF()	
 
 IF(FREYA_CORE_SHARED)   #Dynamic linkage
 	ADD_DEFINITIONS( -D_SHARED_BUILD )

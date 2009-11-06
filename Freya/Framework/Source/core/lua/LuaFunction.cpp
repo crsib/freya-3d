@@ -11,16 +11,17 @@
 #include "core/Variable.h"
 #include "core/lua/FunctionException.h"
 #include "core/memory/MemoryAllocator.h"
-
+#include "core/multithreading/ThreadBlocks.h"
 #include <algorithm>
 
 namespace core
 {
 namespace lua
 {
-#define Lua core::EngineCore::getLuaCore()->m_VirtualMachine
+#define GetLua core::EngineCore::getLuaCore()->m_States[core::multithreading::getCurrentThreadID()]
 LuaFunction::LuaFunction(const EString& name,unsigned NumArgs,unsigned NumRet)
 {
+	lua_State* Lua = GetLua;
 	//	std::cout << "LuaFunction::LuaFunction( " << name << ", " << NumArgs << ", " << NumRet <<  " )" << std::endl;
 	//First, parse names to tockens
 	EString temp = name;
@@ -167,6 +168,7 @@ void LuaFunction::setParameters(const Variable*  var)
 
 void LuaFunction::pushOnTop()
 {
+	lua_State* Lua = GetLua;
 	if(!m_OnTop)
 	{
 		EString name = m_TockensList.back();
@@ -208,6 +210,7 @@ void LuaFunction::pushOnTop()
 
 void LuaFunction::clear()
 {
+	lua_State* Lua = GetLua;
 	if(m_OnTop)
 	{
 		lua_pop(Lua,1);
@@ -223,6 +226,7 @@ const Variable&	LuaFunction::call(const Variable*  var)
 
 const Variable&	LuaFunction::call()
 {
+	lua_State* Lua = GetLua;
 	//	std::cout << "Calling lua fuction: ( " << m_NumArgs << ", " << m_NumRet << " )" << std::endl;
 	pushOnTop();
 

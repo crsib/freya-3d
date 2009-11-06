@@ -17,10 +17,13 @@ extern "C"
 	#include "core/lua/luajit.h"
 }
 #include "core/Variable.h"
+#include <algorithm>
 #include <vector>
 #include "core/memory/MemoryAllocator.h"
+#include <vector>
 #include "core/lua/LuaFunction.h"
 #include "core/EString.h"
+#include "core/multithreading/ThreadID.h"
 namespace core
 {
 	class EngineCore;
@@ -64,8 +67,34 @@ public:
 	void			restartGarbageCollector();
 	void			stopGarbageCollector();
 
+	void			createLuaThread(const core::multithreading::ThreadID& thrd);
+
 private:
 	lua_State*			m_VirtualMachine;
+	class LuaStates : public ::EngineSubsystem
+	{
+	public:
+		typedef std::vector <std::pair<const core::multithreading::ThreadID*,lua_State*> , core::memory::MemoryAllocator<std::pair<const core::multithreading::ThreadID*,lua_State*> > > vect;
+
+		void		add(const core::multithreading::ThreadID& thrd,lua_State* ls)
+		{
+			created.push_back(std::make_pair(&thrd,ls));
+		}
+
+		lua_State*	operator[] (const core::multithreading::ThreadID& thrd)
+		{
+
+			for(size_t i = 0; i < created.size(); i++)
+			{
+				if(*(created[i].first) == thrd)
+					return created[i].second;
+			}
+		}
+
+		vect 	created;
+	};
+	//typedef		std::map<const core::multithreading::ThreadID*,lua_State*,std::less<const core::multithreading::ThreadID* >, core::memory::MemoryAllocator<std::pair<const core::multithreading::ThreadID*,lua_State*> > > LuaStates;
+	LuaStates			m_States;
 public:
 	lua_State*			getVM()
 	{

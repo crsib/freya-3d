@@ -15,17 +15,18 @@
 #include "core/EString.h"
 #include "core/EngineSubsystem.h"
 #include "internal.h"
+#include <exception>
 //! Base exception class for all Freya exceptions
 /*!
  * All Freya exceptions should be inherited from from this class
  */
-class EXPORT EngineException : virtual public ::EngineSubsystem
+class EXPORT EngineException : virtual public ::EngineSubsystem, public std::exception
 {
 public:
 	EngineException()
 	{
 	}
-	virtual ~EngineException()
+	virtual ~EngineException() throw ()
 	{
 	}
 	//! Retrieves the exception message
@@ -33,9 +34,16 @@ public:
 	 * Retrieves the exception message
 	 * \return exception message
 	 */
-	virtual EString message() const
+	virtual
+	EString message() const
 	{
 		return "Engine exception occured";
+	}
+
+	virtual
+	const char* what  	() const throw ()
+	{
+		return message().c_str();
 	}
 };
 

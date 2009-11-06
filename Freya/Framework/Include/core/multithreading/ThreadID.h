@@ -13,6 +13,8 @@
  */
 #include "core/EngineSubsystem.h"
 
+#include <iostream>
+
 namespace core
 {
 

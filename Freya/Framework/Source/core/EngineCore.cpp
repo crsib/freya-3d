@@ -166,6 +166,7 @@ EngineCore::EngineCore(int argC,char** argV,const std::string& applicationName, 
 	m_MemoryArena->addPool(4*1024*1024, 4); //Lua pool 4mb
 	m_MemoryArena->addPool(4*1024*1024, 4); //XML pool 4mb
 	m_MemoryArena->addPool(4*1024*1024, 4); //CEGUI pool 4mb
+	m_MemoryArena->addPool(4*1024*1024, 4); //World pool 4mb
 	m_ThreadImplementation = new THREAD_IMPLEMENTATION;
 	//start filesystem
 	std::cout << "Starting filesystem subsystem" << std::endl;
@@ -383,8 +384,9 @@ struct __internal_runnable : public EngineSubsystem
 
 core::multithreading::Thread*		EngineCore::createThread(const core::multithreading::Runnable& proc)
 {
-
-	return m_ThreadImplementation->createThread(__internal_runnable(&proc));
+	core::multithreading::Thread* thrd = m_ThreadImplementation->createThread(__internal_runnable(&proc));
+	m_LuaCore->createLuaThread(thrd->threadID());
+	return thrd;
 }
 
 void								EngineCore::destroyThread(core::multithreading::Thread* thrd)
