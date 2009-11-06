@@ -22,6 +22,7 @@ namespace memory
 		LUA_POOL,
 		XML_POOL,
 		CEGUI_POOL,
+		WORLD_POOL
 	};
 }
 }

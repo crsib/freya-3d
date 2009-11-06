@@ -27,7 +27,7 @@ public:
 	{
 		m_Msg += msg;
 	}
-	virtual ~ResourceException()
+	virtual ~ResourceException() throw()
 	{
 	}
 

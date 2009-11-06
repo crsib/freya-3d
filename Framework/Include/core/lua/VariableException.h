@@ -15,7 +15,7 @@ public:
 	{
 		m_Msg = EString("[LUA] Value \"") + name + EString("\" is of unsupported type or not found");
 	}
-	virtual ~VariableException() {}
+	virtual ~VariableException() throw() {}
 	virtual EString message() const
 	{
 		return m_Msg;

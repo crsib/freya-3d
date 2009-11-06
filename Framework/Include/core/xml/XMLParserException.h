@@ -18,7 +18,7 @@ public:
 	{
 		m_Msg += msg;
 	}
-	virtual ~XMLParserException()
+	virtual ~XMLParserException()throw()
 	{
 	}
 
