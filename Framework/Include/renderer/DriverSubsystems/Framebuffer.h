@@ -94,7 +94,7 @@ public:
 	 * \param side is either a cube texture side described by CubeTextureSide, either depth level of 3d texture
 	 * \param level is a mip level of an attachment point with enumeration from 0
 	 */
-	virtual void 	attachTexture(renderer::FramebufferAttachment::type attach_to,const Texture* tex,unsigned side,unsigned level = 0) = 0; //Version for cubic textures
+	virtual void 	attachTexture(renderer::FramebufferAttachment::type attach_to,const Texture* tex,unsigned side,unsigned level) = 0; //Version for cubic textures
 
 	//Draw targets/read target
 	//! Set draw buffers

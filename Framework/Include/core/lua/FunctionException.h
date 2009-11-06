@@ -20,7 +20,7 @@ public:
 	{
 		m_Msg = msg + EString("\nSynopsis: ") + err;
 	}
-	virtual ~FunctionException() {}
+	virtual ~FunctionException()throw() {}
 	virtual EString message() const
 	{
 		return m_Msg;

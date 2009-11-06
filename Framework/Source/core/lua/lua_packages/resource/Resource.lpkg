@@ -1,0 +1,13 @@
+$#include "resources/Resource.h"
+namespace resources
+{
+
+class Resource
+{
+public:
+
+	bool	ready();
+
+};
+
+}

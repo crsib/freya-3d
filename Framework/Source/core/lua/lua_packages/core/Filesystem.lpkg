@@ -1,0 +1,34 @@
+$#include "core/filesystem/Filesystem.h"
+
+namespace core
+{
+namespace filesystem
+{
+
+class Filesystem
+{
+public:
+	void mount(const EString& type, const EString& path);
+	EStringList list();
+	void makeDir(const  EString& path, int to);
+	bool dirExists(const EString& path);
+	bool fileExists(const EString& path);
+	void* read(const EString& path,int from = -1);
+	void*  read(const EString& path, size_t* sz,int from = -1);
+	size_t fileSize(const EString& path);
+	void write(const EString& path, const void* buf, size_t sz, int to);
+	void remove(const EString& path,int from);
+	enum SearchMode
+	{
+
+		EVERYWHERE,
+
+		ON_WRITABLE,
+
+		ON_READ_ONLY
+	};
+	int where(const EString& path,SearchMode mode = EVERYWHERE);
+};
+
+}
+}

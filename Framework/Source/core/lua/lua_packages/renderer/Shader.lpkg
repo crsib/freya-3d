@@ -1,0 +1,97 @@
+$#include "renderer/DriverSubsystems/Shader.h"
+
+namespace renderer
+{
+class Shader
+{
+public:
+	 void addShader(renderer::ShaderType::type type,const EString& data);
+	 void addShaders(const EString& vdata,const EString& fdata);
+	 void addShaders(const EString& vdata,const EString& gdata,const EString& fdata);
+	 void link();
+	 void bind();
+	 void unbind();
+	 bool isOk() const;
+	 unsigned getUniformLocation(const EString& name);
+
+	 void 	 setUniform(unsigned location,int val);//!< An overloaded version of setUniform
+	 void 	 setUniform(const EString& name,int val);//!< An overloaded version of setUniform
+
+	 void 	 setUniform(unsigned location,float val);//!< An overloaded version of setUniform
+	 void 	 setUniform(const EString& name,float val);//!< An overloaded version of setUniform
+
+	 void 	 setUniform(unsigned location,int val,int val1);//!< An overloaded version of setUniform
+	 void 	 setUniform(const EString& name,int val,int val1);//!< An overloaded version of setUniform
+
+	 void 	 setUniform(unsigned location,float val,float val1);//!< An overloaded version of setUniform
+	 void 	 setUniform(const EString& name,float val,float val1);//!< An overloaded version of setUniform
+
+	 void 	 setUniform(unsigned location,int val,int val1,int val2);//!< An overloaded version of setUniform
+	 void 	 setUniform(const EString& name,int val,int val1,int val2);//!< An overloaded version of setUniform
+
+	 void 	 setUniform(unsigned location,float val,float val1,float val2);//!< An overloaded version of setUniform
+	 void 	 setUniform(const EString& name,float val,float val1,float val2);//!< An overloaded version of setUniform
+
+	 void 	 setUniform(unsigned location,int val,int val1,int val2,int val3);//!< An overloaded version of setUniform
+	 void 	 setUniform(const EString& name,int val,int val1,int val2,int val3);//!< An overloaded version of setUniform
+
+	 void 	 setUniform(unsigned location,float val,float val1,float val2,float val3);//!< An overloaded version of setUniform
+	 void 	 setUniform(const EString& name,float val,float val1,float val2,float val3);//!< An overloaded version of setUniform
+
+	 void 	 setUniform(unsigned location,const math::vector3d& val);//!< An overloaded version of setUniform
+	 void 	 setUniform(const EString& name,const math::vector3d& val);//!< An overloaded version of setUniform
+
+	 void 	 setUniform(unsigned location,const math::matrix4x4& val);//!< An overloaded version of setUniform
+	 void 	 setUniform(const EString& name,const math::matrix4x4& val);//!< An overloaded version of setUniform
+
+	 void 	 setUniform(unsigned location,const math::quaternion& val);//!< An overloaded version of setUniform
+	 void 	 setUniform(const EString& name,const math::quaternion& val);//!< An overloaded version of setUniform
+
+	 void 	 setUniform(unsigned location,const math::vector3d& val,float val1);//!< An overloaded version of setUniform
+	 void 	 setUniform(const EString& name,const math::vector3d& val,float val2);//!< An overloaded version of setUniform
+
+	 void 	 setUniform(unsigned location,const math::matrix3x3& val);//!< An overloaded version of setUniform
+	 void 	 setUniform(const EString& name,const math::matrix3x3& val);//!< An overloaded version of setUniform
+
+	 unsigned getAttributeLocation(const EString& name);
+
+	 void 	 setAttribute(unsigned location,int val);//!< An overloaded version of setAttribute
+	 void 	 setAttribute(const EString& name,int val);//!< An overloaded version of setAttribute
+
+	 void 	 setAttribute(unsigned location,float val);//!< An overloaded version of setAttribute
+	 void 	 setAttribute(const EString& name,float val);//!< An overloaded version of setAttribute
+
+	 void 	 setAttribute(unsigned location,int val,int val1);//!< An overloaded version of setAttribute
+	 void 	 setAttribute(const EString& name,int val,int val1);//!< An overloaded version of setAttribute
+
+	 void 	 setAttribute(unsigned location,float val,float val1);//!< An overloaded version of setAttribute
+	 void 	 setAttribute(const EString& name,float val,float val1);//!< An overloaded version of setAttribute
+
+	 void 	 setAttribute(unsigned location,int val,int val1,int val2);//!< An overloaded version of setAttribute
+	 void 	 setAttribute(const EString& name,int val,int val1,int val2);//!< An overloaded version of setAttribute
+
+	 void 	 setAttribute(unsigned location,float val,float val1,float val2);//!< An overloaded version of setAttribute
+	 void 	 setAttribute(const EString& name,float val,float val1,float val2);//!< An overloaded version of setAttribute
+
+	 void 	 setAttribute(unsigned location,int val,int val1,int val2,int val3);//!< An overloaded version of setAttribute
+	 void 	 setAttribute(const EString& name,int val,int val1,int val2,int val3);//!< An overloaded version of setAttribute
+
+	 void 	 setAttribute(unsigned location,float val,float val1,float val2,float val3);//!< An overloaded version of setAttribute
+	 void 	 setAttribute(const EString& name,float val,float val1,float val2,float val3);//!< An overloaded version of setAttribute
+
+	 void 	 setAttribute(unsigned location,const math::vector3d& val);//!< An overloaded version of setAttribute
+	 void 	 setAttribute(const EString& name,const math::vector3d& val);//!< An overloaded version of setAttribute
+
+	 void 	 setAttribute(unsigned location,const math::quaternion& val);//!< An overloaded version of setAttribute
+	 void 	 setAttribute(const EString& name,const math::quaternion& val);//!< An overloaded version of setAttribute
+
+	 void 	 setAttribute(unsigned location,const math::vector3d& val,float val1);//!< An overloaded version of setAttribute
+	 void 	 setAttribute(const EString& name,const math::vector3d& val,float val2);//!< An overloaded version of setAttribute
+
+	 void	 setGeometryShader(unsigned maxOutVerts,renderer::Primitive::type inType,renderer::Primitive::type outType);
+	 void	 setTexture(unsigned location,renderer::TextureUnit::type unit);
+
+	 void 	 setTexture(const EString& name,renderer::TextureUnit::type unit);
+};
+
+}
