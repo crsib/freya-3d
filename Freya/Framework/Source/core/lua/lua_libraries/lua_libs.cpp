@@ -6,6 +6,7 @@
  */
 
 #include <lua.hpp>
+extern "C" int luaopen_bit(lua_State *L);
 namespace core
 {
 namespace __lua_internal
@@ -18,6 +19,7 @@ const luaL_Reg lualibs[] = {
 		{LUA_OSLIBNAME, luaopen_os},
 		{LUA_STRLIBNAME, luaopen_string},
 		{LUA_MATHLIBNAME, luaopen_math},
+		{"bit",			  luaopen_bit},
 #ifdef LUA_DEBUG
 		{LUA_DBLIBNAME, luaopen_debug},
 #endif

@@ -1,3 +1,38 @@
+$#include "core/lua/lua_libraries/lua_helpers.h"
+typedef std::string  EString;
+
+void include(const EString& modName, const EString& path);
+
+enum	MemControl
+{
+	TOTAL_ALLOCATED,
+	ALLOCATION_COUNT,
+	DEALLOCATION_COUNT,
+	ALLOCATED_FOR_BUFFERS
+};
+
+unsigned memoryUsage(MemControl ctrl);
+
+const char* keyboardKeyName(size_t i);
+
+const char* mouseButtonName(size_t i);
+
+namespace core
+{
+namespace taskmanager
+{
+
+class LuaTask : public core::taskmanager::Task
+{
+public:
+	LuaTask(const EString& metName);
+	~LuaTask();
+};
+
+}
+}
+
+
 //Packages
 $#include "core/lua/tolua++/tolua_base.h"
 //Math
@@ -10,6 +45,32 @@ $pfile "math/wrap_math.lpkg"
 $pfile "math/plane.lpkg"
 $pfile "math/frustum.lpkg"
 
+$pfile "core/EngineCore.lpkg"
+$pfile "core/Filesystem.lpkg"
+$pfile "core/MemoryArena.lpkg"
+$pfile "core/MemoryPools.lpkg"
+$pfile "core/TaskManager.lpkg"
+$pfile "core/Task.lpkg"
+
+$pfile "framework/SceneNode.lpkg"
+$pfile "framework/SceneNodeController.lpkg"
+$pfile "framework/World.lpkg"
+
+$pfile "renderer/RenderingAPIDriver.lpkg"
+$pfile "renderer/Shader.lpkg"
+$pfile "renderer/VertexBufferObject.lpkg"
+$pfile "renderer/Texture.lpkg"
+$pfile "renderer/Framebuffer.lpkg"
+
+$pfile "resource/Resource.lpkg"
+$pfile "resource/ResourceManager.lpkg"
+
+$pfile "windowmanager/WindowManagerDriver.lpkg"
+$pfile "windowmanager/KeyboardKeys.lpkg"
+$pfile "windowmanager/KeyDrivenDevice.lpkg"
+$pfile "windowmanager/MovementDrivenDevice.lpkg"
+$pfile "windowmanager/MouseButtons.lpkg"
+$pfile "windowmanager/Callback.lpkg"
 
 //CEGUI
 $pfile "../../../../3party/cegui/src/ScriptingModules/LuaScriptModule/package/CEGUI.pkg"

@@ -46,7 +46,7 @@ public:
 		m_Message = EString("[renderer]: Unknown shader exception ocured");
 		m_Type = static_cast<unsigned>(-1);
 	}
-	virtual ~ShaderException()
+	virtual ~ShaderException() throw()
 	{
 	}
 	//! As always, this function returns exception message

@@ -3,7 +3,7 @@
 
 #include "core/EngineSubsystem.h"
 #include <xercesc/dom/DOM.hpp>
-#include <core/xml/XMLStringWrap.h>
+#include "core/xml/XMLStringWrap.h"
 
 namespace core
 {

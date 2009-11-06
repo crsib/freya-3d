@@ -22,7 +22,7 @@ public:
 	{
 		m_Msg = msg;
 	}
-	virtual ~FilesystemException()
+	virtual ~FilesystemException() throw()
 	{}
 	//! Retrieves the exception message
 	/*!

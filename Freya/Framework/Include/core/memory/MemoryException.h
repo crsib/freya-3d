@@ -25,7 +25,7 @@ public:
 	MemoryException(const EString& mesg = "Memory exception") : m_Msg(EString("[Memory]: ") + mesg)
 	{
 	}
-	virtual ~MemoryException()
+	virtual ~MemoryException() throw()
 	{
 	}
 

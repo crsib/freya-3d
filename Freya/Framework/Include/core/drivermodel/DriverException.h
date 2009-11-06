@@ -38,7 +38,7 @@ public:
 	{
 		m_Msg += msg;
 	}
-	virtual ~DriverException(){}
+	virtual ~DriverException() throw(){}
 	//! Retrieves the exception message
 	/*!
 	 * Retrieves the exception message
