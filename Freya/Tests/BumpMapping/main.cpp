@@ -21,8 +21,8 @@ namespace core
 {
 namespace memory {
 #ifdef _FREYA_DEBUG_MEMORY
-	extern unsigned memory_allocated;
-	extern unsigned allocated_for_buffers;
+	extern EXPORT unsigned memory_allocated;
+	extern EXPORT unsigned allocated_for_buffers;
 #endif
 }
 }

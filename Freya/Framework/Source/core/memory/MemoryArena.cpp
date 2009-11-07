@@ -8,7 +8,7 @@
 #include "core/memory/MemoryArena.h"
 #include "core/memory/MemoryPool.h"
 #include "core/memory/MemoryException.h"
-
+#include "internal.h"
 #include <iostream>
 
 namespace core
