@@ -21,7 +21,6 @@ IF(BUILD_SDL_WINDOWMANAGER_DRIVER)
 		InputDevices/SDLKeyboard.h
 		InputDevices/SDLMouse.h
 		InputDevices/SDLMouseButtons.h
-		OpenGLSDLAPIInit.h
 		SDLDriverID.h
 		SDLManagerDriver.h
 		InputDeviceFactory.cpp
@@ -29,7 +28,6 @@ IF(BUILD_SDL_WINDOWMANAGER_DRIVER)
 		InputDevices/SDLKeyboardLookup.cpp
 		InputDevices/SDLMouse.cpp
 		InputDevices/SDLMouseButtons.cpp
-		OpenGLSDLAPIInit.cpp
 		SDLManagerDriver.cpp
 	)
 	
