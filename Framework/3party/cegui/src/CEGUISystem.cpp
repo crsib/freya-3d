@@ -63,6 +63,7 @@
 #include <ctime>
 #include <clocale>
 
+#include <iostream>
 //This block includes the proper headers when static linking
 #if 1 || defined(CEGUI_STATIC)
     // XML Parser
@@ -495,6 +496,7 @@ void System::setDefaultFont(Font* font)
 *************************************************************************/
 void System::setDefaultMouseCursor(const Image* image)
 {
+	//std::cout << "Setting mouse cursor " << image << std::endl;
     // the default, default, is for nothing!
     if (image == (const Image*)DefaultMouseCursor)
         image = 0;
@@ -530,6 +532,7 @@ void System::setDefaultMouseCursor(const Image* image)
 *************************************************************************/
 void System::setDefaultMouseCursor(const String& imageset, const String& image_name)
 {
+	//std::cout << "Setting mouse cursor from " << imageset << " with " << image_name << std::endl;
 	setDefaultMouseCursor(&ImagesetManager::getSingleton().get(imageset).getImage(image_name));
 }
 

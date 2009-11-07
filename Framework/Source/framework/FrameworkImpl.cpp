@@ -25,11 +25,11 @@ __Data::~__Data()
 {
 	delete landscape;
 	landscape = NULL;
-	for(size_t i = 0; i < resources.size(); i++ )
+	for(size_t i = 0; i < nodes.size(); i++ )
 	{
-		delete resources[i];
+		delete nodes[i];
 	}
-	resources.clear();
+	nodes.clear();
 }
 
 __WorldTreeNode::__WorldTreeNode()

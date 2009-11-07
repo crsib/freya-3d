@@ -8,8 +8,6 @@
 #include "SDLManagerDriver.h"
 #include "windowmanager/Drivers/SDL/InputDeviceFactory.h"
 
-#include "windowmanager/Drivers/SDL/OpenGLSDLAPIInit.h"
-
 #include "windowmanager/DriverSubsystems/InputDevices/KeyDrivenDevice.h"
 #include "windowmanager/DriverSubsystems/InputDevices/MovementDrivenDevice.h"
 
