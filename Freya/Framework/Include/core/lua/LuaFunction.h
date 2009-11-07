@@ -16,14 +16,14 @@
 #include "core/EStringList.h"
 #include "core/EString.h"
 #include "core/Variable.h"
-
+#include "internal.h"
 namespace core
 {
 
 namespace lua
 {
 
-class LuaFunction: public EngineSubsystem
+class EXPORT LuaFunction: public EngineSubsystem
 {
 	friend class LuaCore;
 public:

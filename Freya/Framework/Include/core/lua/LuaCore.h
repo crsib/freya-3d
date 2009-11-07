@@ -24,12 +24,14 @@ extern "C"
 #include "core/lua/LuaFunction.h"
 #include "core/EString.h"
 #include "core/multithreading/ThreadID.h"
+
+#include "internal.h"
 namespace core
 {
 	class EngineCore;
 namespace lua
 {
-class LuaCore: public EngineSubsystem
+class EXPORT LuaCore: public EngineSubsystem
 {
 	friend class core::EngineCore;
 	friend class LuaFunction;

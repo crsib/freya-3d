@@ -42,11 +42,11 @@ namespace core
 {
 namespace memory
 {
-extern unsigned memory_allocated;
-extern unsigned allocation_count;
-extern unsigned deallocation_count;
-extern unsigned alloc_dealloc_dif;
-extern unsigned allocated_for_buffers;
+	extern EXPORT unsigned memory_allocated;
+	extern EXPORT unsigned allocation_count;
+	extern EXPORT unsigned deallocation_count;
+	extern EXPORT unsigned alloc_dealloc_dif;
+	extern EXPORT unsigned allocated_for_buffers;
 }
 }
 
