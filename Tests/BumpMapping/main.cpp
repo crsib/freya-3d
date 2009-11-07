@@ -577,26 +577,7 @@ public:
 		core::EngineCore::getTaskManager()->addTask(new HandleInput(camMode,cams,sphere,cube,useBump,bump,fake,renderer));
 		core::EngineCore::getTaskManager()->addTask(renderer);
 		core::EngineCore::getTaskManager()->addTask(new FPSCounter);
-		//Various initial lua tests
-		core::lua::LuaCore*	lua = core::EngineCore::getLuaCore();
-		lua->startJIT();
 
-		size_t ssz;
-		void* s_src = fs->read("/Scripts/Demo.lua",&ssz);
-		EString scr(reinterpret_cast<char*>(s_src),ssz);
-		lua->runScript(scr);
-
-		core::Variable var = lua->getValue("test");
-
-		std::cout << var.toDouble() << std::endl;
-		core::lua::LuaFunction	fn = lua->getFuction("simple_test",0,0);
-		fn();
-		core::lua::LuaFunction  fn1("par1",1,1);
-		std::cout << "fn1(\"test\") = " << fn1(EString("test")).toString() << std::endl;
-		core::lua::LuaFunction  fn2("par2",2,2);
-		fn2((int)10,3.0);
-		std::cout << "fn2(10,3.0) = " << fn2.getRetVal(0).toString() << " " << fn2.getRetVal(1).toString() << std::endl;
- 		core::memory::Free(s_src,core::memory::GENERIC_POOL);
 		return core::taskmanager::Task::DONE;
 	}
 private:

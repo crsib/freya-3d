@@ -26,11 +26,14 @@ namespace framework
 //! Abstraction of game world
 class World : public virtual EngineSubsystem
 {
-public:
-	World( );
+private:
+	World( WorldTreeNodePtr root );
 	virtual ~World( );
+public:
+	static World*		loadFromXML( const EString&	path);
+	static World*		getSingleton();
 
-	void	loadFromXML( const EString&	path);
+	WorldTreeNodePtr	    getNode( const EString&);
 
 private:
 	WorldTreeNodePtr		m_WorldRoot;

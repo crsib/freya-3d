@@ -62,7 +62,6 @@ Include/windowmanager/DriverSubsystems/InputDevices/KeyboardKeys.h
 Include/windowmanager/DriverSubsystems/InputDevices/KeyDrivenDevice.h
 Include/windowmanager/DriverSubsystems/InputDevices/MouseButtons.h
 Include/windowmanager/DriverSubsystems/InputDevices/MovementDrivenDevice.h
-Include/windowmanager/DriverSubsystems/RenderingAPIInitialization/RenderingAPIInitialization.h
 Include/windowmanager/WindowManagerDriver.h
 Include/windowmanager/WMException.h
 Include/windowmanager.h

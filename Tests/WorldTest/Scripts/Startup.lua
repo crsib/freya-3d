@@ -63,11 +63,11 @@ function get_fps()
 		local memUsage = 		memoryUsage(TOTAL_ALLOCATED)
 		local memTotalUsage = 	memoryUsage(ALLOCATED_FOR_BUFFERS)
 		if memUsage > 1024.0*1024.0 then
-			memory_s = ""..string.format("%4.3f",(memUsage / (1024.0*1024.0))) .." MB"
+			memory_s = string.format("%4.3f",(memUsage / (1024.0*1024.0))) .." MB"
 		elseif memUsage > 1024.0 then
-			memory_s = ""..string.format("%4.3f",(memUsage / (1024.0))) .." KB"
+			memory_s = string.format("%4.3f",(memUsage / (1024.0))) .." KB"
 		else
-			memory_s = ""..string.format("%4.3f",(memUsage)) .." B"
+			memory_s = string.format("%4.3f",(memUsage)) .." B"
 		end
 		memory_s = memory_s.." / "..string.format("%4.3f",(memTotalUsage / (1024.0*1024.0))).." Mb"
 	end
@@ -131,11 +131,25 @@ function finish_init()
 	system    = CEGUI.System:getSingleton()
 	fontman   = CEGUI.FontManager:getSingleton()
 	schememan = CEGUI.SchemeManager:getSingleton()
-
+	
 	schememan:create( "TaharezLook.scheme" )
 	fontman:create( "Commonwealth-10.font" )
 	fontman:create( "DejaVuSans-10.font" )
-	system:setDefaultMouseCursor( "TaharezLook","MouseArrow" )
+	system:setDefaultMouseCursorWithName( "TaharezLook", "MouseArrow" )
+	
+	local cursor = CEGUI.MouseCursor:getSingleton()
+	cursor:show()
+	local pos	=	CEGUI.Vector2:new(320,320)
+	cursor:setPosition(pos)
+	
+	if cursor:isVisible() then
+		print("Mouse cursor is visible")
+	else
+		print("Mouse cursor is hidden")
+	end
+	
+	local rect = cursor:getConstraintArea()
+	print(string.format("Cursor constraint area is ( %.2f, %.2f, %.2f, %.2f )",rect.left,rect.top,rect.right,rect.bottom))
 	
 	local ceWm = CEGUI.WindowManager:getSingleton()
 	root = ceWm:loadWindowLayout( "WorldTest.layout" )

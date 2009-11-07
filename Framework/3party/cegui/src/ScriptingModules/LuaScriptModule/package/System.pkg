@@ -26,8 +26,8 @@ class System : public EventSet
 	const Size& getMultiClickToleranceAreaSize() const;
 
 	void setDefaultMouseCursor(MouseCursorImage image);
-	void setDefaultMouseCursor(const Image* image);
-	void setDefaultMouseCursor(string imageset_name, string image_name);
+	void setDefaultMouseCursor @ setDefaultMouseCursorWithImage(const Image* image);
+	void setDefaultMouseCursor @ setDefaultMouseCursorWithName (string imageset_name, string image_name);
 	const Image* getDefaultMouseCursor() const;
 
 	Window* getWindowContainingMouse() const;

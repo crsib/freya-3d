@@ -101,7 +101,9 @@ typedef struct	__Resource
 	resources::Resource*	resource;
 	SceneNode*				node;
 
-	__Resource() : resourceID(""),isLoaded(false),resource(NULL){}
+	unsigned				lodLevel;
+
+	__Resource() : resourceID(""),isLoaded(false),resource(NULL),node(NULL),lodLevel(0){}
 	~__Resource();
 	MEMORY_FUNCTIONS
 } WorldResource,*WorldResourcePtr;
@@ -109,8 +111,8 @@ typedef struct	__Resource
 typedef	struct	__Data
 {
 	WorldResourcePtr	landscape;
-	typedef std::vector<WorldResourcePtr, core::memory::MemoryAllocator<WorldResourcePtr> > WorldResources;
-	WorldResources		resources;
+	typedef std::vector<SceneNode*, core::memory::MemoryAllocator<SceneNode*> > WorldNodes;
+	WorldNodes			nodes;
 
 	__Data() : landscape (NULL){}
 	~__Data();
