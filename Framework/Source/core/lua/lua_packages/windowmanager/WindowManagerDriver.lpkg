@@ -57,15 +57,6 @@ enum
 };
 }
 
-namespace ProcessingMode
-{
-enum
-{
-	NORMAL,
-	EVENT_BASED
-};
-}
-
 class WindowManagerDriver 
 {
 public:
@@ -107,12 +98,6 @@ public:
 	void		setQuitCallback(const Callback& callback) ;
 	//! Set the mouse wheel callback. p1 is int and represents a mouse. p2 is int and represents an event value
 	void		setMouseWheelCallback(const Callback& callback) ;
-	//Sets the mode for whole device.
-	//For keydriven devices it is available to set individual callbacks for keys
-	//For undestardable reason, its no efficient way to make the movement based actions to send messages only in specicified areas.
-	//(Actually, resulting speed will be the same)
-	void		setKeydrivenDeviceMode(unsigned mode) ;
-	void		setMovementDrivenDevice(unsigned mode) ;
 	//This function will post a user event
 	void		postUserEvent(unsigned uid, void* arg1, void* arg2) ;
 	//WM

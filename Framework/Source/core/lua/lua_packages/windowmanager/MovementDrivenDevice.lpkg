@@ -16,9 +16,6 @@ public:
 	bool	isAbsoluteCaptureSupported();
 	void	absoluteState(int* x,int* y);
 
-	void setMode(unsigned mode);//Set processing mode
-	void registerCallback(const windowmanager::Callback& callback);//For event-based mode
-
 };
 
 }
