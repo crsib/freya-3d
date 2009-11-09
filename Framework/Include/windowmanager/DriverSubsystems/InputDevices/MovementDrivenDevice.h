@@ -37,9 +37,6 @@ public:
 	virtual bool	isAbsoluteCaptureSupported() = 0;
 	virtual void	absoluteState(int* x,int* y) = 0;
 
-	virtual void setMode(unsigned mode) = 0;//Set processing mode
-	virtual void registerCallback(const windowmanager::Callback& callback) = 0;//For event-based mode
-
 };
 
 }

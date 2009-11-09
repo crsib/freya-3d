@@ -17,6 +17,7 @@
 #include "renderer/RenderingAPIDriver.h"
 
 //STL
+#include <stdint.h>
 
 #include <map>
 #include <vector>
@@ -154,7 +155,7 @@ typedef struct __WorldTreeNode
 
 } WorldTreeNode,*WorldTreeNodePtr;
 
-typedef struct __File
+typedef struct __File : public ::EngineSubsystem
 {
 	void*		data;
 	size_t		size;
@@ -162,8 +163,92 @@ typedef struct __File
 	void free();
 
 	__File() : data (NULL), size(0){}
-	~__File();
-} File,FilePtr;
+	virtual ~__File();
+} File,*FilePtr;
+
+typedef
+struct __VBO_BatchHeader : public ::EngineSubsystem
+{
+	 uint32_t						assembly_type;
+	 uint16_t   					index_count;
+	 uint16_t						buffer_offset;
+	 renderer::VertexElement*		layout;
+	 __VBO_BatchHeader() : assembly_type(0),index_count(0),buffer_offset(0),layout(NULL){}
+} VBO_BatchHeader,*VBO_BatchHeaderPtr;
+
+typedef
+struct __VBOData : public ::EngineSubsystem
+{
+	uint32_t						num_batches;
+	VBO_BatchHeaderPtr				batches;
+	uint16_t						number_of_indicies;
+	renderer::VertexBufferObject*	indicies;
+	uint32_t						size_of_vertex_data;
+	renderer::VertexBufferObject*	vertex_data;
+	__VBOData() : num_batches(0),batches(NULL),number_of_indicies(0),indicies(NULL),size_of_vertex_data(0), vertex_data(NULL){}
+} VBOData,*VBODataPtr;
+
+typedef
+struct	__GeometryBatch : public ::EngineSubsystem
+{
+	uint32_t						shader_id; //Shader id in shader library
+	uint32_t						number_of_textures;
+	renderer::Texture**				textures;
+	uint32_t						batch_id;
+	VBODataPtr						vbo;
+	uint32_t						r2vb;//Pass is r2vb
+	renderer::VertexBufferObject*	r2vbTarget;
+} GeometryBatch,*GeometryBatchPtr; //This is a geometry batch
+
+enum SHADER_BIND_TYPE
+{
+	INT,
+	FLOAT,
+	FLOAT2,
+	FLOAT3,
+	FLOAT4,
+	MAT3x3,
+	MAT4x4,
+	SAMPLER,
+	VIEW,
+	WORLD,
+	PROJECTION
+};
+
+typedef
+struct __ShaderBinding : public ::EngineSubsystem
+{
+	uint32_t	type;
+	EString		name;
+	union
+	{
+		int32_t			INT;
+		float			FLOAT;
+		float			FLOAT2[2];
+		float			FLOAT3[3];
+		float			FLOAT4[4];
+		float			MAT3x3[9];
+		float			MAT4x4[16];
+		uint32_t		SAMPLER;
+	};
+} ShaderBinding,*ShaderBindingPtr;
+
+typedef struct __ShaderWrapper : public ::EngineSubsystem
+{
+	renderer::Shader*			shader;
+	uint16_t					num_uniform_bindings;
+	uint16_t					num_attribute_bindings;
+	ShaderBindingPtr			uniform_bindings;
+	ShaderBindingPtr			attribute_bindings;
+} ShaderWrapper,*ShaderWrapperPtr;
+
+typedef
+struct	__ShaderLibrary : public ::EngineSubsystem
+{
+	uint32_t					num_shaders;
+	ShaderWrapperPtr			shaders;
+	EString						apiName;
+} ShaderLibrary,*ShaderLibraryPtr;
 
 }
 

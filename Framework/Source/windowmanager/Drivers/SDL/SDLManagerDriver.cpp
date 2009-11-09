@@ -324,7 +324,7 @@ void		SDLWindowManagerDriver::updateEvents()
 				break;
 			case SDL_MOUSEWHEEL:
 				if(m_MouseWheelCallback)
-					m_MouseWheelCallback->call(event.wheel.which,event.wheel.y);
+					m_MouseWheelCallback->call(event.wheel.x,event.wheel.y);
 				break;
 		}
 
@@ -397,20 +397,14 @@ void			SDLWindowManagerDriver::setMouseWheelCallback(const Callback& callback)
 
 void		SDLWindowManagerDriver::setKeydrivenDeviceMode(unsigned mode)
 {
-	for(KeyDrivenDeviceListIterator it = m_KeyDrivenDeviceList.begin();it != m_KeyDrivenDeviceList.end();it++)
-	{
-		(*it)->setMode(mode);
-	}
+
 
 
 }
 
 void		SDLWindowManagerDriver::setMovementDrivenDevice(unsigned mode)
 {
-	for(MovementDrivenDeviceListIterator it = m_MovementDrivenDeviceList.begin();it != m_MovementDrivenDeviceList.end();it++)
-	{
-		(*it)->setMode(mode);
-	}
+
 }
 
 void		SDLWindowManagerDriver::postUserEvent(unsigned uid, void* arg1, void* arg2)

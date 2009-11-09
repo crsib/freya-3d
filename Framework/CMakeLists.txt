@@ -186,6 +186,9 @@ Source/framework/World.cpp
 Source/framework/SceneNode.cpp
 Source/framework/SceneNodeController.cpp
 Source/framework/FrameworkImpl.cpp
+
+Source/resources/drivers/std/VDataLoader.h
+Source/resources/drivers/std/VDataLoader.cpp
 )
 
 SET( CEGUI_SOURCE 

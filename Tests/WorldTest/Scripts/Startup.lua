@@ -75,6 +75,18 @@ function get_fps()
 end
 
 ------------------------------	Event update task ---------------------------------------------------------------------------------------
+function quitCallback()
+	EngineCore:shutdown()
+end
+
+setQuitCallback("quitCallback")
+
+function wheelCallback(x,y)
+	print ("Wheel scrolled ( "..x..", "..y.." )")
+end
+
+setWheelCallback("wheelCallback")
+ 
 function update_events()
 	local newTime = wm:getTickCount()
 	wm:updateEvents()

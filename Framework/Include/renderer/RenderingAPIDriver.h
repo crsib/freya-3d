@@ -92,6 +92,7 @@ struct VertexElement : public EngineSubsystem
 {
 	VertexElement(unsigned sid,renderer::VertexFormat::USAGE usg,renderer::VertexFormat::TYPE tp,unsigned off)
 	: streamID(sid),usage(usg),type(tp),offset(off){}
+	VertexElement(){}
 	unsigned				streamID;
 	VertexFormat::USAGE		usage;
 	VertexFormat::TYPE		type;

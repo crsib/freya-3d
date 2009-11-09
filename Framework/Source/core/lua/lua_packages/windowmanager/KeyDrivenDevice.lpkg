@@ -21,14 +21,6 @@ public:
 	EString id() const;
 	bool getKeyState(unsigned Key);
 	void updateState(); //Updates state
-
-	//For normal mode
-	//First argument is KeyAction, second - Key ID
-	void registerCallback(unsigned Key,const Callback& callback);
-	void dropCallback(unsigned Key);
-	//
-	void setMode(unsigned mode);//Set processing mode
-	void registerCallback(const windowmanager::Callback& callback);//For event-based mode
 };
 
 }
