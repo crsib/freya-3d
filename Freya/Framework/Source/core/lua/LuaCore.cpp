@@ -26,6 +26,12 @@ namespace core
 {
 namespace lua
 {
+namespace __internal
+{
+core::lua::LuaFunction*		quit_callback 	= NULL;
+core::lua::LuaFunction*		wheel_callback 	= NULL;
+}
+
 LuaCore::LuaCore()
 {
 	// TODO Auto-generated constructor stub
@@ -120,11 +126,8 @@ void LuaCore::startJIT(unsigned  OptLevel)
 	}
 	else //Jit is not installed
 	{
-		//TODO: try to remove this on release
-		lua_gc(Lua,LUA_GCSTOP,0);
-		//end of TODO section
 		if(__lua_internal::installJITLibs(Lua))
-			throw LuaException();
+			throw LuaException("Failed to install jit optimizer code");
 		m_JITInstalled = m_JITStarted = 1;
 	}
 	//Optimiztions check

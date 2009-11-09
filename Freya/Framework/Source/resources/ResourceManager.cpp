@@ -11,6 +11,8 @@
 #include "core/multithreading/Mutex.h"
 //Default drivers
 #include "resources/drivers/std/ShaderLoaderDriver.h"
+#include "resources/drivers/std/FileLoaderDriver.h"
+#include "resources/drivers/std/VDataLoader.h"
 //TODO: DBG
 #include <iostream>
 
@@ -22,6 +24,8 @@ ResourceManager::ResourceManager()
 	m_ResourceLibrary = new __internal::ResourceLibrary;
 	//Default drivers registration
 	registerDriver(new resources::drivers::__std::ShaderLoaderDriverID());
+	registerDriver(new resources::drivers::__std::FileLoaderDriverID());
+	registerDriver(new resources::drivers::__std::VDataLoaderDriverID());
 }
 
 ResourceManager::~ResourceManager()

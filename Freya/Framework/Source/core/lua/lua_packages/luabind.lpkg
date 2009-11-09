@@ -32,6 +32,9 @@ public:
 }
 }
 
+void	setQuitCallback(const EString& luaFn);
+
+void	setWheelCallback(const EString& luaFn);
 
 //Packages
 $#include "core/lua/tolua++/tolua_base.h"

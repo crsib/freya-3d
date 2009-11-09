@@ -16,9 +16,12 @@
 #include "core/EngineCore.h"
 #include "core/filesystem/Filesystem.h"
 #include "core/lua/LuaCore.h"
+#include "core/lua/LuaFunction.h"
 #include "windowmanager/DriverSubsystems/InputDevices/KeyboardKeys.h"
 #include "windowmanager/DriverSubsystems/InputDevices/MouseButtons.h"
 #include "core/taskmanager/Task.h"
+#include "windowmanager/WindowManagerDriver.h"
+#include "windowmanager/Callback.h"
 
 inline
 void include(const EString& modName, const EString& path)
@@ -101,6 +104,57 @@ private:
 };
 
 }
+}
+namespace core
+{
+namespace lua
+{
+namespace __internal
+{
+extern core::lua::LuaFunction*		quit_callback;
+extern core::lua::LuaFunction*		wheel_callback;
+
+inline
+void		quitCallback()
+{
+	if(quit_callback)
+	{
+		quit_callback->call();
+	}
+}
+
+inline
+void		wheelCallback(int hor,int vert)
+{
+	if(wheel_callback)
+	{
+		wheel_callback->setParameter(0,core::Variable((int)hor));
+		wheel_callback->setParameter(1,core::Variable((int)vert));
+		wheel_callback->call();
+	}
+}
+
+}
+}
+}
+
+
+inline
+void	setQuitCallback(const EString& luaFn)
+{
+	if(core::lua::__internal::quit_callback)
+		delete core::lua::__internal::quit_callback;
+	core::lua::__internal::quit_callback = new core::lua::LuaFunction(luaFn,0,0);
+	core::EngineCore::getWindowManager()->setQuitCallback(windowmanager::Callback(core::lua::__internal::quitCallback));
+}
+
+inline
+void	setWheelCallback(const EString& luaFn)
+{
+	if(core::lua::__internal::wheel_callback)
+		delete core::lua::__internal::wheel_callback;
+	core::lua::__internal::wheel_callback = new core::lua::LuaFunction(luaFn,2,0);
+	core::EngineCore::getWindowManager()->setMouseWheelCallback(windowmanager::Callback(core::lua::__internal::wheelCallback));
 }
 
 #endif /* LUA_HELPERS_H_ */

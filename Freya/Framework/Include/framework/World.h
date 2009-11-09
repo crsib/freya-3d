@@ -33,7 +33,7 @@ public:
 	static World*		loadFromXML( const EString&	path);
 	static World*		getSingleton();
 
-	WorldTreeNodePtr	    getNode( const EString&);
+	//WorldTreeNodePtr	getNode( const EString&);
 
 private:
 	WorldTreeNodePtr		m_WorldRoot;
