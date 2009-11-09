@@ -38,14 +38,6 @@ public:
 	virtual EString id() const = 0;
 	virtual bool getKeyState(unsigned Key) = 0;
 	virtual void updateState() = 0; //Updates state
-
-	//For normal mode
-	//First argument is KeyAction, second - Key ID
-	virtual void registerCallback(unsigned Key,const Callback& callback) = 0;
-	virtual void dropCallback(unsigned Key) = 0;
-	//
-	virtual void setMode(unsigned mode) = 0;//Set processing mode
-	virtual void registerCallback(const windowmanager::Callback& callback) = 0;//For event-based mode
 };
 
 }

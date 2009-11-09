@@ -508,7 +508,7 @@ namespace Primitive
 enum type
 {
 	//! Each vertex is treated as a single point
-	POINTS,
+	POINTS = 0,
 	//! The two successive vertices are treated as line endings
 	LINES,
 	//! Same as above, but with information for adjacent vertices. (See SM 4.0 primitives information for details)
@@ -802,7 +802,7 @@ namespace VertexFormat
 {
 	enum USAGE
 	{
-		POSITION,
+		POSITION = 0,
 		NORMAL,
 		COLOR,
 		TEXT_COORD,
@@ -843,7 +843,7 @@ namespace VertexFormat
 
 	enum TYPE
 	{
-		FLOAT1,
+		FLOAT1 = 0,
 		FLOAT2,
 		FLOAT3,
 		FLOAT4,

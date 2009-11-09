@@ -33,6 +33,7 @@ public:
 		core::EngineCore::getLuaCore()->runScript(scr);
 		std::cout << "Script finished" << std::endl;
 		core::memory::Free(s_src,core::memory::GENERIC_POOL);
+		//resources::Resource*	res = core::EngineCore::getResourceManager()->load(":vbo:/vbos/cube.vdata");
 		return Initialize::DONE;
 	}
 private:
