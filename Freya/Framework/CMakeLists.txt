@@ -173,6 +173,8 @@ Source/resources/drivers/std/ShaderLoaderDriver.cpp
 #Generated sources
 "${INTERMIDIATE_DIRECTORY}/StaticPluginsLoader.cpp"
 "${INTERMIDIATE_DIRECTORY}/freya_lua_bind.cpp"
+"${INTERMIDIATE_DIRECTORY}/XMLStaticStrings.h"
+"${INTERMIDIATE_DIRECTORY}/XMLStaticStrings.cpp"
 
 #World
 #public includes
@@ -684,9 +686,11 @@ INCLUDE_DIRECTORIES( 3party/cegui/include
 
 SET_SOURCE_FILES_PROPERTIES("${INTERMIDIATE_DIRECTORY}/StaticPluginsLoader.cpp" PROPERTIES GENERATED YES)
 SET_SOURCE_FILES_PROPERTIES("${INTERMIDIATE_DIRECTORY}/freya_lua_bind.cpp" PROPERTIES GENERATED YES)
+SET_SOURCE_FILES_PROPERTIES("${INTERMIDIATE_DIRECTORY}/XMLStaticStrings.h" PROPERTIES GENERATED YES)
+SET_SOURCE_FILES_PROPERTIES("${INTERMIDIATE_DIRECTORY}/XMLStaticStrings.cpp" PROPERTIES GENERATED YES)
 EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/Framework/Include/core/lua/tolua++/tolua++.h" "${INTERMIDIATE_DIRECTORY}/tolua++.h")
 
-MESSAGE(STATUS "Searching tolua")
+MESSAGE(STATUS "Searching tolua") 
 FIND_PROGRAM( TOLUA_APP NAMES tolua tolua++ tolua++5 tolua++5.1 PATH ${TOLUA_APP_PATH} )
 IF( NOT TOLUA_APP )
     MESSAGE(FATAL_ERROR "Failed to find tolua++ application. Please,set TOLUA_APP_PATH to path, where one of tolua, tolua++, tolua++5, tolua++5.1 is located" )
@@ -697,6 +701,17 @@ EXECUTE_PROCESS(COMMAND ${TOLUA_APP} -n freya -L virtual_method_hooks.lua -L "${
                             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/Framework/Source/core/lua/lua_packages 
                             OUTPUT_VARIABLE TOLUA_OUT ERROR_VARIABLE TOLUA_ERROR)
 MESSAGE(STATUS "Done\n\tOutput: ${TOLUA_OUT}\n\tErrors: ${TOLUA_ERROR}" )
+
+MESSAGE(STATUS "Searching lua")
+FIND_PROGRAM( LUA_APP NAMES lua lua51 lua5 lua5.1 PATH ${LUA_APP_PATH} )
+IF( NOT LUA_APP )
+    MESSAGE(FATAL_ERROR "Failed to find lua application. Please,set LUA_APP_PATH to path, where one of lua lua51 lua5 lua5.1 is located" )
+ENDIF( NOT LUA_APP )
+
+EXECUTE_PROCESS(COMMAND ${LUA_APP} ${GENERATORS_DIRECTORY}/XMLStrings.lua 
+                            WORKING_DIRECTORY ${INTERMIDIATE_DIRECTORY} 
+                            OUTPUT_VARIABLE LUA_OUT ERROR_VARIABLE LUA_ERROR)
+MESSAGE(STATUS "Done generating static xml strings\n\tOutput: ${LUA_OUT}\n\tErrors: ${LUA_ERROR}" )
 
 #Search for boost.thread and boost.date_time
 IF( FREYA_CORE_USE_BOOST )
