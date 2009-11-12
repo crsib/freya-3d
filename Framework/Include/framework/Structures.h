@@ -37,6 +37,8 @@ typedef  __int16 int16_t;
 //Memory routines
 #include "internal.h"
 
+#include "core/xml/XMLParser.h"
+
 #ifdef _FREYA_SHARED_PLUGIN
 namespace core
 {
@@ -126,19 +128,11 @@ typedef	struct	__Data
 	~__Data();
 } WorldData;
 
-//!World is reperesented as quad tree. This type represent an abstraction of world node
-typedef struct __WorldTreeNode
+
+typedef struct __WorldCell
 {
 	//! Node children
-	__WorldTreeNode*		children[4];
-	union
-	{
-		//! true if this is a world leaf
-		bool				isLeaf;
-		void*				_;
-	};
-	//Parent node. NULL, if node is a root node
-	__WorldTreeNode*		parent;
+	__WorldCell*		neighbours[8];
 
 	WorldTile				tile;
 	WorldData				data;
@@ -147,20 +141,23 @@ typedef struct __WorldTreeNode
 
 	EString					nodeRes;
 
-	enum ChildType
+	enum NeighbourType
 	{
-		TopLeft,
-		TopRight,
-		BottomLeft,
-		BottomRight
+		Top = 0,
+				TopLeft,
+				Left,
+				BottomLeft,
+				Bottom,
+				BottomRight,
+				Right,
+				TopRight
 	};
 
-	__WorldTreeNode();
-	__WorldTreeNode(__WorldTreeNode* parent, ChildType type, unsigned nodeID);
-	~__WorldTreeNode();
+	__WorldCell();
+	~__WorldCell();
 	MEMORY_FUNCTIONS
 
-} WorldTreeNode,*WorldTreeNodePtr;
+} WorldCell,*WorldCellPtr;
 
 typedef struct __File : public ::EngineSubsystem
 {
@@ -176,11 +173,11 @@ typedef struct __File : public ::EngineSubsystem
 typedef
 struct __VBO_BatchHeader : public ::EngineSubsystem
 {
-	 uint32_t						assembly_type;
-	 uint16_t   					index_count;
-	 uint16_t						buffer_offset;
-	 renderer::VertexElement*		layout;
-	 __VBO_BatchHeader() : assembly_type(0),index_count(0),buffer_offset(0),layout(NULL){}
+	uint32_t						assembly_type;
+	uint16_t   					index_count;
+	uint16_t						buffer_offset;
+	renderer::VertexElement*		layout;
+	__VBO_BatchHeader() : assembly_type(0),index_count(0),buffer_offset(0),layout(NULL){}
 } VBO_BatchHeader,*VBO_BatchHeaderPtr;
 
 typedef
@@ -256,6 +253,40 @@ struct	__ShaderLibrary : public ::EngineSubsystem
 	ShaderWrapperPtr			shaders;
 	EString						apiName;
 } ShaderLibrary,*ShaderLibraryPtr;
+
+// Scene node structures
+
+typedef struct __Camera
+{
+	MEMORY_FUNCTIONS
+	enum CameraType
+	{
+		ORTHO,
+		PROJECTIVE
+	};
+	float   near_plane;
+	float	far_plane;
+	CameraType	type;
+
+	union
+	{
+		struct
+		{
+			float		left;
+			float		top;
+			float		right;
+			float 		bottom;
+		};
+		float			fow;
+	};
+
+	math::vector3d		position;
+	math::vector3d		direction;
+	math::vector3d		up;
+
+	__Camera(core::xml::DOMNode* cam_root);
+} Camera,*CameraPtr;
+
 
 }
 
