@@ -134,6 +134,7 @@ void TaskManager::addTask(Task* task)
 			task->retain();
 		//	std::cout << "Adding task to main thread scheduler " << task << " " << task->retainCount() << std::endl;
 			m_MainThreadSchedule.push_back(task);
+			//std::cout << "Main scheduler queue size " << m_MainThreadSchedule.size() << std::endl;
 			assert(m_MainThreadSchedule.back() == task);
 						}
 	}
