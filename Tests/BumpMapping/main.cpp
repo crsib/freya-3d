@@ -397,12 +397,13 @@ public:
 			windowmanager::WindowFormat*	fmt = new windowmanager::WindowFormat;
 			fmt->Multisampled = true;
 			fmt->MultisampleSamples = 8;
+			fmt->VSync = false;
 			wm->setWindowFormat(fmt);
 			delete fmt;
 			wm->showCursor(false);
 			wm->grabInput(true);
 			wm->setWindowedModeWindowSize(winWidth,winHeight);
-			windowmanager::DisplayMode*	mode = wm->getDisplayMode(0);
+			windowmanager::DisplayMode*	mode = wm->getDisplayMode(1);
 			std::cout << "Default fs mode is " << mode->width << "x" << mode->height << "@" << mode->refreshRate << std::endl;
 			wm->setFullscreenWindowMode((unsigned)0);
 			wm->toggleFullscreen(fullscreen);
