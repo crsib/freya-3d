@@ -23,10 +23,11 @@
 
 #include "core/xml/XMLParser.h"
 
+#include "internal.h"
 namespace framework
 {
 //! Abstraction of game world
-class World : public virtual EngineSubsystem
+class EXPORT World : public virtual EngineSubsystem
 {
 private:
 	World(core::xml::DOMNode* doc_root);

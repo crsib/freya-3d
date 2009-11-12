@@ -10,7 +10,7 @@
 #include "core/EngineCore.h"
 #include "framework/Structures.h"
 #include <iostream>
-#include <stdint.h>
+//#include <stdint.h>
 
 namespace resources
 {
