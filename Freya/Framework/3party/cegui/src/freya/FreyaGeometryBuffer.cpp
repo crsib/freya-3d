@@ -14,6 +14,8 @@ FreyaGeometryBuffer::FreyaGeometryBuffer()
 	m_MatrixDirty 	= m_VBOSync = true;
 	m_VBO			= m_Rapi->createVertexBufferObject();
 	m_VBO->setData(renderer::VBOTarget::VERTEX,renderer::VBOUsage::DYNAMIC_DRAW,m_VBOSize,0);
+	m_Pivot = m_Translation = m_Rotation = Vector3(0,0,0);
+	m_ClipRegion = Rect(0,0,0,0);
 }
 
 
