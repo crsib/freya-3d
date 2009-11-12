@@ -34,7 +34,8 @@
 #define _CEGUIBase_h_
 
 #include <cassert>
-
+#include <cstdio>
+#include <cstdlib>
 #include "freya/CEGUIMemory.h"
 // bring in configuration options
 #include "CEGUIConfig.h"

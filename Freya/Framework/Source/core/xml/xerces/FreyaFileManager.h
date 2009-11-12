@@ -2,7 +2,7 @@
 #define _FREYAFILEMANAGER_H_
 
 #include <xercesc/util/XMLFileMgr.hpp>
-#include <xercesc/Framework/MemoryManager.hpp>
+#include <xercesc/framework/MemoryManager.hpp>
 namespace core
 {
 namespace xml
