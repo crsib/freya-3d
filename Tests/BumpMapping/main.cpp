@@ -403,7 +403,7 @@ public:
 			wm->showCursor(false);
 			wm->grabInput(true);
 			wm->setWindowedModeWindowSize(winWidth,winHeight);
-			windowmanager::DisplayMode*	mode = wm->getDisplayMode(1);
+			windowmanager::DisplayMode*	mode = wm->getDisplayMode(0);
 			std::cout << "Default fs mode is " << mode->width << "x" << mode->height << "@" << mode->refreshRate << std::endl;
 			wm->setFullscreenWindowMode((unsigned)0);
 			wm->toggleFullscreen(fullscreen);
