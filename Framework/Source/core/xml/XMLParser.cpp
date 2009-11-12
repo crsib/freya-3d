@@ -104,9 +104,10 @@ xercesc::DOMDocument*		XMLParser::parse(const EString& path)
 
 //============================== Method: freeDocument==============================
 
-void		XMLParser::freeDocument(xercesc::DOMDocument* doc)
+void		XMLParser::cleanup()
 {
-	doc->release();
+	//doc->release();
+	m_DomParser->resetDocumentPool();
 }
 
 //==============================~Method: freeDocument==============================
