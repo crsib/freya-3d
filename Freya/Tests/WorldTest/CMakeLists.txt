@@ -1,15 +1,17 @@
 #TODO: 
-SET ( RESOURCES "${SHARED_PLUGINS}" ${APP_STD_DATA}/StdGUI.7z ${APP_STD_DATA}/StdShaders.7z Scripts/Startup.lua WorldTest.layout )
+SET ( RESOURCES "${SHARED_PLUGINS}" ${APP_STD_DATA}/StdGUI.7z ${APP_STD_DATA}/StdShaders.7z Scripts/Startup.lua WorldTest.layout World.xml ${APP_DATA}/VertexData/cube.vdata)
 IF( APPLE )
 	SET_SOURCE_FILES_PROPERTIES( ${APP_STD_DATA}/StdGUI.7z ${APP_STD_DATA}/StdShaders.7z PROPERTIES MACOSX_PACKAGE_LOCATION Resources )
 	#SET_SOURCE_FILES_PROPERTIES( Shaders/bump.vert Shaders/bump.frag PROPERTIES MACOSX_PACKAGE_LOCATION Resources/Shaders )
 	SET_SOURCE_FILES_PROPERTIES( WorldTest.layout     PROPERTIES MACOSX_PACKAGE_LOCATION Resources/GUI/layouts )
 	SET_SOURCE_FILES_PROPERTIES( Scripts/Startup.lua               PROPERTIES MACOSX_PACKAGE_LOCATION Resources/Scripts )
 	SET_SOURCE_FILES_PROPERTIES( ${SHARED_PLUGINS} PROPERTIES GENERATED YES MACOSX_PACKAGE_LOCATION Plugins )
+	SET_SOURCE_FILES_PROPERTIES( World.xml         PROPERTIES MACOSX_PACKAGE_LOCATION Resources/Worlds )
+	SET_SOURCE_FILES_PROPERTIES( ${APP_DATA}/VertexData/cube.vdata      PROPERTIES MACOSX_PACKAGE_LOCATION Resources/VertexData )
 	ADD_EXECUTABLE( WorldTest MACOSX_BUNDLE main.cpp ${RESOURCES})
 	#installation routines
 	INSTALL(TARGETS WorldTest DESTINATION ${CMAKE_INSTALL_PREFIX})
-	INSTALL(CODE "INCLUDE ( ${CMAKE_SOURCE_DIR}/CMakeIncludes/CompleteBundle.cmake )\nMakeCompleteBundle( BumpMapping )")
+	INSTALL(CODE "INCLUDE ( ${CMAKE_SOURCE_DIR}/CMakeIncludes/CompleteBundle.cmake )\nMakeCompleteBundle( WorldTest )")
 ELSE( APPLE )
 #Non apple platforms 
 	IF( WIN32 )

@@ -14,14 +14,22 @@
  */
 #include "core/EngineSubsystem.h"
 
+#include "Structures.h"
+
 namespace framework
 {
-
+class World;
+struct __Data;
 class SceneNode : public virtual EngineSubsystem
 {
-public:
+	friend class World;
+	friend struct __Data;
+protected:
 	SceneNode( );
 	virtual ~SceneNode( );
+
+private:
+
 };
 
 }

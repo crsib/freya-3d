@@ -21,22 +21,32 @@
 #include "core/lua/LuaFunction.h"
 #include "core/Variable.h"
 
+#include "core/xml/XMLParser.h"
+
 namespace framework
 {
 //! Abstraction of game world
 class World : public virtual EngineSubsystem
 {
 private:
-	World( WorldTreeNodePtr root );
+	World(core::xml::DOMNode* doc_root);
 	virtual ~World( );
 public:
 	static World*		loadFromXML( const EString&	path);
-	static World*		getSingleton();
+	static World*		getSingleton() {return m_Instance;}
 
-	//WorldTreeNodePtr	getNode( const EString&);
+	//WorldTreeNodePtr	getNode(unsigned id);
 
 private:
-	WorldTreeNodePtr		m_WorldRoot;
+	static World* 				m_Instance;
+
+	unsigned					m_CellWidth;
+	unsigned 					m_CellHeight;
+
+	unsigned					m_WorldWidth;
+	unsigned					m_WorldHeight;
+
+	WorldCell*					m_Cells;
 };
 
 }
