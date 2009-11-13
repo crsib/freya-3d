@@ -202,9 +202,12 @@ void TaskManager::enterMainLoop()
 #endif
 		core::taskmanager::Task*	task = NULL;
 		while(test_and_set(&m_PrimaryLock,1))
-						core::multithreading::yield();
-			task = m_MainThreadSchedule.front();
-			m_MainThreadSchedule.pop_front();
+		{
+			//std::cout << "Entered critical section" << std::endl;
+			core::multithreading::yield();
+		}
+		task = m_MainThreadSchedule.front();
+		m_MainThreadSchedule.pop_front();
 		m_PrimaryLock = 0;
 		//std::cout << "Running task " << task << std::endl;
 		if(task)
@@ -226,7 +229,7 @@ void TaskManager::enterMainLoop()
 		}
 		//This thread must have the highest priority.
 		//Thus, we will not fûorce it to return control
-		//core::multithreading::pause();
+		core::multithreading::pause();
 	}
 }
 
