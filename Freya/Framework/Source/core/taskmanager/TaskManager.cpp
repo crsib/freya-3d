@@ -126,6 +126,9 @@ TaskManager::TaskManager()
 	m_Func->man = this;
 	m_Thread = core::EngineCore::createThread(*m_Func);
 	m_PrimaryLock = m_AuxLock = 0;
+#ifdef _MSC_VER
+	SetThreadPriority(GetCurrentThread(),THREAD_PRIORITY_HIGHEST);
+#endif
 }
 
 TaskManager::~TaskManager()
@@ -217,7 +220,7 @@ void TaskManager::enterMainLoop()
 		core::taskmanager::Task*	task = NULL;
 		while(test_and_set(&m_PrimaryLock,1))
 		{
-			//std::cout << "Entered critical section" << std::endl;
+			std::cout << "Entered critical section" << std::endl;
 			core::multithreading::yield();
 		}
 		task = m_MainThreadSchedule.front();
@@ -227,18 +230,16 @@ void TaskManager::enterMainLoop()
 		if(task)
 		{
 			int retval = (*task)();
-			//retval <<= 2;
+
 			switch(retval)
 			{
 			case core::taskmanager::Task::MAIN_THREAD:
-		//		std::cout << "Adding task to main queue " << task << std::endl;
 				addTask(task);
 				break;
 			case core::taskmanager::Task::SECONDARY_THREAD:
 				addAsynchronousTask(task);
 				break;
 			}
-			//std::cout << "Task returned " << retval << " expected " << core::taskmanager::Task::MAIN_THREAD << std::endl;
 			task->release();
 		}
 		//This thread must have the highest priority.
