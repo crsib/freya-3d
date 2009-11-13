@@ -26,6 +26,26 @@ LONGLONG 	freq;
 LONGLONG    count = 0;
 #endif
 
+#ifdef _MSC_VER
+#	define test_and_set InterlockedBitTestAndSet
+#else
+inline long SyncInterlockedExchange(volatile long *Dest, long Val)
+{
+#if defined(__GNUC__) && defined (__GNUC_MINOR__) && ((4 < __GNUC__) || (4 == __GNUC__ && 1 <= __GNUC_MINOR__))
+  return  __sync_lock_test_and_set(Dest, Val);
+#else
+  register int result;
+  __asm__ __volatile__("lock; xchg %0,%1"
+                       : "=r" (result), "=m" (*Dest)
+                       : "0" (Val), "m" (*Dest)
+                       : "memory");
+  return result;
+#endif
+}
+
+#	define test_and_set SyncInterlockedExchange
+#endif
+
 namespace core
 {
 
@@ -39,12 +59,6 @@ bool		_compare(const TaskThread* _1,const TaskThread* _2)
 {
 	return (*_1) < (*_2);
 }
-
-#ifdef _MSC_VER
-#	define test_and_set InterlockedBitTestAndSet
-#else
-#	define test_and_set __sync_lock_test_and_set
-#endif
 
 class __aux_thread_func : public core::multithreading::Runnable
 {
@@ -228,7 +242,7 @@ void TaskManager::enterMainLoop()
 			task->release();
 		}
 		//This thread must have the highest priority.
-		//Thus, we will not fûorce it to return control
+		//Thus, we will not fï¿½orce it to return control
 		core::multithreading::pause();
 	}
 }
