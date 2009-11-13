@@ -75,12 +75,12 @@ private: //Methods section
 	{
 		return m_Prev;
 	}
-
+/*
 	size_t size()
 	{
 		return m_Size;
 	}
-
+*/
 	void set(unsigned short state, size_t size,MemoryHeader* next,MemoryHeader* prev)
 	{
 		m_Magic = state;

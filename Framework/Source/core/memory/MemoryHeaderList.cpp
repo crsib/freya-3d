@@ -28,7 +28,7 @@ MemoryHeader*   MemoryHeaderList::__findByPointer(void* p)
 	MemoryHeader*  _start = m_First;
 	while(_start != NULL)
 		if(_start->pointer() != p)
-			_start = _start->next();
+			_start = _start->m_Next;
 		else
 			return _start;
 	return NULL;
@@ -38,20 +38,20 @@ MemoryHeader*   MemoryHeaderList::__findByPointer(void* p)
 //List "splicing" is not done.
 void MemoryHeaderList::__remove(MemoryHeader*  header)
 {
-	if(header->prev() )
-		header->prev()->m_Next = header->next();
+	if(header->m_Prev )
+		header->m_Prev->m_Next = header->m_Next;
 	else
 	{
-		m_First = header->next();
-		if(header->next())
+		m_First = header->m_Next;
+		if(header->m_Next)
 			m_First->m_Prev = NULL;
 	}
-	if(header->next() )
-		header->next()->m_Prev = header->prev();
+	if(header->m_Next )
+		header->m_Next->m_Prev = header->m_Prev;
 	else
 	{
-		m_Last = header->prev();
-		if(header->prev())
+		m_Last = header->m_Prev;
+		if(header->m_Prev)
 			m_Last->m_Next = NULL;
 	}
 	header->m_Magic = MemoryHeader::ALLOCATED;
@@ -69,21 +69,21 @@ MemoryHeader*		MemoryHeaderList::__insert(MemoryHeader*	header)
 	MemoryHeader*	_next;
 	MemoryHeader*   _prev = m_Last;
 
-	while(_prev->pointer() >= header->pointer()) //we will iterate until _prev->next() == null or _prev->pointer() < header->pointer()
+	while(_prev->pointer() >= header->pointer()) //we will iterate until _prev->m_Next == null or _prev->pointer() < header->pointer()
 	{
-		_prev = _prev->prev();
+		_prev = _prev->m_Prev;
 		if(_prev == NULL)
 			break;
 	}
 
 	if(_prev != NULL)
 	{
-		_next = _prev->next();
+		_next = _prev->m_Next;
 		//Ok, first of all, let us check, whether we need to link to our right neighbor
 		//*
-		if((reinterpret_cast<char*>(_prev->pointer()) + _prev->size() + sizeof(MemoryHeader)) == header->pointer())//Linkage needed
+		if((reinterpret_cast<char*>(_prev->pointer()) + _prev->m_Size + sizeof(MemoryHeader)) == header->pointer())//Linkage needed
 		{
-			_prev->m_Size += sizeof(MemoryHeader) + header->size();
+			_prev->m_Size += sizeof(MemoryHeader) + header->m_Size;
 			header = _prev;
 		}
 		else //Simply set our block as next*/
@@ -102,10 +102,10 @@ MemoryHeader*		MemoryHeaderList::__insert(MemoryHeader*	header)
 		{
 			//we need to check, whether linkage is needed
 			//*
-			if((reinterpret_cast<char*>(header->pointer()) + header->size() + sizeof(MemoryHeader)) == _next->pointer())
+			if((reinterpret_cast<char*>(header->pointer()) + header->m_Size + sizeof(MemoryHeader)) == _next->pointer())
 			{
-				header->m_Size += sizeof(MemoryHeader) + _next->size();
-				header->m_Next = _next->next();
+				header->m_Size += sizeof(MemoryHeader) + _next->m_Size;
+				header->m_Next = _next->m_Next;
 			}
 			else //Trivial case*/
 			{
@@ -130,8 +130,8 @@ MemoryHeader*	MemoryHeaderList::__findBySize(size_t desired)
 {
 	MemoryHeader*  _start = m_First;
 	while(_start != NULL)
-		if(_start->size() < desired)
-			_start = _start->next();
+		if(_start->m_Size < desired)
+			_start = _start->m_Next;
 		else
 			return _start;
 	return NULL;
@@ -155,20 +155,20 @@ void*	MemoryHeaderList::allocate(size_t size,size_t alligment)
 			_desired += 1 << alligment;
 		_offset += sizeof(MemoryHeader);
 		//Now we assume, that because of everything is correct
-		if(_block->size() > (_desired + _offset)) //It is probably more logical to use 2*offset. TODO: profile this with different variants
+		if(_block->m_Size > (_desired + _offset)) //It is probably more logical to use 2*offset. TODO: profile this with different variants
 		{
 			//Slicing needed
 			MemoryHeader* _new = new(reinterpret_cast<char*>(_block->pointer()) + _desired + _offset - sizeof(MemoryHeader)) MemoryHeader;
-			_new->m_Size = _block->size() - _desired - _offset;
+			_new->m_Size = _block->m_Size - _desired - _offset;
 			_new->m_Prev = _block;
-			_new->m_Next = _block->next();
+			_new->m_Next = _block->m_Next;
 			if(_new->m_Next == NULL)
 				m_Last = _new;
 			_block->m_Next = _new;
 			_block->m_Size = _desired + _offset - 2*sizeof(MemoryHeader);
 			__remove(_block);
 #ifdef _FREYA_DEBUG_MEMORY
-			memory_allocated += _block->size();
+			memory_allocated += _block->m_Size;
 #endif
 			return _block->pointer();
 		}
@@ -176,7 +176,7 @@ void*	MemoryHeaderList::allocate(size_t size,size_t alligment)
 		{
 			__remove(_block);
 #ifdef _FREYA_DEBUG_MEMORY
-			memory_allocated += _block->size();
+			memory_allocated += _block->m_Size;
 #endif
 			return _block->pointer();
 		}
@@ -192,7 +192,7 @@ bool	MemoryHeaderList::dispose(void* p)
 		if(_b->check(p)&&(_b->m_Magic == MemoryHeader::ALLOCATED))
 		{
 #ifdef _FREYA_DEBUG_MEMORY
-			memory_allocated -= _b->size();
+			memory_allocated -= _b->m_Size;
 #endif
 			__insert(_b);
 			return true;
