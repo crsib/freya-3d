@@ -34,6 +34,7 @@ private:
 	virtual ~World( );
 public:
 	static World*		loadFromXML( const EString&	path);
+	static void			destroy();
 	static World*		getSingleton() {return m_Instance;}
 
 	//WorldTreeNodePtr	getNode(unsigned id);

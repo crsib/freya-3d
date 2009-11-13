@@ -40,6 +40,8 @@ __WorldCell::__WorldCell()
 	nodeID = 0;
 }
 
+__WorldCell::~__WorldCell()
+{}
 
 __File::~__File()
 {
