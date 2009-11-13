@@ -27,6 +27,12 @@ namespace memory {
 }
 }
 
+#ifdef _MSC_VER
+#include <windows.h>
+LONGLONG 	freq;
+LONGLONG    count = 0;
+#endif
+
 void	format_memory()
 {
 	if(core::memory::memory_allocated > 1024*1024)
@@ -190,6 +196,10 @@ public:
 	virtual
 	int operator() ()
 	{
+//#define PROFILE_UPDATE
+#if defined(_MSC_VER) && defined(PROFILE_UPDATE)
+		QueryPerformanceCounter((LARGE_INTEGER*)(&count));
+#endif
 		if(active)
 		{
 			newTime = wm->getTickCount();
@@ -333,6 +343,13 @@ public:
 			delete m_Cameras[0];
 			delete m_Cameras[1];
 		}
+#if defined(_MSC_VER) && defined(PROFILE_UPDATE)
+		LARGE_INTEGER new_val;
+		QueryPerformanceCounter(&new_val);
+		__int64 dif = new_val.QuadPart - count;
+		count = new_val.QuadPart;
+		std::cout << "Time for update task : " << (double)(dif)/freq << std::endl;
+#endif
 		return HandleInput::MAIN_THREAD;
 	}
 private:
@@ -381,6 +398,12 @@ public:
 		static unsigned tex_load_start;
 		if(!m_RendererStarted)
 		{
+#ifdef _MSC_VER
+			QueryPerformanceFrequency((LARGE_INTEGER*)(&freq));
+			if(freq == 0)
+				freq = 1;
+			QueryPerformanceCounter((LARGE_INTEGER*)(&count));
+#endif
 			//Get the address of WindowManger instance
 			core::EngineCore::createWindowManager("SDL");
 			core::EngineCore::getTaskManager()->setThreadNumber(2);
