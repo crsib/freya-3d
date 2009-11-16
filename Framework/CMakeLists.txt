@@ -67,10 +67,10 @@ Include/windowmanager/WMException.h
 Include/windowmanager.h
 #Sources and private includes
 Source/core/filesystem/FilesystemDriverFactory.h
-Source/core/memory/MemoryBuffer.h
-Source/core/memory/MemoryHeader.h
-Source/core/memory/MemoryHeaderList.h
-Source/core/memory/MemoryPool.h
+#Source/core/memory/MemoryBuffer.h
+#Source/core/memory/MemoryHeader.h
+#Source/core/memory/MemoryHeaderList.h
+#Source/core/memory/MemoryPool.h
 Source/core/multithreading/implementations/boost_thread/BoostCondition.h
 Source/core/multithreading/implementations/boost_thread/BoostMutex.h
 Source/core/multithreading/implementations/boost_thread/BoostThread.h
@@ -89,10 +89,11 @@ Source/core/EngineCore.cpp
 Source/core/filesystem/boost_stlport_fix.cpp
 Source/core/filesystem/Filesystem.cpp
 Source/core/filesystem/FilesystemDriverFactory.cpp
-Source/core/memory/MemoryArena.cpp
-Source/core/memory/MemoryBuffer.cpp
-Source/core/memory/MemoryHeaderList.cpp
-Source/core/memory/MemoryPool.cpp
+#Source/core/memory/MemoryArena.cpp
+#Source/core/memory/MemoryBuffer.cpp
+#Source/core/memory/MemoryHeaderList.cpp
+#Source/core/memory/MemoryPool.cpp
+Source/core/memory/MemoryImpl.cpp
 Source/core/multithreading/implementations/boost_thread/BoostThread.cpp
 Source/core/multithreading/implementations/boost_thread/BoostThreadBlocks.cpp
 Source/core/taskmanager/Shutdown.cpp
