@@ -22,8 +22,6 @@
 
 #ifdef _MSC_VER
 #include <windows.h>
-LONGLONG 	freq;
-LONGLONG    count = 0;
 #endif
 
 #ifdef _MSC_VER
@@ -32,14 +30,14 @@ LONGLONG    count = 0;
 inline long SyncInterlockedExchange(volatile long *Dest, long Val)
 {
 #if defined(__GNUC__) && defined (__GNUC_MINOR__) && ((4 < __GNUC__) || (4 == __GNUC__ && 1 <= __GNUC_MINOR__))
-  return  __sync_lock_test_and_set(Dest, Val);
+	return  __sync_lock_test_and_set(Dest, Val);
 #else
-  register int result;
-  __asm__ __volatile__("lock; xchg %0,%1"
-                       : "=r" (result), "=m" (*Dest)
-                       : "0" (Val), "m" (*Dest)
-                       : "memory");
-  return result;
+	register int result;
+	__asm__ __volatile__("lock; xchg %0,%1"
+			: "=r" (result), "=m" (*Dest)
+			  : "0" (Val), "m" (*Dest)
+			    : "memory");
+	return result;
 #endif
 }
 
@@ -64,8 +62,9 @@ class __aux_thread_func : public core::multithreading::Runnable
 {
 public:
 	core::taskmanager::TaskManager*	man;
-	virtual int			operator ()()
-					{
+	virtual int
+	operator ()()
+	{
 		while(man->m_ThreadActive != 0)
 		{
 			try
@@ -82,16 +81,11 @@ public:
 					man->m_SecThreadSchedule.pop_front();
 					man->m_AuxLock = 0;
 
-					//}//synchronize(man->m_MutexAux)
 					if(task)
 					{
-						//std::cout << "Adding task to buffer" << std::endl; 
 						man->m_Threads.front()->addTask(task);
-						//std::cout << "Done" << std::endl;
 						man->m_Threads.sort(_compare);
 					}//if(task)
-					core::multithreading::yield();
-					continue;
 				}//if(man->m_SecThreadSchedule.size())
 			}//try
 			catch(const ::EngineException& ex)
@@ -102,9 +96,8 @@ public:
 			//Let another threads to run
 			core::multithreading::yield();
 		}//catch
-		//std::cout << "Balancer stopped" << std::endl;
 		return 0;
-					}//operator ()
+	}//operator ()
 };
 
 }
@@ -112,12 +105,6 @@ public:
 
 TaskManager::TaskManager()
 {
-#ifdef _MSC_VER
-	QueryPerformanceFrequency((LARGE_INTEGER*)(&freq));
-	if(freq == 0)
-		freq = 1;
-	QueryPerformanceCounter((LARGE_INTEGER*)(&count));
-#endif
 	m_ThreadNumber = 1;
 	m_ThreadActive = 1;
 	m_Threads.push_front(new core::taskmanager::__internal::TaskThread());
@@ -126,9 +113,6 @@ TaskManager::TaskManager()
 	m_Func->man = this;
 	m_Thread = core::EngineCore::createThread(*m_Func);
 	m_PrimaryLock = m_AuxLock = 0;
-#ifdef _MSC_VER
-	SetThreadPriority(GetCurrentThread(),THREAD_PRIORITY_HIGHEST);
-#endif
 }
 
 TaskManager::~TaskManager()
@@ -160,18 +144,11 @@ void TaskManager::addTask(Task* task)
 {
 	if(core::EngineCore::isRunning())
 	{
-		//std::cout << "Entering critical section " << std::endl;
-		//synchronize(m_MutexPri)
-		//{
 		while(test_and_set(&m_PrimaryLock,1))
 			core::multithreading::yield();
 		task->retain();
-		//	std::cout << "Adding task to main thread scheduler " << task << " " << task->retainCount() << std::endl;
 		m_MainThreadSchedule.push_back(task);
-			//std::cout << "Main scheduler queue size " << m_MainThreadSchedule.size() << std::endl;
-		//	assert(m_MainThreadSchedule.back() == task);
 		m_PrimaryLock = 0;
-		//}
 	}
 }
 
@@ -180,11 +157,9 @@ void TaskManager::addAsynchronousTask(Task* task)
 	if(m_ThreadActive)
 	{
 		while(test_and_set(&m_AuxLock,1))
-						core::multithreading::yield();
-			task->retain();
-			//std::cout << "Adding task to sec thread scheduler " << task << std::endl;
-			m_SecThreadSchedule.push_back(task);
-			assert(m_SecThreadSchedule.back() == task);
+			core::multithreading::yield();
+		task->retain();
+		m_SecThreadSchedule.push_back(task);
 		m_AuxLock = 0;
 	}
 }
@@ -209,41 +184,32 @@ void TaskManager::enterMainLoop()
 {
 	while(!m_MainThreadSchedule.empty()&&core::EngineCore::isRunning())
 	{
-//#define PROFILE_TASKMANAGER
-#if defined(_MSC_VER) && defined(PROFILE_TASKMANAGER)
-	LARGE_INTEGER new_val;
-	QueryPerformanceCounter(&new_val);
-	__int64 dif = new_val.QuadPart - count;
-	count = new_val.QuadPart;
-	std::cout << "Time for task process: " << (double)(dif)/freq << std::endl;
-#endif
 		core::taskmanager::Task*	task = NULL;
 		while(test_and_set(&m_PrimaryLock,1))
 		{
-			std::cout << "Entered critical section" << std::endl;
 			core::multithreading::yield();
 		}
+
 		task = m_MainThreadSchedule.front();
 		m_MainThreadSchedule.pop_front();
 		m_PrimaryLock = 0;
-		//std::cout << "Running task " << task << std::endl;
 		if(task)
 		{
 			int retval = (*task)();
 
 			switch(retval)
 			{
-			case core::taskmanager::Task::MAIN_THREAD:
-				addTask(task);
-				break;
-			case core::taskmanager::Task::SECONDARY_THREAD:
-				addAsynchronousTask(task);
-				break;
+				case core::taskmanager::Task::MAIN_THREAD:
+					addTask(task);
+					break;
+				case core::taskmanager::Task::SECONDARY_THREAD:
+					addAsynchronousTask(task);
+					break;
 			}
 			task->release();
 		}
 		//This thread must have the highest priority.
-		//Thus, we will not f�orce it to return control
+		//Thus, we will not force it to return control
 		core::multithreading::pause();
 	}
 }
