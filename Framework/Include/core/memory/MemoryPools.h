@@ -14,7 +14,7 @@ namespace memory
 //!Default memory pools location
 	enum MEMORYPOOLTYPE
 	{
-		DEFAULT_POOL,
+		DEFAULT_POOL = 0,
 		STL_POOL ,
 		MATH_POOL,
 		GENERIC_POOL,
@@ -22,7 +22,9 @@ namespace memory
 		LUA_POOL,
 		XML_POOL,
 		CEGUI_POOL,
-		WORLD_POOL
+		WORLD_POOL,
+
+		LAST_POOL
 	};
 }
 }

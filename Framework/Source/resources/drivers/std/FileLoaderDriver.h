@@ -18,7 +18,7 @@
 #include "core/EngineCore.h"
 #include "core/filesystem/Filesystem.h"
 #include "core/taskmanager/TaskManager.h"
-
+#include "core/taskmanager/Task.h"
 namespace resources
 {
 
