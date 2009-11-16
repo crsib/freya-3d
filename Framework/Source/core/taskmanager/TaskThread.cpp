@@ -43,22 +43,17 @@ public:
 		{
 			try
 			{
-				//std::cout << "Fetching task " << std::endl;
 				core::taskmanager::Task*	task = rb->fetch();
-				//std::cout << "task is " << task << std::endl;
 				if(task)
 				{
 					switch((*task)())
 					{
 					case core::taskmanager::Task::MAIN_THREAD:
 						core::EngineCore::getTaskManager()->addTask(task);
-						//task->release();
 						break;
 					case core::taskmanager::Task::SECONDARY_THREAD:
 						core::EngineCore::getTaskManager()->addAsynchronousTask(task);
 						break;
-						//default:
-						//task->release();
 					}
 					task->release();
 				}
@@ -123,7 +118,6 @@ TaskThread::~TaskThread()
 void TaskThread::addTask(Task* task)
 {
 	m_Buffer->deposit(task);
-	//std::cout << "[Sub thread] tasks: " << m_Buffer->count() << std::endl;
 }
 
 size_t TaskThread::count()
