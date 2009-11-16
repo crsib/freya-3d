@@ -104,15 +104,18 @@ core::xml::XMLParser*						EngineCore::m_XMLParser = NULL;
 //Memory allocation function
 namespace memory
 {
-extern MemoryArena		ArenaInstance;
+namespace __internal
+{
+extern MemoryArena		arena_inst;
+}
 void* Allocate(size_t n,unsigned id)
 {
-	return ArenaInstance.allocate(n,id);
+	return __internal::arena_inst.allocate(n,id);
 }
 
 void Free(void* p,unsigned id)
 {
-	ArenaInstance.free(p,id);
+	__internal::arena_inst.free(p,id);
 }
 
 void* Reallocate(void* p,size_t sz,unsigned id)
@@ -159,14 +162,14 @@ EngineCore::EngineCore(int argC,char** argV,const std::string& applicationName, 
 	//Start memory
 	std::cout << "Initializing memory subsystem" << std::endl;
 	m_MemoryArena = core::memory::MemoryArena::instance();
-	m_MemoryArena->addPool(4*1024*1024,4);	//STL pool 4 mb
-	m_MemoryArena->addPool(4*1024*1024,4);	//Math pool 4 mb
-	m_MemoryArena->addPool(64*1024*1024,4);	//Generic pool 64 mb
-	m_MemoryArena->addPool(4*1024*1024,4);	//Generic class pool 4mb
-	m_MemoryArena->addPool(4*1024*1024, 4); //Lua pool 4mb
-	m_MemoryArena->addPool(4*1024*1024, 4); //XML pool 4mb
-	m_MemoryArena->addPool(4*1024*1024, 4); //CEGUI pool 4mb
-	m_MemoryArena->addPool(4*1024*1024, 4); //World pool 4mb
+//	m_MemoryArena->addPool(4*1024*1024,4);	//STL pool 4 mb
+//	m_MemoryArena->addPool(4*1024*1024,4);	//Math pool 4 mb
+//	m_MemoryArena->addPool(64*1024*1024,4);	//Generic pool 64 mb
+//	m_MemoryArena->addPool(4*1024*1024,4);	//Generic class pool 4mb
+//	m_MemoryArena->addPool(4*1024*1024, 4); //Lua pool 4mb
+//	m_MemoryArena->addPool(4*1024*1024, 4); //XML pool 4mb
+//	m_MemoryArena->addPool(4*1024*1024, 4); //CEGUI pool 4mb
+//	m_MemoryArena->addPool(4*1024*1024, 4); //World pool 4mb
 	m_ThreadImplementation = new THREAD_IMPLEMENTATION;
 	//start filesystem
 	std::cout << "Starting filesystem subsystem" << std::endl;
