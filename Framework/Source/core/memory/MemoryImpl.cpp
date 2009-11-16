@@ -1,6 +1,6 @@
 /*
  * MemoryImpl.cpp
- *	This file is part of Freya 3D engine. For licencing information
+ *	This file is part of Freya 3D engine. For licensing information
  *  from LICENCE file 
  *  Created on: Nov 14, 2009
  *      Author: Dmitri crsib Vedenko
@@ -8,6 +8,10 @@
 #include "core/memory/MemoryArena.h"
 #include "core/memory/MemoryException.h"
 #include "core/memory/MemoryPools.h"
+
+#include "core/multithreading/ThreadBlocks.h"
+
+#define YIELD() core::multithreading::yield()
 
 #include <cassert>
 #include <iostream>
@@ -108,10 +112,19 @@ class MemoryPool;
 class MemoryBuffer
 {
 public:
+	inline
 	explicit MemoryBuffer(uint32_t size,uint32_t alignment,uint32_t pool) throw (MemoryException): m_First(NULL),m_Last(NULL),m_Size(size + alignment + sizeof(__MemoryHeader)),
 	m_Alignment(alignment),m_AllocCount(0), m_Allocated(0), m_ParentPool(pool),m_HeaderOffset(0),m_Mutex(0)
 	{
-		m_Buffer = new uint8_t[m_Size];
+		try
+		{
+			m_Buffer = new uint8_t[m_Size];
+		}
+		catch(...)
+		{
+			m_Buffer = 0;
+		}
+
 		allocated_for_buffers += m_Size;
 		if(m_Buffer)
 		{
@@ -126,7 +139,6 @@ public:
 			//Setup memory header
 			m_First = m_Last = reinterpret_cast<MemoryHeaderPtr>(m_Buffer + initial_offset);
 			assert((reinterpret_cast<uint32_t>((m_First + sizeof(__MemoryHeader))) % m_Alignment) == 0 );
-			////std::cout << "First " << m_First << std::endl;
 			m_Allocated = sizeof(__MemoryHeader) + (reinterpret_cast<uint8_t*>(m_First) - m_Buffer);
 
 			m_First->prev  = m_First->next = NULL;
@@ -154,17 +166,19 @@ public:
 																																																		<< " MB\n\tPool: " << (m_ParentPool < LAST_POOL ? pool_name_srings[m_ParentPool] : pool_name_srings[LAST_POOL]) << std::endl;
 	}
 
+	inline
 	bool 					empty()
 	{
 		return				(m_AllocCount == 0);
 	}
 
+	inline
 	bool					full()
 	{
 		return				(m_Size == m_Allocated);
 	}
 
-	uint8_t*
+	inline uint8_t*
 	allocate(uint32_t size)
 	{
 		//Update the size
@@ -186,10 +200,10 @@ public:
 				if(block->size >= size)
 					return sliceAndRemove (block,size);
 		}
-		//std::cout << "allocate: " << "failed to find block" << std::endl;
 		return NULL;
 	}
 
+	inline
 	bool					free(uint8_t* p)
 	{
 		if( (p < m_Buffer) || (p >= m_Buffer + m_Size) )
@@ -206,24 +220,18 @@ public:
 
 private:
 
+	inline
 	uint8_t *				sliceAndRemove(MemoryHeaderPtr  block,uint32_t size)
 	{
-		//std::cout << "sliceAndRemove( " << (void*) block << ", " << size << " )" << std::endl;
-		//std::cout << "block magic: " << (void*)block->magic << std::endl;
-		//std::cout << "block size: " << block->size << std::endl;
 		if(block->magic == FREE_BLOCK_MARK)
 		{
-			//std::cout << "Block is free" << std::endl;
-			//Sync this section on mutex free basis
 			while(test_and_set(&m_Mutex,1))
 			{
-
+				YIELD();
 			}
 
 			{
-				//std::cout << "Allocating " << size << " bytes" << std::endl;
 				m_AllocCount++;
-				//std::cout << "Alloc count in buffer " << m_AllocCount << std::endl;
 				m_Allocated += size;
 
 				allocation_count++;
@@ -285,25 +293,20 @@ private:
 		return NULL;
 	}
 
+	inline
 	void					insertAndConnect(MemoryHeaderPtr block)
 	{
 		//Sync this section on mutex free basis
-		//std::cout << "insertAndConnect ( " << (void*) block << " )\n"
-			//	<< "Block magic: " << (void*) block->magic
-			//	<< "\nBlock size: " << block->size << std::endl;
-		//std::cout << "m_First: " << m_First << std::endl;
-		//std::cout << "m_Last: " << m_Last << std::endl;
 		while(test_and_set(&m_Mutex,1))
 		{
-
+			YIELD();
 		}
 		{
 			//Special case discussed above
 			m_AllocCount--;
-			////std::cout << "Allocations in buffer " << m_AllocCount << std::endl;
 			m_Allocated -= block->size;
 			memory_allocated -= block->size;
-			allocation_count--;
+			deallocation_count++;
 			alloc_dealloc_dif--;
 
 			if((m_First == m_Last) && (m_First == block))
@@ -355,13 +358,12 @@ private:
 					MemoryHeaderPtr prev_blc = m_Last;
 					for( ; prev_blc > block; prev_blc = prev_blc->prev)
 					{
-						//std::cout << "iterating: " << (void*) prev_blc << std::endl;
+
 					}
 					assert(prev_blc);
-					//std::cout << "freeing block: " << (void*) block << "\nprev block: " << prev_blc << std::endl;
+
 					MemoryHeaderPtr next_blc = prev_blc->next;
 
-					//std::cout <<  "next_blc: " << (void*)next_blc << std::endl;
 					//Check if front linkage needed
 					//Nothing bad could happen
 
@@ -433,7 +435,7 @@ private:
 	MemoryPool*			m_Pool;
 	// must be called before first alloc
 	void init();
-
+	~rtAllocator();
 	int findBlockIndex(void* b);
 	block* findBlockInArray(void* p);
 
@@ -463,6 +465,7 @@ class block
 {
 public:
 
+	inline
 	bool init(int fixedAllocSize, int bdIndex, int chunks)
 	{
 		mPrevFreeBlock = NULL;
@@ -478,7 +481,6 @@ public:
 		if(al)
 			al = 16 - al;
 		mDataStart = mDataStart + al; // 16 byte align
-		////std::cout << "mDataStart = " <<  (void*)mDataStart << std::endl;
 		assert(reinterpret_cast<uint32_t>(mDataStart)%16 == 0);
 
 		mFreeChunk = NULL;
@@ -534,7 +536,6 @@ public:
 	static
 	unsigned long getAllocSize(int fixedAllocSize, int chunks)
 	{
-		//std::cout << "getAllocSize( " << fixedAllocSize << ", " <<  chunks << ") =" << getHeaderSize(chunks) + (fixedAllocSize * 16 * chunks) + 16 << std::endl;
 		return getHeaderSize(chunks) + (fixedAllocSize * 16 * chunks) + 16;
 	}
 
@@ -557,6 +558,7 @@ public:
 	unsigned char* mLastByte;
 };
 
+inline
 void rtAllocator::init()
 {
 	if (mInited) return;
@@ -606,7 +608,7 @@ void rtAllocator::init()
 }
 
 
-
+inline
 rtAllocator::rtAllocator(MemoryPool* pool)
 {
 	m_Pool = pool;
@@ -626,12 +628,12 @@ rtAllocator::rtAllocator(MemoryPool* pool)
 class  MemoryPool
 {
 public:
+	inline
 	explicit MemoryPool(uint32_t poolId,uint32_t preallocSize, uint32_t alignment) :
 	m_PoolId(poolId), m_PreallocSize(preallocSize),m_Alignment(alignment),m_Lock(0)
 	{
 		MemoryBuffer*	buf = new MemoryBuffer(preallocSize,alignment,poolId);
 		assert(buf);
-		////std::cout << buf << std::endl;
 		m_Buffers.push_back(buf);
 		m_SmallBlockPool = new rtAllocator(this);
 		m_SmallBlockPool->init();
@@ -639,13 +641,14 @@ public:
 
 	~MemoryPool()
 	{
+		delete m_SmallBlockPool;
 		for(std::vector<MemoryBuffer*>::iterator it = m_Buffers.begin(); it != m_Buffers.end(); ++it)
 		{
 			delete (*it);
 		}
-		delete m_SmallBlockPool;
 	}
 
+	inline
 	void*
 	alloc(size_t sz)
 	{
@@ -659,13 +662,14 @@ public:
 			return allocate(sz);
 	}
 
+	inline
 	void*
 	allocate(size_t sz)
 	{
 		void* p;
 		while(test_and_set(&m_Lock,1))
 		{
-
+			YIELD();
 		}
 
 		for(size_t i = 0; i < m_Buffers.size(); i++)
@@ -689,7 +693,7 @@ public:
 	{
 		while(test_and_set(&m_Lock,1))
 		{
-
+			YIELD();
 		}
 		for(size_t i = 0; i < m_Buffers.size(); i++)
 			if(m_Buffers[i]->free(reinterpret_cast<uint8_t*>(p)))
@@ -725,17 +729,21 @@ private:
 
 #define ALLOCJR_FULLBLOCK (block*)0xffffffff
 
+rtAllocator::~rtAllocator()
+{
+	//m_Pool->generic_free(mBlockArray);
+}
+
+inline
 void* rtAllocator::alloc(long ls)
 {
 	while(test_and_set(&m_Lock,1))
 	{
-
+		YIELD();
 	}
 	if (ls == 0) ls = 1;
 	int bdIndex = -1;
 	if (ls <= 1024) bdIndex = mBDIndexLookup[ls];
-	//std::cout << "rtAllocator::alloc( " << ls << " )" << std::endl;
-	//std::cout << "idx: " << bdIndex << std::endl;
 	if (bdIndex < 0)
 	{
 		// Not handling blocks of this size throw to blockalloc
@@ -788,11 +796,12 @@ void* rtAllocator::alloc(long ls)
 	m_Lock = 0;
 }
 
+inline
 bool rtAllocator::free(void* p)
 {
 	while(test_and_set(&m_Lock,1))
 	{
-
+		YIELD();
 	}
 	block* b = findBlockInArray(p);
 	if (b)
@@ -812,10 +821,7 @@ bool rtAllocator::free(void* p)
 			if (mFreeBlocks[b->mBDIndex] == b) mFreeBlocks[b->mBDIndex] = b->mNextFreeBlock;
 
 			removeBlockFromArray(b);
-			//std::cout << "Removing block" << std::endl;
 			m_Pool->generic_free(b);
-			//std::cout << "Block removed" << std::endl;
-
 		}
 		else
 		{
@@ -834,12 +840,12 @@ bool rtAllocator::free(void* p)
 	else
 	{
 		//must not be ours pass to blockfree
-		//std::cout << "Passing back to generic free " << std::endl;
 		m_Lock = 0;
 		return false;
 	}
 }
 
+inline
 void rtAllocator::addBlockToArray(block* b)
 {
 	if (!mBlockArray)
@@ -853,7 +859,6 @@ void rtAllocator::addBlockToArray(block* b)
 		void* p = m_Pool->allocate(mBlockArraySize*sizeof(block**));
 		::memcpy(p,mBlockArray,mBlockArraySize - 10000);
 		m_Pool->generic_free(mBlockArray);
-		//mBlockArray= (block**)ALLOCJR_REALLOC(mBlockArray, sizeof(block**)*mBlockArraySize);
 		mBlockArray= (block**)p;
 		mBlockArrayEnd = mBlockArray+mBlockCount-1;
 	}
@@ -889,6 +894,7 @@ void rtAllocator::addBlockToArray(block* b)
 	mBlockArrayEnd = mBlockArray+mBlockCount-1;
 }
 
+inline
 int rtAllocator::findBlockIndex(void* b)
 {
 	int result = -1;
@@ -915,6 +921,7 @@ int rtAllocator::findBlockIndex(void* b)
 	return result;
 }
 
+inline
 void rtAllocator::removeBlockFromArray(block* b)
 {
 	int m = findBlockIndex(b);
@@ -938,6 +945,7 @@ void rtAllocator::removeBlockFromArray(block* b)
 	}
 }
 
+inline
 block* rtAllocator::findBlockInArray(void* p)
 {
 	if (mLastFoundBlock)
