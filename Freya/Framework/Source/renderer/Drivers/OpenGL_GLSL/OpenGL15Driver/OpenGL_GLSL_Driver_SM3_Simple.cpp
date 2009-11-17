@@ -494,7 +494,7 @@ void		OpenGL_GLSL_Driver::drawPrimitive(renderer::Primitive::type primitives,uns
 {
 	OpenGL_GLSL_Driver::VertexFormat*	instd = new OpenGL_GLSL_Driver::VertexFormat(instanceDeclaration,m_Streams);
 	m_VF->enable();
-	for(int i = 0; i < numInstances; i++)
+	for(unsigned i = 0; i < numInstances; i++)
 	{
 		instd->enableImmediate(i,instanceData);
 		glDrawArrays(OpenGL_GLSL_Tables::Primitive[primitives],first,count);
@@ -508,7 +508,7 @@ void		OpenGL_GLSL_Driver::drawIndexedPrimitive(renderer::Primitive::type primiti
 	OpenGL_GLSL_Driver::VertexFormat*	instd = new OpenGL_GLSL_Driver::VertexFormat(instanceDeclaration,m_Streams);
 	m_VF->enable();
 	indexBuffer->bind(VBOType::INDEX);
-	for(int i = 0; i < numInstances; i++)
+	for(unsigned i = 0; i < numInstances; i++)
 	{
 		instd->enableImmediate(i,instanceData);
 		glDrawElements(OpenGL_GLSL_Tables::Primitive[primitives],count,OpenGL_GLSL_Tables::DataType[type],0);
