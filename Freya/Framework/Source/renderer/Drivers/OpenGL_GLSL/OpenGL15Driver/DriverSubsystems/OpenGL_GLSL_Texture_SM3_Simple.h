@@ -5,6 +5,9 @@
 #include "renderer/DriverSubsystems/Texture.h"
 #include "core/memory/MemoryAllocator.h"
 #include <map>
+#include "core/PluginCore.h"
+#include "renderer/DriverException.h"
+#include "renderer/RenderingAPIDriver.h"
 extern "C"
 {
 #include "renderer/Drivers/OpenGL_GLSL/GLEW/glew.h"
@@ -113,7 +116,11 @@ private:
 			m_VBO = o;
 			return *this;
 		}
-
+		~VBOWrap()
+		{
+			if(m_VBO)
+				core::CoreInstance->getRenderingDriver()->destroyVertexBufferObject(m_VBO);
+		}
 		operator renderer::VertexBufferObject*()
 		{
 			return m_VBO;
