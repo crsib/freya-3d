@@ -12,12 +12,13 @@
 #include "core/multithreading/ThreadBlocks.h"
 
 #define YIELD() core::multithreading::yield()
-
+#define NDEBUG
 #include <cassert>
 #include <iostream>
 
 #include <list>
 #include <vector>
+
 
 
 #ifndef _MSC_VER
