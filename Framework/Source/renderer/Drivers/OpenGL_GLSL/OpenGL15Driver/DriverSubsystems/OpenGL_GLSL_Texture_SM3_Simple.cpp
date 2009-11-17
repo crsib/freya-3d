@@ -3,11 +3,7 @@
 
 
 #include "renderer/Drivers/OpenGL_GLSL/OpenGL15Driver/OpenGL_15_ConstantsTables.h"
-#include "core/PluginCore.h"
 
-
-#include "renderer/DriverException.h"
-#include "renderer/RenderingAPIDriver.h"
 
 namespace renderer
 {
@@ -36,6 +32,7 @@ void		OpenGL_GLSL_Texture::loadTexture(renderer::TextureType::type TextureType,u
 	m_InternalTarget = TextureType;
 	m_SourceStorage  = OpenGL_GLSL_Tables::TextureStorage[TextureStorage];
 	m_SourceFormat   = OpenGL_GLSL_Tables::TextureFormat[TextureStorageFormat];
+/*
 	std::pair<unsigned,unsigned> ind = make_index(level,0);
 	{
 		m_VBO[ind] = core::CoreInstance->getRenderingDriver()->createVertexBufferObject();
@@ -44,24 +41,27 @@ void		OpenGL_GLSL_Texture::loadTexture(renderer::TextureType::type TextureType,u
 		m_VBO[ind].setComponentSize(OpenGL_GLSL_Tables::TextureStorageSize[TextureStorage]*OpenGL_GLSL_Tables::TextureComponentsNumber[TextureStorageFormat]);
 		m_VBO[ind]->setTarget(VBOType::TEXTURE);
 	}
+
+	*/
+
 	if(TextureInternalFormat < TextureInternalFormat::COMPRESSED) //Uncompressed texture
 	{
-		m_VBO[ind]->bind();
-		m_VBO[ind]->setData(VBOUsage::STATIC_DRAW,width*height*OpenGL_GLSL_Tables::TextureStorageSize[TextureStorage]*OpenGL_GLSL_Tables::TextureComponentsNumber[TextureStorageFormat],data);
+		//m_VBO[ind]->bind();
+		//m_VBO[ind]->setData(VBOUsage::STATIC_DRAW,width*height*OpenGL_GLSL_Tables::TextureStorageSize[TextureStorage]*OpenGL_GLSL_Tables::TextureComponentsNumber[TextureStorageFormat],data);
 		glBindTexture(m_Target,m_Texture);
 		glPixelStorei ( GL_UNPACK_ALIGNMENT, 1 );
 		switch(TextureType)
 		{
 		case TextureType::TEXTURE_1D:
-			glTexImage1D(m_Target,level,OpenGL_GLSL_Tables::TextureInternalFormat[TextureInternalFormat],width,0,m_SourceFormat,m_SourceStorage,0);
+			glTexImage1D(m_Target,level,OpenGL_GLSL_Tables::TextureInternalFormat[TextureInternalFormat],width,0,m_SourceFormat,m_SourceStorage,data);
 			break;
 		case TextureType::TEXTURE_2D:
 		case TextureType::TEXTURE_RECTANGLE:
-			glTexImage2D(m_Target,level,OpenGL_GLSL_Tables::TextureInternalFormat[TextureInternalFormat],width,height,0,m_SourceFormat,m_SourceStorage,0);
+			glTexImage2D(m_Target,level,OpenGL_GLSL_Tables::TextureInternalFormat[TextureInternalFormat],width,height,0,m_SourceFormat,m_SourceStorage,data);
 			break;
 		default: throw renderer::DriverException("Invalid texture type");
 		}
-		m_VBO[ind]->unbind();
+		//m_VBO[ind]->unbind();
 		glBindTexture(m_Target,0);
 	}
 	else //Compressed texture mode
@@ -70,7 +70,7 @@ void		OpenGL_GLSL_Texture::loadTexture(renderer::TextureType::type TextureType,u
 		//Compression is only available for 2D textures (and cube maps, but this case is not capable of creating cube maps).
 		if(TextureType != TextureType::TEXTURE_2D) throw renderer::DriverException("Invalid texture type"); //No, no, no way
 		if((width < 4) || (height < 4) ) throw renderer::DriverException("Invalid texture size");//Not enough is not enough ))
-		m_VBO[ind]->bind();
+		//m_VBO[ind]->bind();
 		unsigned block_size;
 		//chose size
 		switch(TextureInternalFormat)
@@ -82,16 +82,16 @@ void		OpenGL_GLSL_Texture::loadTexture(renderer::TextureType::type TextureType,u
 		default:
 			block_size = 16;
 		}
-		m_VBO[ind]->setData(VBOUsage::STATIC_DRAW,width*height*block_size/16,data);
+		//m_VBO[ind]->setData(VBOUsage::STATIC_DRAW,width*height*block_size/16,data);
 
 		glBindTexture(m_Target,m_Texture);
-		glCompressedTexImage2DARB(m_Target,level,OpenGL_GLSL_Tables::TextureInternalFormat[TextureInternalFormat],width,height,0,block_size*width*height/16,0);
+		glCompressedTexImage2DARB(m_Target,level,OpenGL_GLSL_Tables::TextureInternalFormat[TextureInternalFormat],width,height,0,block_size*width*height/16,data);
 		glBindTexture(m_Target,0);
-		m_VBO[ind]->unbind();
+		//m_VBO[ind]->unbind();
 	}
 	//Free VBO
-	core::CoreInstance->getRenderingDriver()->destroyVertexBufferObject(m_VBO[ind]);
-	m_VBO[ind].setVBO(NULL);
+	//core::CoreInstance->getRenderingDriver()->destroyVertexBufferObject(m_VBO[ind]);
+	//m_VBO[ind].setVBO(NULL);
 }
 
 
@@ -101,6 +101,7 @@ void		OpenGL_GLSL_Texture::loadTexture(renderer::TextureType::type TextureType,u
 	m_SourceFormat   = OpenGL_GLSL_Tables::TextureFormat[TextureStorageFormat];
 	m_Target = OpenGL_GLSL_Tables::TextureType[TextureType];
 	m_InternalTarget = TextureType;
+	/*
 	std::pair<unsigned,unsigned> ind;
 	if(TextureType == TextureType::TEXTURE_3D)
 		ind = make_index(level,0);
@@ -114,21 +115,22 @@ void		OpenGL_GLSL_Texture::loadTexture(renderer::TextureType::type TextureType,u
 		m_VBO[ind].setComponentSize(OpenGL_GLSL_Tables::TextureStorageSize[TextureStorage]*OpenGL_GLSL_Tables::TextureComponentsNumber[TextureStorageFormat]);
 		m_VBO[ind]->setTarget(VBOType::TEXTURE);
 	}
+	*/
 	if(TextureType == TextureType::TEXTURE_3D)
 	{
 		if(TextureInternalFormat >= TextureInternalFormat::COMPRESSED) //Compression is unsupported
 			throw renderer::DriverException("Invalid texture internal format");
-		m_VBO[ind].setDepth(side_or_depth);
-		m_VBO[ind]->bind();
-		m_VBO[ind]->setData(VBOUsage::STATIC_DRAW,side_or_depth*width*height*OpenGL_GLSL_Tables::TextureStorageSize[TextureStorage]*OpenGL_GLSL_Tables::TextureComponentsNumber[TextureStorageFormat],data);
-		m_VBO[ind].setComponentSize(side_or_depth*OpenGL_GLSL_Tables::TextureStorageSize[TextureStorage]*OpenGL_GLSL_Tables::TextureComponentsNumber[TextureStorageFormat]);
+		//m_VBO[ind].setDepth(side_or_depth);
+		//m_VBO[ind]->bind();
+		//m_VBO[ind]->setData(VBOUsage::STATIC_DRAW,side_or_depth*width*height*OpenGL_GLSL_Tables::TextureStorageSize[TextureStorage]*OpenGL_GLSL_Tables::TextureComponentsNumber[TextureStorageFormat],data);
+		//m_VBO[ind].setComponentSize(side_or_depth*OpenGL_GLSL_Tables::TextureStorageSize[TextureStorage]*OpenGL_GLSL_Tables::TextureComponentsNumber[TextureStorageFormat]);
 		glBindTexture(m_Target,m_Texture);
 		glPixelStorei ( GL_UNPACK_ALIGNMENT, 1 );
 
-		glTexImage3D(m_Target,level,OpenGL_GLSL_Tables::TextureInternalFormat[TextureInternalFormat],width,height,side_or_depth,0,OpenGL_GLSL_Tables::TextureFormat[TextureStorageFormat],OpenGL_GLSL_Tables::TextureStorage[TextureStorage],0);
+		glTexImage3D(m_Target,level,OpenGL_GLSL_Tables::TextureInternalFormat[TextureInternalFormat],width,height,side_or_depth,0,OpenGL_GLSL_Tables::TextureFormat[TextureStorageFormat],OpenGL_GLSL_Tables::TextureStorage[TextureStorage],data);
 
 		glBindTexture(m_Target,0);
-		m_VBO[ind]->unbind();
+		//m_VBO[ind]->unbind();
 	}
 	else if(TextureType == TextureType::TEXTURE_CUBE)
 	{
@@ -137,22 +139,22 @@ void		OpenGL_GLSL_Texture::loadTexture(renderer::TextureType::type TextureType,u
 
 		if(TextureInternalFormat < TextureInternalFormat::COMPRESSED) //Uncompressed texture
 		{
-			m_VBO[ind]->bind();
-			m_VBO[ind]->setData(VBOUsage::STATIC_DRAW,width*height*OpenGL_GLSL_Tables::TextureStorageSize[TextureStorage]*OpenGL_GLSL_Tables::TextureComponentsNumber[TextureStorageFormat],data);
+		//	m_VBO[ind]->bind();
+		//	m_VBO[ind]->setData(VBOUsage::STATIC_DRAW,width*height*OpenGL_GLSL_Tables::TextureStorageSize[TextureStorage]*OpenGL_GLSL_Tables::TextureComponentsNumber[TextureStorageFormat],data);
 
 			glBindTexture(m_Target,m_Texture);
 			glPixelStorei ( GL_UNPACK_ALIGNMENT, 1 );
 
-			glTexImage2D(OpenGL_GLSL_Tables::CubeTextureSide[side_or_depth],level,OpenGL_GLSL_Tables::TextureInternalFormat[TextureInternalFormat],width,height,0,OpenGL_GLSL_Tables::TextureFormat[TextureStorageFormat],OpenGL_GLSL_Tables::TextureStorage[TextureStorage],0);
+			glTexImage2D(OpenGL_GLSL_Tables::CubeTextureSide[side_or_depth],level,OpenGL_GLSL_Tables::TextureInternalFormat[TextureInternalFormat],width,height,0,OpenGL_GLSL_Tables::TextureFormat[TextureStorageFormat],OpenGL_GLSL_Tables::TextureStorage[TextureStorage],data);
 
 			glBindTexture(m_Target,0);
-			m_VBO[ind]->unbind();
+			//m_VBO[ind]->unbind();
 		}
 		else //Compressed texture mode
 		{
 			m_IsCompressed = true;
 			if((width < 4) || (height < 4) ) throw renderer::DriverException("Invalid texture size");//Not enough is not enough ))
-			m_VBO[ind]->bind();
+			//m_VBO[ind]->bind();
 			unsigned block_size;
 			//chose size
 			switch(TextureInternalFormat)
@@ -164,17 +166,17 @@ void		OpenGL_GLSL_Texture::loadTexture(renderer::TextureType::type TextureType,u
 			default:
 				block_size = 16;
 			}
-			m_VBO[ind]->setData(VBOUsage::STATIC_DRAW,width*height*block_size/16,data);
+			//m_VBO[ind]->setData(VBOUsage::STATIC_DRAW,width*height*block_size/16,data);
 			glBindTexture(m_Target,m_Texture);
-			glCompressedTexImage2DARB(OpenGL_GLSL_Tables::CubeTextureSide[side_or_depth],level,OpenGL_GLSL_Tables::TextureInternalFormat[TextureInternalFormat],width,height,0,block_size*width*height/16,0);
+			glCompressedTexImage2DARB(OpenGL_GLSL_Tables::CubeTextureSide[side_or_depth],level,OpenGL_GLSL_Tables::TextureInternalFormat[TextureInternalFormat],width,height,0,block_size*width*height/16,data);
 			glBindTexture(m_Target,0);
-			m_VBO[ind]->unbind();
+			//m_VBO[ind]->unbind();
 		}
 	}
 	else throw renderer::DriverException("Invalid texture format");//*/
 	//Free VBO
-	core::CoreInstance->getRenderingDriver()->destroyVertexBufferObject(m_VBO[ind]);
-	m_VBO[ind].setVBO(NULL);
+//	core::CoreInstance->getRenderingDriver()->destroyVertexBufferObject(m_VBO[ind]);
+//	m_VBO[ind].setVBO(NULL);
 }
 
 renderer::TextureType::type		OpenGL_GLSL_Texture::getTextureType() const
@@ -294,10 +296,10 @@ void		OpenGL_GLSL_Texture:: setMinFilter(renderer::TextureFiltering::type filter
 	unsigned wasBounded = !m_Bounded;
 	if(wasBounded)
 		bind();
-	glBindTexture(m_Target,m_Texture);
+	//glBindTexture(m_Target,m_Texture);
 	if(m_InternalTarget == TextureType::TEXTURE_RECTANGLE) return;
 	glTexParameteri(m_Target,GL_TEXTURE_MIN_FILTER,OpenGL_GLSL_Tables::TextureFiltering[filter]);
-	glBindTexture(m_Target,0);
+	//glBindTexture(m_Target,0);
 	if(wasBounded)
 		unbind();
 }
@@ -307,10 +309,10 @@ void		OpenGL_GLSL_Texture:: setMagFilter(renderer::TextureFiltering::type filter
 	unsigned wasBounded = !m_Bounded;
 	if(wasBounded)
 		bind();
-	glBindTexture(m_Target,m_Texture);
+	//glBindTexture(m_Target,m_Texture);
 	if(m_InternalTarget == TextureType::TEXTURE_RECTANGLE) return;
 	glTexParameteri(m_Target,GL_TEXTURE_MIN_FILTER,OpenGL_GLSL_Tables::TextureFiltering[filter]);
-	glBindTexture(m_Target,0);
+	//glBindTexture(m_Target,0);
 	if(wasBounded)
 		unbind();
 }
@@ -320,10 +322,10 @@ void		OpenGL_GLSL_Texture:: setAnisotropy(float val)
 	unsigned wasBounded = !m_Bounded;
 	if(wasBounded)
 		bind();
-	glBindTexture(m_Target,m_Texture);
+	//glBindTexture(m_Target,m_Texture);
 	if(m_InternalTarget == TextureType::TEXTURE_RECTANGLE) return;
 	glTexParameterf(m_Target,GL_TEXTURE_MAX_ANISOTROPY_EXT,val);
-	glBindTexture(m_Target,0);
+	//glBindTexture(m_Target,0);
 	if(wasBounded)
 		unbind();
 }
@@ -333,11 +335,11 @@ void		OpenGL_GLSL_Texture:: generateMipMaps()
 	unsigned wasBounded = !m_Bounded;
 	if(wasBounded)
 		bind();
-	glBindTexture(m_Target,m_Texture);
+	//glBindTexture(m_Target,m_Texture);
 	if(m_InternalTarget == TextureType::TEXTURE_RECTANGLE) return;
 	//glTexParameteri(m_Target,GL_GENERATE_MIPMAP_SGIS,val);
 	glGenerateMipmapEXT(GL_TEXTURE_2D);
-	glBindTexture(m_Target,0);
+	//glBindTexture(m_Target,0);
 	if(wasBounded)
 		unbind();
 }
@@ -347,9 +349,9 @@ void		OpenGL_GLSL_Texture::   clampS(renderer::TextureClamping::type clamp)
 	unsigned wasBounded = !m_Bounded;
 	if(wasBounded)
 		bind();
-	glBindTexture(m_Target,m_Texture);
+	//glBindTexture(m_Target,m_Texture);
 	glTexParameteri(m_Target,GL_TEXTURE_WRAP_S,OpenGL_GLSL_Tables::TextureClamping[clamp]);
-	glBindTexture(m_Target,0);
+	//glBindTexture(m_Target,0);
 	if(wasBounded)
 		unbind();
 }
@@ -359,9 +361,9 @@ void		OpenGL_GLSL_Texture::   clampT(renderer::TextureClamping::type clamp)
 	unsigned wasBounded = !m_Bounded;
 	if(wasBounded)
 		bind();
-	glBindTexture(m_Target,m_Texture);
+	//glBindTexture(m_Target,m_Texture);
 	glTexParameteri(m_Target,GL_TEXTURE_WRAP_T,OpenGL_GLSL_Tables::TextureClamping[clamp]);
-	glBindTexture(m_Target,0);
+	//glBindTexture(m_Target,0);
 	if(wasBounded)
 		unbind();
 }
@@ -371,9 +373,9 @@ void		OpenGL_GLSL_Texture::   clampR(renderer::TextureClamping::type clamp)
 	unsigned wasBounded = !m_Bounded;
 	if(wasBounded)
 		bind();
-	glBindTexture(m_Target,m_Texture);
+	//glBindTexture(m_Target,m_Texture);
 	glTexParameteri(m_Target,GL_TEXTURE_WRAP_R,OpenGL_GLSL_Tables::TextureClamping[clamp]);
-	glBindTexture(m_Target,0);
+	//glBindTexture(m_Target,0);
 	if(wasBounded)
 		unbind();
 }
