@@ -36,7 +36,9 @@ local strings_db = {
 	"bind", "uniform", "type", "value","id",
 	"attribute", "vertex", "geometry", "fragment",
 	"INT","FLOAT","FLOAT2","FLOAT3","FLOAT4","MAT3x3","MAT4x4",
-	"SAMPLER","VIEW","WORLD","PROJECTION","scale"
+	"SAMPLER","VIEW","WORLD","PROJECTION","scale",
+	
+	"node_id","x","y"
 }
 
 function removedups (t)

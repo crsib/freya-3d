@@ -24,8 +24,14 @@
 #include "core/xml/XMLParser.h"
 
 #include "internal.h"
+
+#include <vector>
+#include <map>
+#include "core/memory/MemoryAllocator.h"
+
 namespace framework
 {
+class SceneNode;
 //! Abstraction of game world
 class EXPORT World : public virtual EngineSubsystem
 {
@@ -49,6 +55,15 @@ private:
 	unsigned					m_WorldHeight;
 
 	WorldCell*					m_Cells;
+
+	typedef std::map<uint32_t,SceneNode*,std::less<uint32_t>,core::memory::MemoryAllocator<std::pair<uint32_t,SceneNode*> > > SceneNodes;
+	SceneNodes					m_SceneNodes;
+
+	ShaderLibraryPtr			m_CurrentShaderLibrary;
+
+	typedef	std::map<EString,ShaderLibraryPtr,std::less<EString>,core::memory::MemoryAllocator<std::pair<const EString,ShaderLibraryPtr > > > ShaderLibraries;
+	ShaderLibraries 			m_ShaderLibraries;
+
 };
 
 }
