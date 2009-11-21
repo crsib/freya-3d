@@ -16,6 +16,8 @@
 
 #include "Structures.h"
 
+#include "core/xml/XMLParser.h"
+
 namespace framework
 {
 class World;
@@ -25,7 +27,7 @@ class SceneNode : public virtual EngineSubsystem
 	friend class World;
 	friend struct __Data;
 protected:
-	SceneNode( );
+	SceneNode( core::xml::DOMNode*	root);
 	virtual ~SceneNode( );
 
 private:

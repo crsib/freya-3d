@@ -131,7 +131,7 @@ typedef	struct	__Data
 
 typedef struct __WorldCell
 {
-	//! Node children
+
 	__WorldCell*		neighbours[8];
 
 	WorldTile				tile;
@@ -155,6 +155,7 @@ typedef struct __WorldCell
 
 	__WorldCell();
 	~__WorldCell();
+	void		deserialize(core::xml::DOMNode* root);
 	MEMORY_FUNCTIONS
 
 } WorldCell,*WorldCellPtr;
@@ -239,6 +240,7 @@ struct __ShaderBinding : public ::EngineSubsystem
 
 typedef struct __ShaderWrapper : public ::EngineSubsystem
 {
+	EString						shaderID;
 	renderer::Shader*			shader;
 	uint16_t					num_uniform_bindings;
 	uint16_t					num_attribute_bindings;
@@ -252,6 +254,14 @@ struct	__ShaderLibrary : public ::EngineSubsystem
 	uint32_t					num_shaders;
 	ShaderWrapperPtr			shaders;
 	EString						apiName;
+
+	__ShaderLibrary(core::xml::DOMNode*	root);
+	~__ShaderLibrary();
+
+	void						prepareShader(uint32_t id);
+	bool						isShaderLoader(uint32_t id);
+	ShaderWrapperPtr			getShader(uint32_t id);
+
 } ShaderLibrary,*ShaderLibraryPtr;
 
 // Scene node structures
@@ -280,13 +290,48 @@ typedef struct __Camera
 		float			fow;
 	};
 
+	math::vector3d		up;
 	math::vector3d		position;
 	math::vector3d		direction;
-	math::vector3d		up;
+	math::vector3d		left_direction;
 
 	__Camera(core::xml::DOMNode* cam_root);
 } Camera,*CameraPtr;
 
+typedef struct __Light
+{
+	MEMORY_FUNCTIONS
+	enum 	LightType
+	{
+		POINT,
+		DIRECTIONAL,
+		SPOT
+	};
+
+	LightType			type;
+	float				radius;
+	uint32_t			isShadowCaster;
+
+	struct
+	{
+		float			constantAttentuation;
+		float			linearAttentuation;
+		float			quadraticAttentuation;
+	};
+
+	enum LightMapType
+	{
+		TEXTURE_2D,
+		TEXTURE_CUBE,
+		TEXTURE_3D
+	};
+
+	EString				lightMapId;
+	renderer::Texture*	lightMap;
+
+	__Light (core::xml::DOMNode* root);
+	~__Light();
+} Light, LightPtr;
 
 }
 

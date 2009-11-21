@@ -11,6 +11,8 @@
 
 #include <iostream>
 
+#include <framework/SceneNode.h>
+
 namespace framework
 {
 
@@ -40,6 +42,7 @@ void World::destroy()
 
 World::World(core::xml::DOMNode* doc_root)
 {
+	m_CurrentShaderLibrary = NULL;
 	using namespace core::xml;
 	if(XMLString::equals(doc_root->getNodeName(),XMLS(world)))
 	{
@@ -155,12 +158,90 @@ World::World(core::xml::DOMNode* doc_root)
 								{
 									cell->neighbours[WorldCell::Bottom] = m_Cells + (j + 1);
 									cell->neighbours[WorldCell::BottomLeft] = m_Cells + (i - 1)*m_WorldHeight + j + 1;
-
 								}
 							}
 						}
 					}//for cycle
 			}//World size
+			else if(XMLString::equals(node->getNodeName(),XMLS(shader_library)))
+			{
+				DOMNamedNodeMap*  map = node->getAttributes();
+				if(DOMNode* nd = map->getNamedItem(XMLS(shader_api)))
+				{
+					EString api = XMLStringWrap(nd->getNodeValue());
+					m_ShaderLibraries[api] = new ShaderLibrary(node);
+				}
+				//m_ShaderLibraries.push_back(new ShaderLibrary(node));
+			}//Shader library
+			else if(XMLString::equals(node->getNodeName(),XMLS(scene_node)))
+			{
+				DOMNamedNodeMap*  map = node->getAttributes();
+				if(DOMNode* nd = map->getNamedItem(XMLS(node_id)))
+				{
+					char* node_id_s = XMLStringWrap(nd->getNodeValue());
+					m_SceneNodes[atoi(node_id_s)] = new SceneNode(node);
+				}
+			}//scene node
+			else if(XMLString::equals(node->getNodeName(),XMLS(include)))
+			{
+				EString path;
+				DOMNamedNodeMap*  map = node->getAttributes();
+				if(DOMNode* nd = map->getNamedItem(XMLS(path)))
+				{
+					path = (char*)XMLStringWrap(nd->getNodeValue());
+				}
+				if(!path.empty())
+				{
+					DOMDocument* doc = core::EngineCore::getXMLParser()->parse(path);
+					DOMNode*	 inc_root = doc->getDocumentElement();
+					DOMNodeList*	inc_nodes = doc_root->getChildNodes();
+					for(size_t inode_it = 0; inode_it < inc_nodes->getLength(); inode_it ++)
+					{
+						DOMNode* inode = inc_nodes->item(inode_it);
+						if(XMLString::equals(inode->getNodeName(),XMLS(scene_node)))
+						{
+							DOMNamedNodeMap*  map = inode->getAttributes();
+							if(DOMNode* nd = map->getNamedItem(XMLS(node_id)))
+							{
+								char* node_id_s = XMLStringWrap(nd->getNodeValue());
+								m_SceneNodes[atoi(node_id_s)] = new SceneNode(node);
+							}
+						}//scene node
+						else if(XMLString::equals(inode->getNodeName(),XMLS(cell)))
+						{
+							int		x = 0, y = 0;
+							DOMNamedNodeMap*  map = inode->getAttributes();
+							if(DOMNode* nd = map->getNamedItem(XMLS(x)))
+							{
+								char* x_s = XMLStringWrap(nd->getNodeValue());
+								x = ::atoi(x_s);
+							}
+							if(DOMNode* nd = map->getNamedItem(XMLS(y)))
+							{
+								char* y_s = XMLStringWrap(nd->getNodeValue());
+								y = ::atoi(y_s);
+							}
+							m_Cells->deserialize(node);
+						}//cell
+					}//for
+				}//path is not empty
+			}//include
+			else if(XMLString::equals(node->getNodeName(),XMLS(cell)))
+			{
+				int		x = 0, y = 0;
+				DOMNamedNodeMap*  map = node->getAttributes();
+				if(DOMNode* nd = map->getNamedItem(XMLS(x)))
+				{
+					char* x_s = XMLStringWrap(nd->getNodeValue());
+					x = ::atoi(x_s);
+				}
+				if(DOMNode* nd = map->getNamedItem(XMLS(y)))
+				{
+					char* y_s = XMLStringWrap(nd->getNodeValue());
+					y = ::atoi(y_s);
+				}
+				m_Cells->deserialize(node);
+			}//cell
 		}
 	}
 	else
@@ -170,6 +251,11 @@ World::World(core::xml::DOMNode* doc_root)
 World::~World()
 {
 	delete [] m_Cells;
+	for(SceneNodes::iterator it = m_SceneNodes.begin(); it != m_SceneNodes.end(); ++it)
+		delete it->second;
+
+	for(ShaderLibraries::iterator it = m_ShaderLibraries.begin(); it != m_ShaderLibraries.end(); ++it)
+		delete it->second;
 }
 
 }

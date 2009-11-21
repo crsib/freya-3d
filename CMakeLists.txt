@@ -129,7 +129,7 @@ IF( FREYA_CORE_USE_BOOST )
 ENDIF()
 
 #Build math library
-INCLUDE( ${CMAKE_SOURCE_DIR}/Framework/Source/math/CMakeList.txt )
+ADD_SUBDIRECTORY ( Framework/Source/math )
 
 #Build plugins
 INCLUDE(  BuildPlugins )
@@ -147,6 +147,8 @@ IF  ( FREYA_CORE_USE_BOOST )
 ENDIF( FREYA_CORE_USE_BOOST )
 GET_PROPERTY ( FREYA_CORE_LINK_LIBRARIES GLOBAL PROPERTY FREYA_CORE_LINK_LIBRARIES_GLOBAL )
 MESSAGE ("FreyaCore additional dependencies: ${FREYA_CORE_LINK_LIBRARIES}")
+#INCLUDE( ${CMAKE_SOURCE_DIR}/Framework/3party/cegui/CMakeList.txt ) 
+
 ADD_SUBDIRECTORY ( Framework )
 
 #Collect all shared plugins
