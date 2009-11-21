@@ -14,4 +14,14 @@ __Camera::__Camera(core::xml::DOMNode* root)
 		throw ::EngineException();
 }
 
+SceneNode::SceneNode( core::xml::DOMNode*	root)
+{
+
+}
+
+SceneNode::~SceneNode( )
+{
+
+}
+
 }
