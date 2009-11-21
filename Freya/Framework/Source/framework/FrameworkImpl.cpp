@@ -11,8 +11,14 @@
 #include "core/EngineCore.h"
 #include "core/filesystem/Filesystem.h"
 #include "framework/SceneNode.h"
+#include <iostream>
+
+#include "XMLStaticStrings.h"
+
 namespace framework
 {
+
+using namespace core::xml;
 
 __Resource::~__Resource()
 {
@@ -57,6 +63,44 @@ void __File::free()
 		core::memory::Free(data,core::memory::GENERIC_POOL);
 	data = NULL;
 	size = 0;
+}
+
+__ShaderLibrary::__ShaderLibrary(core::xml::DOMNode*	root)
+{
+
+	std::cout << "Deserializing shader library " << std::endl;
+	DOMNamedNodeMap*  map = root->getAttributes();
+	if(DOMNode* nd = map->getNamedItem(XMLS(shader_api)))
+	{
+		this->apiName = (char*)XMLStringWrap(nd->getNodeValue());
+	}
+	std::cout << "Library is for: " << apiName;
+
+}
+
+__ShaderLibrary::~__ShaderLibrary()
+{
+
+}
+
+void				__ShaderLibrary::prepareShader(uint32_t id)
+{
+
+}
+
+bool				__ShaderLibrary::isShaderLoader(uint32_t id)
+{
+
+}
+
+ShaderWrapperPtr	__ShaderLibrary::getShader(uint32_t id)
+{
+
+}
+
+void		__WorldCell::deserialize(core::xml::DOMNode* root)
+{
+
 }
 
 }

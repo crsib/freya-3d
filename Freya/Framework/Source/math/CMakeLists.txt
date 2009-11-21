@@ -23,6 +23,8 @@ IF( NOT LUA_APP )
     MESSAGE(FATAL_ERROR "Failed to find lua application. Please,set LUA_APP_PATH to path, where one of lua lua51 lua5 lua5.1 is located" )
 ENDIF( NOT LUA_APP )
 
+MESSAGE(STATUS "Generating lookup tables. Writing to ${INTERMIDIATE_DIRECTORY}" )
+
 EXECUTE_PROCESS(COMMAND ${LUA_APP} ${GENERATORS_DIRECTORY}/generate_math_lookups.lua 
                             WORKING_DIRECTORY ${INTERMIDIATE_DIRECTORY} 
                             OUTPUT_VARIABLE LUA_OUT ERROR_VARIABLE LUA_ERROR)
