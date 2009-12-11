@@ -11,18 +11,25 @@
 /*!
  * \mainpage Freya 3D engine. Implementation specific notes.
  * \section home_sec Freya 3D engine home page
- * <A href="http://freya3d.co.cc/">Project home page</A>
+ * <A href="http://freya3d.org/">Project home page</A>
  * \section source_sec Freya 3D engine source
  * The source code is available via svn from <br />
- * <A href="http://svn.freya3d.co.cc/freya/trunk/engine">http://svn.freya3d.co.cc/EnjoyInc/Framework</A>
+ * <A href="http://svn.freya3d.org/freya3d/trunk/Freya/">http://svn.freya3d.org/freya3d/trunk/Freya/</A>
  * \section depends_sec Dependencies
  * <OL>
- * <LI>boost.filesystem 1.37.0 (it depends on boost.system 1.37.0)</LI>
- * <LI>Lua 5.1.4 or LuaJIT 1.1.5 (note: to enable JIT engine usage define LUA_JIT_AVAILABLE) </LI>
- * <LI>xerces-c++ 3.0</LI>
- * <LI>OpenGL 2.1</LI>
- * <LI>SDL 1.3 (svn version)</LI>
+ * <LI>boost.filesystem 1.39.0, boost.system 1.39.0, boost.thread 1.39.0, boost.date_time 1.39.0</LI>
+ * <LI>Lua 5.1.4 or LuaJIT 1.1.5</LI>
+ * <LI>cmake</LI>
+ * <LI>SDL 1.3 (svn or snapshot version)</LI>
+ * <LI>freetype</LI>
+ * <LI>PCRE</LI>
+ * <LI>tolua++ binary</LI>
+ * <LI>Valid C++ compiler (GCC 4.x, MSVC 9)</LI>
  * </OL>
+ * <P>
+ * Precompiled dependencies for MSVC 9 available <A href="http://freya3d.org/downloads/2">here</A><BR>
+ * Please, refer our wiki for more information on building
+ * </P>
  * \section filesys_sec Filesystem notes
  * Currently implemented drivers:
  * <TABLE border="1">
