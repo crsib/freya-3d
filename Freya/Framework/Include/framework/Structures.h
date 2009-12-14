@@ -37,7 +37,6 @@ typedef  __int16 int16_t;
 //Memory routines
 #include "internal.h"
 
-#include "core/xml/XMLParser.h"
 
 #ifdef _FREYA_SHARED_PLUGIN
 namespace core
@@ -155,7 +154,7 @@ typedef struct __WorldCell
 
 	__WorldCell();
 	~__WorldCell();
-	void		deserialize(core::xml::DOMNode* root);
+	//void		deserialize(core::xml::DOMNode* root);
 	MEMORY_FUNCTIONS
 
 } WorldCell,*WorldCellPtr;
@@ -255,7 +254,7 @@ struct	__ShaderLibrary : public ::EngineSubsystem
 	ShaderWrapperPtr			shaders;
 	EString						apiName;
 
-	__ShaderLibrary(core::xml::DOMNode*	root);
+	__ShaderLibrary();
 	~__ShaderLibrary();
 
 	void						prepareShader(uint32_t id);
@@ -295,7 +294,7 @@ typedef struct __Camera
 	math::vector3d		direction;
 	math::vector3d		left_direction;
 
-	__Camera(core::xml::DOMNode* cam_root);
+	__Camera();
 } Camera,*CameraPtr;
 
 typedef struct __Light
@@ -329,7 +328,7 @@ typedef struct __Light
 	EString				lightMapId;
 	renderer::Texture*	lightMap;
 
-	__Light (core::xml::DOMNode* root);
+	__Light ();
 	~__Light();
 } Light, LightPtr;
 
