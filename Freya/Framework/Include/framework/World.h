@@ -14,14 +14,11 @@
  */
 #include "core/EngineSubsystem.h"
 #include "framework/Structures.h"
-//XML parser
-#include "core/xml/XMLParser.h"
+
 //Lua
 #include "core/lua/LuaCore.h"
 #include "core/lua/LuaFunction.h"
 #include "core/Variable.h"
-
-#include "core/xml/XMLParser.h"
 
 #include "internal.h"
 
@@ -36,10 +33,10 @@ class SceneNode;
 class EXPORT World : public virtual EngineSubsystem
 {
 private:
-	World(core::xml::DOMNode* doc_root);
+	World();
 	virtual ~World( );
 public:
-	static World*		loadFromXML( const EString&	path);
+	//static World*		loadFromXML( const EString&	path);
 	static void			destroy();
 	static World*		getSingleton() {return m_Instance;}
 

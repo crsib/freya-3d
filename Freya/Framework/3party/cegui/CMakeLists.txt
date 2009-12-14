@@ -241,9 +241,9 @@ include/WindowRendererSets/Falagard/FalTitlebar.h
 include/WindowRendererSets/Falagard/FalToggleButton.h
 include/WindowRendererSets/Falagard/FalTooltip.h
 include/WindowRendererSets/Falagard/FalTree.h
-include/XMLParserModules/XercesParser/CEGUIXercesParser.h
-include/XMLParserModules/XercesParser/CEGUIXercesParserModule.h
-include/XMLParserModules/XercesParser/CEGUIXercesParserProperties.h
+#include/XMLParserModules/XercesParser/CEGUIXercesParser.h
+#include/XMLParserModules/XercesParser/CEGUIXercesParserModule.h
+#include/XMLParserModules/XercesParser/CEGUIXercesParserProperties.h
 #
 src/ScriptingModules/LuaScriptModule/required.h
 
@@ -458,17 +458,32 @@ src/WindowRendererSets/Falagard/FalTitlebar.cpp
 src/WindowRendererSets/Falagard/FalToggleButton.cpp
 src/WindowRendererSets/Falagard/FalTooltip.cpp
 src/WindowRendererSets/Falagard/FalTree.cpp
-src/XMLParserModules/XercesParser/CEGUIXercesParser.cpp
-src/XMLParserModules/XercesParser/CEGUIXercesParserModule.cpp
-src/XMLParserModules/XercesParser/CEGUIXercesParserProperties.cpp
+#src/XMLParserModules/XercesParser/CEGUIXercesParser.cpp
+#src/XMLParserModules/XercesParser/CEGUIXercesParserModule.cpp
+#src/XMLParserModules/XercesParser/CEGUIXercesParserProperties.cpp
 
 src/ImageCodecModules/TGAImageCodec/CEGUITGAImageCodec.cpp
 src/ImageCodecModules/TGAImageCodec/CEGUITGAImageCodecModule.cpp
+
+# XML
+include/XMLParserModules/TinyXMLParser/CEGUITinyXMLParser.h
+include/XMLParserModules/TinyXMLParser/CEGUITinyXMLParserModule.h
+src/XMLParserModules/TinyXMLParser/ceguitinyxml/tinystr.h
+src/XMLParserModules/TinyXMLParser/ceguitinyxml/tinyxml.h
+
+src/XMLParserModules/TinyXMLParser/CEGUITinyXMLParser.cpp
+src/XMLParserModules/TinyXMLParser/CEGUITinyXMLParserModule.cpp
+src/XMLParserModules/TinyXMLParser/ceguitinyxml/tinystr.cpp
+src/XMLParserModules/TinyXMLParser/ceguitinyxml/tinyxml.cpp
+src/XMLParserModules/TinyXMLParser/ceguitinyxml/tinyxmlerror.cpp
+src/XMLParserModules/TinyXMLParser/ceguitinyxml/tinyxmlparser.cpp
+
 )
 
 IF ( APPLE )
     SET(CEGUI_SOURCE ${CEGUI_SOURCE} src/implementations/mac/macPlugins.cpp src/implementations/mac/macPlugins.h )
-    INCLUDE_DIRECTORIES( src/implementations/mac )
+    INCLUDE_DIRECTORIES( src/implementations/mac  src/XMLParserModules/TinyXMLParser
+    include/XMLParserModules/TinyXMLParser src/XMLParserModules/TinyXMLParser/ceguitinyxml src/XMLParserModules/TinyXMLParser/ceguitinyxml)
 ENDIF()
 
 INCLUDE_DIRECTORIES( 
@@ -481,7 +496,7 @@ INCLUDE_DIRECTORIES(
     src/ScriptingModules/LuaScriptModule AFTER
    )
    
-ADD_DEFINITIONS( -DCEGUITGAIMAGECODEC_EXPORTS -DCEGUIBASE_EXPORTS -DCEGUILUA_EXPORTS -DCEGUIXERCESPARSER_EXPORTS -DCEGUI_WITH_XERCES -DFALAGARDWRBASE_EXPORTS -DCEGUI_FALAGARD_RENDERER -DCEGUI_CODEC_TGA -DCEGUI_HAS_FREETYPE)
+ADD_DEFINITIONS( -DCEGUITGAIMAGECODEC_EXPORTS -DCEGUIBASE_EXPORTS -DCEGUILUA_EXPORTS -DCEGUIXERCESPARSER_EXPORTS -DCEGUI_WITH_TINYXML -DFALAGARDWRBASE_EXPORTS -DCEGUI_FALAGARD_RENDERER -DCEGUI_CODEC_TGA -DCEGUI_HAS_FREETYPE)
 
 ADD_LIBRARY(cegui-freya STATIC ${CEGUI_SOURCE} )
 

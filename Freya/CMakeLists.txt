@@ -19,6 +19,10 @@ SET ( GENERATORS_DIRECTORY           ${CMAKE_SOURCE_DIR}/Generators )
 SET ( APP_DATA                       ${CMAKE_SOURCE_DIR}/Data )
 SET ( APP_STD_DATA                   ${CMAKE_SOURCE_DIR}/Data/STD )
 
+IF(NOT EXISTS ${INTERMIDIATE_DIRECTORY}/)
+	FILE(MAKE_DIRECTORY ${INTERMIDIATE_DIRECTORY})
+ENDIF()
+
 #Global includes for all Freya Subprojects 
 INCLUDE_DIRECTORIES( Framework/Include ${INTERMIDIATE_DIRECTORY})
 

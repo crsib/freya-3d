@@ -34,8 +34,8 @@ public:
 		std::cout << "Script finished" << std::endl;
 		core::memory::Free(s_src,core::memory::GENERIC_POOL);
 		//resources::Resource*	res = core::EngineCore::getResourceManager()->load(":vbo:/vbos/cube.vdata");
-		framework::World*	wrld = framework::World::loadFromXML("/Worlds/World.xml");
-		wrld->destroy();
+		//framework::World*	wrld = framework::World::loadFromXML("/Worlds/World.xml");
+		//wrld->destroy();
 		return Initialize::DONE;
 	}
 private:
