@@ -47,19 +47,13 @@
 
 #include "core/freya_buf.hpp"
 
-#include "core/xml/XMLParser.h"
 
 #include "CEGUI.h"
 #include "freya/FreyaRenderer.h"
 #include "freya/FreyaResourceProvider.h"
 
 #include "CEGUILua.h"
-//#include "CEGUIImageset.h"
-//#include "CEGUIFont.h"
-//#include "CEGUIScheme.h"
-//#include "CEGUIWindowManager.h"
-#include "CEGUIXercesParser.h"
-//#include "CEGUIFalWidgetLookManager.h"
+
 
 using namespace renderer;
 
@@ -99,7 +93,6 @@ std::stringbuf*								EngineCore::m_LogStringBuf = NULL;
 
 core::lua::LuaCore*							EngineCore::m_LuaCore = NULL;
 
-core::xml::XMLParser*						EngineCore::m_XMLParser = NULL;
 
 //Memory allocation function
 namespace memory
@@ -179,8 +172,6 @@ EngineCore::EngineCore(int argC,char** argV,const std::string& applicationName, 
 
 	std::cout << "Starting Lua scripting engine" << std::endl;
 	m_LuaCore 			= new core::lua::LuaCore;
-	std::cout << "Starting Xerces-C++" << std::endl;
-	m_XMLParser 		= new core::xml::XMLParser;
 	m_Running 			= true;
 	m_Instance 			= this;
 	m_RenderingDriver 	= NULL;
@@ -203,8 +194,6 @@ EngineCore::~EngineCore()
 	delete m_TaskManager;
 	std::cout << "Stopping CEGUI" << std::endl;
 	CEGUI::System::destroy();
-	std::cout << "Stopping Xerces-C++" << std::endl;
-	delete m_XMLParser;
 	std::cout << "Destroying Lua engine " << std::endl;
 	delete m_LuaCore;
 	std::cout << "Destroying resource manager" << std::endl;
@@ -431,11 +420,6 @@ core::lua::LuaCore*					EngineCore::getLuaCore()
 	return m_LuaCore;
 }
 
-core::xml::XMLParser*				EngineCore::getXMLParser()
-{
-	return m_XMLParser;
-}
-
 void								EngineCore::startCEGUI()
 {
 	//using namespace CEGUI;
@@ -465,7 +449,7 @@ void								EngineCore::startCEGUI()
 	CEGUI::WindowManager::setDefaultResourceGroup("layouts");
 	CEGUI::ScriptModule::setDefaultResourceGroup("lua_scripts");
 
-	CEGUI::XercesParser::setSchemaDefaultResourceGroup("schemas");
+	//CEGUI::XercesParser::setSchemaDefaultResourceGroup("schemas");
 }
 
 CEGUI::System*					EngineCore::getCEGUISystem()

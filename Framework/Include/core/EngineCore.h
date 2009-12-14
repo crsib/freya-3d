@@ -26,10 +26,7 @@ class WindowManagerDriver;
 //! This namespace contains all classes related to engine core futures
 namespace core
 {
-namespace xml
-{
-class XMLParser;
-}
+
 namespace lua
 {
 	class LuaCore;
@@ -184,15 +181,7 @@ public:
 	* \return pointer to a LuaCore class instance
 	*/
 	static core::lua::LuaCore*			getLuaCore();
-	//! retrieve the XMLParser class instance
-	/*!
-	* \return pointer to a XMLParser class instance
-	*/
-	static core::xml::XMLParser*		getXMLParser();
-	/*static Settings*					getSettings()
-	{
-		return m_Settings;
-	}*/
+
 	//! creates a rendering driver
 	/*!
 	*  create new rendering driver of type {type}. The old driver used is deleted (if any)
@@ -287,7 +276,6 @@ private:
 	static core::PluginCore*							m_PluginCore;
 	static core::PluginLoader*							m_PluginLoader;
 	static core::lua::LuaCore*							m_LuaCore;
-	static core::xml::XMLParser*						m_XMLParser;
 };
 
 }

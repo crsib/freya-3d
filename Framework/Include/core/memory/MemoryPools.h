@@ -20,7 +20,6 @@ namespace memory
 		GENERIC_POOL,
 		CLASS_POOL,
 		LUA_POOL,
-		XML_POOL,
 		CEGUI_POOL,
 		WORLD_POOL,
 
