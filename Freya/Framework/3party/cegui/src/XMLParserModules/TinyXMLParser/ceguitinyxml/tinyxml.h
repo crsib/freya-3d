@@ -79,6 +79,8 @@ distribution.
 	#endif
 #endif	
 
+#define CEGUI_TINYXML_NAMESPACE CEGUITinyXML
+
 namespace CEGUITinyXML
 {
 

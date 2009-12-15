@@ -42,15 +42,15 @@ public:
 	static World*		getSingleton() {return m_Instance;}
 
 	//WorldTreeNodePtr	getNode(unsigned id);
-	void				addShaderLibrary(ShaderLibrary* library);
+	void				addShaderLibrary(ShaderLibraryPtr library);
 
 	void				addDataNode(DataNode* node);
 
 	enum				WORLD_STATUS
 	{
-		READY,
-		LOADING,
-		ERROR
+		WORLD_STATUS_READY,
+		WORLD_STATUS_LOADING,
+		WORLD_STATUS_ERROR
 	};
 
 	WORLD_STATUS		getStatus();
