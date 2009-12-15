@@ -10,7 +10,7 @@
 #include "resources/ResourceManager.h"
 #include "core/EngineCore.h"
 #include "core/filesystem/Filesystem.h"
-#include "framework/SceneNode.h"
+#include "framework/DataNode.h"
 #include <iostream>
 
 namespace framework
@@ -25,8 +25,6 @@ __Resource::~__Resource()
 
 __Data::~__Data()
 {
-	delete landscape;
-	landscape = NULL;
 	for(size_t i = 0; i < nodes.size(); i++ )
 	{
 		delete nodes[i];
