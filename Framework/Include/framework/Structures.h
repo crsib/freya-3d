@@ -38,16 +38,6 @@ typedef  __int16 int16_t;
 #include "internal.h"
 
 
-#ifdef _FREYA_SHARED_PLUGIN
-namespace core
-{
-namespace memory
-{
-extern void* (*Allocate)(size_t,unsigned);
-extern void  (*Free)(void*,unsigned);
-}
-}
-#else
 namespace core
 {
 namespace memory
@@ -56,7 +46,7 @@ EXPORT void* Allocate(size_t,unsigned);
 EXPORT void  Free(void*,unsigned);
 }
 }
-#endif
+
 
 #define MEMORY_FUNCTIONS \
 		static void* operator new(size_t sz)\
@@ -356,7 +346,7 @@ struct	__ShaderLibrary : public ::EngineSubsystem
 	~__ShaderLibrary();
 
 	void						prepareShader(uint32_t id);
-	bool						isShaderLoader(uint32_t id);
+	bool						isShaderLoaded(uint32_t id);
 	ShaderWrapperPtr			getShader(uint32_t id);
 
 } ShaderLibrary,*ShaderLibraryPtr;

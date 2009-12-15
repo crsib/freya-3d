@@ -482,8 +482,7 @@ src/XMLParserModules/TinyXMLParser/ceguitinyxml/tinyxmlparser.cpp
 
 IF ( APPLE )
     SET(CEGUI_SOURCE ${CEGUI_SOURCE} src/implementations/mac/macPlugins.cpp src/implementations/mac/macPlugins.h )
-    INCLUDE_DIRECTORIES( src/implementations/mac  src/XMLParserModules/TinyXMLParser
-    include/XMLParserModules/TinyXMLParser src/XMLParserModules/TinyXMLParser/ceguitinyxml src/XMLParserModules/TinyXMLParser/ceguitinyxml)
+    INCLUDE_DIRECTORIES( src/implementations/mac )
 ENDIF()
 
 INCLUDE_DIRECTORIES( 
@@ -492,11 +491,12 @@ INCLUDE_DIRECTORIES(
     include
     include/ScriptingModules/LuaScriptModule 
     include/WindowRendererSets/Falagard 
-    include/XMLParserModules/XercesParser
+    src/XMLParserModules/TinyXMLParser
+    include/XMLParserModules/TinyXMLParser src/XMLParserModules/TinyXMLParser/ceguitinyxml src/XMLParserModules/TinyXMLParser/ceguitinyxml
     src/ScriptingModules/LuaScriptModule AFTER
    )
    
-ADD_DEFINITIONS( -DCEGUITGAIMAGECODEC_EXPORTS -DCEGUIBASE_EXPORTS -DCEGUILUA_EXPORTS -DCEGUIXERCESPARSER_EXPORTS -DCEGUI_WITH_TINYXML -DFALAGARDWRBASE_EXPORTS -DCEGUI_FALAGARD_RENDERER -DCEGUI_CODEC_TGA -DCEGUI_HAS_FREETYPE)
+ADD_DEFINITIONS( -DCEGUITGAIMAGECODEC_EXPORTS -DCEGUIBASE_EXPORTS -DCEGUILUA_EXPORTS -DCEGUITINYXMLPARSER_EXPORTS -DCEGUI_WITH_TINYXML -DFALAGARDWRBASE_EXPORTS -DCEGUI_FALAGARD_RENDERER -DCEGUI_CODEC_TGA -DCEGUI_HAS_FREETYPE)
 
 ADD_LIBRARY(cegui-freya STATIC ${CEGUI_SOURCE} )
 
