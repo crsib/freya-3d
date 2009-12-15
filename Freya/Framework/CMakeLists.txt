@@ -152,25 +152,25 @@ Source/core/lua/lua_libraries/3party/bit.c
 
 Source/resources/drivers/std/ShaderLoaderDriver.cpp
 
-#Generated sources
-"${INTERMIDIATE_DIRECTORY}/StaticPluginsLoader.cpp"
-"${INTERMIDIATE_DIRECTORY}/freya_lua_bind.cpp"
-
 #World
 #public includes
 Include/framework/World.h
-Include/framework/SceneNode.h
+Include/framework/DataNode.h
 Include/framework/SceneNodeController.h
 Include/framework/Structures.h
 
 #Sources & private includes
 Source/framework/World.cpp
-Source/framework/SceneNode.cpp
+Source/framework/DataNode.cpp
 Source/framework/SceneNodeController.cpp
 Source/framework/FrameworkImpl.cpp
 
 Source/resources/drivers/std/VDataLoader.h
 Source/resources/drivers/std/VDataLoader.cpp
+
+#Generated sources
+"${INTERMIDIATE_DIRECTORY}/StaticPluginsLoader.cpp"
+"${INTERMIDIATE_DIRECTORY}/freya_lua_bind.cpp"
 )
 
 SET( FREYA_CEGUI_SRC 
@@ -183,6 +183,40 @@ SET( FREYA_CEGUI_SRC
 ./3party/cegui/src/freya/FreyaWindowTarget.cpp
 )
 
+SET(TOLUA_PACKAGES
+./Source/core/lua/lua_packages/core/EngineCore.lpkg
+./Source/core/lua/lua_packages/core/Filesystem.lpkg
+./Source/core/lua/lua_packages/core/MemoryArena.lpkg
+./Source/core/lua/lua_packages/core/MemoryPools.lpkg
+./Source/core/lua/lua_packages/core/Task.lpkg
+./Source/core/lua/lua_packages/core/TaskManager.lpkg
+./Source/core/lua/lua_packages/framework/SceneNode.lpkg
+./Source/core/lua/lua_packages/framework/SceneNodeController.lpkg
+./Source/core/lua/lua_packages/framework/World.lpkg
+./Source/core/lua/lua_packages/luabind.lpkg
+./Source/core/lua/lua_packages/math/frustum.lpkg
+./Source/core/lua/lua_packages/math/matrix3x3.lpkg
+./Source/core/lua/lua_packages/math/matrix4x4.lpkg
+./Source/core/lua/lua_packages/math/plane.lpkg
+./Source/core/lua/lua_packages/math/quaternion.lpkg
+./Source/core/lua/lua_packages/math/vector3d.lpkg
+./Source/core/lua/lua_packages/math/wrap_math.lpkg
+./Source/core/lua/lua_packages/renderer/Framebuffer.lpkg
+./Source/core/lua/lua_packages/renderer/RenderingAPIDriver.lpkg
+./Source/core/lua/lua_packages/renderer/Shader.lpkg
+./Source/core/lua/lua_packages/renderer/Texture.lpkg
+./Source/core/lua/lua_packages/renderer/VertexBufferObject.lpkg
+./Source/core/lua/lua_packages/resource/Resource.lpkg
+./Source/core/lua/lua_packages/resource/ResourceManager.lpkg
+./Source/core/lua/lua_packages/windowmanager/Callback.lpkg
+./Source/core/lua/lua_packages/windowmanager/KeyboardKeys.lpkg
+./Source/core/lua/lua_packages/windowmanager/KeyDrivenDevice.lpkg
+./Source/core/lua/lua_packages/windowmanager/MouseButtons.lpkg
+./Source/core/lua/lua_packages/windowmanager/MovementDrivenDevice.lpkg
+./Source/core/lua/lua_packages/windowmanager/WindowManagerDriver.lpkg
+./Source/core/lua/lua_packages/lua_debug.lua
+./Source/core/lua/lua_packages/virtual_method_hooks.lua
+)
 
 INCLUDE_DIRECTORIES( 3party/cegui/include
     3party/cegui/include/elements 
@@ -204,9 +238,18 @@ IF( NOT TOLUA_APP )
 ENDIF( NOT TOLUA_APP )
 
 MESSAGE(STATUS "Generating bind file using ${TOLUA_APP}..." )
-EXECUTE_PROCESS(COMMAND ${TOLUA_APP} -n freya -L virtual_method_hooks.lua -L lua_debug.lua -L "${CMAKE_SOURCE_DIR}/Framework/3party/cegui/src/ScriptingModules/LuaScriptModule/package/exceptions.lua" -o "${INTERMIDIATE_DIRECTORY}/freya_lua_bind.cpp" luabind.lpkg 
-                            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/Framework/Source/core/lua/lua_packages 
-                            OUTPUT_VARIABLE TOLUA_OUT ERROR_VARIABLE TOLUA_ERROR)
+
+
+
+ADD_CUSTOM_COMMAND(OUTPUT "${INTERMIDIATE_DIRECTORY}/freya_lua_bind.cpp"
+                    COMMAND ${TOLUA_APP} -n freya -L virtual_method_hooks.lua -L lua_debug.lua -L "${CMAKE_SOURCE_DIR}/Framework/3party/cegui/src/ScriptingModules/LuaScriptModule/package/exceptions.lua" -o "${INTERMIDIATE_DIRECTORY}/freya_lua_bind.cpp" luabind.lpkg
+                    DEPENDS  ${TOLUA_PACKAGES}
+                    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/Framework/Source/core/lua/lua_packages
+                    VERBATIM)
+
+#EXECUTE_PROCESS(COMMAND ${TOLUA_APP} -n freya -L virtual_method_hooks.lua -L lua_debug.lua -L "${CMAKE_SOURCE_DIR}/Framework/3party/cegui/src/ScriptingModules/LuaScriptModule/package/exceptions.lua" -o "${INTERMIDIATE_DIRECTORY}/freya_lua_bind.cpp" luabind.lpkg 
+ #                           WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/Framework/Source/core/lua/lua_packages 
+  #                          OUTPUT_VARIABLE TOLUA_OUT ERROR_VARIABLE TOLUA_ERROR)
 MESSAGE(STATUS "Done\n\tOutput: ${TOLUA_OUT}\n\tErrors: ${TOLUA_ERROR}" )
 
 #MESSAGE(STATUS "Searching lua")

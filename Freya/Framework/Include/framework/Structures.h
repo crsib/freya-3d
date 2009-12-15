@@ -96,7 +96,7 @@ typedef struct __Tile
 
 } WorldTile;
 
-class SceneNode;
+class DataNode;
 
 typedef struct	__Resource
 {
@@ -108,7 +108,7 @@ typedef struct	__Resource
 		void*				_;
 	};
 	resources::Resource*	resource;
-	SceneNode*				node;
+	DataNode*				node;
 
 	unsigned				lodLevel;
 
@@ -119,13 +119,111 @@ typedef struct	__Resource
 
 typedef	struct	__Data
 {
-	WorldResourcePtr	landscape;
-	typedef std::vector<SceneNode*, core::memory::MemoryAllocator<SceneNode*> > WorldNodes;
-	WorldNodes			nodes;
+	typedef std::vector<DataNode*, core::memory::MemoryAllocator<DataNode*> > WorldDataNodes;
+	WorldDataNodes			nodes;
 
-	__Data() : landscape (NULL){}
+	__Data();
 	~__Data();
 } WorldData;
+
+typedef struct __Camera
+{
+	MEMORY_FUNCTIONS
+	enum CameraType
+	{
+		ORTHO,
+		PROJECTIVE
+	};
+	float   near_plane;
+	float	far_plane;
+	CameraType	type;
+
+	union
+	{
+		struct
+		{
+			float		left;
+			float		top;
+			float		right;
+			float 		bottom;
+		};
+		float			fow;
+	};
+
+	math::vector3d		up;
+	math::vector3d		position;
+	math::vector3d		direction;
+	math::vector3d		left_direction;
+
+	__Camera();
+} Camera,*CameraPtr;
+
+typedef struct __Light
+{
+	MEMORY_FUNCTIONS
+	enum 	LightType
+	{
+		POINT,
+		DIRECTIONAL,
+		SPOT
+	};
+
+	LightType			type;
+	float				radius;
+	uint32_t			isShadowCaster;
+
+	struct
+	{
+		float			constantAttentuation;
+		float			linearAttentuation;
+		float			quadraticAttentuation;
+	};
+
+	enum LightMapType
+	{
+		TEXTURE_2D,
+		TEXTURE_CUBE,
+		TEXTURE_3D
+	};
+
+	EString				lightMapId;
+	renderer::Texture*	lightMap;
+
+	__Light ();
+	~__Light();
+} Light, *LightPtr;
+
+typedef struct __SceneNode
+{
+	MEMORY_FUNCTIONS
+
+	typedef std::vector<__SceneNode*, core::memory::MemoryAllocator<__SceneNode*> > SceneNodes;
+	enum SceneNodeType
+	{
+		DATA_NODE,
+		LIGHTING_NODE,
+		CAMERA_NODE
+	};
+
+	SceneNodeType		type;
+	union
+	{
+		uint32_t			data_idx;
+		LightPtr			light;
+		CameraPtr			camera;
+	};
+
+	math::matrix4x4		world_matrix;
+
+	SceneNodes				children;
+	__SceneNode*			parent;
+	struct
+	{
+		math::vector3d		min;
+		math::vector3d		max;
+	}	aabb;
+
+} SceneNode,*SceneNodePtr;
 
 
 typedef struct __WorldCell
@@ -134,11 +232,11 @@ typedef struct __WorldCell
 	__WorldCell*		neighbours[8];
 
 	WorldTile				tile;
-	WorldData				data;
 
 	unsigned				nodeID;
 
-	EString					nodeRes;
+	SceneNode::SceneNodes   nodes;
+
 
 	enum NeighbourType
 	{
@@ -264,73 +362,6 @@ struct	__ShaderLibrary : public ::EngineSubsystem
 } ShaderLibrary,*ShaderLibraryPtr;
 
 // Scene node structures
-
-typedef struct __Camera
-{
-	MEMORY_FUNCTIONS
-	enum CameraType
-	{
-		ORTHO,
-		PROJECTIVE
-	};
-	float   near_plane;
-	float	far_plane;
-	CameraType	type;
-
-	union
-	{
-		struct
-		{
-			float		left;
-			float		top;
-			float		right;
-			float 		bottom;
-		};
-		float			fow;
-	};
-
-	math::vector3d		up;
-	math::vector3d		position;
-	math::vector3d		direction;
-	math::vector3d		left_direction;
-
-	__Camera();
-} Camera,*CameraPtr;
-
-typedef struct __Light
-{
-	MEMORY_FUNCTIONS
-	enum 	LightType
-	{
-		POINT,
-		DIRECTIONAL,
-		SPOT
-	};
-
-	LightType			type;
-	float				radius;
-	uint32_t			isShadowCaster;
-
-	struct
-	{
-		float			constantAttentuation;
-		float			linearAttentuation;
-		float			quadraticAttentuation;
-	};
-
-	enum LightMapType
-	{
-		TEXTURE_2D,
-		TEXTURE_CUBE,
-		TEXTURE_3D
-	};
-
-	EString				lightMapId;
-	renderer::Texture*	lightMap;
-
-	__Light ();
-	~__Light();
-} Light, LightPtr;
 
 }
 
