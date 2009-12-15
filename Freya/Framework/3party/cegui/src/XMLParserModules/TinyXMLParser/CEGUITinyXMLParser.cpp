@@ -36,7 +36,7 @@
 #include "CEGUIXMLAttributes.h"
 #include "CEGUILogger.h"
 #include "CEGUIExceptions.h"
-#include CEGUI_TINYXML_H
+#include "ceguitinyxml/tinyxml.h"
 
 // Start of CEGUI namespace section
 namespace CEGUI
