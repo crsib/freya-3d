@@ -13,21 +13,20 @@ ${CMAKE_SOURCE_DIR}/Framework/Include/math/quaternion.hpp
 ${CMAKE_SOURCE_DIR}/Framework/Include/math/vector3d.hpp
 ${CMAKE_SOURCE_DIR}/Framework/Include/math/vector3d.hpp
 ${INTERMIDIATE_DIRECTORY}/math_lookup_tables.cpp
-)
+) 
 
 SET_SOURCE_FILES_PROPERTIES("${INTERMIDIATE_DIRECTORY}/math_lookup_tables.cpp" PROPERTIES GENERATED YES)
 
-MESSAGE(STATUS "Searching lua")
-FIND_PROGRAM( LUA_APP NAMES lua lua51 lua5 lua5.1 PATH ${LUA_APP_PATH} )
-IF( NOT LUA_APP )
-    MESSAGE(FATAL_ERROR "Failed to find lua application. Please,set LUA_APP_PATH to path, where one of lua lua51 lua5 lua5.1 is located" )
-ENDIF( NOT LUA_APP )
-
 MESSAGE(STATUS "Generating lookup tables. Writing to ${INTERMIDIATE_DIRECTORY}" )
 
-EXECUTE_PROCESS(COMMAND ${LUA_APP} ${GENERATORS_DIRECTORY}/generate_math_lookups.lua 
-                            WORKING_DIRECTORY ${INTERMIDIATE_DIRECTORY} 
-                            OUTPUT_VARIABLE LUA_OUT ERROR_VARIABLE LUA_ERROR)
+ADD_CUSTOM_COMMAND(OUTPUT ${INTERMIDIATE_DIRECTORY}/math_lookup_tables.cpp ${INTERMIDIATE_DIRECTORY}/math_lookup_tables.h
+                    COMMAND ${LUA_APP} ${GENERATORS_DIRECTORY}/generate_math_lookups.lua
+                    DEPENDS ${GENERATORS_DIRECTORY}/generate_math_lookups.lua
+                    WORKING_DIRECTORY ${INTERMIDIATE_DIRECTORY} 
+                    VERBATIM)
+#EXECUTE_PROCESS(COMMAND ${LUA_APP} ${GENERATORS_DIRECTORY}/generate_math_lookups.lua 
+#                            WORKING_DIRECTORY ${INTERMIDIATE_DIRECTORY} 
+#                            OUTPUT_VARIABLE LUA_OUT ERROR_VARIABLE LUA_ERROR)
 MESSAGE(STATUS "Done generating math tables\n\tOutput: ${LUA_OUT}\n\tErrors: ${LUA_ERROR}" )
 
 ADD_LIBRARY(FreyaMath_core STATIC ${MATH_SOURCES})

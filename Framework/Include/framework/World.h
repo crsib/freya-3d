@@ -28,19 +28,44 @@
 
 namespace framework
 {
-class SceneNode;
+class DataNode;
 //! Abstraction of game world
 class EXPORT World : public virtual EngineSubsystem
 {
 private:
-	World();
+	World(unsigned cellWidth, unsigned cellHeight, unsigned worldWidth, unsigned worldHeight);
 	virtual ~World( );
 public:
 	//static World*		loadFromXML( const EString&	path);
+	static World*		create(unsigned cellWidth, unsigned cellHeight, unsigned worldWidth, unsigned worldHeight);
 	static void			destroy();
 	static World*		getSingleton() {return m_Instance;}
 
 	//WorldTreeNodePtr	getNode(unsigned id);
+	void				addShaderLibrary(ShaderLibrary* library);
+
+	void				addDataNode(DataNode* node);
+
+	enum				WORLD_STATUS
+	{
+		READY,
+		LOADING,
+		ERROR
+	};
+
+	WORLD_STATUS		getStatus();
+	void				update(float dt);
+	typedef 			std::vector<GeometryBatchPtr,core::memory::MemoryAllocator<GeometryBatchPtr> > BatchList;
+	BatchList&			getSceneBatches();
+	unsigned			visibleLightsNumber();
+	BatchList&			getLightBatches(unsigned for_light);
+
+	WorldCellPtr		getCell(unsigned ix, unsigned iy);
+	SceneNodePtr		getSceneNode(unsigned idx);
+
+	CameraPtr			getMainCamera();
+
+
 
 private:
 	static World* 				m_Instance;
@@ -53,7 +78,7 @@ private:
 
 	WorldCell*					m_Cells;
 
-	typedef std::map<uint32_t,SceneNode*,std::less<uint32_t>,core::memory::MemoryAllocator<std::pair<uint32_t,SceneNode*> > > SceneNodes;
+	typedef std::map<uint32_t,DataNode*,std::less<uint32_t>,core::memory::MemoryAllocator<std::pair<uint32_t,DataNode*> > > SceneNodes;
 	SceneNodes					m_SceneNodes;
 
 	ShaderLibraryPtr			m_CurrentShaderLibrary;

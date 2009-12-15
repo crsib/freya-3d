@@ -21,13 +21,13 @@ namespace framework
 {
 class World;
 struct __Data;
-class SceneNode : public virtual EngineSubsystem
+class DataNode : public virtual EngineSubsystem
 {
 	friend class World;
 	friend struct __Data;
 protected:
-	SceneNode();
-	virtual ~SceneNode( );
+	DataNode();
+	virtual ~DataNode( );
 
 private:
 

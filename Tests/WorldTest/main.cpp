@@ -8,7 +8,6 @@
 
 #include "freya.h"
 #include "framework/World.h"
-#include "framework/SceneNode.h"
 #include "framework/SceneNodeController.h"
 
 class Initialize :
