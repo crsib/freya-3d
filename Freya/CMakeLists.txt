@@ -23,6 +23,12 @@ IF(NOT EXISTS ${INTERMIDIATE_DIRECTORY}/)
 	FILE(MAKE_DIRECTORY ${INTERMIDIATE_DIRECTORY})
 ENDIF()
 
+MESSAGE(STATUS "Searching lua")
+FIND_PROGRAM( LUA_APP NAMES lua lua51 lua5 lua5.1 PATH ${LUA_APP_PATH} )
+IF( NOT LUA_APP )
+    MESSAGE(FATAL_ERROR "Failed to find lua application. Please,set LUA_APP_PATH to path, where one of lua lua51 lua5 lua5.1 is located" )
+ENDIF( NOT LUA_APP )
+
 #Global includes for all Freya Subprojects 
 INCLUDE_DIRECTORIES( Framework/Include ${INTERMIDIATE_DIRECTORY})
 

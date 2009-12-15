@@ -76,4 +76,4 @@ $pfile "windowmanager/MouseButtons.lpkg"
 $pfile "windowmanager/Callback.lpkg"
 
 //CEGUI
-$pfile "../../../../3party/cegui/src/ScriptingModules/LuaScriptModule/package/CEGUI.pkg"
+$pfile "../../../../3party/cegui/src/ScriptingModules/LuaScriptModule/package/CEGUI.pkg" 
