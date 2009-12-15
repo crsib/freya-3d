@@ -72,17 +72,17 @@ __ShaderLibrary::~__ShaderLibrary()
 
 void				__ShaderLibrary::prepareShader(uint32_t id)
 {
-
+	
 }
 
-bool				__ShaderLibrary::isShaderLoader(uint32_t id)
+bool				__ShaderLibrary::isShaderLoaded(uint32_t id)
 {
-
+	return false;
 }
 
 ShaderWrapperPtr	__ShaderLibrary::getShader(uint32_t id)
 {
-
+	return NULL;
 }
 
 

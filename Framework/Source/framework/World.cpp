@@ -125,7 +125,7 @@ World*	World::create(unsigned cellWidth, unsigned cellHeight, unsigned worldWidt
 	{
 		throw;
 	}
-
+	return m_Instance;
 }
 
 }
