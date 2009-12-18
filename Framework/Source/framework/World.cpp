@@ -24,12 +24,13 @@ void World::destroy()
 
 World::World(unsigned cellWidth, unsigned cellHeight, unsigned worldWidth, unsigned worldHeight)
 {
-	std::clog << "Creating world of ( " << m_CellWidth << "x" << m_CellHeight << " ) cells. "
-			"Real size is: ( " << m_WorldWidth *m_CellWidth << "x" << m_WorldHeight *m_CellHeight << " ) px."<< std::endl;
 	m_CellWidth = cellWidth;
 	m_CellHeight = cellHeight;
 	m_WorldWidth = worldWidth;
 	m_WorldHeight = worldHeight;
+	std::clog << "Creating world of ( " << m_WorldWidth << "x" << m_WorldHeight << " ) cells. "
+				"Real size is: ( " << m_WorldWidth *m_CellWidth << "x" << m_WorldHeight *m_CellHeight << " ) px."<< std::endl;
+
 	m_Cells = new WorldCell[m_WorldWidth*m_WorldHeight];
 	size_t centerX = -(m_WorldWidth *m_CellWidth) >> 1;
 	size_t centerY = -(m_WorldHeight *m_CellHeight) >> 1;
@@ -103,12 +104,13 @@ World::World(unsigned cellWidth, unsigned cellHeight, unsigned worldWidth, unsig
 
 	//========== Initialization =========================================================================
 	m_CurrentShaderLibrary = NULL;
+	m_MainCamera = NULL;
 }
 
 World::~World()
 {
 	delete [] m_Cells;
-	for(SceneNodes::iterator it = m_SceneNodes.begin(); it != m_SceneNodes.end(); ++it)
+	for(DataNodes::iterator it = m_DataNodes.begin(); it != m_DataNodes.end(); ++it)
 		delete it->second;
 
 	for(ShaderLibraries::iterator it = m_ShaderLibraries.begin(); it != m_ShaderLibraries.end(); ++it)
@@ -145,7 +147,7 @@ using namespace framework;
 
 void framework::World::addShaderLibrary(ShaderLibraryPtr library)
 {
-	
+	m_ShaderLibraries[library->apiName] = library;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -161,7 +163,7 @@ void framework::World::addShaderLibrary(ShaderLibraryPtr library)
 
 void framework::World::addDataNode(DataNode*node)
 {
-	
+	m_DataNodes[node->getIdx()] = node;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -177,7 +179,6 @@ void framework::World::addDataNode(DataNode*node)
 
 World::WORLD_STATUS framework::World::getStatus(void)
 {
-	
 	return World::WORLD_STATUS_ERROR;
 }
 
@@ -212,8 +213,7 @@ void framework::World::update(float dt)
 
 World::BatchList& framework::World::getOpaqueSceneBatches(void)
 {
-	
-	return World::BatchList();
+	return m_OpaqueQueue;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -230,8 +230,7 @@ World::BatchList& framework::World::getOpaqueSceneBatches(void)
 
 World::BatchList& framework::World::getTransparentBatches(void)
 {
-	
-	return World::BatchList();
+	return m_TransparentQueue;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -247,8 +246,7 @@ World::BatchList& framework::World::getTransparentBatches(void)
 
 unsigned framework::World::visibleLightsNumber(void)
 {
-
-	return 0;
+	return m_OpaqueLightQueue.size();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -267,8 +265,7 @@ unsigned framework::World::visibleLightsNumber(void)
 
 World::BatchList& framework::World::getOpaqueLightBatches(unsigned for_light)
 {
-	
-	return World::BatchList();
+	return m_OpaqueLightQueue[for_light];
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -287,8 +284,7 @@ World::BatchList& framework::World::getOpaqueLightBatches(unsigned for_light)
 
 World::BatchList& framework::World::getTransparentLightBatches(unsigned for_light)
 {
-	
-	return World::BatchList();
+	return m_TransparentLightQueue[for_light];
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -308,8 +304,7 @@ World::BatchList& framework::World::getTransparentLightBatches(unsigned for_ligh
 
 WorldCellPtr framework::World::getCell(unsigned ix, unsigned iy)
 {
-	
-	return NULL;
+	return m_Cells + ix*m_WorldHeight + iy;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -328,8 +323,7 @@ WorldCellPtr framework::World::getCell(unsigned ix, unsigned iy)
 
 SceneNodePtr framework::World::getSceneNode(unsigned idx)
 {
-	
-	return NULL;
+	return m_SceneNodes[idx];
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -347,6 +341,6 @@ SceneNodePtr framework::World::getSceneNode(unsigned idx)
 CameraPtr framework::World::getMainCamera(void)
 {
 	
-	return NULL;
+	return m_MainCamera;
 }
 

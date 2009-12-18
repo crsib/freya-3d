@@ -8,7 +8,7 @@ __Camera::__Camera()
 
 }
 
-DataNode::DataNode( )
+DataNode::DataNode( unsigned idx ) : m_Idx(idx)
 {
 
 }

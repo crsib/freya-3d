@@ -36,8 +36,6 @@ __WorldCell::__WorldCell()
 {
 	neighbours[0] = neighbours[1] = neighbours[2] = neighbours[3]
 	                                                           = neighbours[4] = neighbours[5] = neighbours[6] = neighbours[7] = neighbours[8]= NULL;
-
-	nodeID = 0;
 }
 
 __WorldCell::~__WorldCell()
@@ -67,7 +65,8 @@ __ShaderLibrary::__ShaderLibrary()
 
 __ShaderLibrary::~__ShaderLibrary()
 {
-
+	//Todo: check for loaded shaders and unload them
+	delete [] shaders;
 }
 
 void				__ShaderLibrary::prepareShader(uint32_t id)
@@ -83,6 +82,12 @@ bool				__ShaderLibrary::isShaderLoaded(uint32_t id)
 ShaderWrapperPtr	__ShaderLibrary::getShader(uint32_t id)
 {
 	return NULL;
+}
+
+__ShaderWrapper::~__ShaderWrapper()
+{
+	delete [] uniform_bindings;
+	delete [] attribute_bindings;
 }
 
 

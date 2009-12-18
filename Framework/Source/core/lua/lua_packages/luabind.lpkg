@@ -1,4 +1,7 @@
+$lfile "lua_debug.lua"
+
 $#include "core/lua/lua_libraries/lua_helpers.h"
+
 typedef std::string  EString;
 
 void include(const EString& modName, const EString& path);
@@ -58,6 +61,7 @@ $pfile "core/Task.lpkg"
 $pfile "framework/SceneNode.lpkg"
 $pfile "framework/SceneNodeController.lpkg"
 $pfile "framework/World.lpkg"
+$pfile "framework/LuaDescriptors.lpkg"
 
 $pfile "renderer/RenderingAPIDriver.lpkg"
 $pfile "renderer/Shader.lpkg"

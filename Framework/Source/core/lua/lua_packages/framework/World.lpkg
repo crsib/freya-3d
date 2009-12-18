@@ -1,0 +1,178 @@
+$#include "framework/World.h"
+
+namespace framework
+{
+struct WorldTile
+{
+	float		left;
+	float		top;
+	float		right;
+	float		bottom;
+};
+	
+struct Camera
+{
+	enum CameraType
+	{
+		ORTHO,
+		PROJECTIVE
+	};
+	float   near_plane;
+	float	far_plane;
+	CameraType	type;
+	float		left;
+	float		top;
+	float		right;
+	float 		bottom;
+	float			fow;
+
+	math::vector3d		up;
+	math::vector3d		position;
+	math::vector3d		direction;
+	math::vector3d		left_direction;
+};
+
+struct Light
+{
+	enum 	LightType
+	{
+		POINT,
+		DIRECTIONAL,
+		SPOT
+	};
+
+	LightType			type;
+	float				radius;
+	uint32_t			isShadowCaster;
+	float			constantAttentuation;
+	float			linearAttentuation;
+	float			quadraticAttentuation;
+
+	enum LightMapType
+	{
+		TEXTURE_2D,
+		TEXTURE_CUBE,
+		TEXTURE_3D
+	};
+
+	EString				lightMapId;
+	renderer::Texture*	lightMap;
+
+};
+
+struct AABB
+{
+	math::vector3d		min;
+	math::vector3d		max;
+};
+
+struct SceneNode
+{
+	enum SceneNodeType
+	{
+		DATA_NODE,
+		LIGHTING_NODE,
+		CAMERA_NODE
+	};
+
+	SceneNodeType		type;
+	
+	uint32_t			data_idx;
+	Light*			light;
+	Camera*			camera;
+		
+	math::matrix4x4		world_matrix;
+	
+	AABB					aabb;
+
+};
+
+struct WorldCell
+{
+
+	WorldCell*				neighbours[8];
+
+	WorldTile				tile;
+
+	enum NeighbourType
+	{
+		Top = 0,
+		TopLeft,
+		Left,
+		BottomLeft,
+		Bottom,
+		BottomRight,
+		Right,
+		TopRight
+	};
+};
+
+enum SHADER_BIND_TYPE
+{
+	INT,
+	FLOAT,
+	FLOAT2,
+	FLOAT3,
+	FLOAT4,
+	MAT3x3,
+	MAT4x4,
+	SAMPLER,
+	VIEW,
+	WORLD,
+	PROJECTION
+};
+	
+struct ShaderBinding 
+{
+	uint32_t	id;
+	uint32_t	type;
+	EString		name;
+};
+
+struct ShaderWrapper
+{
+	EString						shaderID;
+	uint16_t					num_uniform_bindings;
+	uint16_t					num_attribute_bindings;
+	ShaderBinding*			uniform_bindings;
+	ShaderBinding*			attribute_bindings;
+};
+
+struct	ShaderLibrary
+{
+	uint32_t					num_shaders;
+	EString						apiName;
+};
+	
+class World
+{
+	static World*		create(unsigned cellWidth, unsigned cellHeight, unsigned worldWidth, unsigned worldHeight);
+	static void			destroy();
+	static World*		getSingleton() {return m_Instance;}
+
+	void				addShaderLibrary(ShaderLibrary* library);
+
+	void				addDataNode(DataNode* node);
+
+	enum				WORLD_STATUS
+	{
+		WORLD_STATUS_READY, 
+		WORLD_STATUS_LOADING,
+		WORLD_STATUS_ERROR
+	};
+
+
+	WORLD_STATUS		getStatus();
+
+	void				update(float dt);
+
+	unsigned			visibleLightsNumber();
+
+	WorldCell*		getCell(unsigned ix, unsigned iy);
+
+	SceneNode*		getSceneNode(unsigned idx);
+
+	Camera*			getMainCamera();
+};
+
+}

@@ -20,9 +20,7 @@ const luaL_Reg lualibs[] = {
 		{LUA_STRLIBNAME, luaopen_string},
 		{LUA_MATHLIBNAME, luaopen_math},
 		{"bit",			  luaopen_bit},
-#ifdef LUA_DEBUG
 		{LUA_DBLIBNAME, luaopen_debug},
-#endif
 		{NULL, NULL}
 };//TODO: remove debug modules
 
