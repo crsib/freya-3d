@@ -697,22 +697,23 @@ TOLUA_API void tolua_dobuffer(lua_State* L, char* B, unsigned int size, const ch
 
 #ifdef LUA_VERSION_NUM /* lua 5.1 */
 	int err_code;
+	const char* error_s;
 	if((err_code = luaL_loadbuffer(L, B, size, name)) == 0)
 	{
 		err_code = lua_pcall(L, 0, 0, 0);
 		if(err_code)
 		{
 			printf("An error occured on lua_pcall(0x%x, 0x%x, %u, %s) = %u\n",(void*)L,(void*)B,size,name,err_code);
-			const char* err = lua_tostring(L,-1);
-			printf("Error message is: %s\n",err);
+			error_s = lua_tostring(L,-1);
+			printf("Error message is: %s\n",error_s);
 			lua_pop(L,1);
 		}
 	}
 	else
 	{
 		printf("An error occured on luaL_loadbuffer(0x%x, 0x%x, %u, %s) = %s\n",(void*)L,(void*)B,size,name,((err_code == LUA_ERRSYNTAX) ? "LUA_ERRSYNTAX":"LUA_ERRMEM"));
-		const char* err = lua_tostring(L,-1);
-		printf("Error message is: %s\n",err);
+		error_s = lua_tostring(L,-1);
+		printf("Error message is: %s\n",error_s);
 		lua_pop(L,1);
 	}
 #else
