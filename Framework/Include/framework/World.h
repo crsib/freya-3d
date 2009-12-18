@@ -299,13 +299,27 @@ private:
 
 	WorldCell*					m_Cells;
 
-	typedef std::map<uint32_t,DataNode*,std::less<uint32_t>,core::memory::MemoryAllocator<std::pair<uint32_t,DataNode*> > > SceneNodes;
-	SceneNodes					m_SceneNodes;
+	typedef std::map<uint32_t,DataNode*,std::less<uint32_t>,core::memory::MemoryAllocator<std::pair<uint32_t,DataNode*> > > DataNodes;
+	DataNodes					m_DataNodes;
 
 	ShaderLibraryPtr			m_CurrentShaderLibrary;
 
 	typedef	std::map<EString,ShaderLibraryPtr,std::less<EString>,core::memory::MemoryAllocator<std::pair<const EString,ShaderLibraryPtr > > > ShaderLibraries;
 	ShaderLibraries 			m_ShaderLibraries;
+
+	BatchList					m_OpaqueQueue;
+	BatchList					m_TransparentQueue;
+
+	typedef	std::vector<BatchList, core::memory::MemoryAllocator<BatchList> > LightBatches;
+
+	CameraPtr					m_MainCamera;
+
+	typedef std::map<uint32_t,SceneNodePtr,std::less<uint32_t>,core::memory::MemoryAllocator<std::pair<uint32_t,SceneNodePtr> > > SceneNodes;
+	SceneNodes					m_SceneNodes;
+
+
+	LightBatches				m_OpaqueLightQueue;
+	LightBatches				m_TransparentLightQueue;
 
 };
 

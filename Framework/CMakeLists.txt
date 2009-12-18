@@ -193,6 +193,8 @@ SET(TOLUA_PACKAGES
 ./Source/core/lua/lua_packages/framework/SceneNode.lpkg
 ./Source/core/lua/lua_packages/framework/SceneNodeController.lpkg
 ./Source/core/lua/lua_packages/framework/World.lpkg
+./Source/core/lua/lua_packages/framework/LuaDescriptors.lpkg
+./Source/core/lua/lua_packages/framework/DeclarativeMethods.lua
 ./Source/core/lua/lua_packages/luabind.lpkg
 ./Source/core/lua/lua_packages/math/frustum.lpkg
 ./Source/core/lua/lua_packages/math/matrix3x3.lpkg
@@ -242,7 +244,7 @@ MESSAGE(STATUS "Generating bind file using ${TOLUA_APP}..." )
 
 
 ADD_CUSTOM_COMMAND(OUTPUT "${INTERMIDIATE_DIRECTORY}/freya_lua_bind.cpp"
-                    COMMAND ${TOLUA_APP} -n freya -L virtual_method_hooks.lua -L lua_debug.lua -L "${CMAKE_SOURCE_DIR}/Framework/3party/cegui/src/ScriptingModules/LuaScriptModule/package/exceptions.lua" -o "${INTERMIDIATE_DIRECTORY}/freya_lua_bind.cpp" luabind.lpkg
+                    COMMAND ${TOLUA_APP} -n freya -L virtual_method_hooks.lua -L "${CMAKE_SOURCE_DIR}/Framework/3party/cegui/src/ScriptingModules/LuaScriptModule/package/exceptions.lua" -o "${INTERMIDIATE_DIRECTORY}/freya_lua_bind.cpp" luabind.lpkg
                     DEPENDS  ${TOLUA_PACKAGES}
                     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/Framework/Source/core/lua/lua_packages
                     VERBATIM)

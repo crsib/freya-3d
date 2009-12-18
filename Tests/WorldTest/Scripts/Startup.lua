@@ -1,7 +1,102 @@
 ---------------------Startup script----------------------------
 print("Starting up engine")
-
 local EngineCore = core.EngineCore.getInstance()
+
+local m_world = world.data
+{
+	world.size
+	{
+		cell_width = 1024,
+		cell_height = 1024,
+		width = 10,
+		height = 10,
+	},
+	world.shader_library
+	{
+		api = "OpenGL_GLSL_1_2",
+		world.shader
+		{
+			id = "bump",
+			shader_name = "BumpMapping",
+			uniforms = 
+			{
+				--Binding with id 1
+				shader.bind
+				{
+					id = 1,
+					loc = "eyePos",
+					type = bind_type.FLOAT3,
+					value = {0.0,0.0,0.0}
+				},
+				shader.bind
+				{
+					id = 2,
+					loc = "lightPos",
+					type = bind_type.FLOAT3,
+					value = {0.0,0.0,0.0}	
+				},
+				shader.bind
+				{
+					id = 3,
+					loc = "difuse",
+					type = bind_type.SAMPLER,
+					value = 0
+				},
+				shader.bind
+				{
+					id = 4,
+					loc = "specular",
+					type = bind_type.SAMPLER,
+					value = 1
+				},
+				shader.bind
+				{
+					id = 5,
+					loc = "specular",
+					type = bind_type.SAMPLER,
+					value = 2
+				}
+			},
+			attributes =
+			{
+				shader.bind
+				{
+					id = 1,
+					loc = "eyePos",
+					type = bind_type.FLOAT3,
+					value = {0.0,0.0,0.0}
+				},
+				shader.bind
+				{
+					id = 2,
+					loc = "lightPos",
+					type = bind_type.FLOAT3,
+					value = {0.0,0.0,0.0}	
+				},
+			}
+		},
+		world.shader
+		{
+			id = "bump1",
+			vertex_shaders = "BumpMapping, qwerty",
+			fragment_shaders = "BumpMapping, some_strange_shader_frag",
+			uniforms =
+			{
+				
+			},
+			attributes =
+			{
+				
+			}
+		},
+	}
+}
+
+if table.show then
+	print(table.show(world,"world"))
+end
+
+framework.World.destroy()
 
 --Filesystem
 print("Mounting default filesystems")
@@ -186,6 +281,6 @@ function finish_init()
 	return core.taskmanager.Task.DONE
 end
 
------------------------------ Inject script into app loop
+----------------------------- Inject script into app loop ------------------------------------------------
 local finTask = core.taskmanager.LuaTask:new("finish_init")
 tm:addTask(finTask)

@@ -183,6 +183,13 @@ typedef struct __Light
 	~__Light();
 } Light, *LightPtr;
 
+struct AABB
+{
+	math::vector3d		min;
+	math::vector3d		max;
+	MEMORY_FUNCTIONS
+};
+
 typedef struct __SceneNode
 {
 	MEMORY_FUNCTIONS
@@ -207,11 +214,7 @@ typedef struct __SceneNode
 
 	SceneNodes				children;
 	__SceneNode*			parent;
-	struct
-	{
-		math::vector3d		min;
-		math::vector3d		max;
-	}	aabb;
+	AABB	aabb;
 
 } SceneNode,*SceneNodePtr;
 
@@ -222,8 +225,6 @@ typedef struct __WorldCell
 	__WorldCell*		neighbours[8];
 
 	WorldTile				tile;
-
-	unsigned				nodeID;
 
 	SceneNode::SceneNodes   nodes;
 
@@ -310,6 +311,7 @@ enum SHADER_BIND_TYPE
 typedef
 struct __ShaderBinding : public ::EngineSubsystem
 {
+	uint32_t	id;
 	uint32_t	type;
 	EString		name;
 	union
@@ -319,8 +321,8 @@ struct __ShaderBinding : public ::EngineSubsystem
 		float			FLOAT2[2];
 		float			FLOAT3[3];
 		float			FLOAT4[4];
-		float			MAT3x3[9];
-		float			MAT4x4[16];
+		float			MAT3x3[3][3];
+		float			MAT4x4[4][4];
 		uint32_t		SAMPLER;
 	};
 } ShaderBinding,*ShaderBindingPtr;
@@ -328,11 +330,14 @@ struct __ShaderBinding : public ::EngineSubsystem
 typedef struct __ShaderWrapper : public ::EngineSubsystem
 {
 	EString						shaderID;
+	EString						shaderResId;
 	renderer::Shader*			shader;
 	uint16_t					num_uniform_bindings;
 	uint16_t					num_attribute_bindings;
 	ShaderBindingPtr			uniform_bindings;
 	ShaderBindingPtr			attribute_bindings;
+
+	~__ShaderWrapper();
 } ShaderWrapper,*ShaderWrapperPtr;
 
 typedef
@@ -354,5 +359,7 @@ struct	__ShaderLibrary : public ::EngineSubsystem
 // Scene node structures
 
 }
+
+
 
 #endif /* STRUCTURES_H_ */
