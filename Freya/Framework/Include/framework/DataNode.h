@@ -25,12 +25,17 @@ class DataNode : public virtual EngineSubsystem
 {
 	friend class World;
 	friend struct __Data;
-protected:
-	DataNode();
+public:
+	DataNode(unsigned idx);
 	virtual ~DataNode( );
 
-private:
+	unsigned    getIdx()
+	{
+		return m_Idx;
+	}
 
+private:
+	unsigned 	m_Idx;
 };
 
 }
