@@ -1,0 +1,13 @@
+$#include "framework/DataNode.h"
+
+namespace framework
+{
+class DataNode : public virtual EngineSubsystem
+{
+	DataNode(unsigned idx);
+	virtual ~DataNode( );
+
+	unsigned    getIdx();
+};
+
+}
