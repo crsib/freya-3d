@@ -84,6 +84,7 @@ inline framework::ShaderLibrary *world_builder::createShaderLibrary(unsigned  nu
 	lib->shaders	= new framework::ShaderWrapper[num_shaders];
 	m_CurrentLibraryPtr = lib;
 	m_CurrentLibraryShaderIdx = 0;
+	return lib;
 }
 
 inline void world_builder::addUniformBind3f(unsigned id,const EString & loc, float _1, float _2, float _3)
