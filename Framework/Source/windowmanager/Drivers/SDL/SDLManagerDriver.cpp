@@ -161,7 +161,7 @@ void			SDLWindowManagerDriver::setFullscreenWindowMode(unsigned id)
 	if(id < m_NumModes)
 	{
 
-		SDL_SetFullscreenDisplayMode(m_SDLDisplayModes[id]);
+		SDL_SetWindowDisplayMode(m_WindowID,m_SDLDisplayModes[id]);
 		m_FullScreenMode = id;
 		if(m_WindowID && m_Fullscreen)
 		{
@@ -233,6 +233,8 @@ void			SDLWindowManagerDriver::initWindow(renderer::RenderingAPIVersion*	API)
 	m_WindowID = SDL_CreateWindow(m_Caption.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,m_Width,m_Height,SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 	if(m_WindowID == 0)
 		throw windowmanager::WMException("Failed to create window");
+
+	setFullscreenWindowMode(m_FullScreenMode);
 	toggleFullscreen(m_Fullscreen);
 	this->grabInput(m_Grabbed);
 	this->showCursor(m_CursorShown);
@@ -246,8 +248,8 @@ void			SDLWindowManagerDriver::initWindow(renderer::RenderingAPIVersion*	API)
 	}
 	if(m_Fmt->Multisampled)
 		glEnable(GL_MULTISAMPLE);
-
 	
+
 	SDL_GL_SetSwapInterval(m_Fmt->VSync);
 
 	if(usesDefaultWF)
@@ -256,9 +258,9 @@ void			SDLWindowManagerDriver::initWindow(renderer::RenderingAPIVersion*	API)
 	}
 	std::clog << "Window successfully created" << std::endl;
 	clog 	 << "Started renderer:\n\tVendor: " << glGetString( GL_VENDOR )
-													<< "\n\tRenderer: " << glGetString( GL_RENDERER )
-													<< "\n\tOpenGL version: " << glGetString( GL_VERSION )
-													<< "\n\tGLSL version: "<<  glGetString(GL_SHADING_LANGUAGE_VERSION) << endl;
+															<< "\n\tRenderer: " << glGetString( GL_RENDERER )
+															<< "\n\tOpenGL version: " << glGetString( GL_VERSION )
+															<< "\n\tGLSL version: "<<  glGetString(GL_SHADING_LANGUAGE_VERSION) << endl;
 
 }
 
@@ -420,12 +422,22 @@ void		SDLWindowManagerDriver::postUserEvent(unsigned uid, void* arg1, void* arg2
 unsigned
 SDLWindowManagerDriver::getWindowWidth() const
 {
-	return m_Width;
+	if(m_Fullscreen)
+	{
+		return m_FreyaModes[m_FullScreenMode]->width;
+	}
+	else
+		return m_Width;
 }
 unsigned
 SDLWindowManagerDriver::getWindowHeight() const
 {
-	return m_Height;
+	if(m_Fullscreen)
+	{
+		return m_FreyaModes[m_FullScreenMode]->height;
+	}
+	else
+		return m_Height;
 }
 
 }

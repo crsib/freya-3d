@@ -194,7 +194,7 @@ typedef struct __SceneNode
 {
 	MEMORY_FUNCTIONS
 
-	typedef std::vector<__SceneNode*, core::memory::MemoryAllocator<__SceneNode*> > SceneNodes;
+	typedef std::list<__SceneNode*, core::memory::MemoryAllocator<__SceneNode*> > SceneNodes;
 	enum SceneNodeType
 	{
 		DATA_NODE,
@@ -209,8 +209,9 @@ typedef struct __SceneNode
 		LightPtr			light;
 		CameraPtr			camera;
 	};
-
-	math::matrix4x4		world_matrix;
+	//Parent relative transformation
+	math::matrix4x4			world_matrix;
+	unsigned				bone_idx;
 
 	SceneNodes				children;
 	__SceneNode*			parent;
@@ -281,12 +282,24 @@ struct __VBOData : public ::EngineSubsystem
 	__VBOData() : num_batches(0),batches(NULL),number_of_indicies(0),indicies(NULL),size_of_vertex_data(0), vertex_data(NULL){}
 } VBOData,*VBODataPtr;
 
+
+typedef
+struct 	__TextureWrapper
+{
+	MEMORY_FUNCTIONS
+	EString								texture_resource;
+	renderer::Texture*					texture;
+	renderer::TextureFiltering::type	min_filter;
+	renderer::TextureFiltering::type	mag_filter;
+	renderer::TextureUnit::type			texture_unit;
+} TextureWrapper,*TextureWrapperPtr;
+
 typedef
 struct	__GeometryBatch : public ::EngineSubsystem
 {
 	uint32_t						shader_id; //Shader id in shader library
 	uint32_t						number_of_textures;
-	renderer::Texture**				textures;
+	TextureWrapperPtr*				textures;
 	uint32_t						batch_id;
 	VBODataPtr						vbo;
 	uint32_t						r2vb;//Pass is r2vb
@@ -356,7 +369,6 @@ struct	__ShaderLibrary : public ::EngineSubsystem
 
 } ShaderLibrary,*ShaderLibraryPtr;
 
-// Scene node structures
 
 }
 
