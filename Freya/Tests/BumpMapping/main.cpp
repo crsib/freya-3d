@@ -283,16 +283,20 @@ public:
 
 				}
 				int x = 0,y = 0;
-
+				static unsigned left = 0;
+				static unsigned right = 0;
 				mouse->absoluteState(&x,&y);
-				sprintf(tbuf,"%i",x);
+
+				if(left == 0)
+					sprintf(tbuf,"%i",x);
+				else
+					sprintf(tbuf,"lft");
 				x_pos->setText(tbuf);
-				sprintf(tbuf,"%i",y);
+				sprintf(tbuf,"%4i",y);
 				y_pos->setText(tbuf);
 
 				CEGUI::System::getSingleton().injectMousePosition(x,y);
-				static unsigned left = 0;
-				static unsigned right = 0;
+
 				if(mbut->getKeyState(windowmanager::input::BUTTON_LEFT))
 				{
 					if(left == 0)
@@ -571,7 +575,7 @@ public:
 		//Initialization done
 		cams[0]->applyRenderingSettings();
 		core::EngineCore::startCEGUI();
-		//CEGUI::System::getSingleton().getRenderer()->setDisplaySize(CEGUI::Size(winWidth,winHeight));
+		CEGUI::System::getSingleton().getRenderer()->setDisplaySize(CEGUI::Size(winWidth,winHeight));
 		CEGUI::SchemeManager::getSingleton().create( "TaharezLook.scheme" );
 
 		CEGUI::FontManager::getSingleton().create( "DejaVuSans-10.font" );

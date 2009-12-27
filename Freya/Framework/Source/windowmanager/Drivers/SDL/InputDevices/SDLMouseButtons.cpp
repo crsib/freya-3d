@@ -34,7 +34,7 @@ EString SDLMouseButtons::id() const
 
 void SDLMouseButtons::updateState()
 {
-	m_State = SDL_GetMouseState(m_Mouse,NULL,NULL);
+	m_State = SDL_GetMouseState(NULL,NULL);
 }
 
 bool SDLMouseButtons::getKeyState(unsigned key)

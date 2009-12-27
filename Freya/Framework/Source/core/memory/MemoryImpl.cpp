@@ -993,7 +993,7 @@ MemoryArena::MemoryArena()
 	m_Pools.push_back(new __internal::MemoryPool(GENERIC_POOL,4*1024*1024,16));
 	m_Pools.push_back(new __internal::MemoryPool(CLASS_POOL,1*1024*1024,16));
 	m_Pools.push_back(new __internal::MemoryPool(LUA_POOL,4*1024*1024,16));
-	m_Pools.push_back(new __internal::MemoryPool(CEGUI_POOL,4096,16));
+	m_Pools.push_back(new __internal::MemoryPool(CEGUI_POOL,8192,16));
 	m_Pools.push_back(new __internal::MemoryPool(WORLD_POOL,4*1024*1024,16));
 
 	std::clog << "Memory arena created " << std::endl;
