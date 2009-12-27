@@ -37,7 +37,7 @@ bool SDLMouse::isAbsoluteCaptureSupported()
 
 void SDLMouse::absoluteState(int*x,int* y)
 {
-	SDL_GetMouseState(m_Mouse,x,y);
+	SDL_GetMouseState(x,y);
 }
 
 bool SDLMouse::isRelativeCaptureSupported()
@@ -47,7 +47,7 @@ bool SDLMouse::isRelativeCaptureSupported()
 
 void SDLMouse::relativeState(int* x,int* y)
 {
-	SDL_GetRelativeMouseState(m_Mouse,x,y);
+	SDL_GetRelativeMouseState(0,x,y);
 	//SDL_GetMouseState(0,x,y);
 	//std::cout << "Mouse relative " << m_Mouse << " " << *x << " " << *y << " " << std::endl;
 }
