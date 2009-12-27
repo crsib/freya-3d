@@ -143,6 +143,15 @@ struct	ShaderLibrary
 	uint32_t					num_shaders;
 	EString						apiName;
 };
+
+struct 	TextureWrapper
+{
+	EString								texture_resource;
+	renderer::Texture*					texture;
+	renderer::TextureFiltering::type	min_filter;
+	renderer::TextureFiltering::type	mag_filter;
+	renderer::TextureUnit::type			texture_unit;
+};
 	
 class World
 {
