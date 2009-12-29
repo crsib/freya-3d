@@ -8,7 +8,7 @@
 #include "core/taskmanager/TaskManager.h"
 
 #include "core/EngineCore.h"
-#include "framework/Structures.h"
+#include "scenegraph/Structures.h"
 #include <iostream>
 //#include <stdint.h>
 
@@ -18,7 +18,7 @@ namespace resources
 namespace __internal
 {
 template<>
-resources::Resource* 	createResource(framework::VBOData*	resource)
+resources::Resource* 	createResource(scenegraph::VBOData*	resource)
 {
 	resources::Resource* res = new resources::Resource;
 	if(resource == NULL)
@@ -30,7 +30,7 @@ resources::Resource* 	createResource(framework::VBOData*	resource)
 }
 
 template<>
-resources::Resource* 	setResource(Resource* res,framework::VBOData*	resource)
+resources::Resource* 	setResource(Resource* res,scenegraph::VBOData*	resource)
 {
 	res->m_Resource = dynamic_cast<EngineSubsystem*>(resource);
 	if(res->m_Resource == NULL)
@@ -54,7 +54,7 @@ void VDataLoader::destroy(Resource *res)
 {
 	if(!res->ready())
 		return; //It will never finish then))
-	framework::VBOData* data = res->get<framework::VBOData*>();
+	scenegraph::VBOData* data = res->get<scenegraph::VBOData*>();
 	if(data->indicies)
 		core::EngineCore::getRenderingDriver()->destroyVertexBufferObject(data->indicies);
 	if(data->vertex_data)
@@ -75,7 +75,7 @@ Resource *VDataLoader::loadSynchronous(const EString & ID)
 	EString	fn = ID.substr(sem_pos + 1);
 	if(fs->fileExists(fn))
 	{
-		framework::VBOData* data	= new framework::VBOData;
+		scenegraph::VBOData* data	= new scenegraph::VBOData;
 
 		//std::cout << "Loading " << fn << std::endl;
 
@@ -88,7 +88,7 @@ Resource *VDataLoader::loadSynchronous(const EString & ID)
 		offset += sizeof(uint16_t);
 		//std::cout << "\tNumber of batches: " << data->num_batches << std::endl;
 
-		data->batches = new framework::__VBO_BatchHeader[data->num_batches];
+		data->batches = new scenegraph::__VBO_BatchHeader[data->num_batches];
 		for(size_t i = 0; i < data->num_batches; i++)
 		{
 			memcpy(&data->batches[i].assembly_type,reinterpret_cast<char*>(raw_data) + offset,8);
@@ -175,7 +175,7 @@ public:
 	resources::Resource*			res;
 	size_t							ind_offset;
 	size_t 							vert_offset;
-	framework::VBOData* 			data;
+	scenegraph::VBOData* 			data;
 	void*							raw_data;
 	int
 	operator () ()
@@ -195,7 +195,7 @@ public:
 				offset += sizeof(uint16_t);
 				//std::cout << "\tNumber of batches: " << data->num_batches << std::endl;
 
-				data->batches = new framework::__VBO_BatchHeader[data->num_batches];
+				data->batches = new scenegraph::__VBO_BatchHeader[data->num_batches];
 				for(size_t i = 0; i < data->num_batches; i++)
 				{
 					memcpy(&data->batches[i].assembly_type,reinterpret_cast<char*>(raw_data) + offset,8);
@@ -274,7 +274,7 @@ Resource *VDataLoader::loadAsynchronous(const EString & ID)
 	EString	fn = ID.substr(sem_pos + 1);
 	if(fs->fileExists(fn))
 	{
-		framework::VBOData* data	= new framework::VBOData;
+		scenegraph::VBOData* data	= new scenegraph::VBOData;
 
 		//std::cout << "Loading " << fn << std::endl;
 

@@ -14,7 +14,7 @@
  */
 #include "resources/ResourceManagerDriver.h"
 #include "core/drivermodel/DriverID.h"
-#include "framework/Structures.h"
+#include "scenegraph/Structures.h"
 #include "core/EngineCore.h"
 #include "core/filesystem/Filesystem.h"
 #include "core/taskmanager/TaskManager.h"
@@ -25,7 +25,7 @@ namespace resources
 namespace __internal
 {
 template<>
-resources::Resource* 	createResource(framework::File*	resource)
+resources::Resource* 	createResource(scenegraph::File*	resource)
 {
 	resources::Resource* res = new resources::Resource;
 	if(resource == NULL)
@@ -37,7 +37,7 @@ resources::Resource* 	createResource(framework::File*	resource)
 }
 
 template<>
-resources::Resource* 	setResource(Resource* res,framework::File*	resource)
+resources::Resource* 	setResource(Resource* res,scenegraph::File*	resource)
 {
 	res->m_Resource = dynamic_cast<EngineSubsystem*>(resource);
 	if(res->m_Resource == NULL)
@@ -126,7 +126,7 @@ inline resources::Resource *resources::drivers::__std::FileLoaderDriver::loadSyn
 	EString	fn = ID.substr(sem_pos + 1);
 	if(fs->fileExists(fn))
 	{
-		framework::FilePtr	file = new framework::File;
+		scenegraph::FilePtr	file = new scenegraph::File;
 		file->data = fs->read(fn,&file->size);
 		Resource* res = resources::__internal::createResource(file);
 		resources::__internal::finalizeResource(res);
@@ -156,7 +156,7 @@ public:
 	{
 		if(fs->fileExists(fn))
 		{
-			framework::FilePtr	file = new framework::File;
+			scenegraph::FilePtr	file = new scenegraph::File;
 			file->data = fs->read(fn,&file->size);
 			resources::__internal::setResource(res,file);
 			resources::__internal::finalizeResource(res);
@@ -180,7 +180,7 @@ inline resources::Resource *resources::drivers::__std::FileLoaderDriver::loadAsy
 	resources::drivers::__std::__internal::FileLoaderTask*	task = new resources::drivers::__std::__internal::FileLoaderTask;
 	task->fn = fn;
 	task->fs = fs;
-	task->res = resources::__internal::createResource((framework::FilePtr)NULL);
+	task->res = resources::__internal::createResource((scenegraph::FilePtr)NULL);
 	core::EngineCore::getTaskManager()->addAsynchronousTask(task);
 	return task->res;
 }
@@ -192,7 +192,7 @@ inline void resources::drivers::__std::FileLoaderDriver::destroy(resources::Reso
 {
 	if(!res->ready())
 		return; //It will never finish then))
-	framework::File* tex = res->get<framework::File*>();
+	scenegraph::File* tex = res->get<scenegraph::File*>();
 	core::memory::Free(tex->data,core::memory::GENERIC_POOL);
 	resources::__internal::destroyResource(res);
 }
