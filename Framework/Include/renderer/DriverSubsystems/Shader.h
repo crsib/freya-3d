@@ -43,7 +43,7 @@ class Texture;
  * There are various overloaded versions of Shader::setUniform and Shader::setAttribute. They are divided into to groups: setting value by name and by ID.
  * They will be documented only briefly.
  */
-class Shader: virtual public ::EngineSubsystem
+class EXPORT Shader: virtual public ::EngineSubsystem
 {
 public:
 	//Attaches (and compiles)

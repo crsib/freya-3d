@@ -32,7 +32,7 @@ class VertexBufferObject;
 /*!
  * This class provides API independent abstraction of texture concept.
  */
-class Texture: virtual public ::EngineSubsystem
+class EXPORT Texture: virtual public ::EngineSubsystem
 {
 public:
 	//! Load texture from data to accelerator (1D,2D,rectangle textures <STRONG>only</STRONG>)

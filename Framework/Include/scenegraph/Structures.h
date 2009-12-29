@@ -183,43 +183,6 @@ typedef struct __Light
 	~__Light();
 } Light, *LightPtr;
 
-struct AABB
-{
-	math::vector3d		min;
-	math::vector3d		max;
-	MEMORY_FUNCTIONS
-};
-
-typedef struct __SceneNode
-{
-	MEMORY_FUNCTIONS
-
-	typedef std::list<__SceneNode*, core::memory::MemoryAllocator<__SceneNode*> > SceneNodes;
-	enum SceneNodeType
-	{
-		DATA_NODE,
-		LIGHTING_NODE,
-		CAMERA_NODE
-	};
-
-	SceneNodeType		type;
-	union
-	{
-		uint32_t			data_idx;
-		LightPtr			light;
-		CameraPtr			camera;
-	};
-	//Parent relative transformation
-	math::matrix4x4			world_matrix;
-	unsigned				bone_idx;
-
-	SceneNodes				children;
-	__SceneNode*			parent;
-	AABB	aabb;
-
-} SceneNode,*SceneNodePtr;
-
-
 typedef struct __WorldCell
 {
 
@@ -227,7 +190,7 @@ typedef struct __WorldCell
 
 	WorldTile				tile;
 
-	SceneNode::SceneNodes   nodes;
+	//SceneNode::SceneNodes   nodes;
 
 
 	enum NeighbourType
