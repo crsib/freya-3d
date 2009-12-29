@@ -152,12 +152,9 @@ Source/core/lua/lua_libraries/3party/bit.c
 
 Source/resources/drivers/std/ShaderLoaderDriver.cpp
 
+Include/scenegraph/Structures.h
+Source/scenegraph/SceneGraphImpl.cpp
 
-#Sources & private includes
-Source/framework/World.cpp
-Source/framework/DataNode.cpp
-Source/framework/SceneNodeController.cpp
-Source/framework/FrameworkImpl.cpp
 
 Source/resources/drivers/std/VDataLoader.h
 Source/resources/drivers/std/VDataLoader.cpp
