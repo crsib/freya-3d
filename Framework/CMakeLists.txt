@@ -152,12 +152,6 @@ Source/core/lua/lua_libraries/3party/bit.c
 
 Source/resources/drivers/std/ShaderLoaderDriver.cpp
 
-#World
-#public includes
-Include/framework/World.h
-Include/framework/DataNode.h
-Include/framework/SceneNodeController.h
-Include/framework/Structures.h
 
 #Sources & private includes
 Source/framework/World.cpp
@@ -190,11 +184,6 @@ SET(TOLUA_PACKAGES
 ./Source/core/lua/lua_packages/core/MemoryPools.lpkg
 ./Source/core/lua/lua_packages/core/Task.lpkg
 ./Source/core/lua/lua_packages/core/TaskManager.lpkg
-./Source/core/lua/lua_packages/framework/SceneNode.lpkg
-./Source/core/lua/lua_packages/framework/SceneNodeController.lpkg
-./Source/core/lua/lua_packages/framework/World.lpkg
-./Source/core/lua/lua_packages/framework/LuaDescriptors.lpkg
-./Source/core/lua/lua_packages/framework/DeclarativeMethods.lua
 ./Source/core/lua/lua_packages/luabind.lpkg
 ./Source/core/lua/lua_packages/math/frustum.lpkg
 ./Source/core/lua/lua_packages/math/matrix3x3.lpkg
