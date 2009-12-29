@@ -59,6 +59,10 @@ IF( CMAKE_COMPILER_IS_GNUCC )
         SET(CMAKE_C_FLAGS ${TMP_C_FLAGS}
                                  CACHE STRING "Freya 3D defaults" FORCE )
     ENDIF(NOT SSE2_C_RES)
+    
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
+    
 ENDIF( CMAKE_COMPILER_IS_GNUCC )
 
 IF(MSVC)
