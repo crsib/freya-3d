@@ -32,15 +32,6 @@ __Data::~__Data()
 	nodes.clear();
 }
 
-__WorldCell::__WorldCell()
-{
-	neighbours[0] = neighbours[1] = neighbours[2] = neighbours[3]
-	                                                           = neighbours[4] = neighbours[5] = neighbours[6] = neighbours[7] = neighbours[8]= NULL;
-}
-
-__WorldCell::~__WorldCell()
-{}
-
 __File::~__File()
 {
 	if(data)
