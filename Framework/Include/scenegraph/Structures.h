@@ -182,7 +182,7 @@ typedef struct __Light
 	__Light ();
 	~__Light();
 } Light, *LightPtr;
-
+/*
 typedef struct __WorldCell
 {
 
@@ -190,7 +190,7 @@ typedef struct __WorldCell
 
 	WorldTile				tile;
 
-	//SceneNode::SceneNodes   nodes;
+	SceneNode::SceneNodeList   nodes;
 
 
 	enum NeighbourType
@@ -211,7 +211,7 @@ typedef struct __WorldCell
 	MEMORY_FUNCTIONS
 
 } WorldCell,*WorldCellPtr;
-
+*/
 typedef struct __File : public ::EngineSubsystem
 {
 	void*		data;
@@ -257,17 +257,7 @@ struct 	__TextureWrapper
 	renderer::TextureUnit::type			texture_unit;
 } TextureWrapper,*TextureWrapperPtr;
 
-typedef
-struct	__GeometryBatch : public ::EngineSubsystem
-{
-	uint32_t						shader_id; //Shader id in shader library
-	uint32_t						number_of_textures;
-	TextureWrapperPtr*				textures;
-	uint32_t						batch_id;
-	VBODataPtr						vbo;
-	uint32_t						r2vb;//Pass is r2vb
-	renderer::VertexBufferObject*	r2vbTarget;
-} GeometryBatch,*GeometryBatchPtr; //This is a geometry batch
+
 
 enum SHADER_BIND_TYPE
 {
@@ -332,7 +322,20 @@ struct	__ShaderLibrary : public ::EngineSubsystem
 
 } ShaderLibrary,*ShaderLibraryPtr;
 
+typedef
+struct	__GeometryBatch
+{
+	MEMORY_FUNCTIONS
+	ShaderWrapperPtr*				shader; //Shader id in shader library
+	uint32_t						number_of_textures;
+	TextureWrapperPtr*				textures;
+	uint32_t						batch_id;
+	VBODataPtr						vbo;
+	uint32_t						r2vb;//Pass is r2vb
+	renderer::VertexBufferObject*	r2vbTarget;
+} GeometryBatch,*GeometryBatchPtr; //This is a geometry batch
 
+typedef std::vector<GeometryBatchPtr, core::memory::MemoryAllocator<GeometryBatchPtr> > BatchList;
 }
 
 
