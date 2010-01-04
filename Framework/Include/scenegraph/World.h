@@ -121,6 +121,8 @@ public:
 
 	//Status and updating
 	WORLD_STATUS 					status() const;
+
+	void							update(float dt);
 	private:
 	//================= Private typedefs ================================
 	typedef std::map<unsigned,SceneNode*,std::less<unsigned>, core::memory::MemoryAllocator<std::pair<const unsigned,SceneNode*> > > NodesById;

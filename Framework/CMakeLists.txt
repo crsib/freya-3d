@@ -161,6 +161,9 @@ Include/scenegraph/AABB.h
 Include/scenegraph/SceneNode.h
 Source/scenegraph/SceneNode.cpp
 
+Include/scenegraph/StaticGeometryNode.h
+Source/scenegraph/StaticGeometryNode.cpp
+
 #Scene graph loaders
 Source/resources/drivers/std/VDataLoader.h
 Source/resources/drivers/std/VDataLoader.cpp
