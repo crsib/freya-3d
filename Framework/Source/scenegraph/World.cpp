@@ -179,4 +179,11 @@ void		World::addShaderLibrary(ShaderLibraryPtr library)
 	m_ShaderLibraries[library->apiName] = library;
 }
 
+
+//====================================Update method===========================================
+void		World::update(float dt)
+{
+
+}
+
 }
