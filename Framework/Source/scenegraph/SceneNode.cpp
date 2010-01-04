@@ -110,7 +110,7 @@ SceneNode::getWorldTransform(unsigned forParentIdx) const
 AABB
 SceneNode::getBoundingBox(unsigned forParentTransformIdx) const
 {
-
+	return m_BoundingBox;
 }
 
 void						SceneNode::attachController(unsigned priority,SceneNodeController* controller)
