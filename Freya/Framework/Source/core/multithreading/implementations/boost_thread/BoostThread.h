@@ -65,7 +65,7 @@ void	  	BoostThread::wait()
 	if(m_Thread->joinable())
 	{
 	//	std::cout << "m_Thread->join()" << std::endl;
-		if(false == m_Thread->timed_join(boost::posix_time::millisec(500)));
+		if(false == m_Thread->timed_join(boost::posix_time::millisec(500)))
 		{
 			std::cout << "Boost thread refused to join, killing it" << std::endl;
 			m_Thread->interrupt();
