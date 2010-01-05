@@ -625,7 +625,7 @@ ELSE (_boost_IN_CACHE)
       SET( _boost_STATIC_TAG "-s")
     ENDIF( Boost_USE_STATIC_LIBS )
   ENDIF(WIN32)
-  SET (_boost_ABI_TAG "${_boost_ABI_TAG}dp")
+  #SET (_boost_ABI_TAG "${_boost_ABI_TAG}dp")
   if(Boost_DEBUG)
     message(STATUS "[ ${CMAKE_CURRENT_LIST_FILE}:${CMAKE_CURRENT_LIST_LINE} ] "
       "_boost_STATIC_TAG = ${_boost_STATIC_TAG}")
