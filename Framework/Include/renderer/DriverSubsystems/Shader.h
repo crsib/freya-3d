@@ -146,49 +146,6 @@ public:
 	virtual void 	 setUniform(unsigned location,const math::matrix3x3& val) = 0;//!< An overloaded version of setUniform
 	virtual void 	 setUniform(const EString& name,const math::matrix3x3& val) = 0;//!< An overloaded version of setUniform
 
-	//attributes
-	//! Retrieve attribute parameter location by its name
-	/*!
-	 * Retrieves attribute parameter location by its name
-	 * \param name is a name of attribute location
-	 * \return API depended attribute ID
-	 */
-	virtual unsigned getAttributeLocation(const EString& name) = 0;
-
-	virtual void 	 setAttribute(unsigned location,int val) = 0;//!< An overloaded version of setAttribute
-	virtual void 	 setAttribute(const EString& name,int val) = 0;//!< An overloaded version of setAttribute
-
-	virtual void 	 setAttribute(unsigned location,float val) = 0;//!< An overloaded version of setAttribute
-	virtual void 	 setAttribute(const EString& name,float val) = 0;//!< An overloaded version of setAttribute
-
-	virtual void 	 setAttribute(unsigned location,int val,int val1) = 0;//!< An overloaded version of setAttribute
-	virtual void 	 setAttribute(const EString& name,int val,int val1) = 0;//!< An overloaded version of setAttribute
-
-	virtual void 	 setAttribute(unsigned location,float val,float val1) = 0;//!< An overloaded version of setAttribute
-	virtual void 	 setAttribute(const EString& name,float val,float val1) = 0;//!< An overloaded version of setAttribute
-
-	virtual void 	 setAttribute(unsigned location,int val,int val1,int val2) = 0;//!< An overloaded version of setAttribute
-	virtual void 	 setAttribute(const EString& name,int val,int val1,int val2) = 0;//!< An overloaded version of setAttribute
-
-	virtual void 	 setAttribute(unsigned location,float val,float val1,float val2) = 0;//!< An overloaded version of setAttribute
-	virtual void 	 setAttribute(const EString& name,float val,float val1,float val2) = 0;//!< An overloaded version of setAttribute
-
-	virtual void 	 setAttribute(unsigned location,int val,int val1,int val2,int val3) = 0;//!< An overloaded version of setAttribute
-	virtual void 	 setAttribute(const EString& name,int val,int val1,int val2,int val3) = 0;//!< An overloaded version of setAttribute
-
-	virtual void 	 setAttribute(unsigned location,float val,float val1,float val2,float val3) = 0;//!< An overloaded version of setAttribute
-	virtual void 	 setAttribute(const EString& name,float val,float val1,float val2,float val3) = 0;//!< An overloaded version of setAttribute
-
-	virtual void 	 setAttribute(unsigned location,const math::vector3d& val) = 0;//!< An overloaded version of setAttribute
-	virtual void 	 setAttribute(const EString& name,const math::vector3d& val) = 0;//!< An overloaded version of setAttribute
-
-	virtual void 	 setAttribute(unsigned location,const math::quaternion& val) = 0;//!< An overloaded version of setAttribute
-	virtual void 	 setAttribute(const EString& name,const math::quaternion& val) = 0;//!< An overloaded version of setAttribute
-
-	virtual void 	 setAttribute(unsigned location,const math::vector3d& val,float val1) = 0;//!< An overloaded version of setAttribute
-	virtual void 	 setAttribute(const EString& name,const math::vector3d& val,float val2) = 0;//!< An overloaded version of setAttribute
-
-
 	//Geometry shader
 	//! Set geometry shader parameter
 	/*!

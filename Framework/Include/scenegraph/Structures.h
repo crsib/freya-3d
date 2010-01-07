@@ -74,18 +74,6 @@ namespace scenegraph
 {
 
 
-typedef struct __Tile
-{
-	float		left;
-	float		top;
-	float		right;
-	float		bottom;
-
-	__Tile() : left(0.0f),top(0.0f),right(0.0f),bottom(0.0f){}
-	MEMORY_FUNCTIONS
-
-} WorldTile;
-
 class DataNode;
 
 typedef struct	__Resource
@@ -182,36 +170,7 @@ typedef struct __Light
 	__Light ();
 	~__Light();
 } Light, *LightPtr;
-/*
-typedef struct __WorldCell
-{
 
-	__WorldCell*		neighbours[8];
-
-	WorldTile				tile;
-
-	SceneNode::SceneNodeList   nodes;
-
-
-	enum NeighbourType
-	{
-		Top = 0,
-				TopLeft,
-				Left,
-				BottomLeft,
-				Bottom,
-				BottomRight,
-				Right,
-				TopRight
-	};
-
-	__WorldCell();
-	~__WorldCell();
-	//void		deserialize(core::xml::DOMNode* root);
-	MEMORY_FUNCTIONS
-
-} WorldCell,*WorldCellPtr;
-*/
 typedef struct __File : public ::EngineSubsystem
 {
 	void*		data;
@@ -257,82 +216,17 @@ struct 	__TextureWrapper
 	renderer::TextureUnit::type			texture_unit;
 } TextureWrapper,*TextureWrapperPtr;
 
-
-
-enum SHADER_BIND_TYPE
-{
-	INT,
-	FLOAT,
-	FLOAT2,
-	FLOAT3,
-	FLOAT4,
-	MAT3x3,
-	MAT4x4,
-	SAMPLER,
-	VIEW,
-	WORLD,
-	PROJECTION
-};
-
-typedef
-struct __ShaderBinding : public ::EngineSubsystem
-{
-	uint32_t	id;
-	uint32_t	type;
-	EString		name;
-	union
-	{
-		int32_t			INT;
-		float			FLOAT;
-		float			FLOAT2[2];
-		float			FLOAT3[3];
-		float			FLOAT4[4];
-		float			MAT3x3[3][3];
-		float			MAT4x4[4][4];
-		uint32_t		SAMPLER;
-	};
-} ShaderBinding,*ShaderBindingPtr;
-
-typedef struct __ShaderWrapper : public ::EngineSubsystem
-{
-	EString						shaderID;
-	EString						shaderResId;
-	renderer::Shader*			shader;
-	uint16_t					num_uniform_bindings;
-	uint16_t					num_attribute_bindings;
-	ShaderBindingPtr			uniform_bindings;
-	ShaderBindingPtr			attribute_bindings;
-
-	~__ShaderWrapper();
-} ShaderWrapper,*ShaderWrapperPtr;
-
-typedef
-struct	__ShaderLibrary : public ::EngineSubsystem
-{
-	uint32_t					num_shaders;
-	ShaderWrapperPtr			shaders;
-	EString						apiName;
-
-	__ShaderLibrary();
-	~__ShaderLibrary();
-
-	void						prepareShader(uint32_t id);
-	bool						isShaderLoaded(uint32_t id);
-	ShaderWrapperPtr			getShader(uint32_t id);
-
-} ShaderLibrary,*ShaderLibraryPtr;
-
 typedef
 struct	__GeometryBatch
 {
-	MEMORY_FUNCTIONS
+/*	MEMORY_FUNCTIONS
 	ShaderWrapperPtr*				shader; //Shader id in shader library
 	uint32_t						number_of_textures;
 	TextureWrapperPtr*				textures;
 	uint32_t						batch_id;
 	VBODataPtr						vbo;
 	uint32_t						r2vb;//Pass is r2vb
-	renderer::VertexBufferObject*	r2vbTarget;
+	renderer::VertexBufferObject*	r2vbTarget;*/
 } GeometryBatch,*GeometryBatchPtr; //This is a geometry batch
 
 typedef std::vector<GeometryBatchPtr, core::memory::MemoryAllocator<GeometryBatchPtr> > BatchList;

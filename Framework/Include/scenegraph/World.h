@@ -16,7 +16,10 @@
 #include "scenegraph/Structures.h"
 #include "core/EngineException.h"
 #include "internal.h"
+
 #include "scenegraph/SceneNode.h"
+#include "scenegraph/ShaderLibrary.h"
+
 #include <cassert>
 #include <map>
 #include "core/memory/MemoryAllocator.h"
@@ -77,6 +80,15 @@ public:
 	//============== Public structures ===================================
 	struct EXPORT WorldCell
 	{
+		struct WorldTile
+		{
+			float		left;
+			float		top;
+			float		right;
+			float		bottom;
+
+			WorldTile() : left(0.0f),top(0.0f),right(0.0f),bottom(0.0f){}
+		};
 
 		WorldCell*		neighbours[8];
 
@@ -117,7 +129,7 @@ public:
 	SceneNode*						getNode(const EString& name);
 
 	//Shader libraries
-	void							addShaderLibrary(ShaderLibraryPtr library);
+	void							addShaderLibrary(ShaderLibrary*  library);
 
 	//Status and updating
 	WORLD_STATUS 					status() const;
@@ -127,7 +139,7 @@ public:
 	//================= Private typedefs ================================
 	typedef std::map<unsigned,SceneNode*,std::less<unsigned>, core::memory::MemoryAllocator<std::pair<const unsigned,SceneNode*> > > NodesById;
 	typedef std::map<EString,SceneNode*,std::less<EString>, core::memory::MemoryAllocator<std::pair<const EString,SceneNode*> > > NodesByName;
-	typedef	std::map<EString,ShaderLibraryPtr,std::less<EString>,core::memory::MemoryAllocator<std::pair<const EString,ShaderLibraryPtr > > > ShaderLibraries;
+	typedef	std::map<EString,ShaderLibrary*,std::less<EString>,core::memory::MemoryAllocator<std::pair<const EString,ShaderLibrary* > > > ShaderLibraries;
 	//================ Private members =================================
 	WORLD_STATUS 					m_Status;
 
@@ -144,7 +156,7 @@ public:
 	unsigned 						m_CenterX;
 	unsigned						m_CenterY;
 
-	ShaderLibraryPtr				m_CurrentShaderLibrary;
+	ShaderLibrary*					m_CurrentShaderLibrary;
 	ShaderLibraries 				m_ShaderLibraries;
 	//================= Exceptions =======================================
 	class WorldAlreadyCreatedExecption : public World::Exception
