@@ -48,38 +48,4 @@ void __File::free()
 	size = 0;
 }
 
-__ShaderLibrary::__ShaderLibrary()
-{
-
-
-}
-
-__ShaderLibrary::~__ShaderLibrary()
-{
-	//Todo: check for loaded shaders and unload them
-	delete [] shaders;
-}
-
-void				__ShaderLibrary::prepareShader(uint32_t id)
-{
-	
-}
-
-bool				__ShaderLibrary::isShaderLoaded(uint32_t id)
-{
-	return false;
-}
-
-ShaderWrapperPtr	__ShaderLibrary::getShader(uint32_t id)
-{
-	return NULL;
-}
-
-__ShaderWrapper::~__ShaderWrapper()
-{
-	delete [] uniform_bindings;
-	delete [] attribute_bindings;
-}
-
-
 }

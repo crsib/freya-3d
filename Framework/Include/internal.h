@@ -10,4 +10,11 @@
 #	define EXPORT __attribute__ ((visibility("default")))
 #endif
 
+//Some usefull template routines
+template<int t>
+class IntToType
+{
+	enum __int2type { VALUE = t};
+};
+
 #endif

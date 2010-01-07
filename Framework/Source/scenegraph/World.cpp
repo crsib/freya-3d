@@ -128,6 +128,7 @@ void		World::addNode (SceneNode* node)
 	m_SceneNodes.push_back(node);
 	m_SceneNodesById[node->nodeId()] = node;
 	m_SceneNodesByName[node->nodeName()] = node;
+	//TODO: Connect scene node to a cell
 }
 
 void		World::destroyNode(SceneNode* node)
@@ -174,9 +175,9 @@ World::WorldCell* 	World::getCell(float x, float y)
 	return m_Cells + static_cast<size_t>(math::floor(realX))*m_WorldHeight + static_cast<size_t>(math::floor(realY));
 }
 
-void		World::addShaderLibrary(ShaderLibraryPtr library)
+void		World::addShaderLibrary(ShaderLibrary*  library)
 {
-	m_ShaderLibraries[library->apiName] = library;
+	m_ShaderLibraries[library->apiName()] = library;
 }
 
 
