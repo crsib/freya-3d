@@ -8,7 +8,7 @@
 #include "core/taskmanager/TaskManager.h"
 
 #include "core/EngineCore.h"
-#include "scenegraph/Structures.h"
+#include "scenegraph/VBOData.h"
 #include <iostream>
 //#include <stdint.h>
 
@@ -88,7 +88,7 @@ Resource *VDataLoader::loadSynchronous(const EString & ID)
 		offset += sizeof(uint16_t);
 		//std::cout << "\tNumber of batches: " << data->num_batches << std::endl;
 
-		data->batches = new scenegraph::__VBO_BatchHeader[data->num_batches];
+		data->batches = new scenegraph::VBOData::VBOBatchHeader[data->num_batches];
 		for(size_t i = 0; i < data->num_batches; i++)
 		{
 			memcpy(&data->batches[i].assembly_type,reinterpret_cast<char*>(raw_data) + offset,8);
@@ -195,7 +195,7 @@ public:
 				offset += sizeof(uint16_t);
 				//std::cout << "\tNumber of batches: " << data->num_batches << std::endl;
 
-				data->batches = new scenegraph::__VBO_BatchHeader[data->num_batches];
+				data->batches = new scenegraph::VBOData::VBOBatchHeader[data->num_batches];
 				for(size_t i = 0; i < data->num_batches; i++)
 				{
 					memcpy(&data->batches[i].assembly_type,reinterpret_cast<char*>(raw_data) + offset,8);

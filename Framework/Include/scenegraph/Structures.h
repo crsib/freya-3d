@@ -16,15 +16,7 @@
 
 #include "renderer/RenderingAPIDriver.h"
 
-//STL
-#ifndef _MSC_VER
-#include <stdint.h>
-#else
-typedef __int32 int32_t;
-typedef unsigned __int32 uint32_t;
-typedef unsigned __int16 uint16_t;
-typedef  __int16 int16_t;
-#endif
+
 
 #include <map>
 #include <vector>
@@ -181,29 +173,6 @@ typedef struct __File : public ::EngineSubsystem
 	__File() : data (NULL), size(0){}
 	virtual ~__File();
 } File,*FilePtr;
-
-typedef
-struct __VBO_BatchHeader : public ::EngineSubsystem
-{
-	uint32_t						assembly_type;
-	uint16_t   					index_count;
-	uint16_t						buffer_offset;
-	renderer::VertexElement*		layout;
-	__VBO_BatchHeader() : assembly_type(0),index_count(0),buffer_offset(0),layout(NULL){}
-} VBO_BatchHeader,*VBO_BatchHeaderPtr;
-
-typedef
-struct __VBOData : public ::EngineSubsystem
-{
-	uint32_t						num_batches;
-	VBO_BatchHeaderPtr				batches;
-	uint16_t						number_of_indicies;
-	renderer::VertexBufferObject*	indicies;
-	uint32_t						size_of_vertex_data;
-	renderer::VertexBufferObject*	vertex_data;
-	__VBOData() : num_batches(0),batches(NULL),number_of_indicies(0),indicies(NULL),size_of_vertex_data(0), vertex_data(NULL){}
-} VBOData,*VBODataPtr;
-
 
 typedef
 struct 	__TextureWrapper
