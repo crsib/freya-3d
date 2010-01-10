@@ -167,6 +167,9 @@ Source/scenegraph/ShaderLibrary.cpp
 Include/scenegraph/StaticGeometryNode.h
 Source/scenegraph/StaticGeometryNode.cpp
 
+Include/scenegraph/VBOData.h
+Source/scenegraph/VBOData.cpp
+
 #Scene graph loaders
 Source/resources/drivers/std/VDataLoader.h
 Source/resources/drivers/std/VDataLoader.cpp

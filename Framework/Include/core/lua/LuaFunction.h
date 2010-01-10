@@ -23,6 +23,8 @@ namespace core
 namespace lua
 {
 
+class LuaCore;
+
 class EXPORT LuaFunction: public EngineSubsystem
 {
 	friend class LuaCore;
@@ -69,6 +71,8 @@ private:
 	Variable*	m_RetVals;
 
 	EStringList	m_TockensList;
+
+	static	    LuaCore*		m_Core;
 };
 }
 }

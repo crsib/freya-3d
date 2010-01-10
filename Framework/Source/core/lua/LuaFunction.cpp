@@ -18,9 +18,13 @@ namespace core
 {
 namespace lua
 {
-#define GetLua core::EngineCore::getLuaCore()->m_States[core::multithreading::getCurrentThreadID()]
+LuaCore*		LuaFunction::m_Core = NULL;
+
+#define GetLua m_Core->m_States[core::multithreading::getCurrentThreadID()]
 LuaFunction::LuaFunction(const EString& name,unsigned NumArgs,unsigned NumRet)
 {
+	if(m_Core == NULL)
+		m_Core = core::EngineCore::getLuaCore();
 	lua_State* Lua = GetLua;
 	//	std::cout << "LuaFunction::LuaFunction( " << name << ", " << NumArgs << ", " << NumRet <<  " )" << std::endl;
 	//First, parse names to tockens
