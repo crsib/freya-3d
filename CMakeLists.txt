@@ -3,7 +3,7 @@
 #
 #
      
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 PROJECT ( Freya3D ) 
  
@@ -60,9 +60,9 @@ IF( CMAKE_COMPILER_IS_GNUCC )
                                  CACHE STRING "Freya 3D defaults" FORCE )
     ENDIF(NOT SSE2_C_RES)
     
-    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
-    
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden ")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden ")
+
 ENDIF( CMAKE_COMPILER_IS_GNUCC )
 
 IF(MSVC)
