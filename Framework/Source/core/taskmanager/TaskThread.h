@@ -32,7 +32,7 @@ namespace __internal
 {
 class __thread_function;
 
-class TaskThread: virtual public ::EngineSubsystem
+class TaskThread : virtual public ::EngineSubsystem
 {
 	friend class core::taskmanager::TaskManager;
 	friend class __thread_function;
@@ -41,11 +41,7 @@ private:
 
 public:
 	virtual ~TaskThread();
-	void addTask(Task* task);
-	size_t count();
-	bool operator < (const TaskThread& other) const;
 private:
-	core::multithreading::RingBuffer<Task*,32>*		m_Buffer;
 	core::multithreading::Thread*					m_Thread;
 	static unsigned									m_Active;
 	__thread_function*								m_Func;

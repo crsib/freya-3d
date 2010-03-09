@@ -15,7 +15,8 @@
 
 #include <boost/pool/pool_alloc.hpp>
 
-#define  schedule_allocator(T) boost::pool_allocator<T>
+//#define  schedule_allocator(T) boost::pool_allocator<T>
+#define  schedule_allocator(T) core::memory::MemoryAllocator<T>
 /*
  *
  */
@@ -37,7 +38,7 @@ namespace taskmanager
 namespace __internal
 {
 class TaskThread;
-class __aux_thread_func;
+class __thread_function;
 }
 
 class Task;
@@ -50,10 +51,11 @@ class Task;
  * tasks that must be executed exclusively on main thread and easing of implementation of multi-part
  * or reentrant tasks
  */
-class TaskManager : virtual public ::EngineSubsystem
+class EXPORT TaskManager : virtual public ::EngineSubsystem
 {
 	friend class core::EngineCore;
-	friend class core::taskmanager::__internal::__aux_thread_func;
+	friend class core::taskmanager::__internal::__thread_function;
+
 private:
 	TaskManager();
 	virtual ~TaskManager();
@@ -85,18 +87,12 @@ public:
 	 */
 	virtual void enterMainLoop();
 private:
-	std::deque<Task*,schedule_allocator(Task*) >	m_MainThreadSchedule;
-	std::deque<Task*,schedule_allocator(Task*) > 	m_SecThreadSchedule;
+	std::deque<Task*,schedule_allocator(Task*) >				m_MainThreadSchedule;
+	std::deque<Task*,schedule_allocator(Task*) > 				m_SecThreadSchedule;
 	std::list<core::taskmanager::__internal::TaskThread*,core::memory::MemoryAllocator<core::taskmanager::__internal::TaskThread*> > m_Threads;
 	size_t														m_ThreadNumber;
-	core::multithreading::Thread*								m_Thread;
-	//core::multithreading::Mutex*								m_MutexAux;
-	//core::multithreading::Mutex*								m_MutexPri;
 	volatile long												m_PrimaryLock;
 	volatile long												m_AuxLock;
-															
-	unsigned													m_ThreadActive;
-	__internal::__aux_thread_func*								m_Func;
 };
 
 }
