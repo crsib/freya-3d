@@ -51,7 +51,7 @@ class Task;
  * tasks that must be executed exclusively on main thread and easing of implementation of multi-part
  * or reentrant tasks
  */
-class EXPORT TaskManager : virtual public ::EngineSubsystem
+class  TaskManager : virtual public ::EngineSubsystem
 {
 	friend class core::EngineCore;
 	friend class core::taskmanager::__internal::__thread_function;
