@@ -177,6 +177,7 @@ Source/resources/drivers/std/VDataLoader.cpp
 #Generated sources
 "${INTERMIDIATE_DIRECTORY}/StaticPluginsLoader.cpp"
 "${INTERMIDIATE_DIRECTORY}/freya_lua_bind.cpp"
+"${INTERMIDIATE_DIRECTORY}/SVN_Revision.h"
 )
 
 SET( FREYA_CEGUI_SRC 
@@ -232,6 +233,7 @@ INCLUDE_DIRECTORIES( 3party/cegui/include
 
 SET_SOURCE_FILES_PROPERTIES("${INTERMIDIATE_DIRECTORY}/StaticPluginsLoader.cpp" PROPERTIES GENERATED YES)
 SET_SOURCE_FILES_PROPERTIES("${INTERMIDIATE_DIRECTORY}/freya_lua_bind.cpp" PROPERTIES GENERATED YES)
+SET_SOURCE_FILES_PROPERTIES("${INTERMIDIATE_DIRECTORY}/SVN_Revision.h" PROPERTIES GENERATED YES)
 #EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/Framework/Include/core/lua/tolua++/tolua++.h" "${INTERMIDIATE_DIRECTORY}/tolua++.h")
 
 MESSAGE(STATUS "Searching tolua") 
@@ -294,6 +296,16 @@ IF ( LUA51_FOUND )
 		SET( FREYA_CORE_LINK_LIBRARIES ${FREYA_CORE_LINK_LIBRARIES} dl )
     ENDIF( UNIX AND NOT APPLE )
 ENDIF ( LUA51_FOUND )
+
+FIND_PACKAGE(Subversion)
+IF(Subversion_FOUND)
+    Subversion_WC_INFO(${PROJECT_SOURCE_DIR} Freya3D)
+    MESSAGE("Current revision is ${Freya3D_WC_REVISION}")
+    FILE(WRITE "${INTERMIDIATE_DIRECTORY}/SVN_Revision.h" "#ifndef __SVN_REVISION_H_\n#define __SVN_REVISION_H_\n\n#define SVN_REVISION_INT ${Freya3D_WC_REVISION}\n#define SVN_REVISION_STRING \"${Freya3D_WC_REVISION}\"\n\n#endif\n")
+ELSE()
+    MESSAGE("SVN binary not found")
+    FILE(WRITE "${INTERMIDIATE_DIRECTORY}/SVN_Revision.h" "#ifndef __SVN_REVISION_H_\n#define __SVN_REVISION_H_\n\n#define SVN_REVISION_INT 0\n#define SVN_REVISION_STRING \"unrevisioned\"\n\n#endif\n")
+ENDIF(Subversion_FOUND)
 
 #Find Freetype
 FIND_PACKAGE(Freetype REQUIRED)
