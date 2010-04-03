@@ -152,25 +152,32 @@ Source/core/lua/lua_libraries/3party/bit.c
 
 Source/resources/drivers/std/ShaderLoaderDriver.cpp
 
-#World
-#public includes
-Include/framework/World.h
-Include/framework/DataNode.h
-Include/framework/SceneNodeController.h
-Include/framework/Structures.h
+#Scene graph
+Include/scenegraph/Structures.h
+Source/scenegraph/SceneGraphImpl.cpp
+Include/scenegraph/World.h
+Source/scenegraph/World.cpp
+Include/scenegraph/AABB.h
+Include/scenegraph/SceneNode.h
+Source/scenegraph/SceneNode.cpp
 
-#Sources & private includes
-Source/framework/World.cpp
-Source/framework/DataNode.cpp
-Source/framework/SceneNodeController.cpp
-Source/framework/FrameworkImpl.cpp
+Include/scenegraph/ShaderLibrary.h
+Source/scenegraph/ShaderLibrary.cpp
 
+Include/scenegraph/StaticGeometryNode.h
+Source/scenegraph/StaticGeometryNode.cpp
+
+Include/scenegraph/VBOData.h
+Source/scenegraph/VBOData.cpp
+
+#Scene graph loaders
 Source/resources/drivers/std/VDataLoader.h
 Source/resources/drivers/std/VDataLoader.cpp
 
 #Generated sources
 "${INTERMIDIATE_DIRECTORY}/StaticPluginsLoader.cpp"
 "${INTERMIDIATE_DIRECTORY}/freya_lua_bind.cpp"
+"${INTERMIDIATE_DIRECTORY}/SVN_Revision.h"
 )
 
 SET( FREYA_CEGUI_SRC 
@@ -190,11 +197,6 @@ SET(TOLUA_PACKAGES
 ./Source/core/lua/lua_packages/core/MemoryPools.lpkg
 ./Source/core/lua/lua_packages/core/Task.lpkg
 ./Source/core/lua/lua_packages/core/TaskManager.lpkg
-./Source/core/lua/lua_packages/framework/SceneNode.lpkg
-./Source/core/lua/lua_packages/framework/SceneNodeController.lpkg
-./Source/core/lua/lua_packages/framework/World.lpkg
-./Source/core/lua/lua_packages/framework/LuaDescriptors.lpkg
-./Source/core/lua/lua_packages/framework/DeclarativeMethods.lua
 ./Source/core/lua/lua_packages/luabind.lpkg
 ./Source/core/lua/lua_packages/math/frustum.lpkg
 ./Source/core/lua/lua_packages/math/matrix3x3.lpkg
@@ -231,6 +233,7 @@ INCLUDE_DIRECTORIES( 3party/cegui/include
 
 SET_SOURCE_FILES_PROPERTIES("${INTERMIDIATE_DIRECTORY}/StaticPluginsLoader.cpp" PROPERTIES GENERATED YES)
 SET_SOURCE_FILES_PROPERTIES("${INTERMIDIATE_DIRECTORY}/freya_lua_bind.cpp" PROPERTIES GENERATED YES)
+SET_SOURCE_FILES_PROPERTIES("${INTERMIDIATE_DIRECTORY}/SVN_Revision.h" PROPERTIES GENERATED YES)
 #EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/Framework/Include/core/lua/tolua++/tolua++.h" "${INTERMIDIATE_DIRECTORY}/tolua++.h")
 
 MESSAGE(STATUS "Searching tolua") 
@@ -293,6 +296,16 @@ IF ( LUA51_FOUND )
 		SET( FREYA_CORE_LINK_LIBRARIES ${FREYA_CORE_LINK_LIBRARIES} dl )
     ENDIF( UNIX AND NOT APPLE )
 ENDIF ( LUA51_FOUND )
+
+FIND_PACKAGE(Subversion)
+IF(Subversion_FOUND)
+    Subversion_WC_INFO(${PROJECT_SOURCE_DIR} Freya3D)
+    MESSAGE("Current revision is ${Freya3D_WC_REVISION}")
+    FILE(WRITE "${INTERMIDIATE_DIRECTORY}/SVN_Revision.h" "#ifndef __SVN_REVISION_H_\n#define __SVN_REVISION_H_\n\n#define SVN_REVISION_INT ${Freya3D_WC_REVISION}\n#define SVN_REVISION_STRING \"${Freya3D_WC_REVISION}\"\n\n#endif\n")
+ELSE()
+    MESSAGE("SVN binary not found")
+    FILE(WRITE "${INTERMIDIATE_DIRECTORY}/SVN_Revision.h" "#ifndef __SVN_REVISION_H_\n#define __SVN_REVISION_H_\n\n#define SVN_REVISION_INT 0\n#define SVN_REVISION_STRING \"unrevisioned\"\n\n#endif\n")
+ENDIF(Subversion_FOUND)
 
 #Find Freetype
 FIND_PACKAGE(Freetype REQUIRED)

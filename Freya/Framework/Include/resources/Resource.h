@@ -127,7 +127,8 @@ Resource::operator T()
 	T op = dynamic_cast<T> (m_Resource);
 	if(op != NULL)
 		return op;
-	else throw resources::ResourceException("Failed to cast data to required type");
+	else
+		throw resources::ResourceException(EString("Failed to cast data to required type: res_id =  ") + m_ResourceID);
 }
 template<typename T>
 T	Resource::get()
@@ -136,7 +137,8 @@ T	Resource::get()
 	T op = dynamic_cast<T> (m_Resource);
 	if(op != NULL)
 		return op;
-	else throw resources::ResourceException("Failed to cast data to required type");
+	else
+		throw resources::ResourceException(EString("Failed to cast data to required type: res_id =  ") + m_ResourceID);
 }
 
 }

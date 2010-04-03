@@ -16,6 +16,7 @@ extern "C"
 {
 	#include "core/lua/luajit.h"
 }
+
 #include "core/Variable.h"
 #include <algorithm>
 #include <vector>
