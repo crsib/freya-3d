@@ -78,7 +78,9 @@ ENDIF(MSVC)
 # Search for libraries
 #Additional modules paths
 SET	( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/CMakeFind ${CMAKE_SOURCE_DIR}/CMakeIncludes )
-
+IF( APPLE )
+SET ( CMAKE_PROGRAM_PATH /opt/local/bin /opt/subversion/bin )
+ENDIF()
 #Search for bullet physics library
 FIND_PACKAGE( Bullet REQUIRED )
 IF( BULLET_FOUND )
@@ -145,6 +147,8 @@ ENDIF()
 #Build math library
 ADD_SUBDIRECTORY ( Framework/Source/math )
 
+add_subdirectory( Framework/3party/zlib )
+add_subdirectory( Framework/3party/libpng )
 #Build plugins
 INCLUDE(  BuildPlugins )
 

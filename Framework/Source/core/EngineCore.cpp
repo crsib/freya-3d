@@ -53,7 +53,7 @@
 #include "freya/FreyaResourceProvider.h"
 
 #include "CEGUILua.h"
-
+#include "SVN_Revision.h"
 
 using namespace renderer;
 
@@ -155,14 +155,6 @@ EngineCore::EngineCore(int argC,char** argV,const std::string& applicationName, 
 	//Start memory
 	std::cout << "Initializing memory subsystem" << std::endl;
 	m_MemoryArena = core::memory::MemoryArena::instance();
-//	m_MemoryArena->addPool(4*1024*1024,4);	//STL pool 4 mb
-//	m_MemoryArena->addPool(4*1024*1024,4);	//Math pool 4 mb
-//	m_MemoryArena->addPool(64*1024*1024,4);	//Generic pool 64 mb
-//	m_MemoryArena->addPool(4*1024*1024,4);	//Generic class pool 4mb
-//	m_MemoryArena->addPool(4*1024*1024, 4); //Lua pool 4mb
-//	m_MemoryArena->addPool(4*1024*1024, 4); //XML pool 4mb
-//	m_MemoryArena->addPool(4*1024*1024, 4); //CEGUI pool 4mb
-//	m_MemoryArena->addPool(4*1024*1024, 4); //World pool 4mb
 	m_ThreadImplementation = new THREAD_IMPLEMENTATION;
 	//start filesystem
 	std::cout << "Starting filesystem subsystem" << std::endl;
@@ -455,6 +447,16 @@ void								EngineCore::startCEGUI()
 CEGUI::System*					EngineCore::getCEGUISystem()
 {
 	return CEGUI::System::getSingletonPtr();
+}
+
+const char*						EngineCore::getRevisionString()
+{
+	return SVN_REVISION_STRING;
+}
+
+int								EngineCore::getRevision()
+{
+	return SVN_REVISION_INT;
 }
 
 }

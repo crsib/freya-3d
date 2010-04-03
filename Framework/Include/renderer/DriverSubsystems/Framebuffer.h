@@ -121,8 +121,8 @@ public:
 	//framebuffer status
 	//! Retrieve the described frame buffer status
 	/*!
-	 *  Retieves current status of described framebuffer
-	 *  \return stutus of frame buffer described by FramebufferStatus
+	 *  Retrieves current status of described framebuffer
+	 *  \return status of frame buffer described by FramebufferStatus
 	 */
 	virtual unsigned status() const = 0;
 };
