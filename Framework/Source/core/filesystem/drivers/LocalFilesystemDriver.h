@@ -14,6 +14,9 @@ namespace memory
 #endif
 
 #include "core/filesystem/FilesystemDriver.h"
+
+#define  BOOST_ALL_NO_LIB 1
+
 #include <boost/filesystem.hpp>
 
 

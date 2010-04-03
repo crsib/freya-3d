@@ -92,6 +92,7 @@ private:
 				if(*(created[i].first) == thrd)
 					return created[i].second;
 			}
+			return NULL;
 		}
 
 		vect 	created;
