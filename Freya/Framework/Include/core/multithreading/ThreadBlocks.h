@@ -57,11 +57,11 @@ const ThreadID&	getMainThreadID();
 void		pause();
 
 #ifdef _MSC_VER
-#include <windows.h>
+#include <intrin.h>
 #endif
 
 #ifdef _MSC_VER
-#	define test_and_set InterlockedBitTestAndSet
+#	define test_and_set _interlockedbittestandset
 #else
 inline long SyncInterlockedExchange(volatile long *Dest, long Val)
 {

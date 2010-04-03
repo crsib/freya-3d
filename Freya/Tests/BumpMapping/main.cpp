@@ -402,7 +402,7 @@ public:
 		static unsigned tex_load_start;
 		if(!m_RendererStarted)
 		{
-#ifdef _MSC_VER
+#ifdef _MSC_VER && defined(PROFILE_UPDATE)
 			QueryPerformanceFrequency((LARGE_INTEGER*)(&freq));
 			if(freq == 0)
 				freq = 1;

@@ -35,6 +35,10 @@ typedef unsigned __int16 	uint16_t;
 
 typedef  __int8 			int8_t;
 typedef unsigned __int8 	uint8_t;
+
+#include <intrin.h>
+extern "C"
+__MACHINEI(unsigned char _interlockedbittestandset(long volatile *a, long b))
 #endif
 
 namespace core
