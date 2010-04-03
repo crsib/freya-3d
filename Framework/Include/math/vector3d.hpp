@@ -12,6 +12,8 @@
 #include "math_internal.h"
 #include "vector2d.hpp"
 
+#include <LinearMath/btVector3.h>
+
 namespace math
 {
 
@@ -47,6 +49,11 @@ public:
 	vector3d()
 	{
 		xmm = _mm_setzero_ps();
+	}
+
+	vector3d(const btVector3& bvec)
+	{
+		xmm = bvec.mVec128;
 	}
 
 	vector3d(__m128 m)
@@ -94,6 +101,7 @@ public:
 	//! Conversion operators
 	operator float* ();
 	operator const float* () const;
+	operator btVector3() const;
 	//! vector2d(x/z,y/z) if z ≠ 0, vector2d(math::inf,math::inf) otherwise
 	operator vector2d	() const;
 	//! Self-normalizing
@@ -211,6 +219,14 @@ inline
 vector3d::operator float*()
 {
 	return &x;
+}
+
+inline
+vector3d::operator btVector3 () const
+{
+	btVector3 vec;
+	vec.mVec128 = xmm;
+	return vec;
 }
 
 inline vector3d & vector3d::normalize()

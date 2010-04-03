@@ -124,7 +124,7 @@ public:
 
 						}
 
-					}
+					} //if(vert)
 					else if(frag)
 					{
 						frag = false;
@@ -150,7 +150,7 @@ public:
 
 						}
 
-					}
+					} //esle if frag
 					else if(geom)
 					{
 						geom = false;
@@ -176,7 +176,7 @@ public:
 
 						}
 
-					}
+					}//else if(geom)
 					else
 					{
 						//General case

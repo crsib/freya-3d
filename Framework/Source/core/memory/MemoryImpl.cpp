@@ -37,27 +37,6 @@ typedef  __int8 			int8_t;
 typedef unsigned __int8 	uint8_t;
 #endif
 
-#ifdef _MSC_VER
-#	include <windows.h>
-#	define test_and_set InterlockedBitTestAndSet
-#else
-inline long SyncInterlockedExchange(volatile long *Dest, long Val)
-{
-#if defined(__GNUC__) && defined (__GNUC_MINOR__) && ((4 < __GNUC__) || (4 == __GNUC__ && 1 <= __GNUC_MINOR__))
-	return  __sync_lock_test_and_set(Dest, Val);
-#else
-	register int result;
-	__asm__ __volatile__("lock; xchg %0,%1"
-			: "=r" (result), "=m" (*Dest)
-			  : "0" (Val), "m" (*Dest)
-			    : "memory");
-	return result;
-#endif
-}
-
-#	define test_and_set SyncInterlockedExchange
-#endif
-
 namespace core
 {
 namespace memory
