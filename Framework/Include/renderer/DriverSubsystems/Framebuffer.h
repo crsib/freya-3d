@@ -34,7 +34,7 @@ class Texture;
  * This class provides API independent abstraction for off-screen frame buffer.
  * This class can be constructed using RenderingAPI driver only.
  */
-class Framebuffer: virtual public ::EngineSubsystem
+class EXPORT Framebuffer: virtual public ::EngineSubsystem
 {
 public:
 	//! Set dimensions of off-screen frame buffer.
@@ -121,8 +121,8 @@ public:
 	//framebuffer status
 	//! Retrieve the described frame buffer status
 	/*!
-	 *  Retieves current status of described framebuffer
-	 *  \return stutus of frame buffer described by FramebufferStatus
+	 *  Retrieves current status of described framebuffer
+	 *  \return status of frame buffer described by FramebufferStatus
 	 */
 	virtual unsigned status() const = 0;
 };

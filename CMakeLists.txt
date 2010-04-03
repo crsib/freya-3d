@@ -3,7 +3,7 @@
 #
 #
      
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 PROJECT ( Freya3D ) 
  
@@ -59,6 +59,10 @@ IF( CMAKE_COMPILER_IS_GNUCC )
         SET(CMAKE_C_FLAGS ${TMP_C_FLAGS}
                                  CACHE STRING "Freya 3D defaults" FORCE )
     ENDIF(NOT SSE2_C_RES)
+    
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden ")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden ")
+
 ENDIF( CMAKE_COMPILER_IS_GNUCC )
 
 IF(MSVC)
@@ -74,7 +78,9 @@ ENDIF(MSVC)
 # Search for libraries
 #Additional modules paths
 SET	( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/CMakeFind ${CMAKE_SOURCE_DIR}/CMakeIncludes )
-
+IF( APPLE )
+SET ( CMAKE_PROGRAM_PATH /opt/local/bin /opt/subversion/bin )
+ENDIF()
 #Search for bullet physics library
 FIND_PACKAGE( Bullet REQUIRED )
 IF( BULLET_FOUND )
@@ -141,6 +147,8 @@ ENDIF()
 #Build math library
 ADD_SUBDIRECTORY ( Framework/Source/math )
 
+add_subdirectory( Framework/3party/zlib )
+add_subdirectory( Framework/3party/libpng )
 #Build plugins
 INCLUDE(  BuildPlugins )
 

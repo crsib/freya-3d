@@ -37,26 +37,73 @@ class __thread_function : public core::multithreading::Runnable
 {
 public:
 	core::multithreading::RingBuffer<core::taskmanager::Task*,32>* rb;
+	core::taskmanager::TaskManager*	man;
 	virtual int operator () ()
 	{
 		while(TaskThread::m_Active)
 		{
 			try
 			{
+#if 0
 				core::taskmanager::Task*	task = rb->fetch();
 				if(task)
 				{
 					switch((*task)())
 					{
-					case core::taskmanager::Task::MAIN_THREAD:
-						core::EngineCore::getTaskManager()->addTask(task);
-						break;
-					case core::taskmanager::Task::SECONDARY_THREAD:
-						core::EngineCore::getTaskManager()->addAsynchronousTask(task);
-						break;
+						case core::taskmanager::Task::MAIN_THREAD:
+							core::EngineCore::getTaskManager()->addTask(task);
+							break;
+						case core::taskmanager::Task::SECONDARY_THREAD:
+							core::EngineCore::getTaskManager()->addAsynchronousTask(task);
+							break;
 					}
 					task->release();
 				}
+#endif
+				while(man == 0)
+				{
+					man = core::EngineCore::getTaskManager();
+					core::multithreading::yield();
+				}
+				if(man->m_SecThreadSchedule.size())
+				{
+					core::taskmanager::Task*	task = NULL;
+					//synchronize(man->m_MutexAux)
+					//{
+					while(test_and_set(&man->m_AuxLock,1))
+						core::multithreading::yield();
+					if(man->m_SecThreadSchedule.size())
+					{
+						task = man->m_SecThreadSchedule.front();
+						//std::cout << "Fetched task: " << (void*) task << " ret " << task->retainCount() << std::endl;
+						man->m_SecThreadSchedule.pop_front();
+						man->m_AuxLock = 0;
+
+						if(task)
+						{
+							switch((*task)())
+							{
+								case core::taskmanager::Task::MAIN_THREAD:
+									core::EngineCore::getTaskManager()->addTask(task);
+									break;
+								case core::taskmanager::Task::SECONDARY_THREAD:
+									core::EngineCore::getTaskManager()->addAsynchronousTask(task);
+									break;
+							}
+							task->release();
+						}//if(task)
+					}
+					else
+					{
+						man->m_AuxLock = 0;
+						core::multithreading::yield();
+					}
+				}//if(man->m_SecThreadSchedule.size())
+				else
+				{
+					core::multithreading::yield();
+				}
+
 			}
 			catch(const ::EngineException& ex)
 			{
@@ -73,61 +120,19 @@ unsigned	TaskThread::m_Active = 0;
 TaskThread::TaskThread()
 {
 	m_Active = 1;
-	m_Buffer = new core::multithreading::RingBuffer<core::taskmanager::Task*,32>();
 	m_Func = new __thread_function();
-	m_Func->rb = m_Buffer;
+	m_Func->man = core::EngineCore::getTaskManager();
 	m_Thread = core::EngineCore::createThread(*m_Func);
 }
 
 TaskThread::~TaskThread()
 {
 	m_Active = 0;
-#if 1
-	std::cout << "Buffered tasks: " << m_Buffer->count() << std::endl;
-	while(m_Buffer->empty())
-	{
-		std::cout << "Unloking sub thread [empty] " << std::endl;
-		m_Buffer->deposit(new __Task);
-		m_Buffer->deposit(new __Task);
-		std::cout << "Re-buffered tasks: " <<  m_Buffer->count() << std::endl;
-		m_Active = 0;
-		core::multithreading::yield();
-	}
-	while(m_Buffer->full())
-	{
-		std::cout << "Unloking sub thread [full]" << std::endl;
-		m_Buffer->fetch()->release();
-		std::cout << "Re-buffered tasks: " <<  m_Buffer->count() << std::endl;
-		m_Active = 0;
-		core::multithreading::yield();
-	}
-#endif
-	std::cout << "Awaiting sub thread " << m_Thread << std::endl;
 	m_Thread->wait();
-	std::cout << "Destroying connection buffer " << std::endl;
-	//m_Buffer->deposit(new __Task);
-	while(!m_Buffer->empty())
-		m_Buffer->fetch()->release();
-	delete m_Buffer;
 	std::cout << "Returning sub thread " << std::endl;
 	core::EngineCore::destroyThread(m_Thread);
 	delete m_Func;
 
-}
-
-void TaskThread::addTask(Task* task)
-{
-	m_Buffer->deposit(task);
-}
-
-size_t TaskThread::count()
-{
-	return m_Buffer->count();
-}
-
-bool TaskThread::operator < (const TaskThread& other) const
-{
-	return (m_Buffer->count() < other.m_Buffer->count());
 }
 
 }

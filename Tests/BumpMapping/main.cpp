@@ -622,6 +622,7 @@ int main(int argC,char** argV)
 	try
 	{
 		core::EngineCore::getTaskManager()->addTask(new Initialize);
+		//core::EngineCore::getTaskManager()->setThreadNumber(3);
 		core::EngineCore::getTaskManager()->enterMainLoop();
 		std::cout << "FPS: " << fps << std::endl;
 	}

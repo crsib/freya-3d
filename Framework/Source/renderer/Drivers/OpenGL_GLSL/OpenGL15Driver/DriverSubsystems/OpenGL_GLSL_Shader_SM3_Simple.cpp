@@ -73,7 +73,7 @@ void		OpenGL_GLSL_Shader::addShader(renderer::ShaderType::type type,const EStrin
 
 	glGetObjectParameterivARB(shader, GL_OBJECT_COMPILE_STATUS_ARB, &compileStatus);
 
-	if(compileStatus == 0) //Whoa, this shader is no compiled. Ats a good idea to generate exeption )))
+	if(compileStatus == 0) //Whoa, this shader is not compiled. Ats a good idea to generate exception )))
 	{
 		GLint       logLength     = 0;
 		GLsizei     charsWritten  = 0;

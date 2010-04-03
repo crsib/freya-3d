@@ -30,7 +30,7 @@ namespace renderer
 /*!
  * All shader exceptions should be inherited from this base class (or be thrown using this class)
  */
-class ShaderException: public EngineException
+class EXPORT ShaderException: public EngineException
 {
 public:
 	//! Generate message by shader type (described by ShaderType)

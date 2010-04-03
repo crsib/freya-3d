@@ -58,11 +58,6 @@ $pfile "core/MemoryPools.lpkg"
 $pfile "core/TaskManager.lpkg"
 $pfile "core/Task.lpkg"
 
-$pfile "framework/SceneNode.lpkg"
-$pfile "framework/SceneNodeController.lpkg"
-$pfile "framework/World.lpkg"
-$pfile "framework/LuaDescriptors.lpkg"
-
 $pfile "renderer/RenderingAPIDriver.lpkg"
 $pfile "renderer/Shader.lpkg"
 $pfile "renderer/VertexBufferObject.lpkg"
