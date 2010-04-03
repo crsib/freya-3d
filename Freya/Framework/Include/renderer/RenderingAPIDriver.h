@@ -49,39 +49,40 @@ namespace futures
 enum RenderFutures
 {
 	//Texturing
-			MULTITEXTURE 					= 0x1,
-			CUBE_MAP	   					= 0x2,
-			RECTANGLE_TEXTURE	 			= 0x4,
-			TEXTURE_3D						= 0x8,
-			FLOAT_TEXTURE					= 0x10,
-			NPOT_TEXTURE					= 0x20,
-			COMPRESSED_TEXTURE				= 0x40,
-			S3TC_TEXTURE					= 0x80,
-			DEPTH_TEXTURE					= 0x100,
-			GENERATE_MIPMAPS				= 0x200,
-			ANISOTROPIC_FILTERING			= 0x400,
-			TEXTURE_ARRAY					= 0x800,
+			MULTITEXTURE 					= 0x1,  // bit 1
+			CUBE_MAP	   					= 0x2,  // bit 2
+			RECTANGLE_TEXTURE	 			= 0x4,  // bit 3
+			TEXTURE_3D						= 0x8,  // bit 4
+			FLOAT_TEXTURE					= 0x10,  // bit 5
+			NPOT_TEXTURE					= 0x20,  // bit 6
+			COMPRESSED_TEXTURE				= 0x40,  // bit 7
+			S3TC_TEXTURE					= 0x80,  // bit 8
+			DEPTH_TEXTURE					= 0x100,  // bit 9
+			GENERATE_MIPMAPS				= 0x200,  // bit 10
+			ANISOTROPIC_FILTERING			= 0x400,  // bit 11
+			TEXTURE_ARRAY					= 0x800,  // bit 12
 
 			//Framebuffers
-			FRAMEBUFFER						= 0x1000,
-			MRT								= 0x2000,
-			PACKED_DEPTH_STENCIL			= 0x4000,
+			FRAMEBUFFER						= 0x1000,  // bit 13
+			MRT								= 0x2000,  // bit 14
+			PACKED_DEPTH_STENCIL			= 0x4000,  // bit 15
 
 			//VBO
-			VERTEX_BUFFER					= 0x10000,
-			TEXTURE_BUFFER					= 0x20000,
+			VERTEX_BUFFER					= 0x10000,  // bit 17
+			TEXTURE_BUFFER					= 0x20000,  // bit 18
 			PIXEL_BUFFER					= TEXTURE_BUFFER,
-			R2VB							= 0x40000,
+			R2VB							= 0x40000,  // bit 19
 
 			//Shaders
-			VERTEX_SHADER					= 0x100000,
-			FRAGMENT_SHADER					= 0x200000,
-			GEOMETRY_SHADER					= 0x400000,
-			SM40							= 0x800000,
+			VERTEX_SHADER					= 0x100000,  // bit 21
+			FRAGMENT_SHADER					= 0x200000,  // bit 22
+			GEOMETRY_SHADER					= 0x400000,  // bit 23
+			SM40							= 0x800000,  // bit 24
 
-			//Misc
-
-
+			//Matricies
+			HAS_DEFAULT_VIEW_BIND			= 0x1000000, // bit 25
+			HAS_DEFUALT_WORLD_BIND			= 0x2000000, // bit 26
+			HAS_DEFAULT_PROJECTION_BIND		= 0x4000000, // bit 27
 };
 
 }

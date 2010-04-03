@@ -248,6 +248,9 @@ public:
 	static void								destroyCondition(core::multithreading::Condition* cond);
 	//! Get current log string
 	static EString							getLog();
+
+	static int								getRevision();
+	static const char*						getRevisionString();
 private:
 	//Memory subsystem
 	static core::memory::MemoryArena*					m_MemoryArena;

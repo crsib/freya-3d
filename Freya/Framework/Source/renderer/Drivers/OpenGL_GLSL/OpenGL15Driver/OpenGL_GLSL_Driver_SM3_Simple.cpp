@@ -70,7 +70,10 @@ OpenGL_GLSL_Driver::OpenGL_GLSL_Driver()
 			renderer::futures::TEXTURE_BUFFER				|
 			renderer::futures::R2VB							|
 			renderer::futures::VERTEX_SHADER				|
-			renderer::futures::FRAGMENT_SHADER;
+			renderer::futures::FRAGMENT_SHADER				|
+			renderer::futures::HAS_DEFAULT_PROJECTION_BIND  |
+			renderer::futures::HAS_DEFAULT_VIEW_BIND		|
+			renderer::futures::HAS_DEFUALT_WORLD_BIND;
 	m_VF = NULL;
 	m_RendererName = EString(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
 	m_RendererVendor = EString(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
@@ -84,7 +87,7 @@ OpenGL_GLSL_Driver::OpenGL_GLSL_Driver()
 			<< " px\n\tMaximum cube texture size: " << m_MaxCubeTextureSize
 			<< " px\n\tMaximum 3D texture size: " << m_Max3DTextureSize
 			<< " px\n\tNumber of draw buffers: " << m_NumDrawBuffers
-			<< " \n\tnumber of texture units: " << m_TextureUnits << std::endl;
+			<< " \n\tNumber of texture units: " << m_TextureUnits << std::endl;
 }
 
 OpenGL_GLSL_Driver::~OpenGL_GLSL_Driver()
@@ -99,30 +102,35 @@ OpenGL_GLSL_Driver::~OpenGL_GLSL_Driver()
 		delete *it;
 }
 
-EString		OpenGL_GLSL_Driver::id() const
-		{
+EString
+OpenGL_GLSL_Driver::id() const
+{
 	return EString("OpenGL 1.5 GLSL");
-		}
+}
 
-EString		OpenGL_GLSL_Driver::getAPIName() const
-		{
+EString
+OpenGL_GLSL_Driver::getAPIName() const
+{
 	return EString("OpenGL 1.5");
-		}
+}
 
-EString		OpenGL_GLSL_Driver::getShaderAPIName() const
-		{
+EString
+OpenGL_GLSL_Driver::getShaderAPIName() const
+{
 	return EString("GLSL_1_10");
-		}
+}
 
-bool	OpenGL_GLSL_Driver::futuresState(unsigned futures) const
-		{
+bool
+OpenGL_GLSL_Driver::futuresState(unsigned futures) const
+{
 	return (m_Futures & futures) == futures;
-		}
+}
 
-unsigned OpenGL_GLSL_Driver::futures() const
-		{
+unsigned
+OpenGL_GLSL_Driver::futures() const
+{
 	return m_Futures;
-		}
+}
 
 void		OpenGL_GLSL_Driver::setViewport(unsigned x, unsigned y,unsigned width,unsigned height)
 {
@@ -718,9 +726,9 @@ void		OpenGL_GLSL_Driver::clipArea(float left,float top, float right,float botto
 }
 
 const math::matrix4x4 OpenGL_GLSL_Driver::getMatrix(renderer::Matrix::type mtx) const
-{
+		{
 	return m_Matricies[mtx];
-}
+		}
 
 }
 }

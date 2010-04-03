@@ -55,8 +55,8 @@
 #   endif
 #       define CEGUIPRIVATE
 #else
-#       define CEGUIEXPORT
-#       define CEGUIPRIVATE
+#       define CEGUIEXPORT  __attribute__ ((visibility("default")))
+#       define CEGUIPRIVATE __attribute__ ((visibility("hidden")))
 #endif
 
 
