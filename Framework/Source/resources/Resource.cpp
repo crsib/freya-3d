@@ -40,7 +40,7 @@ void	Resource::waitForResource()
 	while(m_Ready == 0)
 	{
 #ifndef _MSC_VER
-		core::multithreading::yield();
+		sched_yield();
 #else
 		Sleep(0);
 #endif
