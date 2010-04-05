@@ -492,11 +492,11 @@ void		OpenGL_GLSL_Driver::drawPrimitive(renderer::Primitive::type primitives,uns
 	m_VF->disable();
 }
 
-void		OpenGL_GLSL_Driver::drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* buf)
+void		OpenGL_GLSL_Driver::drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* buf,ptrdiff_t offset)
 {
 	m_VF->enable();
 	buf->bind(VBOType::INDEX);
-	glDrawElements(OpenGL_GLSL_Tables::Primitive[primitives],count,OpenGL_GLSL_Tables::DataType[type],0);
+	glDrawElements(OpenGL_GLSL_Tables::Primitive[primitives],count,OpenGL_GLSL_Tables::DataType[type],(void*)offset);
 	buf->unbind();
 	m_VF->disable();
 }
@@ -514,7 +514,7 @@ void		OpenGL_GLSL_Driver::drawPrimitive(renderer::Primitive::type primitives,uns
 	delete instd;
 }
 
-void		OpenGL_GLSL_Driver::drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* indexBuffer,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData)
+void		OpenGL_GLSL_Driver::drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* indexBuffer,ptrdiff_t offset,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData)
 {
 	OpenGL_GLSL_Driver::VertexFormat*	instd = new OpenGL_GLSL_Driver::VertexFormat(instanceDeclaration,m_Streams);
 	m_VF->enable();
@@ -522,7 +522,7 @@ void		OpenGL_GLSL_Driver::drawIndexedPrimitive(renderer::Primitive::type primiti
 	for(unsigned i = 0; i < numInstances; i++)
 	{
 		instd->enableImmediate(i,instanceData);
-		glDrawElements(OpenGL_GLSL_Tables::Primitive[primitives],count,OpenGL_GLSL_Tables::DataType[type],0);
+		glDrawElements(OpenGL_GLSL_Tables::Primitive[primitives],count,OpenGL_GLSL_Tables::DataType[type],(void*)offset);
 	}
 	indexBuffer->unbind();
 	m_VF->disable();
