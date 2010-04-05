@@ -10,7 +10,7 @@
 #ifdef _MSC_VER
 #	pragma warning(disable:4275)
 #	pragma warning(disable:4251)
-typedef std::vector<EString,core::memory::MemoryAllocator<EString> > EStringList;
+typedef std::vector<EString>  EStringList;
 #endif
 
 namespace core
