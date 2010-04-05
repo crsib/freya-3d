@@ -94,20 +94,40 @@ Resource *VDataLoader::loadSynchronous(const EString & ID)
 			memcpy(&data->batches[i].assembly_type,reinterpret_cast<char*>(raw_data) + offset,8);
 			offset += 8;
 			//std::cout << "\t\tBatch " << i << "\n\t\t\tAssembly type: " << data->batches[i].assembly_type
-//					<< "\n\t\t\tIndex count: " << data->batches[i].index_count
-//					<< "\n\t\t\tOffset: "<< data->batches[i].buffer_offset << std::endl;
+			//					<< "\n\t\t\tIndex count: " << data->batches[i].index_count
+			//					<< "\n\t\t\tOffset: "<< data->batches[i].buffer_offset << std::endl;
 			//Now, the most difficult part. Reading buffer layout
 			typedef std::vector<renderer::VertexElement*, core::memory::MemoryAllocator<renderer::VertexElement*> > vlayout;
 			vlayout layout;
 			bool finished = false;
+
+			unsigned max_stride = 0;
+			unsigned max_stride_data_size;
+			static unsigned char num_components[8] =
+			{
+					1,2,3,4,1,4,2,4
+			};
+			static unsigned char size_of_component[8] =
+			{
+					4,4,4,4,4,1,2,2
+			};
+
 			while(!finished)
 			{
 				uint32_t _[4];
 				memcpy(_,reinterpret_cast<char*>(raw_data) + offset,4*sizeof(uint32_t));
 				offset += 4*sizeof(uint32_t);
 				//std::cout << "stream data: " << _[0] << " " << _[1] << " " << _[2] << " " << _[3] << " "  << std::endl;
-				renderer::VertexElement* elem = new renderer::VertexElement(_[0],(renderer::VertexFormat::USAGE)_[1],(renderer::VertexFormat::TYPE)_[3],_[4]);
+				//std::cout << "number of comp: " << (int)num_components[_[2]]  << std::endl;
+				renderer::VertexElement* elem = new renderer::VertexElement(_[0],(renderer::VertexFormat::USAGE)_[1],(renderer::VertexFormat::TYPE)_[2],_[3]);
 				layout.push_back(elem);
+
+				if(_[3] > max_stride)
+				{
+					max_stride = _[3];
+					max_stride_data_size = num_components[_[2]]*size_of_component[_[2]];
+				}
+
 				if(elem->usage == renderer::VertexFormat::UNUSED)
 					finished = true;
 			}
@@ -119,8 +139,13 @@ Resource *VDataLoader::loadSynchronous(const EString & ID)
 				data->batches[i].layout[j].usage	= layout[j]->usage;
 				data->batches[i].layout[j].type		= layout[j]->type;
 				data->batches[i].layout[j].offset	= layout[j]->offset;
+//				std::cout << "Copied layout " << j << " sid " << data->batches[i].layout[j].streamID
+//						<< " usage " << data->batches[i].layout[j].usage << " type "
+//						<< data->batches[i].layout[j].type << " offset " << data->batches[i].layout[j].offset << std::endl;
 				delete layout[j];
 			}
+			data->batches[i].stride = max_stride + max_stride_data_size;
+			std::cout<< "Stride " << data->batches[i].stride << std::endl;;
 		}
 		memcpy(&data->number_of_indicies,reinterpret_cast<char*>(raw_data) + offset,sizeof(uint16_t));
 		offset += sizeof(uint16_t);
@@ -132,7 +157,7 @@ Resource *VDataLoader::loadSynchronous(const EString & ID)
 			memcpy(data->indicies->map(renderer::VBOAccess::WRITE_ONLY),reinterpret_cast<char*>(raw_data) + offset,data->number_of_indicies*sizeof(uint16_t));
 			data->indicies->unmap();
 			offset += data->number_of_indicies*sizeof(uint16_t);
-			//std::cout << "\t\tNumber of indicies: " << data->number_of_indicies << std::endl;
+		//	std::cout << "\t\tNumber of indicies: " << data->number_of_indicies << std::endl;
 		}
 		memcpy(&data->size_of_vertex_data,reinterpret_cast<char*>(raw_data) + offset,sizeof(uint32_t));
 		offset += sizeof(uint32_t);
@@ -201,8 +226,8 @@ public:
 					memcpy(&data->batches[i].assembly_type,reinterpret_cast<char*>(raw_data) + offset,8);
 					offset += 8;
 					//std::cout << "\t\tBatch " << i << "\n\t\t\tAssembly type: " << data->batches[i].assembly_type
-//							<< "\n\t\t\tIndex count: " << data->batches[i].index_count
-//							<< "\n\t\t\tOffset: "<< data->batches[i].buffer_offset << std::endl;
+					//							<< "\n\t\t\tIndex count: " << data->batches[i].index_count
+					//							<< "\n\t\t\tOffset: "<< data->batches[i].buffer_offset << std::endl;
 					//Now, the most difficult part. Reading buffer layout
 					typedef std::vector<renderer::VertexElement*, core::memory::MemoryAllocator<renderer::VertexElement*> > vlayout;
 					vlayout layout;

@@ -41,6 +41,7 @@ bool		ResourceLibrary::remove(Resource* res)
 	{
 		if((--(*it).second.second) > 0)
 			return false;
+		m_Library.erase(it);
 		return true;
 	}
 	return false;

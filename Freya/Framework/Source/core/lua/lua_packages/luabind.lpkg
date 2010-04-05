@@ -1,8 +1,27 @@
 $lfile "lua_debug.lua"
 
 $#include "core/lua/lua_libraries/lua_helpers.h"
+$#include "core/EString.h"
 
 typedef std::string  EString;
+typedef std::vector<EString> EStringList;
+namespace std
+{
+class vector {
+
+	TEMPLATE_BIND(T, EString)
+
+	void clear();
+	int size() const;
+
+	const T& operator[](int index) const;
+	T& operator[](int index);
+	void push_back(T val);
+
+	vector();
+	~vector();
+};
+}
 
 void include(const EString& modName, const EString& path);
 
@@ -34,6 +53,20 @@ public:
 
 }
 }
+
+class		VDataRenderer : public EngineSubsystem
+{
+public:
+	VDataRenderer();
+	
+	virtual ~VDataRenderer();
+
+	bool	hasTangentSpace();
+
+	void	reload(const EString& path);
+	void	enableBumpMapping(bool val);
+	void	render(const math::vector3d& light_pos, const math::vector3d& eye_pos);
+};
 
 void	setQuitCallback(const EString& luaFn);
 

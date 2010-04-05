@@ -22,12 +22,16 @@
 #include "core/taskmanager/Task.h"
 #include "windowmanager/WindowManagerDriver.h"
 #include "windowmanager/Callback.h"
+#include "scenegraph/VBOData.h"
+#include "resources/Resource.h"
+#include "resources/ResourceManager.h"
+#include "primitives/Cube.h"
 
 inline
 void include(const EString& modName, const EString& path)
 {
 	size_t ssz;
-	void* s_src = core::EngineCore::getFilesystem()->read("/Scripts/Demo.lua",&ssz);
+	void* s_src = core::EngineCore::getFilesystem()->read(path,&ssz);
 	EString scr(reinterpret_cast<char*>(s_src),ssz);
 	core::EngineCore::getLuaCore()->includeModule(modName,scr);
 	core::memory::Free(s_src,core::memory::GENERIC_POOL);
@@ -45,11 +49,11 @@ namespace core
 {
 namespace memory
 {
-	extern EXPORT unsigned memory_allocated;
-	extern EXPORT unsigned allocation_count;
-	extern EXPORT unsigned deallocation_count;
-	extern EXPORT unsigned alloc_dealloc_dif;
-	extern EXPORT unsigned allocated_for_buffers;
+extern EXPORT unsigned memory_allocated;
+extern EXPORT unsigned allocation_count;
+extern EXPORT unsigned deallocation_count;
+extern EXPORT unsigned alloc_dealloc_dif;
+extern EXPORT unsigned allocated_for_buffers;
 }
 }
 
@@ -157,4 +161,159 @@ void	setWheelCallback(const EString& luaFn)
 	core::EngineCore::getWindowManager()->setMouseWheelCallback(windowmanager::Callback(core::lua::__internal::wheelCallback));
 }
 
+class		VDataRenderer : public EngineSubsystem
+{
+public:
+	VDataRenderer()
+	{
+		m_VBODataResource = m_DiffuseResource =
+				m_NormalMapResource = m_SpecularResource =
+						m_BumpedShaderResource = m_NoBumpShaderResource =
+								NULL;
+		m_RM = core::EngineCore::getResourceManager();
+		m_Rapi = core::EngineCore::getRenderingDriver();
+
+		m_HasTangentSpace = false;
+
+		m_DiffuseResource = m_RM->load(":tga:/Textures/diffuse.tga:mipmaps",resources::ResourceManager::IMMEDIATELY);
+		m_SpecularResource = m_RM->load(":tga:/Textures/specular.tga:mipmaps",resources::ResourceManager::IMMEDIATELY);
+		m_NormalMapResource = m_RM->load(":tga:/Textures/normal.tga:mipmaps",resources::ResourceManager::IMMEDIATELY);
+
+		m_Diffuse = m_DiffuseResource->get<renderer::Texture*>();
+		m_Specular = m_SpecularResource->get<renderer::Texture*>();
+		m_NormalMap = m_NormalMapResource->get<renderer::Texture*>();
+
+		m_BumpedShaderResource = m_RM->load(":shader:bump",resources::ResourceManager::IMMEDIATELY);
+		m_NoBumpShaderResource = m_RM->load(":shader:nobump",resources::ResourceManager::IMMEDIATELY);
+
+		m_LightSource = new primitives::Cube;
+		m_LightSource->setDiffuse(m_Diffuse);
+		m_LightSource->setSpecular(m_Specular);
+		m_LightSource->setBump(m_NormalMap);
+		m_LightSource->setShader(m_BumpedShaderResource->get<renderer::Shader*>());
+
+		renderer::Shader* s = m_NoBumpShaderResource->get<renderer::Shader*>();
+		s->setTexture("diffuse",renderer::TextureUnit::TEXTURE0);
+		s->setTexture("specular",renderer::TextureUnit::TEXTURE1);
+
+	}
+	virtual ~VDataRenderer()
+	{
+		m_RM->free(m_DiffuseResource);
+		m_RM->free(m_NormalMapResource);
+		m_RM->free(m_SpecularResource);
+		if(m_VBODataResource)
+			m_RM->free(m_VBODataResource);
+		m_RM->free(m_BumpedShaderResource);
+		m_RM->free(m_NoBumpShaderResource);
+		delete m_LightSource;
+	}
+
+	bool	hasTangentSpace() const
+	{
+		return m_HasTangentSpace;
+	}
+
+	void	reload(const EString& path)
+	{
+		resources::Resource* res = m_VBODataResource;
+
+		m_VBODataResource = m_RM->load(":vbo:"+path,resources::ResourceManager::IMMEDIATELY);
+
+		if(res)
+			m_RM->free(res);
+
+		m_VBOData = m_VBODataResource->get<scenegraph::VBOData*>();
+
+		//Search for tangent
+		m_HasTangentSpace = false;
+		for(size_t i = 0; i < m_VBOData->num_batches; i++)
+		{
+			scenegraph::VBOData::VBOBatchHeader*	batch = m_VBOData->batches + i;
+			renderer::VertexElement* elem = batch->layout;
+			while(elem->usage != renderer::VertexFormat::UNUSED)
+			{
+				if(elem->usage == renderer::VertexFormat::TANGENT)
+				{
+					m_HasTangentSpace = true;
+					break;
+				}
+				elem++;
+			}
+			if(m_HasTangentSpace)
+				break;
+		}
+
+		m_Shader = m_HasTangentSpace ? m_BumpedShaderResource->get<renderer::Shader*>() : m_NoBumpShaderResource->get<renderer::Shader*>();
+	}
+
+	void	enableBumpMapping(bool val)
+	{
+		//std::cout << "Switching bump " << (val ? "on" : "off") << std::endl;
+		if(m_HasTangentSpace)
+			m_Shader = val ? m_BumpedShaderResource->get<renderer::Shader*>() : m_NoBumpShaderResource->get<renderer::Shader*>();
+	}
+
+	void	render(const math::vector3d& light_pos, const math::vector3d& eye_pos)
+	{
+		if(m_VBODataResource)
+		{
+			m_Rapi->setTexture(renderer::TextureUnit::TEXTURE0,m_Diffuse);
+			m_Rapi->setTexture(renderer::TextureUnit::TEXTURE1,m_Specular);
+			m_Rapi->setTexture(renderer::TextureUnit::TEXTURE2,m_NormalMap);
+
+			m_Shader->setUniform("lightPos",light_pos);
+			m_Shader->setUniform("eyePos",eye_pos);
+
+			m_Rapi->setMatrix(renderer::Matrix::MODEL,math::matrix4x4::identity);
+			//Render VBO here
+			m_Shader->bind();
+
+			for(size_t i = 0; i < m_VBOData->num_batches; i++)
+			{
+				scenegraph::VBOData::VBOBatchHeader*	batch = m_VBOData->batches + i;
+				m_Rapi->setStreamSource(0,m_VBOData->vertex_data,batch->buffer_offset,batch->stride);
+				m_Rapi->setVertexFormat(batch->layout);
+
+				if(m_VBOData->number_of_indicies)
+				{
+					m_Rapi->drawIndexedPrimitive((renderer::Primitive::type)batch->assembly_type,batch->index_count,renderer::DataType::UNSIGNED_SHORT,m_VBOData->indicies);
+				}
+				else
+				{
+					m_Rapi->drawPrimitive((renderer::Primitive::type)batch->assembly_type,0,batch->index_count);
+				}
+			}
+			m_Shader->unbind();
+			//Translate to light position
+			math::matrix4x4 transf = math::matrix4x4::translationMatrix(light_pos)*math::matrix4x4::scaleMatrix(0.05,0.05,0.05);
+			m_Rapi->setMatrix(renderer::Matrix::MODEL,transf);
+			m_LightSource->render();
+		}
+	}
+
+private:
+	bool						m_HasTangentSpace;
+
+	resources::Resource* 		m_VBODataResource;
+	scenegraph::VBOData*		m_VBOData;
+
+	resources::Resource*		m_DiffuseResource;
+	resources::Resource*		m_NormalMapResource;
+	resources::Resource*		m_SpecularResource;
+
+	renderer::Texture*			m_Diffuse;
+	renderer::Texture*			m_NormalMap;
+	renderer::Texture*			m_Specular;
+
+	resources::Resource*		m_BumpedShaderResource;
+	resources::Resource*		m_NoBumpShaderResource;
+
+	renderer::Shader*			m_Shader;
+
+	resources::ResourceManager* m_RM;
+	renderer::RenderingAPIDriver* m_Rapi;
+
+	primitives::Cube*			m_LightSource;
+};
 #endif /* LUA_HELPERS_H_ */

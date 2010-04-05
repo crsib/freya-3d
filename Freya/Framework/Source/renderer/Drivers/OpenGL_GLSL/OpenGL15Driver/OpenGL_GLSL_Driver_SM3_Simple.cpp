@@ -322,6 +322,9 @@ void	OpenGL_GLSL_Driver::VertexFormat::enable()
 	for(unsigned i = 0; i < m_Length; i ++)
 	{
 		VertexElement*	elem = m_Format + i;
+		//std::cout << "r number of comp: " << (int)num_components[elem->type]  << std::endl;
+		//std::cout << "r offset: " << elem->offset << std::endl;
+
 		if(lastStream != elem->streamID)
 		{
 			m_Streams[lastStream].buffer->unbind();
