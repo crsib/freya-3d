@@ -336,7 +336,11 @@ public:
     \return
         Nothing.
     */
-    void    setSelectionColours(colour col)     {setSelectionColours(col, col, col, col);}
+    void    setSelectionColours(colour col)
+    {
+    	printf("setting selected color: %f %f %f %f\n",col.getRed(), col.getGreen(), col.getBlue(), col.getAlpha());
+    	setSelectionColours(col, col, col, col);
+    }
 
 
     /*!

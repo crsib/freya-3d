@@ -34,7 +34,8 @@ ResourceManager::~ResourceManager()
 	while((res = m_ResourceLibrary->pop()) != NULL)
 	{
 		ResourceManagerDriver*	drv = __findDriver(res->id());
-		drv->destroy(res);
+		if(drv)
+			drv->destroy(res);
 	}
 	delete m_ResourceLibrary;
 	for(__DriverLibrary::iterator it = m_Drivers.begin();it != m_Drivers.end(); ++it)
