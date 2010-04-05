@@ -29,6 +29,7 @@ struct VBOData : public EngineSubsystem
 		uint16_t   						index_count;
 		uint16_t						buffer_offset;
 		renderer::VertexElement*		layout;
+		uint32_t						stride;
 	};
 //Public members
 	uint32_t							num_batches;

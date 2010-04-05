@@ -22,9 +22,9 @@ class ListboxItem
 	void setOwnerWindow(const Window* owner);
 	void setSelectionColours(const ColourRect& cols);
 	void setSelectionColours(colour top_left_colour, colour top_right_colour, colour bottom_left_colour, colour bottom_right_colour);
-	void setSelectionColours(colour col);
+	void setSelectionColours @ setSelectionColour(colour col);
 	void setSelectionBrushImage(const Image* image);
-	void setSelectionBrushImage(string imageset, string image);
+	void setSelectionBrushImage @ setSelectionBrush(string imageset, string image);
 
 	Size getPixelSize() const;
 
