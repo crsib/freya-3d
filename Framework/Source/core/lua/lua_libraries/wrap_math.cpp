@@ -6,7 +6,7 @@
  */
 
 #include "core/lua/lua_libraries/wrap_math.h"
-
+#include <iostream>
 namespace math
 {
 float dot(const vector3d& _1,const vector3d& _2)
@@ -23,6 +23,7 @@ matrix3x3 createYRotationMatrix3x3(const float angle)
 
 matrix4x4 createLookatMatrix4x4(const vector3d & from, const vector3d & to, const vector3d & up)
 {
+//	std::cout << from << " " << to << " " << " " << up << std::endl;
 	return matrix4x4::lookat(from,to,up);
 }
 
