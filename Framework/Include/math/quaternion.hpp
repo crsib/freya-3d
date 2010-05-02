@@ -161,8 +161,8 @@ inline
 quaternion& quaternion::normalize()
 {
 	__m128 tmp = _mm_mul_ps	( xmm,xmm );
-	tmp  = _mm_hadd_ps 		( tmp,tmp );
-	tmp  = _mm_hadd_ps 		( tmp,tmp );
+	tmp  = _mm_hadd_ps_f 		( tmp,tmp );
+	tmp  = _mm_hadd_ps_f 		( tmp,tmp );
 	__m128 tmp1 = _mm_and_ps		( tmp,*reinterpret_cast<const __m128*>(_ps_norm_value_mask));
 	int r = _mm_comineq_ss	( tmp1,*reinterpret_cast<const __m128*>(_ps_0));
 	if(r)
@@ -180,8 +180,8 @@ quaternion&	quaternion::inverse()
 	xmm = _mm_xor_ps(xmm,*reinterpret_cast<const __m128*>(_ps_sign_mask));
 	w *= -1.0;
 	__m128 tmp = _mm_mul_ps	( xmm,xmm );
-	tmp  = _mm_hadd_ps 		( tmp,tmp );
-	tmp  = _mm_hadd_ps 		( tmp,tmp );
+	tmp  = _mm_hadd_ps_f 		( tmp,tmp );
+	tmp  = _mm_hadd_ps_f 		( tmp,tmp );
 	__m128 tmp1 = _mm_and_ps		( tmp,*reinterpret_cast<const __m128*>(_ps_norm_value_mask));
 	int r = _mm_comineq_ss	( tmp1,*reinterpret_cast<const __m128*>(_ps_0));
 	if(r)
@@ -218,8 +218,8 @@ float 		abs(const quaternion& q)
 {
 	float res;
 	__m128 tmp = _mm_mul_ps(q.xmm,q.xmm);
-	tmp  = _mm_hadd_ps ( tmp,tmp );
-	tmp  = _mm_hadd_ps ( tmp,tmp );
+	tmp  = _mm_hadd_ps_f ( tmp,tmp );
+	tmp  = _mm_hadd_ps_f ( tmp,tmp );
 	tmp =  _mm_sqrt_ss( tmp);
 	_mm_store_ss (&res,tmp);
 	return res;
@@ -230,8 +230,8 @@ float 		abs_sq(const quaternion& q)
 {
 	float res;
 	__m128 tmp = _mm_mul_ps(q.xmm,q.xmm);
-	tmp  = _mm_hadd_ps ( tmp,tmp );
-	tmp  = _mm_hadd_ps ( tmp,tmp );
+	tmp  = _mm_hadd_ps_f ( tmp,tmp );
+	tmp  = _mm_hadd_ps_f ( tmp,tmp );
 	_mm_store_ss (&res,tmp);
 	return res;
 }
@@ -241,8 +241,8 @@ quaternion	normalized(const quaternion& _q)
 {
 	quaternion q(_q);
 	__m128 tmp = _mm_mul_ps	( q.xmm,q.xmm );
-	tmp  = _mm_hadd_ps 		( tmp,tmp );
-	tmp  = _mm_hadd_ps 		( tmp,tmp );
+	tmp  = _mm_hadd_ps_f 		( tmp,tmp );
+	tmp  = _mm_hadd_ps_f 		( tmp,tmp );
 	__m128 tmp1 = _mm_and_ps		( tmp,*reinterpret_cast<const __m128*>(_ps_norm_value_mask));
 	int r = _mm_comineq_ss	( tmp1,*reinterpret_cast<const __m128*>(_ps_0));
 	if(r)
