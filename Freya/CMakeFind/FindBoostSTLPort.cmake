@@ -270,10 +270,7 @@ if(BoostSTLPort_FIND_VERSION_EXACT)
 else(BoostSTLPort_FIND_VERSION_EXACT)
   # The user has not requested an exact version.  Among known
   # versions, find those that are acceptable to the user request.
-  set(_Boost_KNOWN_VERSIONS ${Boost_ADDITIONAL_VERSIONS} "1.42" "1.41" "1.41.0" "1.40" "1.40.0" "1.39" "1.39.0"
-    "1.38.0" "1.38" "1.37.0" "1.37"
-    "1.36.1" "1.36.0" "1.36" "1.35.1" "1.35.0" "1.35" "1.34.1" "1.34.0"
-    "1.34" "1.33.1" "1.33.0" "1.33")
+  set(_Boost_KNOWN_VERSIONS ${Boost_ADDITIONAL_VERSIONS} "1.42.0" "1.42" "1.41" "1.41.0" )
   set(_boost_TEST_VERSIONS)
   if(BoostSTLPort_FIND_VERSION)
     set(_BoostSTLPort_FIND_VERSION_SHORT "${BoostSTLPort_FIND_VERSION_MAJOR}.${BoostSTLPort_FIND_VERSION_MINOR}")
@@ -545,7 +542,9 @@ ELSE (_boost_IN_CACHE)
     # NOTE: this is not perfect yet, if you experience any issues
     # please report them and use the Boost_COMPILER variable
     # to work around the problems.
-    if (MSVC90)
+	if(MSVC)
+		SET (_boost_COMPILER "-vc100")
+    elseif (MSVC90)
       SET (_boost_COMPILER "-vc90")
     elseif (MSVC80)
       SET (_boost_COMPILER "-vc80")
@@ -619,7 +618,7 @@ ELSE (_boost_IN_CACHE)
   set( _boost_ABI_TAG "")
   IF (WIN32)
     IF(MSVC)
-      SET (_boost_ABI_TAG "g")
+      SET (_boost_ABI_TAG "gd")
     ENDIF(MSVC)
     IF( Boost_USE_STATIC_LIBS )
       SET( _boost_STATIC_TAG "-s")
@@ -690,18 +689,20 @@ ELSE (_boost_IN_CACHE)
         HINTS  ${_boost_LIBRARIES_SEARCH_DIRS}
     )
     FIND_LIBRARY(Boost_${UPPERCOMPONENT}_LIBRARY_DEBUG
-        NAMES  ${Boost_LIB_PREFIX}boost_${COMPONENT}${_boost_COMPILER}${_boost_MULTITHREADED}-${_boost_ABI_TAG}-p-${Boost_LIB_VERSION}
-               ${Boost_LIB_PREFIX}boost_${COMPONENT}${_boost_COMPILER}${_boost_MULTITHREADED}${_boost_STATIC_TAG}${_boost_ABI_TAG}-p-${Boost_LIB_VERSION}
-               ${Boost_LIB_PREFIX}boost_${COMPONENT}${_boost_MULTITHREADED}-${_boost_ABI_TAG}-p-${Boost_LIB_VERSION}
-               ${Boost_LIB_PREFIX}boost_${COMPONENT}${_boost_MULTITHREADED}${_boost_STATIC_TAG}${_boost_ABI_TAG}-p-${Boost_LIB_VERSION}
+        NAMES  ${Boost_LIB_PREFIX}boost_${COMPONENT}${_boost_COMPILER}${_boost_MULTITHREADED}-${_boost_ABI_TAG}p-${Boost_LIB_VERSION}
+               ${Boost_LIB_PREFIX}boost_${COMPONENT}${_boost_COMPILER}${_boost_MULTITHREADED}${_boost_STATIC_TAG}${_boost_ABI_TAG}p-${Boost_LIB_VERSION}
+               ${Boost_LIB_PREFIX}boost_${COMPONENT}${_boost_MULTITHREADED}-${_boost_ABI_TAG}p-${Boost_LIB_VERSION}
+               ${Boost_LIB_PREFIX}boost_${COMPONENT}${_boost_MULTITHREADED}${_boost_STATIC_TAG}${_boost_ABI_TAG}p-${Boost_LIB_VERSION}
                ${Boost_LIB_PREFIX}boost_${COMPONENT}${_boost_MULTITHREADED}-p-${_boost_ABI_TAG}
-               ${Boost_LIB_PREFIX}boost_${COMPONENT}${_boost_MULTITHREADED}${_boost_STATIC_TAG}${_boost_ABI_TAG}-p
-               ${Boost_LIB_PREFIX}boost_${COMPONENT}-${_boost_ABI_TAG}-p
+               ${Boost_LIB_PREFIX}boost_${COMPONENT}${_boost_MULTITHREADED}${_boost_STATIC_TAG}${_boost_ABI_TAG}p
+               ${Boost_LIB_PREFIX}boost_${COMPONENT}-${_boost_ABI_TAG}p
                ${Boost_LIB_PREFIX}boost_${COMPONENT}-${_boost_ABI_TAG}
                ${Boost_LIB_PREFIX}boost_${COMPONENT}
         HINTS  ${_boost_LIBRARIES_SEARCH_DIRS}
     )
-
+	
+	MESSAGE("Debug version for ${COMPONENT} is: Boost_${UPPERCOMPONENT}_LIBRARY_DEBUG")
+	
     _Boost_ADJUST_LIB_VARS(${UPPERCOMPONENT})
     IF( Boost_USE_STATIC_LIBS )
       SET(CMAKE_FIND_LIBRARY_SUFFIXES ${_boost_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES})

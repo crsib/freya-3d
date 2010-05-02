@@ -194,17 +194,18 @@ _EPI32_CONST(0x7f, 0x7f);
 _EPI32_CONST(0xff, 0xff);
 }
 
-#ifndef __SSE3__
-
+#if !defined(__SSE3__)  
 inline
-__m128 _mm_hadd_ps( __m128& a, __m128& b)
+__m128 _mm_hadd_ps_f( __m128& a, __m128& b)
 {
    __m128 tempA = _mm_shuffle_ps(a,b, _MM_SHUFFLE(2,0,2,0));
    __m128 tempB = _mm_shuffle_ps(a,b, _MM_SHUFFLE(3,1,3,1));
    return _mm_add_ps( tempB, tempA);
 }
-#endif
 
+#else
+#define _mm_hadd_ps_f _mm_hadd_ps
+#endif
 //==================== Implementation =====================================================================
 namespace math
 {

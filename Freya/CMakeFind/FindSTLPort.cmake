@@ -32,12 +32,10 @@ IF(CMAKE_BUILD_TYPE MATCHES "Debug")
           stlport_cygwin_stldebug
           stlport_gcc_debug
           stlport_gcc_stldebug
-		  stlport_x
-	      stlportstld_x
-		  stlport_x.5.2
-	      stlportstld_x.5.2
+	      stlportstld.5.2
+		  stlportd.5.2
 	      stlportd
-	      stlport
+	      stlportstld
     PATHS ${STLPORT_INSTALL_DIR}/lib ${STLPORT_INSTALL_DIR}/../lib
   )
 ELSE(CMAKE_BUILD_TYPE MATCHES "Debug")
@@ -51,8 +49,7 @@ ELSE(CMAKE_BUILD_TYPE MATCHES "Debug")
           stlport_gcc_debug
           stlport_gcc_stldebug
 		  stlport
-	      stlport_x
-		  stlport_x.5.2
+		  stlport.5.2
 	  
     PATHS ${STLPORT_INSTALL_DIR}/lib ${STLPORT_INSTALL_DIR}/../lib
   )
