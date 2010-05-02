@@ -133,8 +133,8 @@ inline vector2d normalized(const vector2d & v)
 {
 	math::vector2d o(v);
 	__m128 tmp = _mm_mul_ps	( o.xmm,o.xmm );
-	tmp  = _mm_hadd_ps 		( tmp,tmp );
-	tmp  = _mm_hadd_ps 		( tmp,tmp );
+	tmp  = _mm_hadd_ps_f 		( tmp,tmp );
+	tmp  = _mm_hadd_ps_f 		( tmp,tmp );
 	__m128 tmp1 = _mm_and_ps( tmp,*reinterpret_cast<const __m128*>(_ps_norm_value_mask));
 	int r = _mm_comineq_ss	( tmp1,*reinterpret_cast<const __m128*>(_ps_0));
 	if(r)
@@ -155,8 +155,8 @@ vector2d::operator float*()
 inline vector2d & vector2d::normalize()
 {
 	__m128 tmp = _mm_mul_ps	( xmm,xmm );
-	tmp  = _mm_hadd_ps 		( tmp,tmp );
-	tmp  = _mm_hadd_ps 		( tmp,tmp );
+	tmp  = _mm_hadd_ps_f 		( tmp,tmp );
+	tmp  = _mm_hadd_ps_f 		( tmp,tmp );
 	__m128 tmp1 = _mm_and_ps		( tmp,*reinterpret_cast<const __m128*>(_ps_norm_value_mask));
 	int r = _mm_comineq_ss	( tmp1,*reinterpret_cast<const __m128*>(_ps_0));
 	if(r)
@@ -172,8 +172,8 @@ inline float abs_sq(const vector2d & v)
 {
 	float res;
 	__m128 tmp = _mm_mul_ps(v.xmm,v.xmm);
-	tmp  = _mm_hadd_ps ( tmp,tmp );
-	tmp  = _mm_hadd_ps ( tmp,tmp );
+	tmp  = _mm_hadd_ps_f ( tmp,tmp );
+	tmp  = _mm_hadd_ps_f ( tmp,tmp );
 	_mm_store_ss (&res,tmp);
 	return res;
 }
@@ -182,8 +182,8 @@ inline float abs(const vector2d & v)
 {
 	float res;
 	__m128 tmp = _mm_mul_ps(v.xmm,v.xmm);
-	tmp  = _mm_hadd_ps ( tmp,tmp );
-	tmp  = _mm_hadd_ps ( tmp,tmp );
+	tmp  = _mm_hadd_ps_f ( tmp,tmp );
+	tmp  = _mm_hadd_ps_f ( tmp,tmp );
 	tmp =  _mm_sqrt_ss( tmp);
 	_mm_store_ss (&res,tmp);
 	return res;
@@ -266,8 +266,8 @@ vector2d::operator ,(const vector2d & v) const
 {
 	float res;
 	__m128 tmp = _mm_mul_ps(xmm,v.xmm);
-	tmp  = _mm_hadd_ps ( tmp,tmp );
-	tmp  = _mm_hadd_ps ( tmp,tmp );
+	tmp  = _mm_hadd_ps_f ( tmp,tmp );
+	tmp  = _mm_hadd_ps_f ( tmp,tmp );
 	_mm_store_ss (&res,tmp);
 	return res;
 }
