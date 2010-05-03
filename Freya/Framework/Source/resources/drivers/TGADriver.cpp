@@ -4,12 +4,14 @@
  *  Created on: 07.07.2009
  *      Author: vedenko
  */
-
+#undef _FREYA_SHARED_PLUGIN
 #include "TGADriver.h"
 
 #include <cstring>
 
+
 #include "core/PluginCore.h"
+
 #include "renderer/RenderingAPIDriver.h"
 #include "renderer/DriverSubsystems/Texture.h"
 #include "core/filesystem/Filesystem.h"
@@ -24,6 +26,15 @@
 #include <cmath>
 
 #include <iostream>
+
+namespace core
+{
+namespace memory
+{
+void* 	Allocate(size_t sz,unsigned id);
+void 	Free(void* p,unsigned id);
+}
+}
 
 #ifdef _MSC_VER
 #define		log2(x) (log(x)/log(2.0f))
@@ -121,7 +132,7 @@ void __calculateMipMap(unsigned level, unsigned width, unsigned height,void* mem
 
 
 renderer::Texture*	__load(const EString& path,bool mipMaps)
-								{
+										{
 	unsigned char*	file = reinterpret_cast<unsigned char*> (core::CoreInstance->getFilesystem()->read(path));
 	unsigned char*  data = file + sizeof(TGAHeader);
 	//BYTES per pixel
@@ -247,7 +258,7 @@ renderer::Texture*	__load(const EString& path,bool mipMaps)
 	core::memory::Free(mem,core::memory::GENERIC_POOL);
 	core::memory::Free(file,core::memory::GENERIC_POOL);
 	return tex;
-								}
+										}
 }
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++ Asynchronous loader +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -424,7 +435,7 @@ public:
 					tex = core::CoreInstance->getRenderingDriver()->createTexture();
 					res = __internal::setResource(res,tex);
 				}
-			//std::cout << "Uploading texture to accelerator " << level << " " << path << std::endl;
+				//std::cout << "Uploading texture to accelerator " << level << " " << path << std::endl;
 				if(level <= maxlevel)
 				{
 					if(Bpp == 3)
@@ -482,14 +493,14 @@ TGADriver::~TGADriver()
 }
 
 bool	TGADriver::unique() const
-		{
+{
 	return true;
-		}
+}
 
 EString TGADriver::id() const
-		{
+{
 	return "tga";
-		}
+}
 
 Resource*	TGADriver::loadSynchronous(const EString& ID)
 {

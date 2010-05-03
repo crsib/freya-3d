@@ -3,18 +3,6 @@
 
 #include "core/memory/MemoryPools.h"
 
-#ifdef _FREYA_SHARED_PLUGIN
-#include <cstdlib>
-namespace core
-{
-namespace memory
-{
-	extern void* (*Allocate)(size_t,unsigned);
-	extern void  (*Free)(void*,unsigned);
-}
-}
-#endif
-
 #include "core/EngineSubsystem.h"
 #include "core/EString.h"
 //#include "renderer/RenderingAPIDriver.h"
@@ -200,7 +188,7 @@ public:
 	//! Destroy a mutex
 	virtual void								destroyMutex(core::multithreading::Mutex*  mutex) = 0;
 	//! Create a condition variable
-	 core::multithreading::Condition*	createCondition();
+	 core::multithreading::Condition*			createCondition();
 	//! Destroy a condition variable
 	virtual void								destroyCondition(core::multithreading::Condition* cond) = 0;
 

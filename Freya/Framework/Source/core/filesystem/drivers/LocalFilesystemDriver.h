@@ -1,18 +1,6 @@
 #ifndef _LOCALFILESYSTEMDRIVER_H_
 #define _LOCALFILESYSTEMDRIVER_H_
 
-#ifdef _FREYA_SHARED_PLUGIN
-#include <cstdlib>
-namespace core
-{
-namespace memory
-{
-	extern void* (*Allocate)(size_t,unsigned);
-	extern void  (*Free)(void*,unsigned);
-}
-}
-#endif
-
 #include "core/filesystem/FilesystemDriver.h"
 
 #define  BOOST_ALL_NO_LIB 1
