@@ -118,8 +118,8 @@ unsigned format[]	= {
 //sid,usg,tp,off
 0, VertexFormat::POSITION, 	VertexFormat::FLOAT3, 0,
 0, VertexFormat::NORMAL,	 	VertexFormat::FLOAT3, 3*4*1,
-0, VertexFormat::TEXT_COORD1,	VertexFormat::FLOAT3, 3*4*2,
-0, VertexFormat::TEXT_COORD2,	VertexFormat::FLOAT3, 3*4*3,
+0, VertexFormat::TANGENT,	VertexFormat::FLOAT3, 3*4*2,
+0, VertexFormat::BINORMAL,	VertexFormat::FLOAT3, 3*4*3,
 0, VertexFormat::TEXT_COORD0,	VertexFormat::FLOAT2, 3*4*4,
 (unsigned) -1, VertexFormat::UNUSED , VertexFormat::DWORD,		0	
 };

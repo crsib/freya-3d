@@ -343,11 +343,12 @@ local selection_path = nil
 
 function reload_data(event)
 	vdata_renderer:reload(selection_path)
+	local checkbox = tolua.cast(root:getChildRecursive(110),"CEGUI::Checkbox")
 	if vdata_renderer:hasTangentSpace() then
-		local checkbox = tolua.cast(root:getChildRecursive(110),"CEGUI::Checkbox")
 		checkbox:setSelected(true)
 		checkbox:setProperty("Disabled","False")
 	else
+		checkbox:setSelected(false)
 		checkbox:setProperty("Disabled","True")
 	end
 end
