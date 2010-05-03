@@ -11,11 +11,6 @@
 #include "core/PluginCore.h"
 #include "internal.h"
 
-namespace core
-{
-	extern core::PluginCore*	CoreInstance;
-}
-
 /*
  *
  */
@@ -44,8 +39,8 @@ resources::Resource* 	createResource(T*	res);
 template<typename T>
 resources::Resource* 	setResource(Resource* res,T*);
 // Sets resource as ready
-void					finalizeResource(resources::Resource*);
-void					destroyResource(resources::Resource*);
+EXPORT void					finalizeResource(resources::Resource*);
+EXPORT void					destroyResource(resources::Resource*);
 }
 //! This class provides a general abstraction of resource
 /*!

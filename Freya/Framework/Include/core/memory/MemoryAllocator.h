@@ -9,8 +9,8 @@ namespace core
 {
 namespace memory
 {
-void* Allocate(size_t,unsigned);
-void  Free(void*,unsigned);
+EXPORT void* Allocate(size_t,unsigned);
+EXPORT void  Free(void*,unsigned);
 
 //!STL compatible memory allocator to use memory arena for allocation. For detailed information use C++ documentation
 template<typename T,unsigned pool = core::memory::STL_POOL>
