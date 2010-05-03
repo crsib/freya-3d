@@ -278,7 +278,7 @@ void		OpenGL_GLSL_Driver::setStreamSource(unsigned sourceID,VertexBufferObject* 
 
 OpenGL_GLSL_Driver::VertexFormat::VertexFormat(renderer::VertexElement* format,StreamSource*	streams)
 : EngineSubsystem()
-  {
+{
 	m_Format = format;
 	m_Streams = streams;
 	bool end = false;
@@ -302,7 +302,7 @@ OpenGL_GLSL_Driver::VertexFormat::VertexFormat(renderer::VertexElement* format,S
 		else end = true;
 	}
 
-  }
+}
 
 void	OpenGL_GLSL_Driver::VertexFormat::enable()
 {
@@ -344,6 +344,19 @@ void	OpenGL_GLSL_Driver::VertexFormat::enable()
 			case renderer::VertexFormat::NORMAL:
 				glEnableClientState(GL_NORMAL_ARRAY);
 				glNormalPointer(type_of_component[elem->type],m_Streams[lastStream].stride,(void*)(m_Streams[lastStream].offset + elem->offset));
+				break;
+			case renderer::VertexFormat::TANGENT:
+				glClientActiveTextureARB(GL_TEXTURE1);
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				glTexCoordPointer(num_components[elem->type],type_of_component[elem->type],m_Streams[lastStream].stride,(void*)(m_Streams[lastStream].offset + elem->offset));
+				break;
+			case renderer::VertexFormat::BINORMAL:
+				glClientActiveTextureARB(GL_TEXTURE2);
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				glTexCoordPointer(num_components[elem->type],type_of_component[elem->type],m_Streams[lastStream].stride,(void*)(m_Streams[lastStream].offset + elem->offset));
+				break;
+			case renderer::VertexFormat::POINT_SIZE:
+
 				break;
 			default:
 				if(elem->usage < renderer::VertexFormat::UNUSED)
@@ -729,9 +742,9 @@ void		OpenGL_GLSL_Driver::clipArea(float left,float top, float right,float botto
 }
 
 const math::matrix4x4 OpenGL_GLSL_Driver::getMatrix(renderer::Matrix::type mtx) const
-		{
+{
 	return m_Matricies[mtx];
-		}
+}
 
 }
 }
