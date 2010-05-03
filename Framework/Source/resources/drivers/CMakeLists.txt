@@ -39,6 +39,8 @@ IF(BUILD_DDS_DRIVER)
 	SET(DDS_DRIVER_SOURCE
 		DDSDriver.h
 		DDSDriver.cpp
+		DDSDriverInternal.h
+		DDSDriverInternal.cpp
 	)
 	
 	
