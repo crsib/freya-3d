@@ -13,10 +13,6 @@
 
 #include "math_internal.h"
 
-namespace core
-{
-extern core::PluginCore*	CoreInstance;
-}
 namespace math
 {
 inline bool AreCollinear(const math::vector3d& a,const math::vector3d& b,const math::vector3d& c)

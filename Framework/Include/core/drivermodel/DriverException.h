@@ -1,12 +1,8 @@
 #ifndef _DRIVEREXCEPTION_H_
 #define _DRIVEREXCEPTION_H_
 
+#include "internal.h"
 #include "core/PluginCore.h"
-
-namespace core
-{
-	extern core::PluginCore*	CoreInstance;
-}
 
 #include "core/EngineException.h"
 

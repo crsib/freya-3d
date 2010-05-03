@@ -1,12 +1,8 @@
 #ifndef _DRIVER_H_
 #define _DRIVER_H_
 
+#include "internal.h"
 #include "core/PluginCore.h"
-
-namespace core
-{
-	extern core::PluginCore*	CoreInstance;
-}
 
 #include "core/EngineSubsystem.h"
 #include "core/EString.h"
