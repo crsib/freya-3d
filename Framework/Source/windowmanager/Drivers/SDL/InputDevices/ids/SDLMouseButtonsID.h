@@ -7,17 +7,8 @@
 
 #ifndef SDLMOUSEBUTTONSID_H_
 #define SDLMOUSEBUTTONSID_H_
-#ifdef _FREYA_SHARED_PLUGIN
-#include <cstdlib>
-namespace core
-{
-namespace memory
-{
-	extern void* (*Allocate)(size_t,unsigned);
-	extern void  (*Free)(void*,unsigned);
-}
-}
-#endif#include "core/drivermodel/DriverID.h"
+
+#include "core/drivermodel/DriverID.h"
 #include "windowmanager/Drivers/SDL/InputDevices/SDLMouseButtons.h"
 /*
  *

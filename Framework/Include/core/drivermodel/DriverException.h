@@ -2,23 +2,11 @@
 #define _DRIVEREXCEPTION_H_
 
 #include "core/PluginCore.h"
-#ifdef _FREYA_SHARED_PLUGIN
-#include <cstdlib>
-namespace core
-{
-namespace memory
-{
-	extern void* (*Allocate)(size_t,unsigned);
-	extern void  (*Free)(void*,unsigned);
-}
-	extern core::PluginCore*	CoreInstance;
-}
-#else
+
 namespace core
 {
 	extern core::PluginCore*	CoreInstance;
 }
-#endif
 
 #include "core/EngineException.h"
 

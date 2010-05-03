@@ -1,17 +1,17 @@
 #include "resources/ResourceFactory.h"
-
+#include "internal.h"
 namespace resources
 {
 
 namespace __internal
 {
 
-void					destroyResource(resources::Resource* res)
+EXPORT void					destroyResource(resources::Resource* res)
 {
 	delete res;
 }
 
-void					finalizeResource(resources::Resource* res)
+EXPORT void					finalizeResource(resources::Resource* res)
 {
 	res->m_Ready = true;
 }
