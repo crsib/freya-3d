@@ -18,16 +18,20 @@ class IntToType
 };
 
 // stdint wrap for msvc
-#ifndef _MSC_VER
-#include <stdint.h>
+#ifdef FREYA_USE_BOOST
+	#include <boost/cstdint.hpp>
 #else
-typedef __int32 int32_t;
-typedef unsigned __int32 uint32_t;
-typedef unsigned __int16 uint16_t;
-typedef  __int16 int16_t;
-typedef  __int8	 int8_t;
-typedef unsigned __int8 uint8_t;
-#pragma warning(disable:4251)
+	#ifndef _MSC_VER
+		#include <stdint.h>
+	#else
+		typedef __int32 int32_t;
+		typedef unsigned __int32 uint32_t;
+		typedef unsigned __int16 uint16_t;
+		typedef  __int16 int16_t;
+		typedef  __int8	 int8_t;
+		typedef unsigned __int8 uint8_t;
+		#pragma warning(disable:4251)
+	#endif
 #endif
 
 #endif
