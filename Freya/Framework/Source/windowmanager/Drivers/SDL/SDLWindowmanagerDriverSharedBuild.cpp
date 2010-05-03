@@ -1,33 +1,12 @@
 #include <cstdlib>
 #include <cstring>
 #include "core/PluginCore.h"
-namespace core
-{
-namespace memory
-{
-	typedef void* (*ALLOCATE)(size_t,unsigned);
-	typedef void  (*FREE)(void*,unsigned);
-	extern ALLOCATE Allocate;
-	extern FREE Free;
-	ALLOCATE	 Allocate = NULL;
-	FREE		 Free     = NULL;
-	
-}
-	extern core::PluginCore* CoreInstance;
-	core::PluginCore*	  CoreInstance;
-}
+
 //Needfull inculdes
 #include "internal.h"
 #include "core/drivermodel/Driver.h"
 //Ids
 #include "SDLDriverID.h"
-
-extern "C" EXPORT void 		set_memory_allocator(core::memory::ALLOCATE alloc,core::memory::FREE free,core::PluginCore*	pl)
-{
-	core::memory::Allocate 	= alloc;
-	core::memory::Free     	= free;
-	core::CoreInstance		= pl;
-}
 
 extern "C" EXPORT unsigned drivers_count()
 {

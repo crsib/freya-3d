@@ -50,25 +50,14 @@
 
 
 
-#ifdef _FREYA_SHARED_PLUGIN
 namespace core
 {
 namespace memory
 {
-	extern void* (*Allocate)(size_t,unsigned);
-	extern void  (*Free)(void*,unsigned);
+	void* Allocate(size_t,unsigned);
+	void  Free(void*,unsigned);
 }
 }
-#else
-namespace core
-{
-namespace memory
-{
-	EXPORT void* Allocate(size_t,unsigned);
-	EXPORT void  Free(void*,unsigned);
-}
-}
-#endif
 
 #define MATH_MEMORY_FUNCTIONS \
 		static void* operator new(size_t sz)\
