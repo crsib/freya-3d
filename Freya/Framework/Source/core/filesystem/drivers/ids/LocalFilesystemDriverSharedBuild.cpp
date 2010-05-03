@@ -11,19 +11,19 @@
 #include "CurrentFilesystemDriverID.h"
 #include "LocalFilesystemDriverID.h"
 
-extern "C" EXPORT unsigned drivers_count()
+extern "C" PLUGIN_EXPORT unsigned drivers_count()
 {
 	return 3;
 }
 
-extern "C" EXPORT unsigned		driver_type(unsigned id)
+extern "C" PLUGIN_EXPORT unsigned		driver_type(unsigned id)
 {
 	if(id < 3)
 		return core::drivermodel::FILESYSTEM;
 	return 0;
 }
 
-extern "C" EXPORT const char*	driver_name(unsigned id)
+extern "C" PLUGIN_EXPORT const char*	driver_name(unsigned id)
 {
 	switch(id)
 	{
@@ -46,7 +46,7 @@ extern "C" EXPORT const char*	driver_name(unsigned id)
 	return NULL;
 }
 
-extern "C" EXPORT core::drivermodel::Driver* create_driver(const char * driverName)
+extern "C" PLUGIN_EXPORT core::drivermodel::Driver* create_driver(const char * driverName)
 {
 	EString name(driverName);
 	core::filesystem::drivers::ids::AppHomeFilesystemDriverID 	id1;

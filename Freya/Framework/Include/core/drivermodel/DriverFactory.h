@@ -1,17 +1,14 @@
 #ifndef _DRIVERFACTORY_H_
 #define _DRIVERFACTORY_H_
 
+#include "internal.h"
 #include "core/PluginCore.h"
-
-namespace core
-{
-	extern core::PluginCore*	CoreInstance;
-}
 
 #include "core/EngineSubsystem.h"
 #include "core/drivermodel/Driver.h"
 #include "core/drivermodel/DriverID.h"
 #include "core/EStringList.h"
+
 namespace core
 {
 namespace drivermodel

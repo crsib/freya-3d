@@ -54,8 +54,8 @@ namespace core
 {
 namespace memory
 {
-	void* Allocate(size_t,unsigned);
-	void  Free(void*,unsigned);
+	EXPORT void* Allocate(size_t,unsigned);
+	EXPORT void  Free(void*,unsigned);
 }
 }
 

@@ -1,13 +1,24 @@
 #ifndef __INTERNAL_H
 #define __INTERNAL_H
+
 #ifdef _WIN32
-#	if defined(_SHARED_BUILD) || defined(_FREYA_SHARED_PLUGIN)
+#	if defined(_SHARED_BUILD) 
 #		define EXPORT __declspec(dllexport)
 #	else
 #		define EXPORT __declspec(dllimport)
-#endif
+#	endif
 #else
 #	define EXPORT __attribute__ ((visibility("default")))
+#endif
+
+#ifdef _WIN32
+#	if defined(_FREYA_SHARED_PLUGIN) 
+#		define PLUGIN_EXPORT __declspec(dllexport)
+#	else
+#		define PLUGIN_EXPORT __declspec(dllimport)
+#	endif
+#else
+#	define PLUGIN_EXPORT __attribute__ ((visibility("default")))
 #endif
 
 //Some usefull template routines
@@ -18,7 +29,7 @@ class IntToType
 };
 
 // stdint wrap for msvc
-#ifdef FREYA_USE_BOOST
+#ifdef FREYA_USE_BOOST_
 	#include <boost/cstdint.hpp>
 #else
 	#ifndef _MSC_VER

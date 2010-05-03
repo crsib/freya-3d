@@ -6,6 +6,9 @@
 #include "core/EngineSubsystem.h"
 #include "core/EString.h"
 //#include "renderer/RenderingAPIDriver.h"
+
+
+
 namespace resources
 {
 class ResourceManager;
@@ -198,5 +201,30 @@ public:
 
 };
 }
+
+#ifdef _FREYA_SHARED_PLUGIN
+namespace core
+{
+#ifdef _MSC_VER
+	__declspec(dllimport)
+#else
+	extern
+#endif
+	PluginCore* CoreInstance;
+}
+#else
+namespace core
+{
+	extern
+#if defined(_MSC_VER)
+#ifdef _SHARED_BUILD
+	__declspec(dllexport)
+#else
+	__declspec(dllimport)
+#endif
+#endif
+	PluginCore* CoreInstance;
+}
+#endif
 
 #endif

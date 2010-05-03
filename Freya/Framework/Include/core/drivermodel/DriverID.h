@@ -8,13 +8,8 @@
 #ifndef DRIVERID_H_
 #define DRIVERID_H_
 
+#include "internal.h"
 #include "core/PluginCore.h"
-
-namespace core
-{
-	extern core::PluginCore*	CoreInstance;
-}
-
 
 #include "core/EngineSubsystem.h"
 #include "core/EString.h"
