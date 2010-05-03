@@ -60,8 +60,8 @@ using namespace renderer;
 
 namespace core
 {
-	extern EXPORT core::PluginCore*	CoreInstance;
-	core::PluginCore*	CoreInstance;
+	EXPORT core::PluginCore*	CoreInstance;
+	//core::PluginCore*	CoreInstance;
 namespace memory {
 #ifdef _FREYA_DEBUG_MEMORY
 	extern unsigned memory_allocated;

@@ -117,8 +117,8 @@ Resource *VDataLoader::loadSynchronous(const EString & ID)
 				uint32_t _[4];
 				memcpy(_,reinterpret_cast<char*>(raw_data) + offset,4*sizeof(uint32_t));
 				offset += 4*sizeof(uint32_t);
-				//std::cout << "stream data: " << _[0] << " " << _[1] << " " << _[2] << " " << _[3] << " "  << std::endl;
-				//std::cout << "number of comp: " << (int)num_components[_[2]]  << std::endl;
+				std::cout << "stream data: " << _[0] << " " << _[1] << " " << _[2] << " " << _[3] << " "  << std::endl;
+				std::cout << "number of comp: " << (int)num_components[_[2]]  << std::endl;
 				renderer::VertexElement* elem = new renderer::VertexElement(_[0],(renderer::VertexFormat::USAGE)_[1],(renderer::VertexFormat::TYPE)_[2],_[3]);
 				layout.push_back(elem);
 
