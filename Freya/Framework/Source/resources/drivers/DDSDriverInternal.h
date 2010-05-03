@@ -21,13 +21,20 @@
 
 #include <iostream>
 
+namespace resources
+{
+namespace __internal
+{
+template<>
+resources::Resource* 	createResource(renderer::Texture*	resource);
+
+template<>
+resources::Resource*
+setResource(Resource* res,renderer::Texture*	resource);
+}
+}
+
 #define DDS_FOUR_CHARS_TO_DWORD(ch1, ch2, ch3, ch4) ((ch1) | (ch2 << 8) | (ch3 << 16) | (ch4 << 24))
-
-template<>
-resources::Resource* resources::__internal::createResource(renderer::Texture*);
-
-template<>
-resources::Resource* resources::__internal::setResource(Resource*,renderer::Texture*);
 
 namespace dds_driver_internal {
 
