@@ -8,20 +8,7 @@
 #ifndef SHADEREXCEPTION_H_
 #define SHADEREXCEPTION_H_
 
-#ifdef _FREYA_SHARED_PLUGIN
-#include <cstdlib>
-namespace core
-{
-namespace memory
-{
-	extern void* (*Allocate)(size_t,unsigned);
-	extern void  (*Free)(void*,unsigned);
-}
-}
-#endif
-/*
- *
- */
+
 #include "core/EngineException.h"
 #include "renderer/3DConstants.h"
 namespace renderer

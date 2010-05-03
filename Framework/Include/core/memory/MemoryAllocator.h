@@ -9,10 +9,9 @@ namespace core
 {
 namespace memory
 {
-#ifndef _FREYA_SHARED_PLUGIN
-EXPORT void* Allocate(size_t,unsigned);
-EXPORT void  Free(void*,unsigned);
-#endif
+void* Allocate(size_t,unsigned);
+void  Free(void*,unsigned);
+
 //!STL compatible memory allocator to use memory arena for allocation. For detailed information use C++ documentation
 template<typename T,unsigned pool = core::memory::STL_POOL>
 class MemoryAllocator// : public std::allocator<T>
