@@ -69,23 +69,28 @@ void		OpenGL_GLSL_Texture::loadTexture(renderer::TextureType::type TextureType,u
 		m_IsCompressed = true;
 		//Compression is only available for 2D textures (and cube maps, but this case is not capable of creating cube maps).
 		if(TextureType != TextureType::TEXTURE_2D) throw renderer::DriverException("Invalid texture type"); //No, no, no way
-		if((width < 4) || (height < 4) ) throw renderer::DriverException("Invalid texture size");//Not enough is not enough ))
+		//if((width < 4) || (height < 4) ) throw renderer::DriverException("Invalid texture size");//Not enough is not enough ))
 		//m_VBO[ind]->bind();
-		unsigned block_size;
+		//unsigned block_size;
 		//chose size
-		switch(TextureInternalFormat)
-		{
-		case TextureInternalFormat::RGB_DXT1:
-		case TextureInternalFormat::RGBA_DXT1:
-			block_size = 8;
-			break;
-		default:
-			block_size = 16;
-		}
+		//switch(TextureInternalFormat)
+		//{
+		//case TextureInternalFormat::RGB_DXT1:
+		//case TextureInternalFormat::RGBA_DXT1:
+		//	block_size = 8;
+		//	break;
+		//default:
+		//	block_size = 16;
+		//}
 		//m_VBO[ind]->setData(VBOUsage::STATIC_DRAW,width*height*block_size/16,data);
-
+		unsigned container_w = ((width & 3) == 0) ? width : width + 4 - (3 & width);
+		unsigned container_h = ((height & 3) == 0) ? height : height + 4 - (3 & height);
+		//set dims size to 1 if them equals to zero
+		container_w += (container_w == 0);
+		container_h += (container_h == 0);
+		unsigned linear_size = container_w * container_h;
 		glBindTexture(m_Target,m_Texture);
-		glCompressedTexImage2DARB(m_Target,level,OpenGL_GLSL_Tables::TextureInternalFormat[TextureInternalFormat],width,height,0,block_size*width*height/16,data);
+		glCompressedTexImage2DARB(m_Target,level,OpenGL_GLSL_Tables::TextureInternalFormat[TextureInternalFormat],width,height,0,linear_size,data);
 		glBindTexture(m_Target,0);
 		//m_VBO[ind]->unbind();
 	}
@@ -153,22 +158,28 @@ void		OpenGL_GLSL_Texture::loadTexture(renderer::TextureType::type TextureType,u
 		else //Compressed texture mode
 		{
 			m_IsCompressed = true;
-			if((width < 4) || (height < 4) ) throw renderer::DriverException("Invalid texture size");//Not enough is not enough ))
+			//if((width < 4) || (height < 4) ) throw renderer::DriverException("Invalid texture size");//Not enough is not enough ))
 			//m_VBO[ind]->bind();
-			unsigned block_size;
+			//unsigned block_size;
 			//chose size
-			switch(TextureInternalFormat)
-			{
-			case TextureInternalFormat::RGB_DXT1:
-			case TextureInternalFormat::RGBA_DXT1:
-				block_size = 8;
-				break;
-			default:
-				block_size = 16;
-			}
+			//switch(TextureInternalFormat)
+			//{
+			//case TextureInternalFormat::RGB_DXT1:
+			//case TextureInternalFormat::RGBA_DXT1:
+			//	block_size = 8;
+			//	break;
+			//default:
+			//	block_size = 16;
+			//}
 			//m_VBO[ind]->setData(VBOUsage::STATIC_DRAW,width*height*block_size/16,data);
+			unsigned container_w = ((width & 3) == 0) ? width : width + 4 - (3 & width);
+			unsigned container_h = ((height & 3) == 0) ? height : height + 4 - (3 & height);
+			//set dims size to 1 if them equals to zero
+			container_w += (container_w == 0);
+			container_h += (container_h == 0);
+			unsigned linear_size = container_w * container_h;
 			glBindTexture(m_Target,m_Texture);
-			glCompressedTexImage2DARB(OpenGL_GLSL_Tables::CubeTextureSide[side_or_depth],level,OpenGL_GLSL_Tables::TextureInternalFormat[TextureInternalFormat],width,height,0,block_size*width*height/16,data);
+			glCompressedTexImage2DARB(OpenGL_GLSL_Tables::CubeTextureSide[side_or_depth],level,OpenGL_GLSL_Tables::TextureInternalFormat[TextureInternalFormat],width,height,0,linear_size,data);
 			glBindTexture(m_Target,0);
 			//m_VBO[ind]->unbind();
 		}
