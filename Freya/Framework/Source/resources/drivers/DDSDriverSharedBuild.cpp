@@ -42,3 +42,4 @@ extern "C" PLUGIN_EXPORT core::drivermodel::Driver* create_driver(const char * d
 	}
 	return NULL;
 }
+
