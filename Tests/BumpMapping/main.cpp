@@ -21,8 +21,8 @@ namespace core
 {
 namespace memory {
 #ifdef _FREYA_DEBUG_MEMORY
-	extern EXPORT unsigned memory_allocated;
-	extern EXPORT unsigned allocated_for_buffers;
+extern EXPORT unsigned memory_allocated;
+extern EXPORT unsigned allocated_for_buffers;
 #endif
 }
 }
@@ -96,12 +96,12 @@ public:
 	BumpmappingRender (unsigned& camMode,camera::BasicCamera** cameras,primitives::Sphere<30,30>* sphere,	primitives::Cube* cube,bool& useBump,
 			renderer::Shader* Shader,primitives::Cube*	LightSource)
 	: m_CamMode(camMode), m_Cameras(cameras),m_Sphere(sphere),m_Cube(cube),m_UseBump(useBump), shader(Shader), lightSource(LightSource)
-	  {
+	{
 		rapi = core::EngineCore::getRenderingDriver();
 		wm = core::EngineCore::getWindowManager();
 		fpsv  = CEGUI::System::getSingleton().getGUISheet()->getChildRecursive(3);
 		mem  = CEGUI::System::getSingleton().getGUISheet()->getChildRecursive("Root/Memory");
-	  }
+	}
 	virtual ~BumpmappingRender()
 	{
 		std::cout << "Destroying BumpmappingRender" << std::endl;
@@ -182,7 +182,7 @@ public:
 			BumpmappingRender*						Renderer)
 	: m_CamMode(camMode), m_Cameras(cameras),m_Sphere(sphere),m_Cube(cube),m_UseBump(useBump), bump(Bump), fake(Fake),
 	  renderer(Renderer)
-	  {
+	{
 		wm = core::EngineCore::getWindowManager();
 		kbd = wm->createKeyDrivenDevice("keyboard");
 		mouse = wm->createMovementDrivenDevice("mouse");
@@ -192,11 +192,11 @@ public:
 		bumpEnable_w = CEGUI::System::getSingleton().getGUISheet()->getChildRecursive(10);
 		x_pos = CEGUI::System::getSingleton().getGUISheet()->getChildRecursive(1000);
 		y_pos = CEGUI::System::getSingleton().getGUISheet()->getChildRecursive(1001);
-	  }
+	}
 	virtual
 	int operator() ()
 	{
-//#define PROFILE_UPDATE
+		//#define PROFILE_UPDATE
 #if defined(_MSC_VER) && defined(PROFILE_UPDATE)
 		QueryPerformanceCounter((LARGE_INTEGER*)(&count));
 #endif
@@ -617,10 +617,11 @@ private:
 int main(int argC,char** argV)
 {
 	//Create framework core::EngineCore:: Core is responsible on creating/managing various subsystems
-	std::cout << "Starting engine" << std::endl;
-	core::EngineCore Core(argC,argV,"BumpMapping");
+
 	try
 	{
+		std::cout << "Starting engine" << std::endl;
+		core::EngineCore Core(argC,argV,"BumpMapping");
 		core::EngineCore::getTaskManager()->addTask(new Initialize);
 		//core::EngineCore::getTaskManager()->setThreadNumber(3);
 		core::EngineCore::getTaskManager()->enterMainLoop();
