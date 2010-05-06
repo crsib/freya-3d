@@ -19,6 +19,81 @@ namespace resources {
 
 namespace png_driver_internal {
 
+	template<renderer::TextureInternalFormat::type Ct>
+	class ColorTypeInfo;
+
+	template<>
+	class ColorTypeInfo<renderer::TextureInternalFormat::RGB8> {
+	public :
+		typedef unsigned char channel_t;
+		typedef unsigned accum_t;
+		static const size_t size;
+		static const unsigned channel_num;
+	};
+
+	template<>
+	class ColorTypeInfo<renderer::TextureInternalFormat::RGBA8> {
+	public :
+		typedef unsigned char channel_t;
+		typedef unsigned accum_t;
+		static const size_t size;
+		static const unsigned channel_num;
+	};
+
+	template<>
+	class ColorTypeInfo<renderer::TextureInternalFormat::LUMINANCE8> {
+	public :
+		typedef unsigned char channel_t;
+		typedef unsigned accum_t;
+		static const size_t size;
+		static const unsigned channel_num;
+	};
+
+	template<>
+	class ColorTypeInfo<renderer::TextureInternalFormat::LUMINANCE8_ALPHA8> {
+	public :
+		typedef unsigned char channel_t;
+		typedef unsigned accum_t;
+		static const size_t size;
+		static const unsigned channel_num;
+	};
+
+	template<>
+	class ColorTypeInfo<renderer::TextureInternalFormat::RGB16> {
+	public :
+		typedef unsigned short channel_t;
+		typedef unsigned __int64 accum_t;
+		static const size_t size;
+		static const unsigned channel_num;
+	};
+
+	template<>
+	class ColorTypeInfo<renderer::TextureInternalFormat::RGBA16> {
+	public :
+		typedef unsigned short channel_t;
+		typedef unsigned __int64 accum_t;
+		static const size_t size;
+		static const unsigned channel_num;
+	};
+
+	template<>
+	class ColorTypeInfo<renderer::TextureInternalFormat::LUMINANCE16> {
+	public :
+		typedef unsigned short channel_t;
+		typedef unsigned __int64 accum_t;
+		static const size_t size;
+		static const unsigned channel_num;
+	};
+
+	template<>
+	class ColorTypeInfo<renderer::TextureInternalFormat::LUMINANCE16_ALPHA16> {
+	public :
+		typedef unsigned short channel_t;
+		typedef unsigned __int64 accum_t;
+		static const size_t size;
+		static const unsigned channel_num;
+	};
+
 	class PNGDriverASyncLoader : public core::taskmanager::Task {
 	public :
 		enum State {
@@ -35,11 +110,17 @@ namespace png_driver_internal {
 		resources::Resource* getResource();
 	protected :
 		void loadPNG();
-		void genMipMap();
 	private :
+		template<renderer::TextureInternalFormat::type>
+		void genMipMap();
+
+		template<renderer::TextureInternalFormat::type>
+		inline void packBlock(void*, const void*);
+
 		unsigned char* m_surface;
 		unsigned m_lvl;
 		unsigned m_max_lvl;
+		bool m_mipmaps;
 		State m_state;
 		resources::Resource* m_res;
 		renderer::Texture* m_tex;
