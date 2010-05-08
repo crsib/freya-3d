@@ -109,8 +109,8 @@ namespace png_driver_internal {
 		m_height = png.getHeight();
 		png.readImage();
 		size_t sz = png.getRowSize() * m_height;
-		m_surface = static_cast<unsigned char*>(core::memory::Allocate(sz, core::memory::GENERIC_POOL));
-		memcpy(static_cast<void*>(m_surface), png.getSurface(), sz);
+		m_surface = core::memory::Allocate(sz, core::memory::GENERIC_POOL);
+		memcpy(m_surface, png.getSurface(), sz);
 		if(m_mipmaps) {
 			unsigned max_sz = m_width > m_height ? m_width : m_height;
 			while(max_sz > 1) {
@@ -149,7 +149,7 @@ namespace png_driver_internal {
 		core::memory::Free(m_surface, core::memory::GENERIC_POOL);
 		m_width = w;
 		m_height = h;
-		m_surface = ret;
+		m_surface = static_cast<void*>(ret);
 	}//genMipMap()
 
 	int PNGDriverASyncLoader::operator() () {
@@ -210,6 +210,7 @@ namespace png_driver_internal {
 			m_state = TEXTUREFILL;
 			return PNGDriverASyncLoader::MAIN_THREAD;
 		};//switch m_state
+		throw(PNGException());
 	}
 
 }//namespace png_driver_internal
