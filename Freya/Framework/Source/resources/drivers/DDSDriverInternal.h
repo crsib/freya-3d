@@ -40,40 +40,39 @@ namespace dds_driver_internal {
 
 	//PixelFormat structure used in dds
 	struct DDSPixelFormat {
-		    unsigned size;//of this structure
-			unsigned flags;
-			unsigned fourcc;
-			unsigned rgb_bitcount;
-			unsigned rbit_mask;
-			unsigned gbit_mask;
-			unsigned bbit_mask;
-			unsigned abit_mask;
+		    uint32_t size;//of this structure
+			uint32_t flags;
+			uint32_t fourcc;
+			uint32_t rgb_bitcount;
+			uint32_t rbit_mask;
+			uint32_t gbit_mask;
+			uint32_t bbit_mask;
+			uint32_t abit_mask;
 	};
 
 	//Structure used to describe DX9 DDS file header
 	struct DDSHeader {
-		    unsigned size;//of this structure
-			unsigned flags;
-			unsigned height;
-			unsigned width;
-			unsigned linear_size;
-			unsigned depth;
-			unsigned mipmap_count;
-			unsigned reserved1[11];
+		    uint32_t size;//of this structure
+			uint32_t flags;
+			uint32_t height;
+			uint32_t width;
+			uint32_t linear_size;
+			uint32_t depth;
+			uint32_t mipmap_count;
+			uint32_t reserved1[11];
 			DDSPixelFormat pf;
 			//capabilities extensions
-			unsigned caps;
-			unsigned caps2;
-			unsigned caps3;
-			unsigned caps4;
-			unsigned reserved2;
+			uint32_t caps;
+			uint32_t caps2;
+			uint32_t caps3;
+			uint32_t caps4;
+			uint32_t reserved2;
 
 	};
 
 	//Additional to DDSHeader structure used in DX10 DDS files
 	struct DDSHeader10 {
 		//Empty yet. Could be realized in future.
-		//TODO: 
 	};
 
 	//only actual PixelFormat::flags values
@@ -98,7 +97,7 @@ namespace dds_driver_internal {
 		//PITCH = 0x8,
 		//PF = 0x1000,
 		MIPMAP_COUNT = 0x20000,
-		LINEARSIZE = 0x80000,
+		//LINEARSIZE = 0x80000,
 		//DEPTH = 0x800000
 	};
 
@@ -116,7 +115,21 @@ namespace dds_driver_internal {
 		CUBEMAP_NEGATIVE_Y = 0x2000,
 		CUBEMAP_POSITIVE_Z = 0x4000,
 		CUBEMAP_NEGATIVE_Z = 0x8000,
-		//VOLUME = 0x200000
+		VOLUME = 0x200000
+	};
+
+	class DDSException : public EngineException {
+	public :
+		DDSException(const EString& msg = "no user message") : m_message("DDSDriver exception : ") {
+			m_message.append(msg);
+		}
+		virtual ~DDSException() throw() { }
+		
+		virtual EString message() const {
+			return m_message;
+		}
+	private :
+		EString m_message;
 	};
 
 
@@ -154,7 +167,6 @@ namespace dds_driver_internal {
 
 		//returns minimal container size in which val could be placed
 		inline unsigned match_container(const unsigned val) const {
-			
 			return (val & 3) == 0 ? val : val + 4 - (3 & val);
 		}
 
@@ -162,8 +174,8 @@ namespace dds_driver_internal {
 		State			m_state;	//texture loading state
 		unsigned		m_lvl;		//current mipmap level
 		DDSHeader		m_header;
-		unsigned char*	m_data;		//pointer to a texture data allocated in heap
-		unsigned char*	m_cur_ptr;  //pointer to a current mipmap level
+		void*	m_data;		//pointer to a texture data allocated in heap
+		void*	m_cur_ptr;  //pointer to a current mipmap level
 		
 		std::vector<renderer::CubeTextureSide::type> m_cube_sides; //contains names of presented sides if texture is a cubemap 
 		size_t										 m_cube_disp; //for cubemap. displacement between two different nearest mips of the same level
