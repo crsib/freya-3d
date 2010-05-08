@@ -117,7 +117,7 @@ namespace png_driver_internal {
 		template<renderer::TextureInternalFormat::type>
 		inline void packBlock(void*, const void*);
 
-		unsigned char* m_surface;
+		void* m_surface;
 		unsigned m_lvl;
 		unsigned m_max_lvl;
 		bool m_mipmaps;
