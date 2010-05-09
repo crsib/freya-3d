@@ -270,7 +270,7 @@ if(BoostSTLPort_FIND_VERSION_EXACT)
 else(BoostSTLPort_FIND_VERSION_EXACT)
   # The user has not requested an exact version.  Among known
   # versions, find those that are acceptable to the user request.
-  set(_Boost_KNOWN_VERSIONS ${Boost_ADDITIONAL_VERSIONS} "1.42.0" "1.42" "1.41" "1.41.0" )
+  set(_Boost_KNOWN_VERSIONS ${Boost_ADDITIONAL_VERSIONS} "1.43.0" "1.43" "1.42.0" "1.42" "1.41" "1.41.0" )
   set(_boost_TEST_VERSIONS)
   if(BoostSTLPort_FIND_VERSION)
     set(_BoostSTLPort_FIND_VERSION_SHORT "${BoostSTLPort_FIND_VERSION_MAJOR}.${BoostSTLPort_FIND_VERSION_MINOR}")

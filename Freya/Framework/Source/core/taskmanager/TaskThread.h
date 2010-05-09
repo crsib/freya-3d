@@ -21,6 +21,8 @@ namespace core
 namespace multithreading
 {
 class Thread;
+class Mutex;
+class Condition;
 }
 
 namespace taskmanager
@@ -37,12 +39,13 @@ class TaskThread : virtual public ::EngineSubsystem
 	friend class core::taskmanager::TaskManager;
 	friend class __thread_function;
 private:
-	TaskThread();
+	TaskThread(/*multithreading::Condition* cond*/);
 
 public:
 	virtual ~TaskThread();
 private:
 	core::multithreading::Thread*					m_Thread;
+	multithreading::Condition*						m_Condition;
 	static unsigned									m_Active;
 	__thread_function*								m_Func;
 };

@@ -20,7 +20,7 @@
 /*!
  * All Freya exceptions should be inherited from from this class
  */
-class EXPORT EngineException : virtual public ::EngineSubsystem, public std::exception
+class EXPORT EngineException : public std::exception
 {
 public:
 	EngineException()
@@ -37,7 +37,7 @@ public:
 	virtual
 	EString message() const
 	{
-		return "Engine exception occured";
+		return "Engine exception occurred";
 	}
 
 	virtual
