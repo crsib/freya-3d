@@ -102,7 +102,7 @@ public:
 							}
 							task->release();
 						}//if(task)
-					}
+					}//if(man->m_SecThreadSchedule.size()) internal
 					else
 					{
 						man->m_AuxLock = 0;
