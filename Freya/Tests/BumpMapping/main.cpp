@@ -617,11 +617,11 @@ private:
 int main(int argC,char** argV)
 {
 	//Create framework core::EngineCore:: Core is responsible on creating/managing various subsystems
-
+	core::EngineCore* Core = NULL;
 	try
 	{
 		std::cout << "Starting engine" << std::endl;
-		core::EngineCore Core(argC,argV,"BumpMapping");
+		Core = new core::EngineCore(argC,argV,"BumpMapping");
 		core::EngineCore::getTaskManager()->addTask(new Initialize);
 		//core::EngineCore::getTaskManager()->setThreadNumber(3);
 		core::EngineCore::getTaskManager()->enterMainLoop();
@@ -631,14 +631,17 @@ int main(int argC,char** argV)
 	{
 		//Something failed. Ansi c++ standart gurantees that all stack object will be release at this point.
 		std::cout << "[ENGINE]: "<< ex.message() << std::endl;
+		delete Core;
 	}
 	catch(std::exception& ex)
 	{
 		std::cout << "[STD]: "<< ex.what() << std::endl;
+		delete Core;
 	}
 	catch(...)
 	{
 		std::cout << "Unknown exception" << std::endl;
+		delete Core;
 	}
 	//Everything is fine, just exit (again, all stack allocated object are cleared
 	return 0;
