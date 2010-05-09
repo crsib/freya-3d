@@ -15,12 +15,12 @@
 @cd ".\Build"
 @if not exist "MSVC10" mkdir MSVC10
 @cd "MSVC10"
-@call cmake.exe -G "Visual Studio 10" ..\..
+@call cmake.exe -G "Visual Studio 10" ..\.. 
 
 @cd ..
 @if not exist "NMake" mkdir NMake
 @cd "NMake"
-@call cmake.exe -G "NMake Makefiles" ..\..
+@call cmake.exe -G "NMake Makefiles" ..\.. 
 
 @cd ..
 @cd ..
