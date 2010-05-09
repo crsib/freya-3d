@@ -8,6 +8,7 @@ Include/camera/FlyCamera.h
 Include/camera/RotateCamera.h
 Include/config.h
 Include/core/PluginCore.h
+Include/core/PluginLoader.h
 Include/core/drivermodel/Driver.h
 Include/core/drivermodel/DriverException.h
 Include/core/drivermodel/DriverFactory.h
@@ -20,6 +21,12 @@ Include/core/EStringList.h
 Include/core/filesystem/Filesystem.h
 Include/core/filesystem/FilesystemDriver.h
 Include/core/filesystem/FilesystemException.h
+Include/core/lua/FunctionException.h
+Include/core/lua/LuaCore.h
+Include/core/lua/LuaException.h
+Include/core/lua/LuaFunction.h
+Include/core/lua/tolua++/tolua++.h
+Include/core/lua/VariableException.h
 Include/core/memory/MemoryAllocator.h
 Include/core/memory/MemoryArena.h
 Include/core/memory/MemoryException.h
@@ -65,66 +72,76 @@ Include/windowmanager/DriverSubsystems/InputDevices/MovementDrivenDevice.h
 Include/windowmanager/WindowManagerDriver.h
 Include/windowmanager/WMException.h
 Include/windowmanager.h
+
+Include/scenegraph/AABB.h
+Include/scenegraph/SceneNode.h
+Include/scenegraph/SceneNodeController.h
+Include/scenegraph/ShaderLibrary.h
+Include/scenegraph/StaticGeometryNode.h
+Include/scenegraph/Structures.h
+Include/scenegraph/VBOData.h
+Include/scenegraph/World.h 
 #Sources and private includes
+
+Source/application-settings.cpp
+
+Source/camera/FlyCamera.cpp
+Source/camera/RotateCamera.cpp
+
+Source/core/EngineCore.cpp
+Source/core/PluginCore.cpp
+Source/core/PluginCoreInternal.h
+Source/core/PluginLoader.cpp
+Source/core/freya_buf.hpp
+Source/core/Variable.cpp
+
 Source/core/filesystem/FilesystemDriverFactory.h
-#Source/core/memory/MemoryBuffer.h
-#Source/core/memory/MemoryHeader.h
-#Source/core/memory/MemoryHeaderList.h
-#Source/core/memory/MemoryPool.h
+Source/core/filesystem/boost_stlport_fix.cpp
+Source/core/filesystem/Filesystem.cpp
+Source/core/filesystem/FilesystemDriverFactory.cpp
+
+Source/core/memory/MemoryImpl.cpp
+
 Source/core/multithreading/implementations/boost_thread/BoostCondition.h
 Source/core/multithreading/implementations/boost_thread/BoostMutex.h
 Source/core/multithreading/implementations/boost_thread/BoostThread.h
 Source/core/multithreading/implementations/boost_thread/BoostThreadID.h
 Source/core/multithreading/implementations/boost_thread/ImplementationFactory.h
-Source/core/taskmanager/TaskThread.h
-Source/renderer/RenderingAPIFactory.h
-Source/resources/ResourceFactory.h
-Source/resources/ResourceLibrary.h
-Source/windowmanager/WindowManagerFactory.h
-
-Source/application-settings.cpp
-Source/camera/FlyCamera.cpp
-Source/camera/RotateCamera.cpp
-Source/core/EngineCore.cpp
-Source/core/filesystem/boost_stlport_fix.cpp
-Source/core/filesystem/Filesystem.cpp
-Source/core/filesystem/FilesystemDriverFactory.cpp
-#Source/core/memory/MemoryArena.cpp
-#Source/core/memory/MemoryBuffer.cpp
-#Source/core/memory/MemoryHeaderList.cpp
-#Source/core/memory/MemoryPool.cpp
-Source/core/memory/MemoryImpl.cpp
 Source/core/multithreading/implementations/boost_thread/BoostThread.cpp
 Source/core/multithreading/implementations/boost_thread/BoostThreadBlocks.cpp
+
+Source/core/taskmanager/TaskThread.h
 Source/core/taskmanager/Shutdown.cpp
 Source/core/taskmanager/Task.cpp
 Source/core/taskmanager/TaskManager.cpp
 Source/core/taskmanager/TaskThread.cpp
+
 Source/core/Utils/StringUtils.cpp
-Source/core/Variable.cpp
+
 Source/primitives/Cube.cpp
+
+Source/renderer/RenderingAPIFactory.h
 Source/renderer/RenderingAPIFactory.cpp
+
+Source/resources/ResourceFactory.h
+Source/resources/ResourceLibrary.h
 Source/resources/Resource.cpp
 Source/resources/ResourceLibrary.cpp
 Source/resources/ResourceManager.cpp
 Source/resources/ResourceFactory.cpp
+
+Source/resources/drivers/std/FileLoaderDriver.h
+Source/resources/drivers/std/ShaderLoaderDriver.h
+Source/resources/drivers/std/ShaderLoaderDriver.cpp
+Source/resources/drivers/std/VDataLoader.h
+Source/resources/drivers/std/VDataLoader.cpp
+
+Source/windowmanager/WindowManagerFactory.h
 Source/windowmanager/KeyboardKeysNames.cpp
 Source/windowmanager/MouseButtonsNames.cpp
 Source/windowmanager/WindowManagerFactory.cpp
 Source/windowmanager/WMException.cpp
-Source/core/PluginCore.cpp
-#Plugin subsystem
-Include/core/PluginLoader.h
-Source/core/PluginLoader.cpp
-#Log buffer
-Source/core/freya_buf.hpp
-#Lua headers
-Include/core/lua/FunctionException.h
-Include/core/lua/LuaCore.h
-Include/core/lua/LuaException.h
-Include/core/lua/LuaFunction.h
-Include/core/lua/tolua++/tolua++.h
-Include/core/lua/VariableException.h
+
 #Lua dependencies
 Source/core/lua/lua_libraries/init_math.h
 Source/core/lua/lua_libraries/jit_code.h
@@ -147,32 +164,14 @@ Source/core/lua/tolua++/tolua_is.c
 Source/core/lua/tolua++/tolua_map.c
 Source/core/lua/tolua++/tolua_push.c
 Source/core/lua/tolua++/tolua_to.c
-
 Source/core/lua/lua_libraries/3party/bit.c
 
-Source/resources/drivers/std/ShaderLoaderDriver.cpp
-
-#Scene graph
-Include/scenegraph/Structures.h
 Source/scenegraph/SceneGraphImpl.cpp
-Include/scenegraph/World.h
 Source/scenegraph/World.cpp
-Include/scenegraph/AABB.h
-Include/scenegraph/SceneNode.h
 Source/scenegraph/SceneNode.cpp
-
-Include/scenegraph/ShaderLibrary.h
 Source/scenegraph/ShaderLibrary.cpp
-
-Include/scenegraph/StaticGeometryNode.h
 Source/scenegraph/StaticGeometryNode.cpp
-
-Include/scenegraph/VBOData.h
 Source/scenegraph/VBOData.cpp
-
-#Scene graph loaders
-Source/resources/drivers/std/VDataLoader.h
-Source/resources/drivers/std/VDataLoader.cpp
 
 #Generated sources
 "${INTERMIDIATE_DIRECTORY}/StaticPluginsLoader.cpp"
@@ -235,6 +234,201 @@ SET_SOURCE_FILES_PROPERTIES("${INTERMIDIATE_DIRECTORY}/StaticPluginsLoader.cpp" 
 SET_SOURCE_FILES_PROPERTIES("${INTERMIDIATE_DIRECTORY}/freya_lua_bind.cpp" PROPERTIES GENERATED YES)
 SET_SOURCE_FILES_PROPERTIES("${INTERMIDIATE_DIRECTORY}/SVN_Revision.h" PROPERTIES GENERATED YES)
 #EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/Framework/Include/core/lua/tolua++/tolua++.h" "${INTERMIDIATE_DIRECTORY}/tolua++.h")
+
+#Generate file groups for visual studio here
+#Public includes
+IF(MSVC)
+	SOURCE_GROUP("Include"  FILES 	./Include/application-settings.h
+									./Include/config.h
+									./Include/core.h
+									./Include/doxygen.h
+									./Include/freya.h
+									./Include/internal.h
+									./Include/renderer.h
+									./Include/resources.h
+									./Include/windowmanager.h )
+	SOURCE_GROUP("Include\\camera" FILES ./Include/camera/BasicCamera.h
+									./Include/camera/FlyCamera.h
+									./Include/camera/RotateCamera.h
+				)
+	SOURCE_GROUP("Include\\core"  FILES ./Include/core/EngineCore.h
+									./Include/core/EngineException.h
+									./Include/core/EngineSubsystem.h
+									./Include/core/EString.h
+									./Include/core/EStringList.h
+									./Include/core/PluginCore.h
+									./Include/core/PluginLoader.h
+									./Include/core/Variable.h
+				)
+	SOURCE_GROUP("Include\\core\\Utils" FILES ./Include/core/Utils/StringUtils.h  )
+	SOURCE_GROUP("Include\\core\\drivermodel" FILES ./Include/core/drivermodel/Driver.h
+									./Include/core/drivermodel/DriverException.h
+									./Include/core/drivermodel/DriverFactory.h
+									./Include/core/drivermodel/DriverID.h 
+				)
+	SOURCE_GROUP("Include\\core\\filesystem" FILES ./Include/core/filesystem/Filesystem.h
+									./Include/core/filesystem/FilesystemDriver.h
+									./Include/core/filesystem/FilesystemException.h 
+				)
+	SOURCE_GROUP("Include\\core\\lua" FILES ./Include/core/lua/FunctionException.h
+									./Include/core/lua/LuaCore.h
+									./Include/core/lua/LuaException.h
+									./Include/core/lua/LuaFunction.h
+									./Include/core/lua/VariableException.h
+									./Include/core/lua/luajit.h
+									./Include/core/lua/tolua++/tolua++.h
+									./Include/core/lua/tolua++/tolua_base.h 
+				)
+	SOURCE_GROUP("Include\\core\\memory" FILES ./Include/core/memory/MemoryAllocator.h
+									./Include/core/memory/MemoryArena.h
+									./Include/core/memory/MemoryException.h
+									./Include/core/memory/MemoryPools.h 
+				)
+	SOURCE_GROUP("Include\\core\\multithreadig"	FILES ./Include/core/multithreading/Condition.h
+									./Include/core/multithreading/ImplementationFactory.h
+									./Include/core/multithreading/Lock.h
+									./Include/core/multithreading/Mutex.h
+									./Include/core/multithreading/RingBuffer.h
+									./Include/core/multithreading/Runnable.h
+									./Include/core/multithreading/Thread.h
+									./Include/core/multithreading/ThreadBlocks.h
+									./Include/core/multithreading/ThreadID.h
+				)
+	SOURCE_GROUP("Include\\core\\taskmanager" FILES ./Include/core/taskmanager/Shutdown.h
+									./Include/core/taskmanager/Task.h
+									./Include/core/taskmanager/TaskManager.h 
+				)
+	SOURCE_GROUP("Include\\primitives" FILES ./Include/primitives/Cube.h
+									./Include/primitives/Sphere.h 
+				)
+	SOURCE_GROUP("Include\\renderer" FILES ./Include/renderer/3DConstants.h
+									./Include/renderer/DriverException.h
+									./Include/renderer/DriverSubsystems/Framebuffer.h
+									./Include/renderer/DriverSubsystems/Shader.h
+									./Include/renderer/DriverSubsystems/ShaderException.h
+									./Include/renderer/DriverSubsystems/Texture.h
+									./Include/renderer/DriverSubsystems/VertexBufferObject.h
+									./Include/renderer/RenderingAPIDriver.h
+									./Include/renderer/RenderingAPIDriverID.h
+									./Include/renderer/RenderingAPIVersion.h 
+				)
+	SOURCE_GROUP("Include\\resources" FILES ./Include/resources/Resource.h
+									./Include/resources/ResourceException.h
+									./Include/resources/ResourceManager.h
+									./Include/resources/ResourceManagerDriver.h 
+				)
+	SOURCE_GROUP("Include\\scenegraph" FILES ./Include/scenegraph/AABB.h
+									./Include/scenegraph/SceneNode.h
+									./Include/scenegraph/SceneNodeController.h
+									./Include/scenegraph/ShaderLibrary.h
+									./Include/scenegraph/StaticGeometryNode.h
+									./Include/scenegraph/Structures.h
+									./Include/scenegraph/VBOData.h
+									./Include/scenegraph/World.h 
+				)
+	SOURCE_GROUP("Include\\windowmanager" FILES ./Include/windowmanager/Callback.h
+									./Include/windowmanager/DisplayMode.h
+									./Include/windowmanager/DriverSubsystems/InputDevices/KeyDrivenDevice.h
+									./Include/windowmanager/DriverSubsystems/InputDevices/KeyboardKeys.h
+									./Include/windowmanager/DriverSubsystems/InputDevices/MouseButtons.h
+									./Include/windowmanager/DriverSubsystems/InputDevices/MovementDrivenDevice.h
+									./Include/windowmanager/WMException.h
+									./Include/windowmanager/WindowFormat.h
+									./Include/windowmanager/WindowManagerDriver.h 
+				)
+
+#internal includes and sources 
+	SOURCE_GROUP("Source" FILES Source/application-settings.cpp Source/core/Utils/StringUtils.cpp Source/primitives/Cube.cpp)
+	SOURCE_GROUP("Source\\core" FILES 
+									Source/core/EngineCore.cpp
+									Source/core/PluginCore.cpp
+									Source/core/PluginCoreInternal.h
+									Source/core/PluginLoader.cpp
+									Source/core/freya_buf.hpp
+									Source/core/Variable.cpp
+				)
+	SOURCE_GROUP("Source\\core\\filesystem" FILES Source/core/filesystem/FilesystemDriverFactory.h
+									Source/core/filesystem/boost_stlport_fix.cpp
+									Source/core/filesystem/Filesystem.cpp
+									Source/core/filesystem/FilesystemDriverFactory.cpp
+				)
+	SOURCE_GROUP("Source\\core\\memory" FILES Source/core/memory/MemoryImpl.cpp )
+	SOURCE_GROUP("Source\\core\\multithreading" FILES Source/core/multithreading/implementations/boost_thread/BoostCondition.h
+									Source/core/multithreading/implementations/boost_thread/BoostMutex.h
+									Source/core/multithreading/implementations/boost_thread/BoostThread.h
+									Source/core/multithreading/implementations/boost_thread/BoostThreadID.h
+									Source/core/multithreading/implementations/boost_thread/ImplementationFactory.h
+									Source/core/multithreading/implementations/boost_thread/BoostThread.cpp
+									Source/core/multithreading/implementations/boost_thread/BoostThreadBlocks.cpp
+				)
+	SOURCE_GROUP("Source\\core\\taskmanager" FILES Source/core/taskmanager/TaskThread.h
+									Source/core/taskmanager/Shutdown.cpp
+									Source/core/taskmanager/Task.cpp
+									Source/core/taskmanager/TaskManager.cpp
+									Source/core/taskmanager/TaskThread.cpp 
+				)
+	SOURCE_GROUP("Source\\core\\lua" FILES Source/core/lua/LuaCore.cpp Source/core/lua/LuaFunction.cpp )
+	SOURCE_GROUP("Source\\core\\lua\\libraries" FILES Source/core/lua/lua_libraries/init_math.h
+									Source/core/lua/lua_libraries/jit_code.h
+									Source/core/lua/lua_libraries/lua_alloc.h
+									Source/core/lua/lua_libraries/lua_libs.h
+									Source/core/lua/lua_libraries/wrap_math.h
+									Source/core/lua/lua_libraries/init_math.cpp
+									Source/core/lua/lua_libraries/jit_code.cpp
+									Source/core/lua/lua_libraries/lua_alloc.cpp
+									Source/core/lua/lua_libraries/lua_libs.cpp
+									Source/core/lua/lua_libraries/wrap_math.cpp
+									Source/core/lua/lua_libraries/3party/bit.c
+				)
+	SOURCE_GROUP("Source\\core\\lua\\tolua" FILES Source/core/lua/tolua++/tolua_event.h
+									Source/core/lua/tolua++/tolua_event.c
+									Source/core/lua/tolua++/tolua_is.c
+									Source/core/lua/tolua++/tolua_map.c
+									Source/core/lua/tolua++/tolua_push.c
+									Source/core/lua/tolua++/tolua_to.c
+				)
+	SOURCE_GROUP("Source\\camera" FILES Source/camera/FlyCamera.cpp Source/camera/RotateCamera.cpp )
+	SOURCE_GROUP("Source\\renderer" FILES Source/renderer/RenderingAPIFactory.h Source/renderer/RenderingAPIFactory.cpp )
+	SOURCE_GROUP("Source\\resources" FILES Source/resources/ResourceFactory.h
+									Source/resources/ResourceLibrary.h
+									Source/resources/Resource.cpp
+									Source/resources/ResourceLibrary.cpp
+									Source/resources/ResourceManager.cpp
+									Source/resources/ResourceFactory.cpp
+				)
+	SOURCE_GROUP("Source\\resources\\std" FILES Source/resources/drivers/std/FileLoaderDriver.h
+									Source/resources/drivers/std/ShaderLoaderDriver.h
+									Source/resources/drivers/std/ShaderLoaderDriver.cpp
+									Source/resources/drivers/std/VDataLoader.h
+									Source/resources/drivers/std/VDataLoader.cpp
+				)
+	SOURCE_GROUP("Source\\windowmanager" FILES Source/windowmanager/WindowManagerFactory.h
+									Source/windowmanager/KeyboardKeysNames.cpp
+									Source/windowmanager/MouseButtonsNames.cpp
+									Source/windowmanager/WindowManagerFactory.cpp
+									Source/windowmanager/WMException.cpp
+				)
+	SOURCE_GROUP("Source\\scenegraph" FILES Source/scenegraph/SceneGraphImpl.cpp
+									Source/scenegraph/World.cpp
+									Source/scenegraph/SceneNode.cpp
+									Source/scenegraph/ShaderLibrary.cpp
+									Source/scenegraph/StaticGeometryNode.cpp
+									Source/scenegraph/VBOData.cpp 
+				)
+	SOURCE_GROUP("Generated" FILES "${INTERMIDIATE_DIRECTORY}/StaticPluginsLoader.cpp" "${INTERMIDIATE_DIRECTORY}/freya_lua_bind.cpp" 
+									"${INTERMIDIATE_DIRECTORY}/SVN_Revision.h"
+				)
+	SOURCE_GROUP("CEGUI-freya" FILES ./3party/cegui/src/freya/FreyaResourceProvider.cpp
+									./3party/cegui/src/freya/FreyaGeometryBuffer.cpp
+									./3party/cegui/src/freya/FreyaRenderer.cpp
+									./3party/cegui/src/freya/FreyaRenderTarget.cpp
+									./3party/cegui/src/freya/FreyaTexture.cpp
+									./3party/cegui/src/freya/FreyaTextureTarget.cpp
+									./3party/cegui/src/freya/FreyaWindowTarget.cpp
+				)
+	SOURCE_GROUP("tolua-packages" FILES ${TOLUA_PACKAGES})
+ENDIF()
+#Generate lua binding data
 
 MESSAGE(STATUS "Searching tolua") 
 FIND_PROGRAM( TOLUA_APP NAMES tolua tolua++ tolua++5 tolua++5.1 PATH ${TOLUA_APP_PATH} )
