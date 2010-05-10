@@ -13,6 +13,7 @@
 #include "resources/drivers/std/ShaderLoaderDriver.h"
 #include "resources/drivers/std/FileLoaderDriver.h"
 #include "resources/drivers/std/VDataLoader.h"
+#include "resources/drivers/std/TextureLoader.h"
 //TODO: DBG
 #include <iostream>
 
@@ -26,6 +27,7 @@ ResourceManager::ResourceManager()
 	registerDriver(new resources::drivers::__std::ShaderLoaderDriverID());
 	registerDriver(new resources::drivers::__std::FileLoaderDriverID());
 	registerDriver(new resources::drivers::__std::VDataLoaderDriverID());
+	registerDriver(new resources::drivers::__std::TextureLoaderDriverID());
 }
 
 ResourceManager::~ResourceManager()
