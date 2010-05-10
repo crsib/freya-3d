@@ -96,7 +96,7 @@ Source/core/freya_buf.hpp
 Source/core/Variable.cpp
 
 Source/core/filesystem/FilesystemDriverFactory.h
-Source/core/filesystem/boost_stlport_fix.cpp
+#Source/core/filesystem/boost_stlport_fix.cpp
 Source/core/filesystem/Filesystem.cpp
 Source/core/filesystem/FilesystemDriverFactory.cpp
 
@@ -350,7 +350,7 @@ IF(MSVC)
 									Source/core/Variable.cpp
 				)
 	SOURCE_GROUP("Source\\core\\filesystem" FILES Source/core/filesystem/FilesystemDriverFactory.h
-									Source/core/filesystem/boost_stlport_fix.cpp
+								#	Source/core/filesystem/boost_stlport_fix.cpp
 									Source/core/filesystem/Filesystem.cpp
 									Source/core/filesystem/FilesystemDriverFactory.cpp
 				)

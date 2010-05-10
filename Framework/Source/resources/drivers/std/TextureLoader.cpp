@@ -60,7 +60,7 @@ namespace resources {
 				throw ResourceException("Synchronous loader for TextureLoader is not available.");
 				size_t scursor = ID.find_last_of('.');
 				if(scursor == ID.npos)
-					throw ResourceException("Depricated file name - it must contain an extension.");
+					throw ResourceException("Deprecated file name - it must contain an extension.");
 				size_t ecursor = ID.find_last_of(':', scursor);
 				if(ecursor != ID.npos)
 					ecursor -= scursor;

@@ -10,7 +10,7 @@
 # Provide some common installation locations.
 # Otherwise, the user will have to specify it in the cache.
 FIND_PATH( STLPORT_INSTALL_DIR stlport/iostream
-   /usr/local/STLPort-4.5.3
+   /usr/local/STLPort-5.2.1
 )
 
 MESSAGE( "STLPORT_INSTALL: ${STLPORT_INSTALL_DIR}")
@@ -19,42 +19,68 @@ MESSAGE( "STLPORT_INSTALL: ${STLPORT_INSTALL_DIR}")
 # both the subdirectory for header file includes (.../stlport) and
 # the subdirectory for libraries (../lib).
 
+IF(NOT WIN32)
+	FIND_PATH( STLPORT_INCLUDE_DIR iostream
+	${STLPORT_INSTALL_DIR}/stlport
+	)
+ELSE()
+	#FIND_PATH( STLPORT_INCLUDE_DIR iostream
+	#${STLPORT_INSTALL_DIR}/stlport
+	#NO_DEFAULT_PATH)
+	SET (STLPORT_INCLUDE_DIR "${STLPORT_INSTALL_DIR}/stlport")
+ENDIF()
 
-FIND_PATH( STLPORT_INCLUDE_DIR iostream
-   ${STLPORT_INSTALL_DIR}/stlport
-)
-
-
-IF(CMAKE_BUILD_TYPE MATCHES "Debug")
-  # "Debug" probably means we do not want the non-debug ones.
-  FIND_LIBRARY( STLPORT_LIBRARIES
+  FIND_LIBRARY( STLPORT_LIBRARY_DEBUG
     NAMES stlport_cygwin_debug
           stlport_cygwin_stldebug
           stlport_gcc_debug
           stlport_gcc_stldebug
-	      stlportstld.5.2
-		  stlportd.5.2
-	      stlportd
-	      stlportstld
+		  stlportstld.5.2
+		  stlportstld
+		  #stlportd.5.2
+	     # stlportd
     PATHS ${STLPORT_INSTALL_DIR}/lib ${STLPORT_INSTALL_DIR}/../lib
   )
-ELSE(CMAKE_BUILD_TYPE MATCHES "Debug")
+
+
   # if we only have debug libraries, use them.
   # that is surely better than nothing.
-  FIND_LIBRARY( STLPORT_LIBRARIES
+  FIND_LIBRARY( STLPORT_LIBRARY_RELEASE
     NAMES stlport_cygwin
-          stlport_cygwin_debug
-          stlport_cygwin_stldebug
           stlport_gcc
-          stlport_gcc_debug
-          stlport_gcc_stldebug
 		  stlport
 		  stlport.5.2
 	  
     PATHS ${STLPORT_INSTALL_DIR}/lib ${STLPORT_INSTALL_DIR}/../lib
   )
-ENDIF(CMAKE_BUILD_TYPE MATCHES "Debug")
 
+	IF (STLPORT_LIBRARY_DEBUG AND STLPORT_LIBRARY_RELEASE)
+      # if the generator supports configuration types then set
+      # optimized and debug libraries, or if the CMAKE_BUILD_TYPE has a value
+      IF (CMAKE_CONFIGURATION_TYPES OR CMAKE_BUILD_TYPE)
+        SET(STLPORT_LIBRARY optimized ${STLPORT_LIBRARY_RELEASE} debug ${STLPORT_LIBRARY_DEBUG})
+      ELSE()
+        # if there are no configuration types and CMAKE_BUILD_TYPE has no value
+        # then just use the release libraries
+        SET(STLPORT_LIBRARY ${STLPORT_LIBRARY_RELEASE} )
+      ENDIF()
+      # FIXME: This probably should be set for both cases
+      SET(STLPORT_LIBRARIES optimized ${STLPORT_LIBRARY_RELEASE} debug ${STLPORT_LIBRARY_DEBUG})
+    ENDIF()
+
+    # if only the release version was found, set the debug variable also to the release version
+    IF (STLPORT_LIBRARY_RELEASE AND NOT STLPORT_LIBRARY_DEBUG)
+      SET(STLPORT_LIBRARY_DEBUG ${STLPORT_LIBRARY_RELEASE})
+      SET(STLPORT_LIBRARY       ${STLPORT_LIBRARY_RELEASE})
+      SET(STLPORT_LIBRARIES     ${STLPORT_LIBRARY_RELEASE})
+    ENDIF()
+
+    # if only the debug version was found, set the release variable also to the debug version
+    IF (STLPORT_LIBRARY_DEBUG AND NOT STLPORT_LIBRARY_RELEASE)
+      SET(STLPORT_LIBRARY_RELEASE ${STLPORT_LIBRARY_DEBUG})
+      SET(STLPORT_LIBRARY         ${STLPORT_LIBRARY_DEBUG})
+      SET(STLPORT_LIBRARIES       ${STLPORT_LIBRARY_DEBUG})
+    ENDIF()
 
 #
 # For GCC, should we consider using -nostdinc or -isystem to 
