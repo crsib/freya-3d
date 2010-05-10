@@ -208,6 +208,8 @@ FreyaGeometryBuffer::updateVBO() const
 	if(m_VBOSync)
 	{
 		size_t required_size = m_Verticies.size() * sizeof(FVertex);
+		if(required_size == 0)
+			return;
 		if(m_VBOSize < required_size)
 		{
 			while(m_VBOSize < required_size)
