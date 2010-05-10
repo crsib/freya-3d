@@ -31,6 +31,7 @@ TaskManager::TaskManager()
 	m_ThreadNumber = core::multithreading::numHardwareThreads();
 	if(m_ThreadNumber > 1)
 		--m_ThreadNumber;
+	//m_ThreadNumber = 1;
 	for(size_t i = 0; i < m_ThreadNumber; i++)
 		m_Threads.push_front(new core::taskmanager::__internal::TaskThread());
 	m_PrimaryLock = m_AuxLock = 0;
