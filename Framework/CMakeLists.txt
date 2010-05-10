@@ -135,6 +135,8 @@ Source/resources/drivers/std/ShaderLoaderDriver.h
 Source/resources/drivers/std/ShaderLoaderDriver.cpp
 Source/resources/drivers/std/VDataLoader.h
 Source/resources/drivers/std/VDataLoader.cpp
+Source/resources/drivers/std/TextureLoader.h
+Source/resources/drivers/std/TextureLoader.cpp
 
 Source/windowmanager/WindowManagerFactory.h
 Source/windowmanager/KeyboardKeysNames.cpp
@@ -401,6 +403,8 @@ IF(MSVC)
 									Source/resources/drivers/std/ShaderLoaderDriver.cpp
 									Source/resources/drivers/std/VDataLoader.h
 									Source/resources/drivers/std/VDataLoader.cpp
+									Source/resources/drivers/std/TextureLoader.h
+									Source/resources/drivers/std/TextureLoader.cpp
 				)
 	SOURCE_GROUP("Source\\windowmanager" FILES Source/windowmanager/WindowManagerFactory.h
 									Source/windowmanager/KeyboardKeysNames.cpp
