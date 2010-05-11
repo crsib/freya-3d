@@ -68,8 +68,10 @@ public:
 
 	virtual void    unlock()
 	{
-		if(m_Locked)
+		//if(m_Locked)
 		{
+			if(m_Locked == 0)
+				std::clog << "[COREMT] Trying to unlock unlocked mutex O_O" << std::endl;
 			m_Locked = 0;
 			m_Mutex->unlock();
 		}

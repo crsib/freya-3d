@@ -30,6 +30,7 @@ namespace multithreading
 {
 class Thread;
 class Mutex;
+class Condition;
 }
 
 namespace taskmanager
@@ -55,6 +56,7 @@ class  TaskManager : virtual public ::EngineSubsystem
 {
 	friend class core::EngineCore;
 	friend class core::taskmanager::__internal::__thread_function;
+	friend class TaskThread;
 
 private:
 	TaskManager();
@@ -93,6 +95,11 @@ private:
 	size_t														m_ThreadNumber;
 	volatile long												m_PrimaryLock;
 	volatile long												m_AuxLock;
+
+	multithreading::Mutex*										m_TaskWaitMutex;
+	multithreading::Condition*									m_TaskWaitCondition;
+
+	static	unsigned											m_AwaitingThreads;
 };
 
 }
