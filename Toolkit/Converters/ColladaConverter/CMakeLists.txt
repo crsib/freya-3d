@@ -6,11 +6,18 @@ include_directories(${CMAKE_SOURCE_DIR}/../../../Freya/Framework/include/)
 include_directories(${CMAKE_SOURCE_DIR}/../../../Freya_MSVC10/include/1.4)
 
 set(LINK_WITH_LIBRARIES ${CMAKE_SOURCE_DIR}/../../../Freya_MSVC10/lib/libcollada14dom21-sd.lib;${CMAKE_SOURCE_DIR}/../../../Freya_MSVC10/lib/pcrecpp_d.lib;)
+   
+# -> Need to set Working directory in Bin
 
 find_package(STLPort REQUIRED)
 if (STLPORT_FOUND)
     include_directories(${STLPORT_INCLUDE_DIR})
     include_directories(${STLPORT_INCLUDE_DIR}/../) # I include <stlport/*> way.
+    
+    
+    add_definitions(-D_STLP_DEBUG) # !!FIXME!! Disable for release version!!
+    
+    
     set(LINK_WITH_LIBRARIES ${LINK_WITH_LIBRARIES} ${STLPORT_LIBRARIES})
 endif()
 
