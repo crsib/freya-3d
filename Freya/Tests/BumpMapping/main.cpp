@@ -626,6 +626,7 @@ int main(int argC,char** argV)
 		//core::EngineCore::getTaskManager()->setThreadNumber(3);
 		core::EngineCore::getTaskManager()->enterMainLoop();
 		std::cout << "FPS: " << fps << std::endl;
+		delete Core;
 	}
 	catch(EngineException& ex)
 	{
