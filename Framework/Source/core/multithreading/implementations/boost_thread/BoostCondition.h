@@ -32,7 +32,7 @@ class BoostCondition: public core::multithreading::Condition
 {
 private:
 	friend class ImplementationFactory;
-	BoostCondition() : m_Cond(new boost::condition_variable())
+	BoostCondition() : m_Cond(new boost::condition_variable_any())
 	{
 
 	}
@@ -42,12 +42,15 @@ private:
 		delete m_Cond;
 	}
 
-	boost::condition_variable*	m_Cond;
+	boost::condition_variable_any*	m_Cond;
 public:
 	virtual void wait(core::multithreading::Mutex* mut)
 	{
-		boost::unique_lock<boost::mutex> lock(*(static_cast<BoostMutex*>(mut)->m_Mutex),boost::adopt_lock);
-		m_Cond->wait(lock);
+		//boost::unique_lock<boost::mutex> lock(*(static_cast<BoostMutex*>(mut)->m_Mutex),boost::adopt_lock);
+		static_cast<BoostMutex*>(mut)->m_Locked = 0;
+		//m_Cond->wait(lock);
+		m_Cond->wait(*(static_cast<BoostMutex*>(mut)->m_Mutex));
+		static_cast<BoostMutex*>(mut)->m_Locked = 1;
 	}
 
 	virtual void signal()

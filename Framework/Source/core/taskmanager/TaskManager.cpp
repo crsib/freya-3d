@@ -25,16 +25,21 @@ namespace core
 
 namespace taskmanager
 {
+//No awaiting thread on the start
+unsigned TaskManager::m_AwaitingThreads = 0;
 
 TaskManager::TaskManager()
 {
 	m_ThreadNumber = core::multithreading::numHardwareThreads();
 	if(m_ThreadNumber > 1)
 		--m_ThreadNumber;
-	//m_ThreadNumber = 1;
+	//Get the lock mutex and cond
+	m_TaskWaitMutex = core::EngineCore::createMutex();
+	m_TaskWaitCondition = core::EngineCore::createCondition();
 	for(size_t i = 0; i < m_ThreadNumber; i++)
-		m_Threads.push_front(new core::taskmanager::__internal::TaskThread());
+		m_Threads.push_front(new core::taskmanager::__internal::TaskThread(m_TaskWaitCondition, m_TaskWaitMutex));
 	m_PrimaryLock = m_AuxLock = 0;
+	
 }
 
 TaskManager::~TaskManager()
@@ -44,8 +49,12 @@ TaskManager::~TaskManager()
 	std::list<core::taskmanager::__internal::TaskThread*,core::memory::MemoryAllocator<core::taskmanager::__internal::TaskThread*> >::iterator it;
 	for(it = m_Threads.begin(); it != m_Threads.end();++it)
 	{
+		m_TaskWaitCondition->broadcast();
 		delete *it;
 	}
+
+	core::EngineCore::destroyCondition(m_TaskWaitCondition);
+	core::EngineCore::destroyMutex(m_TaskWaitMutex);
 
 	std::cout << "Destroying tasks from main queue" << std::endl;
 	for(unsigned i = 0; i < m_MainThreadSchedule.size();i++)
@@ -74,8 +83,12 @@ void TaskManager::addAsynchronousTask(Task* task)
 	while(test_and_set(&m_AuxLock,1))
 		core::multithreading::yield();
 	task->retain();
-	m_SecThreadSchedule.push_back(task);
 	m_AuxLock = 0;
+	m_SecThreadSchedule.push_back(task);
+	{
+			if(m_AwaitingThreads)
+				m_TaskWaitCondition->signal();
+	}
 }
 
 void TaskManager::setThreadNumber(size_t n)
@@ -84,7 +97,7 @@ void TaskManager::setThreadNumber(size_t n)
 	{
 		size_t dif = n - m_ThreadNumber;
 		for(size_t i = 0; i < dif; i++ )
-			m_Threads.push_front(new core::taskmanager::__internal::TaskThread());
+			m_Threads.push_front(new core::taskmanager::__internal::TaskThread(m_TaskWaitCondition, m_TaskWaitMutex));
 	}
 }
 
