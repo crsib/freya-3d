@@ -3,13 +3,30 @@
 include(colladaconverter.list)
 
 include_directories(${CMAKE_SOURCE_DIR}/../../../Freya/Framework/include/)
-include_directories(${CMAKE_SOURCE_DIR}/../../../Freya_MSVC10/include/)
 include_directories(${CMAKE_SOURCE_DIR}/../../../Freya_MSVC10/include/1.4)
-include_directories(${CMAKE_SOURCE_DIR}/../../../Freya_MSVC10/include/boost-1_43)
+
+set(LINK_WITH_LIBRARIES ${CMAKE_SOURCE_DIR}/../../../Freya_MSVC10/lib/libcollada14dom21-sd.lib;${CMAKE_SOURCE_DIR}/../../../Freya_MSVC10/lib/pcrecpp_d.lib;)
+
+find_package(STLPort REQUIRED)
+if (STLPORT_FOUND)
+    include_directories(${STLPORT_INCLUDE_DIR})
+    include_directories(${STLPORT_INCLUDE_DIR}/../) # I include <stlport/*> way.
+    set(LINK_WITH_LIBRARIES ${LINK_WITH_LIBRARIES} ${STLPORT_LIBRARIES})
+endif()
+
+find_package(BoostSTLPort 1.40 REQUIRED COMPONENTS filesystem system)
+if (Boost_FOUND)
+    include_directories(${Boost_INCLUDE_DIRS})
+    set(LINK_WITH_LIBRARIES ${LINK_WITH_LIBRARIES} ${Boost_LIBRARIES})
+endif()
+
+find_package(PCRE REQUIRED)
+if (PCRE_FOUND)
+    include_directories(${PCRE_INCLUDE_DIR})
+    set(LINK_WITH_LIBRARIES ${LINK_WITH_LIBRARIES} ${PCRE_LIBRARIES})
+endif()
 
 add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-
-set(LINK_LIBRARIES ${CMAKE_SOURCE_DIR}/../../../Freya_MSVC10/lib/libcollada14dom21-sd.lib;${CMAKE_SOURCE_DIR}/../../../Freya_MSVC10/lib/stlportstld.5.2.lib;${CMAKE_SOURCE_DIR}/../../../Freya_MSVC10/lib/pcre_d.lib;${CMAKE_SOURCE_DIR}/../../../Freya_MSVC10/lib/pcrecpp_d.lib;${CMAKE_SOURCE_DIR}/../../../Freya_MSVC10/lib/boost_system-vc100-mt-gdp.lib;${CMAKE_SOURCE_DIR}/../../../Freya_MSVC10/lib/boost_filesystem-vc100-mt-gdp.lib)
 
 link_directories(/lib/)
 
@@ -26,5 +43,5 @@ else(APPLE)
 
 endif(APPLE)
 
-target_link_libraries(ColladaConverter ${LINK_LIBRARIES})
+target_link_libraries(ColladaConverter ${LINK_WITH_LIBRARIES})
 

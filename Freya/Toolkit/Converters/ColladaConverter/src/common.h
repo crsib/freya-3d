@@ -10,10 +10,11 @@
 
 #define EXPORT __declspec(dllimport)
 
-#include <string>
-#include <sstream>
-#include <list>
-#include <iostream>
+#include <stlport/string>
+#include <stlport/sstream>
+#include <stlport/list>
+#include <stlport/iostream>
+#include <stlport/fstream>
 //#include <windows.h>
 
 #include <dae.h>
