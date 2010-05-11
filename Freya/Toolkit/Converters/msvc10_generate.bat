@@ -12,6 +12,7 @@
 @set LIB=%CURRENTDIR%"\..\..\..\Freya_MSVC10\lib";%LIB%
 @set LIBPATH=%CURRENTDIR%"\..\..\..\Freya_MSVC10\lib";%LIBPATH%
 
+@if not exist Build mkdir Build
 @cd ".\Build"
 @if not exist "MSVC10" mkdir MSVC10
 @cd "MSVC10"
