@@ -51,25 +51,25 @@ namespace resources {
 				if(ext_epos != ID.npos)
 					ext_sz = ext_epos - ext_spos;
 				EString ext(ID.substr(ext_spos, ext_sz));
-				EString ret(ID);
-				ret.replace(++ret.begin(), ++ret.begin() + EString("texture").length(), ext.begin(), ext.end());
+				EString ret(":");
+				ret.append(ext);
+				ret.append(ID.substr(EString(":texture").length()));
 				return core::CoreInstance->getResourceManager()->load(ret, resources::ResourceManager::ASYNCHRONOUS);
 			}
 
 			Resource* TextureLoader::loadSynchronous(const EString& ID) {
-				throw ResourceException("Synchronous loader for TextureLoader is not available.");
-				size_t scursor = ID.find_last_of('.');
-				if(scursor == ID.npos)
-					throw ResourceException("Deprecated file name - it must contain an extension.");
-				size_t ecursor = ID.find_last_of(':', scursor);
-				if(ecursor != ID.npos)
-					ecursor -= scursor;
-				EString ext = ID.substr(scursor + 1, ecursor);
-				//replace :texture:/path/file.ext[:mipmaps]"
-				// with :ext:/path/file.ext[:mipmaps]"
-				EString ret(ID);
-				ret.replace(++ret.begin(), ++ret.begin() + EString("texture").length(), ext.begin(), ext.end());
-				return core::CoreInstance->getResourceManager()->load(ret);
+				size_t ext_spos = ID.find_last_of('.') + 1;
+				if(ext_spos == ID.npos)
+					throw ResourceException("File name must contain an extension.");				
+				size_t ext_sz = ID.npos;								
+				size_t ext_epos = ID.find(':', ext_spos);				
+				if(ext_epos != ID.npos)
+					ext_sz = ext_epos - ext_spos;
+				EString ext(ID.substr(ext_spos, ext_sz));
+				EString ret(":");
+				ret.append(ext);
+				ret.append(ID.substr(EString(":texture").length()));
+				return core::CoreInstance->getResourceManager()->load(ret, resources::ResourceManager::IMMEDIATELY);
 			}
 
 			bool TextureLoader::unique() const {
