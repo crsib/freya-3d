@@ -57,10 +57,11 @@ void GDataFile::write(const domGeometryRef& _geom)
 			const domVertices* vertices = nullptr;
 			const domSource* source = nullptr; 
 
-			String type = std::string(element.cast()->getTypeName());
+			String type(element.cast()->getTypeName());
 
 			// Hmm... Nice down case :)
-			std::transform(type.begin(), type.end(), type.begin(), ::tolower);
+			//std::transform(type.begin(), type.end(), type.begin(), tolower);
+            ERROR("TOLOWER!");
 			
 			if (type == "vertices")
 				vertices = dynamic_cast<const domVertices*>(element.cast());
@@ -163,7 +164,8 @@ void GDataFile::write(const domGeometryRef& _geom)
 		String semantic = order[orderIter].second->getSemantic();
 
 		// Hmm... Nice upper case :D
-		std::transform(semantic.begin(), semantic.end(), semantic.begin(), ::toupper);
+		//std::transform(semantic.begin(), semantic.end(), semantic.begin(), ::toupper);
+        ERROR("TOUPPER!");
 
 		renderer::VertexElement vertexElement;
 
