@@ -23,6 +23,9 @@ extern "C"
 #include "core/multithreading/Thread.h"
 #include "core/multithreading/Runnable.h"
 #include "core/multithreading/ThreadBlocks.h"
+#include "core/multithreading/Condition.h"
+#include "core/multithreading/Mutex.h"
+#include "core/multithreading/Lock.h"
 #include "core/EngineException.h"
 #include <iostream>
 namespace core
@@ -46,30 +49,16 @@ public:
 class __thread_function : public core::multithreading::Runnable
 {
 public:
-	core::multithreading::RingBuffer<core::taskmanager::Task*,32>* rb;
+	//core::multithreading::RingBuffer<core::taskmanager::Task*,32>* rb;
 	core::taskmanager::TaskManager*	man;
+	multithreading::Mutex*			wait_mut;
+	multithreading::Condition*      wait_cond;
 	virtual int operator () ()
 	{
 		while(TaskThread::m_Active)
 		{
 			try
 			{
-#if 0
-				core::taskmanager::Task*	task = rb->fetch();
-				if(task)
-				{
-					switch((*task)())
-					{
-						case core::taskmanager::Task::MAIN_THREAD:
-							core::EngineCore::getTaskManager()->addTask(task);
-							break;
-						case core::taskmanager::Task::SECONDARY_THREAD:
-							core::EngineCore::getTaskManager()->addAsynchronousTask(task);
-							break;
-					}
-					task->release();
-				}
-#endif
 				while(man == 0)
 				{
 					man = core::EngineCore::getTaskManager();
@@ -78,14 +67,12 @@ public:
 				if(man->m_SecThreadSchedule.size())
 				{
 					core::taskmanager::Task*	task = NULL;
-					//synchronize(man->m_MutexAux)
-					//{
+
 					while(test_and_set(&man->m_AuxLock,1))
 						core::multithreading::yield();
 					if(man->m_SecThreadSchedule.size())
 					{
 						task = man->m_SecThreadSchedule.front();
-						//std::cout << "Fetched task: " << (void*) task << " ret " << task->retainCount() << std::endl;
 						man->m_SecThreadSchedule.pop_front();
 						man->m_AuxLock = 0;
 
@@ -106,12 +93,22 @@ public:
 					else
 					{
 						man->m_AuxLock = 0;
-						core::multithreading::yield();
+						wait_mut->lock();
+						++core::taskmanager::TaskManager::m_AwaitingThreads;
+
+						wait_cond->wait(wait_mut);
+
+						--core::taskmanager::TaskManager::m_AwaitingThreads;
+						wait_mut->unlock();
 					}
 				}//if(man->m_SecThreadSchedule.size())
 				else
 				{
-					core::multithreading::yield();
+					wait_mut->lock();
+					++core::taskmanager::TaskManager::m_AwaitingThreads;
+					wait_cond->wait(wait_mut);
+					--core::taskmanager::TaskManager::m_AwaitingThreads;
+					wait_mut->unlock();
 				}
 
 			}
@@ -127,11 +124,15 @@ public:
 };
 unsigned	TaskThread::m_Active = 0;
 
-TaskThread::TaskThread()
+TaskThread::TaskThread(multithreading::Condition* cond, multithreading::Mutex* mut)
 {
 	m_Active = 1;
+	m_Mutex = mut;
+	m_Condition = cond;
 	m_Func = new __thread_function();
 	m_Func->man = core::EngineCore::getTaskManager();
+	m_Func->wait_cond = m_Condition;
+	m_Func->wait_mut = m_Mutex;
 	m_Thread = core::EngineCore::createThread(*m_Func);
 }
 
@@ -141,6 +142,7 @@ TaskThread::~TaskThread()
 	m_Thread->wait();
 	std::cout << "Returning sub thread " << std::endl;
 	core::EngineCore::destroyThread(m_Thread);
+	//core::EngineCore::destroyMutex(m_Mutex);
 	delete m_Func;
 
 }

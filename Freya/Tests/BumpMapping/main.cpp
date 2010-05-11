@@ -410,7 +410,7 @@ public:
 #endif
 			//Get the address of WindowManger instance
 			core::EngineCore::createWindowManager("SDL");
-			core::EngineCore::getTaskManager()->setThreadNumber(2);
+			//core::EngineCore::getTaskManager()->setThreadNumber(2);
 			wm = core::EngineCore::getWindowManager();
 			wm->setQuitCallback(windowmanager::Callback(_quit));
 			//Mount filesystems
