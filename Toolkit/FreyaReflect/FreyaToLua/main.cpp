@@ -16,9 +16,9 @@ int main(int argc, char* argv[])
 	//TESTS
 	FreyaReflect		reflector;
 
-	reflector.addDefinition("FREYA_SHARED");
-	reflector.addDirectory("D:\\Devel\\Projects\\Freya3D\\Freya\\Framework\\Include\\renderer");
-	reflector.addDirectory("D:\\Devel\\Projects\\Freya3D\\Freya\\Framework\\Include",false);
+	reflector.addDefinition("_SHARED_BUILD");
+	//reflector.addDirectory("D:\\Devel\\Projects\\Freya3D\\Freya\\Framework\\Include\\renderer");
+	//reflector.addDirectory("D:\\Devel\\Projects\\Freya3D\\Freya\\Framework\\Include",false);
 	reflector.addFile("D:\\Devel\\Projects\\Freya3D\\Freya\\Framework\\Include\\windowmanager\\WindowManagerDriver.h");
 
 	reflector.parse();
