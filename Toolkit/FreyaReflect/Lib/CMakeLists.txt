@@ -10,7 +10,7 @@ set(FREYAREFLECT_SOURCES
 	Source/Strings.cpp
 )
 
-find_package(BoostSTLPort 1.43 REQUIRED COMPONENTS system filesystem wave regex)
+find_package(BoostSTLPort 1.43 REQUIRED COMPONENTS system filesystem wave regex thread)
 if (Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
     set(LINK_DEPENDENCIES ${LINK_DEPENDENCIES} ${Boost_LIBRARIES})

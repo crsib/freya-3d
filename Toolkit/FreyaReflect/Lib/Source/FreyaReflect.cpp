@@ -1,6 +1,7 @@
 #include "FreyaReflect.h"
 
 #include <iostream>
+#include <boost/filesystem/fstream.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
 
@@ -25,7 +26,75 @@ FreyaReflect::~FreyaReflect()
 
 bool FreyaReflect::parse()
 {
+	boost::wave::util::file_position_type current_position;
+	try
+	{
+		//For each file needed
+		for(size_t i = 0; i < m_IncludeList.size(); ++i)
+		{
+			std::clog << "Parsing " << m_IncludeList[i] << "..." << std::endl;
+			boost::filesystem::fstream		instream(m_IncludeList[i]);
+			std::string						instring;
+			if (!instream.is_open()) {
+				std::cerr << "Could not open input file: " << m_IncludeList[i] << std::endl;
+				return false;
+			}
 
+			instream.unsetf(std::ios::skipws);
+			instring = std::string(std::istreambuf_iterator<char>(instream.rdbuf()),
+				std::istreambuf_iterator<char>());
+
+			typedef boost::wave::cpplexer::lex_token<> token_type;
+			typedef boost::wave::cpplexer::lex_iterator<token_type> lex_iterator_type;
+			typedef boost::wave::context<std::string::iterator, lex_iterator_type> context_type;
+
+			context_type ctx (instring.begin(), instring.end(), m_IncludeList[i].c_str());
+			
+			for(size_t _i = 0; _i < m_Definitions.size(); ++_i)
+			{
+				ctx.add_macro_definition(m_Definitions[_i]);
+			}
+
+			//  Get the preprocessor iterators and use them to generate 
+			//  the token sequence.
+			context_type::iterator_type first = ctx.begin();
+			context_type::iterator_type last = ctx.end();
+
+			while (first != last)
+			{
+				current_position = (*first).get_position();
+				std::cout << (*first).get_value();
+				++first;
+			}
+		}//(size_t i = 0; i < m_IncludeList.size(); ++i)
+	}//try
+	catch (boost::wave::cpp_exception const& e) 
+	{
+		// some preprocessing error
+		std::cerr 
+			<< e.file_name() << "(" << e.line_no() << "): "
+			<< e.description() << std::endl;
+		return false;
+	}
+	catch (std::exception const& e) 
+	{
+		// use last recognized token to retrieve the error position
+		std::cerr 
+			<< current_position.get_file() 
+			<< "(" << current_position.get_line() << "): "
+			<< "exception caught: " << e.what()
+			<< std::endl;
+		return false;
+	}
+	catch (...)
+	{
+		// use last recognized token to retrieve the error position
+		std::cerr 
+			<< current_position.get_file() 
+			<< "(" << current_position.get_line() << "): "
+			<< "unexpected exception caught." << std::endl;
+		return false;
+	}
 	return true;
 }
 
