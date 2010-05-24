@@ -9,9 +9,50 @@
 
 #include <boost/wave/cpplexer/cpp_lex_token.hpp>    // token class
 #include <boost/wave/cpplexer/cpp_lex_iterator.hpp> // lexer class
+#include <boost/wave/cpplexer/cpplexer_exceptions.hpp>
 
 #include <boost/wave/wave_config.hpp>
 #include <boost/wave/token_ids.hpp>
+
+#include "ContextPolicy.hpp"
+
+#include <boost/spirit/include/classic_ast.hpp>
+#include <boost/spirit/include/classic_tree_to_xml.hpp>
+
+#include "translation_unit_parser.h"
+#include "translation_unit_skipper.h"
+
+#include <ctime>
+#include <sstream>
+
+namespace 
+{
+	std::string format_time(clock_t time)
+	{
+		std::ostringstream sstream;
+		sstream.precision(3);
+		sstream << std::fixed << static_cast<float>(time) / static_cast<float>(CLOCKS_PER_SEC) << " secs" ;
+		sstream.flush();
+		return sstream.str();
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+	//  helper routines needed to generate the parse tree XML dump
+	typedef boost::wave::cpplexer::lex_token<> token_type;
+
+	token_type::string_type  get_token_id(token_type const &t) 
+	{ 
+		using namespace boost::wave;
+		return get_token_name(token_id(t)); // boost::wave::token_id(t); 
+	}
+
+	token_type::string_type get_token_value(token_type const &t) 
+	{ 
+		return t.get_value(); 
+	}
+
+	///////////////////////////////////////////////////////////////////////////////
+}   // unnamed namespace 
 
 FreyaReflect::FreyaReflect()
 {
@@ -29,10 +70,12 @@ bool FreyaReflect::parse()
 	boost::wave::util::file_position_type current_position;
 	try
 	{
+		clock_t    full_parse_start = clock();
 		//For each file needed
 		for(size_t i = 0; i < m_IncludeList.size(); ++i)
 		{
 			std::clog << "Parsing " << m_IncludeList[i] << "..." << std::endl;
+			clock_t file_parse_start = clock();
 			boost::filesystem::fstream		instream(m_IncludeList[i]);
 			std::string						instring;
 			if (!instream.is_open()) {
@@ -46,7 +89,8 @@ bool FreyaReflect::parse()
 
 			typedef boost::wave::cpplexer::lex_token<> token_type;
 			typedef boost::wave::cpplexer::lex_iterator<token_type> lex_iterator_type;
-			typedef boost::wave::context<std::string::iterator, lex_iterator_type> context_type;
+			typedef boost::wave::context<std::string::iterator, lex_iterator_type,
+			boost::wave::iteration_context_policies::load_file_to_string,custom_directives_hooks> context_type;
 
 			context_type ctx (instring.begin(), instring.end(), m_IncludeList[i].c_str());
 			
@@ -59,18 +103,52 @@ bool FreyaReflect::parse()
 			//  the token sequence.
 			context_type::iterator_type first = ctx.begin();
 			context_type::iterator_type last = ctx.end();
+			
+			typedef boost::spirit::classic::tree_parse_info<context_type::iterator_type> 
+				result_type;
+			translation_unit_grammar::rule_map_type rule_map;
+			translation_unit_grammar g(&rule_map);
+			translation_unit_skipper s; 
 
-			while (first != last)
+			result_type pi = boost::spirit::classic::ast_parse(first, last, g, s);
+			if(pi.full)
 			{
-				current_position = (*first).get_position();
-				std::cout << (*first).get_value();
-				++first;
+				boost::filesystem::path p(m_IncludeList[i]);
+				p.replace_extension("xml");
+				std::ofstream file_stream(p.filename().c_str());
+				boost::spirit::classic::tree_to_xml(file_stream, pi.trees, "", rule_map, 
+					&get_token_id, &get_token_value);
+				std::clog << "Successfully parsed in " << format_time(clock() - file_parse_start)<<std::endl; 
 			}
+			else 
+			{
+				std::cerr 
+					<< "Hannibal: parsing failed: " << m_IncludeList[i] << std::endl;
+				std::cerr 
+					<< "Hannibal: last recognized token was: " 
+					<< get_token_id(*pi.stop) << std::endl;
+
+				using boost::wave::util::file_position_type;
+				file_position_type const& pos(pi.stop->get_position());
+				std::cerr 
+					<< "Hannibal: at: " << pos.get_file() << "(" << pos.get_line() 
+					<< "," << pos.get_column() << ")" << std::endl;
+				return false;
+			}
+
 		}//(size_t i = 0; i < m_IncludeList.size(); ++i)
+		std::clog << "Parse completed in " << format_time(clock() - full_parse_start) << std::endl;
 	}//try
 	catch (boost::wave::cpp_exception const& e) 
 	{
 		// some preprocessing error
+		std::cerr 
+			<< e.file_name() << "(" << e.line_no() << "): "
+			<< e.description() << std::endl;
+		return false;
+	}
+	catch(boost::wave::cpplexer::lexing_exception const& e)
+	{
 		std::cerr 
 			<< e.file_name() << "(" << e.line_no() << "): "
 			<< e.description() << std::endl;

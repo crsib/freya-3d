@@ -17,9 +17,13 @@ int main(int argc, char* argv[])
 	FreyaReflect		reflector;
 
 	reflector.addDefinition("_SHARED_BUILD");
-	//reflector.addDirectory("D:\\Devel\\Projects\\Freya3D\\Freya\\Framework\\Include\\renderer");
-	//reflector.addDirectory("D:\\Devel\\Projects\\Freya3D\\Freya\\Framework\\Include",false);
-	reflector.addFile("D:\\Devel\\Projects\\Freya3D\\Freya\\Framework\\Include\\windowmanager\\WindowManagerDriver.h");
+	reflector.addDefinition("EXPORT=");
+#ifdef _MSC_VER
+	reflector.addDefinition("_MSC_VER=1600");
+#else
+	reflector.addDefinition("__GNUC__=");
+#endif
+	reflector.addDirectory("D:\\Devel\\Projects\\Freya3D\\Freya\\Framework\\Include");
 
 	reflector.parse();
 	//Print all nodes
