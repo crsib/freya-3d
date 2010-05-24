@@ -8,6 +8,9 @@ set(FREYAREFLECT_INCLUDES
 set(FREYAREFLECT_SOURCES 
 	Source/FreyaReflect.cpp
 	Source/Strings.cpp
+	Source/ContextPolicy.hpp
+	Source/translation_unit_parser.h
+	Source/translation_unit_skipper.h
 )
 
 find_package(BoostSTLPort 1.43 REQUIRED COMPONENTS system filesystem wave regex thread)
