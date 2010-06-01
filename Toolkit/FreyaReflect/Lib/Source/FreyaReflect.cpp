@@ -5,16 +5,10 @@
 #include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
 
-#include <boost/wave.hpp>
-
-#include <boost/wave/cpplexer/cpp_lex_token.hpp>    // token class
-#include <boost/wave/cpplexer/cpp_lex_iterator.hpp> // lexer class
 #include <boost/wave/cpplexer/cpplexer_exceptions.hpp>
 
 #include <boost/wave/wave_config.hpp>
 #include <boost/wave/token_ids.hpp>
-
-#include "ContextPolicy.hpp"
 
 #include <boost/spirit/include/classic_ast.hpp>
 #include <boost/spirit/include/classic_tree_to_xml.hpp>
@@ -38,20 +32,19 @@ namespace
 
 	///////////////////////////////////////////////////////////////////////////
 	//  helper routines needed to generate the parse tree XML dump
-	typedef boost::wave::cpplexer::lex_token<> token_type;
+	typedef boost::wave::cpplexer::lex_token<> lexed_token_type;
 
-	token_type::string_type  get_token_id(token_type const &t) 
+	lexed_token_type::string_type  get_token_id(lexed_token_type const &t) 
 	{ 
 		using namespace boost::wave;
 		return get_token_name(token_id(t)); // boost::wave::token_id(t); 
 	}
 
-	token_type::string_type get_token_value(token_type const &t) 
+	lexed_token_type::string_type get_token_value(lexed_token_type const &t) 
 	{ 
 		return t.get_value(); 
 	}
 
-	///////////////////////////////////////////////////////////////////////////////
 }   // unnamed namespace 
 
 FreyaReflect::FreyaReflect()
@@ -87,12 +80,7 @@ bool FreyaReflect::parse()
 			instring = std::string(std::istreambuf_iterator<char>(instream.rdbuf()),
 				std::istreambuf_iterator<char>());
 
-			typedef boost::wave::cpplexer::lex_token<> token_type;
-			typedef boost::wave::cpplexer::lex_iterator<token_type> lex_iterator_type;
-			typedef boost::wave::context<std::string::iterator, lex_iterator_type,
-			boost::wave::iteration_context_policies::load_file_to_string,custom_directives_hooks> context_type;
-
-			context_type ctx (instring.begin(), instring.end(), m_IncludeList[i].c_str());
+			lexer_context_type ctx (instring.begin(), instring.end(), m_IncludeList[i].c_str());
 			
 			for(size_t _i = 0; _i < m_Definitions.size(); ++_i)
 			{
@@ -101,23 +89,19 @@ bool FreyaReflect::parse()
 
 			//  Get the preprocessor iterators and use them to generate 
 			//  the token sequence.
-			context_type::iterator_type first = ctx.begin();
-			context_type::iterator_type last = ctx.end();
+			lexer_context_type::iterator_type first = ctx.begin();
+			lexer_context_type::iterator_type last = ctx.end();
 			
-			typedef boost::spirit::classic::tree_parse_info<context_type::iterator_type> 
-				result_type;
 			translation_unit_grammar::rule_map_type rule_map;
 			translation_unit_grammar g(&rule_map);
 			translation_unit_skipper s; 
 
-			result_type pi = boost::spirit::classic::ast_parse(first, last, g, s);
+			ast_result_type pi = boost::spirit::classic::ast_parse(first, last, g, s);
 			if(pi.full)
 			{
-				boost::filesystem::path p(m_IncludeList[i]);
-				p.replace_extension("xml");
-				std::ofstream file_stream(p.filename().c_str());
-				boost::spirit::classic::tree_to_xml(file_stream, pi.trees, "", rule_map, 
-					&get_token_id, &get_token_value);
+				//Send parsed tree down the hierarchy
+				void	parse_ast(NamespaceNode* __default_namespace, const ast_result_type& __ast,  translation_unit_grammar::rule_map_type& rule_map);
+				parse_ast(m_RootNode,pi,rule_map);
 				std::clog << "Successfully parsed in " << format_time(clock() - file_parse_start)<<std::endl; 
 			}
 			else 

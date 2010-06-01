@@ -160,7 +160,13 @@ public:
 		return m_NodeList.rend();
 	}
 
+	CppNode*			getNodeNamed(const std::string& name);
+	const CppNode*		getNodeNamed(const std::string& name) const;
 
+	void				addNode(CppNode* node)
+	{
+		m_NodeList.push_back(node);
+	}
 
 protected:
 	NODE_TYPE			m_NodeType;

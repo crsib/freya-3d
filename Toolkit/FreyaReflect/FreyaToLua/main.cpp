@@ -4,11 +4,11 @@
 
 void NodePrinter(CppNode* root,int depth)
 {
-	for(NodeListIterator it = root->begin(); it != root->end(); ++it)
-		NodePrinter(*it,depth+1);
 	for(int i = 0; i < depth; i++)
 		std::cout << "\t";
 	std::cout << root->getShortName() << " ( " << root->getQualifiedName() << " )" << std::endl;
+	for(NodeListIterator it = root->begin(); it != root->end(); ++it)
+		NodePrinter(*it,depth+1);
 }
 
 int main(int argc, char* argv[])

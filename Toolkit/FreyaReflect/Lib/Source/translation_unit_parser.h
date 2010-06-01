@@ -85,6 +85,7 @@ private:
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
+static
 struct dump_actor {
     template<typename ForwardIterator>
     void operator()(ForwardIterator begin, ForwardIterator end)

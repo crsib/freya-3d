@@ -9,6 +9,21 @@
 #include "CppNode.h"
 #include "NamespaceNode.h"
 
+#include <boost/wave.hpp>
+
+#include <boost/wave/cpplexer/cpp_lex_token.hpp>    // token class
+#include <boost/wave/cpplexer/cpp_lex_iterator.hpp> // lexer class
+#include "ContextPolicy.hpp"
+
+typedef boost::wave::cpplexer::lex_token<> lexed_token_type;
+typedef boost::wave::cpplexer::lex_iterator<lexed_token_type> lex_iterator_type;
+typedef boost::wave::context<std::string::iterator, lex_iterator_type,
+	boost::wave::iteration_context_policies::load_file_to_string,custom_directives_hooks> lexer_context_type;
+typedef boost::spirit::classic::tree_parse_info<lexer_context_type::iterator_type> 
+	ast_result_type;
+typedef boost::spirit::classic::tree_match<lexer_context_type::iterator_type> ast_tree_match;
+typedef ast_tree_match::const_tree_iterator			ast_const_tree_iterator;
+typedef ast_tree_match::tree_iterator				ast_tree_iterator;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \class	FreyaReflect
 ///
@@ -117,7 +132,7 @@ public:
 		return m_RootNode;
 	}
 private:
-	CppNode*		m_RootNode;
+	NamespaceNode*		m_RootNode;
 
 	typedef		std::vector<std::string> IncludePaths;
 	typedef		std::vector<std::string> Definitions;

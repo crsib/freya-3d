@@ -4,11 +4,11 @@ set(FREYAREFLECT_INCLUDES
 	Include/internal.h
 	Include/CppNode.h
 	Include/NamespaceNode.h
+	Include/ContextPolicy.hpp
 )
 set(FREYAREFLECT_SOURCES 
 	Source/FreyaReflect.cpp
 	Source/Strings.cpp
-	Source/ContextPolicy.hpp
 	Source/translation_unit_parser.h
 	Source/translation_unit_skipper.h
 )

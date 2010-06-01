@@ -1,6 +1,7 @@
 #ifndef __INTERNAL_H
 #define __INTERNAL_H
 
+#ifndef EXPORT
 #ifdef _WIN32
 #	if defined(_SHARED_BUILD) 
 #		define EXPORT __declspec(dllexport)
@@ -10,7 +11,9 @@
 #else
 #	define EXPORT __attribute__ ((visibility("default")))
 #endif
+#endif
 
+#ifndef PLUGIN_EXPORT
 #ifdef _WIN32
 #	if defined(_FREYA_SHARED_PLUGIN) 
 #		define PLUGIN_EXPORT __declspec(dllexport)
@@ -19,6 +22,7 @@
 #	endif
 #else
 #	define PLUGIN_EXPORT __attribute__ ((visibility("default")))
+#endif
 #endif
 
 //Some usefull template routines
