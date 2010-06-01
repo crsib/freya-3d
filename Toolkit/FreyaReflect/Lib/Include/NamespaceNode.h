@@ -6,7 +6,7 @@
 class EXPORT NamespaceNode : public CppNode
 {
 public:
-	NamespaceNode(const std::string& namespace_name, CppNode* parent) : CppNode(NODE_TYPE_NAMESPACE,parent,namespace_name){}
+	NamespaceNode(const std::string& namespace_name, CppNode* parent) : CppNode(NODE_TYPE_NAMESPACE,parent,namespace_name){ }
 	virtual ~NamespaceNode(){}
 
 private:
