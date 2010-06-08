@@ -51,10 +51,13 @@ FreyaReflect::FreyaReflect()
 {
 	//Create root node - the default namespace node
 	m_RootNode = new NamespaceNode("",NULL);
+	new CppTypeFactory;
 }
 
 FreyaReflect::~FreyaReflect()
 {
+	CppTypeFactory* node = CppTypeFactory::getInstance();
+	delete node;
 	delete m_RootNode;
 }
 

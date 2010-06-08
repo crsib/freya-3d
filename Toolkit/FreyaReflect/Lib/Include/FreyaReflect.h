@@ -8,6 +8,7 @@
 
 #include "CppNode.h"
 #include "NamespaceNode.h"
+#include <CppType.h>
 
 #include <boost/wave.hpp>
 

@@ -1,10 +1,6 @@
 #ifndef _CPP_NODE_H_
 #define _CPP_NODE_H_
 
-#ifdef _MSC_VER
-#pragma warning(disable:4251)
-#endif
-
 #include "internal.h"
 
 #include <string>
@@ -17,6 +13,7 @@ typedef NodeList::iterator					NodeListIterator;
 typedef NodeList::reverse_iterator			NodeListReverseIterator;
 typedef NodeList::const_iterator			NodeListConstIterator;
 typedef NodeList::const_reverse_iterator	NodeListConstReverseIterator;
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \class	CppNode
@@ -56,6 +53,7 @@ public:
 private:
 	CppNode();
 	CppNode(const CppNode&);
+	CppNode& operator = (const CppNode& node);
 public:
 	CppNode(NODE_TYPE tp, CppNode* parent, const std::string& short_name) : m_NodeType(tp), m_Parent(parent),m_ShortName(short_name) {}
 	virtual ~CppNode()

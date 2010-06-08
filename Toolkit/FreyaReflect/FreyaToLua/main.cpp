@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
 #else
 	reflector.addDefinition("__GNUC__=");
 #endif
-	reflector.addDirectory("D:\\Devel\\Projects\\Freya3D\\Freya\\Framework\\Include");
+	reflector.addDirectory("D:\\Devel\\Projects\\Freya3D\\Freya\\Framework\\Include\\core");
 
 	reflector.parse();
 	//Print all nodes
