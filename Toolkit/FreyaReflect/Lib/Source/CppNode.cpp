@@ -2,13 +2,16 @@
 
 #include <algorithm>
 
+
+//CppNode*		searchNode(CppNode* start_point, )
+
 struct		_NodeFindPredicate
 {
 	explicit _NodeFindPredicate(const std::string& search_name) : m_SearchName (search_name) {}
 
 	bool	operator()(const CppNode* node)
 	{
-		return (m_SearchName == node->getShortName()) || (m_SearchName == node->getQualifiedName());
+		return m_SearchName == node->getShortName();
 	}
 
 	std::string				m_SearchName;
@@ -20,7 +23,9 @@ CppNode*	CppNode::getNodeNamed(const std::string& name)
 	if(it != m_NodeList.end())
 		return *it;
 	else 
+	{
 		return NULL;
+	}
 }
 
 const CppNode*	CppNode::getNodeNamed(const std::string& name) const
@@ -29,5 +34,7 @@ const CppNode*	CppNode::getNodeNamed(const std::string& name) const
 	if(it != m_NodeList.end())
 		return *it;
 	else 
+	{
 		return NULL;
+	}
 }

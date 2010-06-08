@@ -38,6 +38,14 @@ void	parse_ast(NamespaceNode* __default_namespace, const ast_result_type& __ast,
 		eval_expression(__default_namespace,it,rule_map,0);
 }
 
+ast_const_tree_iterator			parse_function(CppNode* parent, ast_const_tree_iterator const& start,ast_const_tree_iterator const & end, translation_unit_grammar::rule_map_type& rule_map)
+{
+	ast_const_tree_iterator it = start;
+	
+
+	return it;
+}
+
 void	eval_expression(CppNode* node, ast_const_tree_iterator const& it, translation_unit_grammar::rule_map_type& rule_map, int depth)
 {
 	using namespace std;
@@ -95,7 +103,17 @@ void	eval_expression(CppNode* node, ast_const_tree_iterator const& it, translati
 	} // declaration_seq
 	else if(id_name == "simple_declaration")
 	{
-		if(child_it != end)
-			eval_expression(node,child_it,rule_map,depth + 1);
+		//We are interested in either function declaration ( one of the children is direct_declarator ), either class, either enum
+		for(ast_const_tree_iterator c_it = child_it; c_it != end; ++c_it )
+		{
+			if(rule_map[c_it->value.id()] == "direct_declarator")
+			{
+				//This is a function
+			} //direct declarator
+		}
 	}// simple_declaration
+	else if(id_name == "class_specifier")
+	{
+		
+	}// "class_specifier"
 }
