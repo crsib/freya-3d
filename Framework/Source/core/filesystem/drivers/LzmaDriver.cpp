@@ -261,13 +261,14 @@ void*		LzmaDriver::read(const EString& path)
 
 	if(res != SZ_OK)
 	{
-		std::clog << "Internal LZMA driver error: failed to extract file" << std::endl;
+		throw core::filesystem::FilesystemException(EString("Extracting ") + path + " failed");
 		return NULL;
 	}
 	void* mem = _LZMA_Alloc(outSizeProcessed);
 	if(mem == NULL)
 	{
-		std::clog << "Internal LZMA driver error: memory allocation error" << std::endl;
+		//std::clog << "Internal LZMA driver error: memory allocation error" << std::endl;
+		throw core::filesystem::FilesystemException(EString("Memory allocation failed while extracting ") + path);
 		return NULL;
 	}
 	memcpy(mem,(void*)(outBuffer + offset),outSizeProcessed);

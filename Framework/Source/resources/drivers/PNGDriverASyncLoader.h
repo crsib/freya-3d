@@ -8,6 +8,7 @@
 
 #include "core/taskmanager/Task.h"
 #include "renderer/3DConstants.h"
+#include <boost/cstdint.hpp>
 
 namespace renderer {
 	class Texture;
@@ -62,7 +63,7 @@ namespace png_driver_internal {
 	class ColorTypeInfo<renderer::TextureInternalFormat::RGB16> {
 	public :
 		typedef unsigned short channel_t;
-		typedef unsigned __int64 accum_t;
+		typedef boost::uint64_t accum_t;
 		static const size_t size;
 		static const unsigned channel_num;
 	};
@@ -71,7 +72,7 @@ namespace png_driver_internal {
 	class ColorTypeInfo<renderer::TextureInternalFormat::RGBA16> {
 	public :
 		typedef unsigned short channel_t;
-		typedef unsigned __int64 accum_t;
+		typedef boost::uint64_t accum_t;
 		static const size_t size;
 		static const unsigned channel_num;
 	};
@@ -80,7 +81,7 @@ namespace png_driver_internal {
 	class ColorTypeInfo<renderer::TextureInternalFormat::LUMINANCE16> {
 	public :
 		typedef unsigned short channel_t;
-		typedef unsigned __int64 accum_t;
+		typedef boost::uint64_t accum_t;
 		static const size_t size;
 		static const unsigned channel_num;
 	};
@@ -89,7 +90,7 @@ namespace png_driver_internal {
 	class ColorTypeInfo<renderer::TextureInternalFormat::LUMINANCE16_ALPHA16> {
 	public :
 		typedef unsigned short channel_t;
-		typedef unsigned __int64 accum_t;
+		typedef boost::uint64_t accum_t;
 		static const size_t size;
 		static const unsigned channel_num;
 	};
