@@ -1,5 +1,7 @@
 #Filesystem plugins
 
+MESSAGE (Status "Configuring filesystem plugins. Plugins will be linked with ${GLOBAL_LINK_LIBRARIES}")
+
 IF(BUILD_LOCAL_FILESYSTEM_DRIVER)
 IF(BUILD_LOCAL_FILESYSTEM_DRIVER_RELEASE)
     SET(CMAKE_BUILD_TYPE Release)
@@ -25,7 +27,8 @@ ENDIF()
 	
 	
 	IF(BUILD_SHARED_LOCAL_FILESYSTEM_DRIVER)
-		MESSAGE("Building shared BoostFilesystemDriver")
+		SET(LINK_LIBRARIES ${Boost_LIBRARIES} ${GLOBAL_LINK_LIBRARIES})
+		MESSAGE("Building shared BoostFilesystemDriver ${LINK_LIBRARIES}")
 		ADD_DEFINITIONS(-D_FREYA_SHARED_PLUGIN)
 		ADD_LIBRARY(BoostFilesystemDriver MODULE ${LOCAL_FILESYSTEM_DRIVER_SOURCE} ids/LocalFilesystemDriverSharedBuild.cpp )
 		TARGET_LINK_LIBRARIES( BoostFilesystemDriver ${Boost_LIBRARIES} ${GLOBAL_LINK_LIBRARIES} FreyaCore )
@@ -80,7 +83,7 @@ ENDIF()
 	
 	IF(BUILD_SHARED_LZMA_FILESYSTEM_DRIVER)
 		FIND_PACKAGE(STLPort REQUIRED)
-		MESSAGE("Building shared BoostFilesystemDriver")
+		MESSAGE("Building shared LzmaFilesystemDriver ${GLOBAL_LINK_LIBRARIES} ${STLPORT_LIBRARIES}")
 		ADD_DEFINITIONS(-D_FREYA_SHARED_PLUGIN)
 		ADD_LIBRARY(LzmaFilesystemDriver MODULE ${LZMA_FILESYSTEM_DRIVER_SOURCE} ids/LzmaFilesystemDriverSharedBuild.cpp)
 		TARGET_LINK_LIBRARIES( LzmaFilesystemDriver ${GLOBAL_LINK_LIBRARIES} ${STLPORT_LIBRARIES} FreyaCore)
