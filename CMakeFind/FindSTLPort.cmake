@@ -37,6 +37,8 @@ ENDIF()
           stlport_gcc_stldebug
 		  stlportstld.5.2
 		  stlportstld
+		  stlportstlg
+		  stlportstlg.5.2
 		  #stlportd.5.2
 	     # stlportd
     PATHS ${STLPORT_INSTALL_DIR}/lib ${STLPORT_INSTALL_DIR}/../lib
