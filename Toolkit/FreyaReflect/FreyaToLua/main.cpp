@@ -18,13 +18,13 @@ int main(int argc, char* argv[])
 
 	reflector.addDefinition("_SHARED_BUILD");
 	reflector.addDefinition("EXPORT=");
-#ifdef _MSC_VER
-	reflector.addDefinition("_MSC_VER=1600");
-#else
-	reflector.addDefinition("__GNUC__=");
-#endif
 	reflector.addDirectory("D:\\Devel\\Projects\\Freya3D\\Freya\\Framework\\Include\\core");
-
+	reflector.addIncludeDirectory("D:\\Devel\\Projects\\Freya3D\\Freya\\Framework\\Include");
+	reflector.addIncludeDirectory("D:/Devel/Projects/Freya3D/Freya_MSVC10/include/");
+	reflector.addIncludeDirectory("D:/Devel/Projects/Freya3D/Freya_MSVC10/include/stlport");
+	//reflector.addIncludeDirectory("");
+	reflector.addIncludeDirectory("D:/Devel/Projects/Freya3D/Freya_MSVC10/include/boost-1_43");
+	reflector.addIncludeDirectory("D:/Devel/Projects/Freya3D/Freya/Build/Intermediate");
 	reflector.parse();
 	//Print all nodes
 	NodePrinter(reflector.root(),0);

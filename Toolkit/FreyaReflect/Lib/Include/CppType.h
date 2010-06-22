@@ -61,7 +61,7 @@ class EXPORT CppTypeFactory
 {
 private:
 	static	CppTypeFactory*		m_Instance;
-	CppTypeFactory(){}
+	CppTypeFactory(){m_Instance = this;}
 	~CppTypeFactory();
 	CppTypeFactory(const CppTypeFactory&);
 	CppTypeFactory& operator = (const CppTypeFactory&);

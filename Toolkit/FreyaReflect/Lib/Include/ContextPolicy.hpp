@@ -1,5 +1,6 @@
 #ifndef ContextPolicy_h__
 #define ContextPolicy_h__
+#include <iostream>
 
 class custom_directives_hooks
 	:   public boost::wave::context_policies::default_preprocessing_hooks
@@ -14,13 +15,12 @@ public:
 		std::copy(line.begin(), line.end(), std::back_inserter(pending));
 		return true;
 	}
-
-	//Disable include directives
 	template <typename ContextT>
 	bool found_include_directive(ContextT const& ctx, 
 		std::string const &filename, bool include_next)
 	{
-		return true;
+	//	std::cout << "Loading " << filename << std::endl;
+		return false;
 	}
 };
 
