@@ -106,12 +106,14 @@ FreyaReflect::FreyaReflect()
 	new CppTypeFactory;
 	addDefinition("__i386");
 	addDefinition("__FREYA_REFLECT");
+	addDefinition("_STLP_CLASS_PARTIAL_SPECIALIZATION=1");
 #ifdef _MSC_VER
 	addDefinition("_MSC_VER=1600");
 	addDefinition("_WIN32");
 	addDefinition("__WIN32");
 	addDefinition("WIN32");
 	addDefinition("_WCHAR_T_DEFINED");
+	//addDefinition("__cplusplus=199711L");
 #else
 	addDefinition("__GNUC__=");
 #if defined (__APPLE__)
@@ -136,6 +138,7 @@ FreyaReflect::~FreyaReflect()
 bool FreyaReflect::parse()
 {
 	boost::wave::util::file_position_type current_position;
+	boost::filesystem::path		 temp_name("./TempOutput.ipp");
 	try
 	{
 		clock_t    full_parse_start = clock();
@@ -218,11 +221,16 @@ bool FreyaReflect::parse()
 		lexer_context_type::iterator_type first = ctx.begin();
 		lexer_context_type::iterator_type last = ctx.end();
 		//Generate full source and feed it to ELSA
-		boost::filesystem::path		 temp_name("./TempOutput.ipp");
+		
 		boost::filesystem::ofstream  output_stream(temp_name, std::ios::out);
 		if(output_stream.bad())
 			throw std::exception("Failed to create temp file");
-		for( ; first != last; ++first)
+		std::clog << "Preprocessing..." << std::endl;
+		//Get the distance between first and last
+		size_t dist = std::distance(first,last);
+		size_t pc = 1;
+		size_t processed = 0; 
+		for( ; first != last; ++first, processed++)
 		{
 			//Fix 1. separate < and :: with ws
 			if(first->get_value() == "<")
@@ -230,6 +238,7 @@ bool FreyaReflect::parse()
 				output_stream << "< ";
 				//This cannot be the last token of a stream
 				first++;
+				processed++;
 			}//Fix 1.
 			
 			//Fix 2. clean i64 token
@@ -245,8 +254,12 @@ bool FreyaReflect::parse()
 						output_stream << val;
 					//This cannot be the last token of a stream
 					first++;
+					processed++;
 					if(first->get_value() == "i64")
+					{
 						first++;
+						processed++;
+					}
 				}
 				
 			}//Fix2
@@ -257,12 +270,14 @@ bool FreyaReflect::parse()
 				{
 					lexer_context_type::iterator_type it = first;
 					it++;
+					processed ++;
 					bool clean_up = false;
 					if(it->get_value() == "\"C++\"")
 						clean_up = true;
 					else
 					{
 						it++;
+						processed ++;
 						if(it->get_value() == "\"C++\"")
 							clean_up = true;
 					}
@@ -280,9 +295,11 @@ bool FreyaReflect::parse()
 							{
 								brace_count++;
 								it++;
+								processed++;
 								break;
 							}
 							it++;
+							processed++;
 						}
 						while(brace_count > 0)
 						{
@@ -291,6 +308,7 @@ bool FreyaReflect::parse()
 							else if((*it) == boost::wave::T_RIGHTBRACE)
 								brace_count--;
 							it++;
+							processed++;
 						}
 						first = it;
 					}
@@ -298,7 +316,16 @@ bool FreyaReflect::parse()
 			}//Fix3
 
 			output_stream << first->get_value();
+
+			//size_t processed = dist - std::distance(first,last);
+			if((100.0 * (float) (processed - 1) / dist) >= (float)pc)
+			{
+				std::clog << pc << "%..." ;
+				std::clog.flush();
+				pc++;
+			}
 		}//Write stream
+		std::clog <<  std::endl;
 		output_stream.close();
 		std::clog << "Parsing..." << std::endl;
 		TranslationUnit *unit = NULL;
@@ -313,6 +340,7 @@ bool FreyaReflect::parse()
 			lang.allowOverloading = true;
 			lang.compoundSelfName = true;
 			lang.tagsAreTypes = true;
+			
 		//	Env
 			SourceLocManager mgr;
 			StringTable strTable;
@@ -331,7 +359,7 @@ bool FreyaReflect::parse()
 			CCParse *parseContext = new CCParse(strTable, lang);
 			tree.userAct = parseContext;
 
-			std::clog << "building parse tables from internal data" << std::endl;
+			std::clog << "Building parse tables from internal data..." << std::endl;
 			ParseTables *tables = parseContext->makeTables();
 			tree.tables = tables;
 
@@ -360,6 +388,11 @@ bool FreyaReflect::parse()
 			
 			std::clog << "Starting type check process..." << std::endl;
 			Env env(strTable, lang, tfac, madeUpVariables, builtinVars, unit);
+			//env.secondPassTcheck = true;
+			env.doFunctionTemplateBodyInstantiation = false;
+			env.delayFunctionInstantiation = true;
+			env.doCompareArgsToParams = true;
+			env.doReportTemplateErrors = false;
 			try 
 			{
 				env.tcheckTranslationUnit(unit);
@@ -368,7 +401,6 @@ bool FreyaReflect::parse()
 			{
 				HANDLER();
 				(void) x;
-				// relay to handler in main()
 				std::clog << "in code near " << env.locStr() << ":\n";
 				throw;
 			}
@@ -399,7 +431,7 @@ bool FreyaReflect::parse()
 			int numErrors = env.errors.numErrors();
 			int numWarnings = env.errors.numWarnings() + parseWarnings;
 
-			if (numErrors != 0 || numWarnings != 0) 
+			//if (numErrors != 0 || numWarnings != 0) 
 			{
 				// print errors and warnings
 				env.errors.print(std::cout);
@@ -417,6 +449,11 @@ bool FreyaReflect::parse()
 			std::clog << "Elaborating..." << std::endl;
 			ElabVisitor vis(strTable, tfac, unit);
 			unit->traverse(vis.loweredVisitor);
+			
+			//Start AST porcessing
+			//unit->gdb();
+			std::clog << "Regenerating AST..." << std::endl;
+
 		}
 		catch (XUnimp &x) {
 			HANDLER();
@@ -470,6 +507,8 @@ bool FreyaReflect::parse()
 			<< "unexpected exception caught." << std::endl;
 		return false;
 	}
+	//Delete temp file
+	boost::filesystem::remove(temp_name);
 	return true;
 }
 
