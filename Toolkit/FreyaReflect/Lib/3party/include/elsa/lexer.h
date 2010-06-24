@@ -5,15 +5,15 @@
 #define LEXER_H
 
 #include "baselexer.h"      // BaseLexer
-#include "cc_tokens.h"      // TokenType
+#include "cc_tokens.h"      // ElsaTokenType
 
 // fwd decls
 class CCLang;               // cc_lang.h
 
 
 // bounds-checking functional interfaces to tables declared in cc_tokens.h
-char const *toString(TokenType type);
-TokenFlag tokenFlags(TokenType type);
+char const *toString(ElsaTokenType type);
+TokenFlag tokenFlags(ElsaTokenType type);
 
 
 
@@ -29,7 +29,7 @@ public:     // data
 
 protected:  // funcs
   // see comments at top of lexer.cc
-  void checkForNonsep(TokenType t) {
+  void checkForNonsep(ElsaTokenType t) {
     if (tokenFlags(t) & TF_NONSEPARATOR) {
       if (prevIsNonsep) {
         err("two adjacent nonseparating tokens");
@@ -45,13 +45,13 @@ protected:  // funcs
   void whitespace();
 
   // do everything for a single-spelling token
-  int tok(TokenType t);
+  int tok(ElsaTokenType t);
 
   // do everything for a multi-spelling token
-  int svalTok(TokenType t);
+  int svalTok(ElsaTokenType t);
 
   // C++ "alternate keyword" token
-  int alternateKeyword_tok(TokenType t);
+  int alternateKeyword_tok(ElsaTokenType t);
 
   // handle a #line directive
   void parseHashLine(char *directive, int len);
