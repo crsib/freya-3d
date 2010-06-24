@@ -118,11 +118,11 @@ public:
 	{
 		return m_RootNode;
 	}
+	typedef		std::vector<std::string> Definitions;
+	typedef		std::vector<std::string> IncludePaths;
 private:
 	NamespaceNode*		m_RootNode;
-
-	typedef		std::vector<std::string> IncludePaths;
-	typedef		std::vector<std::string> Definitions;
+	
 	IncludePaths	m_IncludeList;
 	IncludePaths	m_IncludeDirectoryList;
 	Definitions		m_Definitions;
