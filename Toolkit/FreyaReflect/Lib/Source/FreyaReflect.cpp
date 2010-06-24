@@ -350,6 +350,7 @@ bool FreyaReflect::parse()
 			ParseTreeAndTokens tree(lang, treeTop, strTable, temp_name.string().c_str());
 
 			traceAddSys("permissive");
+			traceAddSys("tolerateHashlineErrors");
 			//traceAddSys("parse");
 			// grab the lexer so we can check it for errors (damn this
 			// 'tree' thing is stupid..)
@@ -454,6 +455,9 @@ bool FreyaReflect::parse()
 			//unit->gdb();
 			std::clog << "Regenerating AST..." << std::endl;
 
+			void	regenerateAST(CppNode* top, TranslationUnit* tree, const IncludePaths& paths,SourceLocManager* mgr);
+			mgr.tolerateHashlineErrors = true;
+			regenerateAST(m_RootNode,unit,m_IncludeList,&mgr);
 		}
 		catch (XUnimp &x) {
 			HANDLER();
