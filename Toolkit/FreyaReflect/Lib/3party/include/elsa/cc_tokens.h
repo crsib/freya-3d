@@ -13,7 +13,7 @@ enum TokenFlag {
   ALL_TOKEN_FLAGS = 0x07      // bitwise OR of above
 };
 
-enum TokenType {
+enum ElsaTokenType {
   TOK_EOF,
 
   // non-keyword name
@@ -194,13 +194,13 @@ enum TokenType {
   TOK_IMAGINARY,
   NUM_TOKEN_TYPES
 
-};  // enum TokenType
+};  // enum ElsaTokenType
 
-// map TokenType to its spelling or description
+// map ElsaTokenType to its spelling or description
 extern char const * const tokenNameTable[];
 extern int const tokenNameTableSize;
 
-// map TokenType to a bitwise OR of TokenFlags
+// map ElsaTokenType to a bitwise OR of TokenFlags
 extern unsigned char tokenFlagTable[];
 
 #endif // CC_TOKENS_H

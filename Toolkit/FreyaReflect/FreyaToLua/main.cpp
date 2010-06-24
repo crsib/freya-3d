@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
 
 	reflector.addDefinition("_SHARED_BUILD");
 	reflector.addDefinition("EXPORT=");
-	reflector.addDirectory("D:\\Devel\\Projects\\Freya3D\\Freya\\Framework\\Include\\core");
+	reflector.addDirectory("D:\\Devel\\Projects\\Freya3D\\Freya\\Framework\\Include");
 	reflector.addIncludeDirectory("D:\\Devel\\Projects\\Freya3D\\Freya\\Framework\\Include");
 	reflector.addIncludeDirectory("D:/Devel/Projects/Freya3D/Freya_MSVC10/include/");
 	reflector.addIncludeDirectory("D:/Devel/Projects/Freya3D/Freya_MSVC10/include/stlport");

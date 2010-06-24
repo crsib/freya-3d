@@ -29,10 +29,50 @@ typedef boost::wave::context<std::string::iterator, lex_iterator_type,
 #include <boost/spirit/include/classic_tree_to_xml.hpp>
 
 #include <ctime>
-#include <sstream>
+
+#include <stdlib.h>       // exit, getenv, abort
+#include "parssppt.h"     // ParseTreeAndTokens, treeMain
+
+// TODO remove some of these headers
+#include "srcloc.h"       // SourceLocManager
+#include "ckheap.h"       // malloc_stats
+#include "cc_env.h"       // Env
+#include "cc_ast.h"       // C++ AST (r)
+#include "cc_ast_aux.h"   // class LoweredASTVisitor
+#include "cc_lang.h"      // CCLang
+#include "parsetables.h"  // ParseTables
+#include "cc_print.h"     // PrintEnv
+#include "cc.gr.gen.h"    // CCParse
+#include "nonport.h"      // getMilliseconds
+#include "ptreenode.h"    // PTreeNode
+#include "ptreeact.h"     // ParseTreeLexer, ParseTreeActions
+#include "sprint.h"       // structurePrint
+#include "strtokp.h"      // StrtokParse
+#include "smregexp.h"     // regexpMatch
+#include "cc_elaborate.h" // ElabVisitor
+#include "integrity.h"    // IntegrityVisitor
+#include "xml_file_writer.h" // XmlFileWriter
+#include "xml_reader.h"   // xmlDanglingPointersAllowed
+#include "xml_do_read.h"  // xmlDoRead()
+#include "xml_type_writer.h" // XmlTypeWriter
 
 namespace 
 {
+	static void handle_xBase(Env &env, xBase &x)
+	{
+		using std::cout;
+		using std::clog;
+		using std::endl;
+
+		env.errors.print(cout);
+		cout << x << endl;
+		cout << "Failure probably related to code near " << env.locStr() << endl;
+		cout << "current location stack:\n";
+		cout << env.locationStackString();
+
+		throw std::exception("Critical failure");
+	}
+
 	std::string format_time(clock_t time)
 	{
 		std::ostringstream sstream;
@@ -65,11 +105,13 @@ FreyaReflect::FreyaReflect()
 	m_RootNode = new NamespaceNode("",NULL);
 	new CppTypeFactory;
 	addDefinition("__i386");
+	addDefinition("__FREYA_REFLECT");
 #ifdef _MSC_VER
 	addDefinition("_MSC_VER=1600");
 	addDefinition("_WIN32");
 	addDefinition("__WIN32");
 	addDefinition("WIN32");
+	addDefinition("_WCHAR_T_DEFINED");
 #else
 	addDefinition("__GNUC__=");
 #if defined (__APPLE__)
@@ -99,6 +141,25 @@ bool FreyaReflect::parse()
 		clock_t    full_parse_start = clock();
 		//For each file needed
 		std::string						instring = "#define _STLP_NATIVE_CPP_C_HEADER(header) <header>\n\n";
+#ifdef _MSC_VER
+		//Elsa does not support MSVC types. define them as typedef
+		instring += 
+			"#define __int32 int\n"
+			"#define __int8  char\n"
+			"#define __int16 short\n"
+			"#define __int64 long long\n"
+			"#define throw(X) \n\n";
+
+		//No __declspec specifier
+		instring += "#define __declspec(x)\n";
+		instring += "#define __cdecl\n";
+		instring += "#define __fastacall\n";
+		instring += "#define __stdcall\n";
+		instring += "#define __thiscall\n";
+		instring += "#define __pragma(X)\n";
+		instring += "#define __forceinline\n";
+
+#endif	
 		for(size_t i = 0; i < m_IncludeList.size(); ++i)
 		{
 			std::clog << "Injecting " << m_IncludeList[i] << "..." << std::endl;
@@ -113,7 +174,7 @@ bool FreyaReflect::parse()
 		}
 		std::cout << instring << std::endl;
 		lexer_context_type ctx (instring.begin(), instring.end(), "parse_buffer");
-		ctx.set_language( (boost::wave::language_support)( boost::wave::support_option_variadics | boost::wave::support_option_long_long ) );
+		ctx.set_language( (boost::wave::language_support)(boost::wave::support_option_emit_line_directives | boost::wave::support_option_variadics | boost::wave::support_option_long_long ) );
 
 		for(size_t _i = 0; _i < m_Definitions.size(); ++_i)
 		{
@@ -157,10 +218,221 @@ bool FreyaReflect::parse()
 		lexer_context_type::iterator_type first = ctx.begin();
 		lexer_context_type::iterator_type last = ctx.end();
 		//Generate full source and feed it to ELSA
-		std::ostringstream  output_stream;
+		boost::filesystem::path		 temp_name("./TempOutput.ipp");
+		boost::filesystem::ofstream  output_stream(temp_name, std::ios::out);
+		if(output_stream.bad())
+			throw std::exception("Failed to create temp file");
 		for( ; first != last; ++first)
-			output_stream << first->get_value();
+		{
+			//Fix 1. separate < and :: with ws
+			if(first->get_value() == "<")
+			{
+				output_stream << "< ";
+				//This cannot be the last token of a stream
+				first++;
+			}//Fix 1.
+			
+			//Fix 2. clean i64 token
+			{
+				boost::wave::token_id tid = (*first);
+				if(tid == boost::wave::T_HEXAINT || tid == boost::wave::T_OCTALINT || tid == boost::wave::T_DECIMALINT || tid == boost::wave::T_LONGINTLIT || tid == boost::wave::T_INTLIT || tid == boost::wave::T_UNKNOWN)
+				{
+					lexer_context_type::token_type::string_type val = first->get_value();
+					size_t pos = val.find("i64");
+					if(pos != std::string::npos)
+						output_stream << val.substr(0, pos);
+					else
+						output_stream << val;
+					//This cannot be the last token of a stream
+					first++;
+					if(first->get_value() == "i64")
+						first++;
+				}
+				
+			}//Fix2
+			//extern "C++" from MS std headers
+			{
+				boost::wave::token_id tid = (*first);
+				if(tid == boost::wave::T_EXTERN)
+				{
+					lexer_context_type::iterator_type it = first;
+					it++;
+					bool clean_up = false;
+					if(it->get_value() == "\"C++\"")
+						clean_up = true;
+					else
+					{
+						it++;
+						if(it->get_value() == "\"C++\"")
+							clean_up = true;
+					}
 
+					if(clean_up)
+					{
+						//scan line until 2 new lines or {
+						int num_newlines = 0;
+						int brace_count = 0;
+						while(num_newlines != 2)
+						{
+							if((*it) == boost::wave::T_NEWLINE)
+								num_newlines++;
+							else if((*it) == boost::wave::T_LEFTBRACE)
+							{
+								brace_count++;
+								it++;
+								break;
+							}
+							it++;
+						}
+						while(brace_count > 0)
+						{
+							if((*it) == boost::wave::T_LEFTBRACE)
+								brace_count++;
+							else if((*it) == boost::wave::T_RIGHTBRACE)
+								brace_count--;
+							it++;
+						}
+						first = it;
+					}
+				}//extern token
+			}//Fix3
+
+			output_stream << first->get_value();
+		}//Write stream
+		output_stream.close();
+		std::clog << "Parsing..." << std::endl;
+		TranslationUnit *unit = NULL;
+		try
+		{
+			CCLang lang;
+			lang.GNU_Cplusplus();
+			lang.MSVC_bug_compatibility();
+			lang.allowModifiersWithTypedefNames = B3_TRUE;
+			lang.allowExplicitSpecWithoutParams = B3_TRUE;
+			lang.allowQualifiedMemberDeclarations = B3_TRUE;
+			lang.allowOverloading = true;
+			lang.compoundSelfName = true;
+			lang.tagsAreTypes = true;
+		//	Env
+			SourceLocManager mgr;
+			StringTable strTable;
+			BasicTypeFactory tfac;
+
+			SemanticValue treeTop;
+			ParseTreeAndTokens tree(lang, treeTop, strTable, temp_name.string().c_str());
+
+			traceAddSys("permissive");
+			//traceAddSys("parse");
+			// grab the lexer so we can check it for errors (damn this
+			// 'tree' thing is stupid..)
+			Lexer *lexer = dynamic_cast<Lexer*>(tree.lexer);
+			xassert(lexer);
+
+			CCParse *parseContext = new CCParse(strTable, lang);
+			tree.userAct = parseContext;
+
+			std::clog << "building parse tables from internal data" << std::endl;
+			ParseTables *tables = parseContext->makeTables();
+			tree.tables = tables;
+
+			maybeUseTrivialActions(tree);
+
+			if (!toplevelParse(tree, temp_name.string().c_str())) 
+			{
+				throw std::exception("Parsing error occured");
+			}
+
+			// check for parse errors detected by the context class
+			if (parseContext->errors || lexer->errors)
+			{
+				throw std::exception("Parsing error occured");
+			}
+			int parseWarnings = lexer->warnings + parseContext->warnings;
+
+			// treeTop is a TranslationUnit pointer
+			unit = (TranslationUnit*) treeTop;
+
+			delete parseContext;
+			delete tables;
+
+			ArrayStack<Variable*> madeUpVariables;
+			ArrayStack<Variable*> builtinVars;
+			
+			std::clog << "Starting type check process..." << std::endl;
+			Env env(strTable, lang, tfac, madeUpVariables, builtinVars, unit);
+			try 
+			{
+				env.tcheckTranslationUnit(unit);
+			}
+			catch (XUnimp &x) 
+			{
+				HANDLER();
+				(void) x;
+				// relay to handler in main()
+				std::clog << "in code near " << env.locStr() << ":\n";
+				throw;
+			}
+			catch (x_assert &x)
+			{
+				HANDLER();
+
+				if (env.errors.hasFromNonDisambErrors()) {
+					if (tracingSys("expect_confused_bail")) {
+						std::clog << "got the expected confused/bail\n";
+						exit(0);
+					}
+					// see comment about 'confused' in elsa main.cc
+					env.error("confused by earlier errors, bailing out");
+					env.errors.print(std::clog);
+					throw std::exception("Type checking failed"); 
+				}
+				// if we don't have a basis for reducing severity, pass this on
+				// to the normal handler
+				handle_xBase(env, x);
+			}
+			catch (xBase &x) 
+			{
+				HANDLER();
+				handle_xBase(env, x);
+			}
+
+			int numErrors = env.errors.numErrors();
+			int numWarnings = env.errors.numWarnings() + parseWarnings;
+
+			if (numErrors != 0 || numWarnings != 0) 
+			{
+				// print errors and warnings
+				env.errors.print(std::cout);
+
+				std::cout << "Type checking results:\n"
+					<< "  errors:   " << numErrors << "\n"
+					<< "  warnings: " << numWarnings << "\n";
+			}
+
+			if (numErrors != 0) 
+			{
+				//throw std::exception("Type check failed");
+			}
+			//Elaborate
+			std::clog << "Elaborating..." << std::endl;
+			ElabVisitor vis(strTable, tfac, unit);
+			unit->traverse(vis.loweredVisitor);
+		}
+		catch (XUnimp &x) {
+			HANDLER();
+			std::cout << x << std::endl;
+			return false;
+		}
+		catch (XFatal &x) {
+			HANDLER();
+			std::cout << x << std::endl;
+			return false;
+		}
+		catch (xBase &x) {
+			HANDLER();
+			std::cout << x << std::endl;
+			return false;
+		}
 		//std::cout << output_stream.str() << std::endl;
 		std::clog << "Parse completed in " << format_time(clock() - full_parse_start) << std::endl;
 	}//try

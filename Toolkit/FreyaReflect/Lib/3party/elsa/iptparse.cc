@@ -9,7 +9,7 @@
 #include <stdlib.h>        // rand()
 
 
-TokenType lookahead = TOK_EOF;
+ElsaTokenType lookahead = TOK_EOF;
 
 
 // get the next token and stash it in 'lookahead'
@@ -47,7 +47,7 @@ void parseError()
 
 
 // get token and expect it to be a specific kind
-void expect(TokenType t)
+void expect(ElsaTokenType t)
 {
   getToken();
   if (lookahead != t) {

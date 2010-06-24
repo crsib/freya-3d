@@ -55,17 +55,17 @@ using namespace sm;
  */
 
 
-// -------------------- TokenType ---------------------
+// -------------------- ElsaTokenType ---------------------
 // these aren't emitted into cc_tokens.cc because doing so would
 // make that output dependent on smbase/xassert.h
-char const *toString(TokenType type)
+char const *toString(ElsaTokenType type)
 {
   xassert(NUM_TOKEN_TYPES == tokenNameTableSize);
   xassert((unsigned)type < (unsigned)NUM_TOKEN_TYPES);
   return tokenNameTable[type];
 }
 
-TokenFlag tokenFlags(TokenType type)
+TokenFlag tokenFlags(ElsaTokenType type)
 {
   xassert((unsigned)type < (unsigned)NUM_TOKEN_TYPES);
   return (TokenFlag)tokenFlagTable[type];
@@ -119,7 +119,7 @@ void Lexer::whitespace()
 // yylex() function to be enormous; I want that to just have a bunch
 // of calls into these routines, which themselves can then have
 // plenty of things inlined into them
-int Lexer::tok(TokenType t)
+int Lexer::tok(ElsaTokenType t)
 {
   checkForNonsep(t);
   updLoc();
@@ -128,7 +128,7 @@ int Lexer::tok(TokenType t)
 }
 
 
-int Lexer::svalTok(TokenType t)
+int Lexer::svalTok(ElsaTokenType t)
 {
   checkForNonsep(t);
   updLoc();
@@ -137,7 +137,7 @@ int Lexer::svalTok(TokenType t)
 }
 
 
-int Lexer::alternateKeyword_tok(TokenType t)
+int Lexer::alternateKeyword_tok(ElsaTokenType t)
 {
   if (lang.isCplusplus) {
     return tok(t);
@@ -247,7 +247,7 @@ STATICDEF void Lexer::c_tokenFunc(LexerInterface *lex)
   ths->type = ths->yylex();
 
   // map C++ keywords into identifiers
-  TokenType tt = (TokenType)(ths->type);
+  ElsaTokenType tt = (ElsaTokenType)(ths->type);
   if (tokenFlags(tt) & TF_CPLUSPLUS) {
     // create the lexeme corresponding to the token's spelling
     StringRef str = ths->strtable.add(toString(tt));
@@ -273,28 +273,28 @@ Lexer::NextTokenFunc Lexer::getTokenFunc() const
 
 string Lexer::tokenDesc() const
 {
-  if (tokenFlags((TokenType)type) & TF_MULTISPELL) {
+  if (tokenFlags((ElsaTokenType)type) & TF_MULTISPELL) {
     // for tokens with multiple spellings, decode 'sval' as a
     // StringRef
     //return string((StringRef)sval);
-    return stringc << toString((TokenType)type) << ": " << (StringRef)sval;
+    return stringc << toString((ElsaTokenType)type) << ": " << (StringRef)sval;
   }
   else {
     // for all others, consult the static table
-    return string(toString((TokenType)type));
+    return string(toString((ElsaTokenType)type));
   }
 }
 
 string Lexer::tokenKindDesc(int kind) const
 {
   // static table only
-  return toString((TokenType)kind);
+  return toString((ElsaTokenType)kind);
 }
 
 string Lexer::tokenKindDescV(int kind) const
 {
   stringBuilder s;
-  s << toString((TokenType)kind)
+  s << toString((ElsaTokenType)kind)
     << " (" << kind << ")";
   return s;
 }

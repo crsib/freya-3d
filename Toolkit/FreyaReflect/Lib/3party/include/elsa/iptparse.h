@@ -13,7 +13,7 @@ class IPTree;         // iptree.h
 extern int lexerSval;
 
 // token codes
-enum TokenType {
+enum ElsaTokenType {
   TOK_EOF=0,          // end of file
   TOK_INTLIT,         // integer literal
   TOK_COMMA,          // ","
@@ -26,7 +26,7 @@ enum TokenType {
 void yyrestart(FILE *input_file);
 
 // call this to get the next token (defined in iptparse.yy.cc)
-TokenType getNextToken();
+ElsaTokenType getNextToken();
 
 // parse a file into a given tree
 IPTree *parseFile(rostring fname);
