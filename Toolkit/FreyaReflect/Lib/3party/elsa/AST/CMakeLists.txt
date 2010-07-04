@@ -4,7 +4,6 @@ agramlex.yy.cc
 agrampar.cc
 agrampar.tab.cc
 ast.ast.cc
-astgen.cc
 asthelp.cc
 ccsstr.cc
 embedded.cc

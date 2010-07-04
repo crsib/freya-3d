@@ -6,7 +6,20 @@ void NodePrinter(CppNode* root,int depth)
 {
 	for(int i = 0; i < depth; i++)
 		std::cout << "\t";
-	std::cout << root->getShortName() << " ( " << root->getQualifiedName() << " )" << std::endl;
+	std::string type;
+	switch(root->getNodeType())
+	{
+	case CppNode::NODE_TYPE_CLASS:
+		type = "class ";
+		break;
+	case CppNode::NODE_TYPE_NAMESPACE:
+		type = "namespace ";
+		break;
+	case CppNode::NODE_TYPE_ENUM:
+		type = "enum ";
+		break;
+	}
+	std::cout << type << root->getShortName() << " ( " << root->getQualifiedName() << " )" << std::endl;
 	for(NodeListIterator it = root->begin(); it != root->end(); ++it)
 		NodePrinter(*it,depth+1);
 }

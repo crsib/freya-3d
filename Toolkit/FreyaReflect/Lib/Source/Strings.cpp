@@ -14,7 +14,6 @@ const char* NODE_NAMES [] = {
 	"CLASS_METHOD",
 	"CLASS_PROPERTY",
 	"CLASS_FIELD",
-	"STRUCT",
 	"ENUM",
 	"ENUM_VALUE",
 	"CONSTANT",
