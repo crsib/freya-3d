@@ -1,4 +1,9 @@
 #include "FreyaReflect.h"
+
+#include "NamespaceNode.h"
+#include "ClassNodes.h"
+#include "EnumNodes.h"
+
 #include <exception>
 #include <string>
 
@@ -23,8 +28,8 @@ private:
 	std::string		m_What;
 };
 
-#define checkLoc(obj) parsed_paths.find(std::string(source_loc_man->getFile(obj->getLoc()))) != parsed_paths.end()
-#define checkLoc2(obj) parsed_paths.find(std::string(source_loc_man->getFile(obj->loc))) != parsed_paths.end()
+#define checkLoc(obj) (parsed_paths.find(std::string(source_loc_man->getFile(obj->getLoc()))) != parsed_paths.end())
+#define checkLoc2(obj) (parsed_paths.find(std::string(source_loc_man->getFile(obj->loc))) != parsed_paths.end())
 
 class FASTVisitior : public ASTVisitor
 {
@@ -43,12 +48,95 @@ public:
 		if(checkLoc(obj))
 		{
 			//obj->nameAndParams->
-			//std::cout << obj->nameAndParams->getDeclaratorId()->getName() << "\n";
-			free_function_count++;
+		//	std::cout << obj->nameAndParams->getDeclaratorId()->getName() << "\n";
+			//Get the top node 
+			CppNode* top = node_stack.top();
+			if(top->getNodeType() == CppNode::NODE_TYPE_NAMESPACE)
+			{
+				std::cout << obj->nameAndParams->getDeclaratorId()->toString() << "\n";
+				free_function_count++;
+			}// Belongs to namespace - a free function
+			else //if(top->getNodeType() != CppNode::NODE_TYPE_NAMESPACE)
+			{
+				//Is a class member
+			}//if(top->getNodeType() != CppNode::NODE_TYPE_NAMESPACE)
+			
 		}
 		return false;
 	}
 
+	virtual bool visitDeclaration(Declaration *decl)
+	{
+		if(!checkLoc2(decl->spec))
+			return false;
+		switch(decl->spec->kind())
+		{
+		case TypeSpecifier::TS_CLASSSPEC:
+			{
+				//We are parsing a class declaration now
+				TS_classSpec* class_spec = static_cast<TS_classSpec*>(decl->spec);
+				if(class_spec->keyword == TI_CLASS || class_spec->keyword == TI_STRUCT)
+				{
+					if(class_spec->name == NULL)//It must be an unnamed struct
+						return true;
+					if(node_stack.top()->getNodeNamed(class_spec->name->getName()))
+						return false;
+					else
+					{
+						class_count++;
+						//Create a new class node
+						ClassNode* n = new ClassNode(class_spec->name->getName(),node_stack.top());
+						node_stack.top()->addNode(n);
+						node_stack.push(n);
+						return true; //Recursively pass the class structure down 
+					}
+				} //Truly a class or a struct if(class_spec->keyword == TI_CLASS || class_spec->keyword == TI_STRUCT)
+			}//TS_CLASSSPEC
+			break;
+		case TypeSpecifier::TS_ENUMSPEC:
+			{
+				TS_enumSpec* enum_spec = static_cast<TS_enumSpec*>(decl->spec);
+				std::string ename = enum_spec->name ? enum_spec->name : "";
+				if(node_stack.top()->getNodeNamed(ename))
+					return false;
+				EnumNode* n = new EnumNode(ename, node_stack.top());
+				node_stack.top()->addNode(n);
+
+				FAKELIST_FOREACH(Enumerator,enum_spec->elts,enumerator)
+				{
+					n->addNode(new EnumValueNode(enumerator->name,enumerator->enumValue,n));
+				}
+
+				return false;
+			}
+		}//switch(decl->spec->kind())
+		return false;
+	}
+
+	virtual void postvisitDeclaration(Declaration *decl)
+	{
+		if(checkLoc2(decl->spec))
+		{
+			switch(decl->spec->kind())
+			{
+			case TypeSpecifier::TS_CLASSSPEC:
+				{
+					CppNode* top = node_stack.top();
+					if(
+						(top->getNodeType() == ClassNode::NODE_TYPE_CLASS) 
+						&& 
+						static_cast<TS_classSpec*>(decl->spec)->name
+						&&
+						(top->getShortName() == static_cast<TS_classSpec*>(decl->spec)->name->getName())
+						)
+						node_stack.pop();//Pop the node out
+				} //TS_CLASSSPEC
+				break;
+			}//switch
+		}
+	}
+
+	//TopForm is basically anything on the top of namespace
 	virtual bool visitTopForm(TopForm *obj)
 	{
 		if(checkLoc2(obj))
@@ -75,11 +163,16 @@ public:
 					}
 
 					return true;
-				}
+				} //TF_NAMESPACEDEFN
 				break;
-			}
-		}
-		return false;
+			case TopForm::TF_DECL:
+			case TopForm::TF_EXPLICITINST:
+			case TopForm::TF_TEMPLATE:
+			case TopForm::TF_ONE_LINKAGE:
+				return true;
+			}//switch
+		} // correct location
+		return true;
 	}
 
 	virtual void postvisitTopForm(TopForm *obj)
@@ -96,9 +189,9 @@ public:
 						return;
 					node_stack.pop();
 
-				}
+				} //TF_NAMESPACEDEFN
 				break;
-			}
+			}// switch
 		}
 	}
 
@@ -129,7 +222,7 @@ void	regenerateAST(CppNode* top, TranslationUnit* tree, const FreyaReflect::Incl
 			path.replace(pos,1, "\\\\");
 			pos = path.find("\\",pos+3);		
 		}
-		std::cout << path << std::endl;
+		//std::cout << path << std::endl;
 #endif
 		visitor.parsed_paths.insert(path);
 	}

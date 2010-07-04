@@ -16,8 +16,6 @@ set(SMBASE_SOURCES
 ./strtable.cc
 ./strutil.cc
 ./svdict.cc
-./tobjlist.cc
-./tobjpool.cc
 ./trace.cc
 ./trdelete.cc
 ./tsobjlist.cc
