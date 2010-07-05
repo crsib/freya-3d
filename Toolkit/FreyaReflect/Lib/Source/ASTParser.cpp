@@ -53,6 +53,8 @@ public:
 			CppNode* top = node_stack.top();
 			if(top->getNodeType() == CppNode::NODE_TYPE_NAMESPACE)
 			{
+				if(obj->nameAndParams && (obj->nameAndParams->var->flags & DF_MEMBER) ) //Still a member
+					return false;
 				std::cout << obj->nameAndParams->getDeclaratorId()->toString() << "\n";
 				free_function_count++;
 			}// Belongs to namespace - a free function
@@ -78,7 +80,13 @@ public:
 				if(class_spec->keyword == TI_CLASS || class_spec->keyword == TI_STRUCT)
 				{
 					if(class_spec->name == NULL)//It must be an unnamed struct
+					{
+						class_count++;
+						AnonymousStructNode* n = new AnonymousStructNode(node_stack.top());
+						node_stack.top()->addNode(n);
+						node_stack.push(n);
 						return true;
+					}
 					if(node_stack.top()->getNodeNamed(class_spec->name->getName()))
 						return false;
 					else
@@ -130,9 +138,32 @@ public:
 						(top->getShortName() == static_cast<TS_classSpec*>(decl->spec)->name->getName())
 						)
 						node_stack.pop();//Pop the node out
+					else if(
+						top->getNodeType() == ClassNode::NODE_TYPE_ANONYMOUS_STRUCT
+						)
+						node_stack.pop();
 				} //TS_CLASSSPEC
 				break;
 			}//switch
+		}
+	}
+
+	//======================= Template declaration parsing =================================================
+	virtual bool visitTemplateDeclaration(TemplateDeclaration *obj)
+	{
+		//Ok, the location will be checked using first template parameter
+		//if(checkLoc2(obj->params))
+		{
+
+		}
+		return false;
+	}
+
+	virtual void postvisitTemplateDeclaration(TemplateDeclaration *obj)
+	{
+	//	if(checkLoc2(obj->params))
+		{
+
 		}
 	}
 

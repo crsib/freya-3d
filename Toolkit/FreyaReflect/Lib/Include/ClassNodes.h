@@ -7,9 +7,19 @@
 class EXPORT ClassNode : public CppNode
 {
 public:
-	ClassNode(const std::string& namespace_name, CppNode* parent) : CppNode(NODE_TYPE_CLASS,parent,namespace_name)
+	ClassNode(const std::string& class_name, CppNode* parent) : CppNode(NODE_TYPE_CLASS,parent,class_name)
 	{}
 	virtual ~ClassNode(){}
+
+
+};
+
+class EXPORT AnonymousStructNode : public CppNode
+{
+public:
+	AnonymousStructNode(CppNode* parent) : CppNode(NODE_TYPE_ANONYMOUS_STRUCT,parent,"")
+	{}
+	virtual ~AnonymousStructNode(){}
 
 
 };
