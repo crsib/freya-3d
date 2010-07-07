@@ -70,7 +70,7 @@ public:
 
 					while(test_and_set(&man->m_AuxLock,1))
 						core::multithreading::yield();
-					if(man->m_SecThreadSchedule.size())
+					if(!man->m_SecThreadSchedule.empty())
 					{
 						task = man->m_SecThreadSchedule.front();
 						man->m_SecThreadSchedule.pop_front();

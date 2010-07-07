@@ -51,10 +51,12 @@ LuaCore::LuaCore()
 	//core::__lua_internal::init_math(m_VirtualMachine);
 	//Setting default values
 	m_JITInstalled = m_JITStarted = 0;
+	lua_gc(m_VirtualMachine, LUA_GCSTOP, 0);
 }
 
 LuaCore::~LuaCore()
 {
+	lua_gc(m_VirtualMachine, LUA_GCCOLLECT, 0);
 	lua_close(m_VirtualMachine) ;
 }
 

@@ -73,6 +73,8 @@ private:
 	EStringList	m_TockensList;
 
 	static	    LuaCore*		m_Core;
+	
+	unsigned    m_Ready; //To make it thread safe
 };
 }
 }

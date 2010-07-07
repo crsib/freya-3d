@@ -56,13 +56,19 @@ public:
 				if(obj->nameAndParams && (obj->nameAndParams->var->flags & DF_MEMBER) ) //Still a member
 					return false;
 				std::cout << obj->nameAndParams->getDeclaratorId()->toString() << "\n";
+
 				free_function_count++;
 			}// Belongs to namespace - a free function
 			else //if(top->getNodeType() != CppNode::NODE_TYPE_NAMESPACE)
 			{
 				//Is a class member
+				//if(obj->dflags & DF_IMPLICIT)
+				//	return false;
+				//Ok, lets create a member class. We believe, that it was never created
+				ClassMethod*	n = new ClassMethod(obj->nameAndParams->getDeclaratorId()->getName(),
+					(static_cast<D_func*>(obj->nameAndParams->decl))->cv & CV_CONST, obj->dflags & DF_VIRTUAL, obj->dflags & DF_STATIC,node_stack.top());
+				node_stack.top()->addNode(n);
 			}//if(top->getNodeType() != CppNode::NODE_TYPE_NAMESPACE)
-			
 		}
 		return false;
 	}
@@ -118,7 +124,7 @@ public:
 				return false;
 			}
 		}//switch(decl->spec->kind())
-		return false;
+		return true;
 	}
 
 	virtual void postvisitDeclaration(Declaration *decl)
@@ -152,16 +158,22 @@ public:
 	virtual bool visitTemplateDeclaration(TemplateDeclaration *obj)
 	{
 		//Ok, the location will be checked using first template parameter
-		//if(checkLoc2(obj->params))
+		if(obj->kind() == TemplateDeclaration::TD_DECL)
 		{
 
+			return true;
+		}
+		else if(obj->kind() == TemplateDeclaration::TD_FUNC)
+		{
+
+			return true;
 		}
 		return false;
 	}
 
 	virtual void postvisitTemplateDeclaration(TemplateDeclaration *obj)
 	{
-	//	if(checkLoc2(obj->params))
+		if(obj->kind() == TemplateDeclaration::TD_DECL)
 		{
 
 		}
