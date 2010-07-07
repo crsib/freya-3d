@@ -128,14 +128,14 @@ namespace png_driver_internal {
 		h += static_cast<unsigned>(h == 0);
 
 		typename ColorTypeInfo<Ct>::channel_t* ret = 
-			static_cast<ColorTypeInfo<Ct>::channel_t*>(core::memory::Allocate(w * h * ColorTypeInfo<Ct>::size, core::memory::GENERIC_POOL));
+			static_cast<typename ColorTypeInfo<Ct>::channel_t*>(core::memory::Allocate(w * h * ColorTypeInfo<Ct>::size, core::memory::GENERIC_POOL));
 		unsigned row_sz = m_width * ColorTypeInfo<Ct>::size;
 		unsigned mip_row_sz = w * ColorTypeInfo<Ct>::size;
 		typename ColorTypeInfo<Ct>::accum_t accum[ColorTypeInfo<Ct>::channel_num] = {0};
 		for(unsigned h_i = 0; h_i < h; h_i++) 
 			for(unsigned w_i = 0; w_i < w; w_i++) {
-				ColorTypeInfo<Ct>::channel_t* block_ptr 
-					= static_cast<ColorTypeInfo<Ct>::channel_t*>(m_surface) + w_i * 2 * ColorTypeInfo<Ct>::size + h_i * 2 * row_sz;
+				typename ColorTypeInfo<Ct>::channel_t* block_ptr 
+					= static_cast<typename ColorTypeInfo<Ct>::channel_t*>(m_surface) + w_i * 2 * ColorTypeInfo<Ct>::size + h_i * 2 * row_sz;
 
 				for(unsigned c = 0; c < ColorTypeInfo<Ct>::channel_num; c++) {
 					accum[c] =  block_ptr[c];
@@ -143,7 +143,7 @@ namespace png_driver_internal {
 					accum[c] += block_ptr[c + row_sz];					
 					accum[c] += block_ptr[c + row_sz + ColorTypeInfo<Ct>::size];
 					accum[c] >>= 2;
-					ret[w_i * ColorTypeInfo<Ct>::size + h_i * mip_row_sz + c] = static_cast<ColorTypeInfo<Ct>::channel_t>(accum[c]);
+					ret[w_i * ColorTypeInfo<Ct>::size + h_i * mip_row_sz + c] = static_cast<typename ColorTypeInfo<Ct>::channel_t>(accum[c]);
 				}
 			}
 		core::memory::Free(m_surface, core::memory::GENERIC_POOL);

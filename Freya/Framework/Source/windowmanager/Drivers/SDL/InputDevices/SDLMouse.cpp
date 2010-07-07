@@ -18,7 +18,7 @@ namespace sdl
 {
 SDLMouse::SDLMouse()
 {
-	m_Mouse = SDL_SelectMouse(-1);
+	//m_Mouse = SDL_SelectMouse(-1);
 }
 
 SDLMouse::~SDLMouse()
@@ -47,7 +47,7 @@ bool SDLMouse::isRelativeCaptureSupported()
 
 void SDLMouse::relativeState(int* x,int* y)
 {
-	SDL_GetRelativeMouseState(0,x,y);
+	SDL_GetRelativeMouseState(x,y);
 	//SDL_GetMouseState(0,x,y);
 	//std::cout << "Mouse relative " << m_Mouse << " " << *x << " " << *y << " " << std::endl;
 }
