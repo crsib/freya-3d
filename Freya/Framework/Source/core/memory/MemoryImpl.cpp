@@ -24,17 +24,17 @@
 #ifndef _MSC_VER
 #include <stdint.h>
 #else
-typedef  __int64 			int64_t;
-typedef unsigned __int64 	uint64_t;
+typedef signed		__int64 			int64_t;
+typedef unsigned	__int64 			uint64_t;
 
-typedef __int32 			int32_t;
-typedef unsigned __int32 	uint32_t;
+typedef signed		__int32 			int32_t;
+typedef unsigned	__int32 			uint32_t;
 
-typedef  __int16 			int16_t;
-typedef unsigned __int16 	uint16_t;
+typedef signed		__int16 			int16_t;
+typedef unsigned	__int16			 	uint16_t;
 
-typedef  __int8 			int8_t;
-typedef unsigned __int8 	uint8_t;
+typedef signed		__int8 			int8_t;
+typedef unsigned	__int8			 	uint8_t;
 
 #include <intrin.h>
 extern "C"
@@ -106,6 +106,7 @@ public:
 		catch(...)
 		{
 			m_Buffer = 0;
+			throw;
 		}
 
 		allocated_for_buffers += m_Size;
@@ -180,7 +181,7 @@ public:
 		else //Find a block
 		{
 			for(MemoryHeaderPtr block = m_First; block; block = block->next)
-				if(block->size >= size)
+				if((block->magic == FREE_BLOCK_MARK) &&block->size >= size)
 					return sliceAndRemove (block,size);
 		}
 		return NULL;
@@ -191,10 +192,12 @@ public:
 	{
 		if( (p < m_Buffer) || (p >= m_Buffer + m_Size) )
 			return false;
-		MemoryHeaderPtr	block = reinterpret_cast<MemoryHeaderPtr>(p - sizeof(__MemoryHeader));
+		MemoryHeaderPtr	block = reinterpret_cast<MemoryHeaderPtr>((p - sizeof(__MemoryHeader)));
 
 		if(block->magic == FREE_BLOCK_MARK) //It must be already deallocated
 			return true;
+		if(block->magic != ALLOCATED_BLOCK) //And it fucking must be allocated from arena at this point
+			return false;
 
 		insertAndConnect(block);
 
