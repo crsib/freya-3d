@@ -23,10 +23,11 @@ LuaCore*		LuaFunction::m_Core = NULL;
 #define GetLua m_Core->m_States[core::multithreading::getCurrentThreadID()]
 LuaFunction::LuaFunction(const EString& name,unsigned NumArgs,unsigned NumRet)
 {
+	m_Ready = false;
 	if(m_Core == NULL)
 		m_Core = core::EngineCore::getLuaCore();
 	lua_State* Lua = GetLua;
-	//	std::cout << "LuaFunction::LuaFunction( " << name << ", " << NumArgs << ", " << NumRet <<  " )" << std::endl;
+		std::cout << "LuaFunction::LuaFunction( " << name << ", " << NumArgs << ", " << NumRet <<  " )" << std::endl;
 	//First, parse names to tockens
 	EString temp = name;
 	while(true)
@@ -88,6 +89,7 @@ LuaFunction::LuaFunction(const EString& name,unsigned NumArgs,unsigned NumRet)
 		m_RetVals = NULL;
 	//Our function is not on top
 	m_OnTop = false;
+	m_Ready = true;
 	//std::cout << "Function " << name << " found " << std::endl;
 }
 
@@ -128,7 +130,7 @@ LuaFunction::LuaFunction(const LuaFunction& f)
 
 LuaFunction&	LuaFunction::operator = (const LuaFunction& f)
 {
-	//	std::cout << "LuaFunction::operator =(const LuaFunction& f)" << std::endl;
+		std::cout << "LuaFunction::operator =(const LuaFunction& f)" << std::endl;
 	m_TockensList = f.m_TockensList;
 
 	m_NumArgs = f.m_NumArgs;
@@ -175,7 +177,11 @@ void LuaFunction::pushOnTop()
 	lua_State* Lua = GetLua;
 	if(!m_OnTop)
 	{
-		EString name = m_TockensList.back();
+		while(!m_Ready)
+			core::multithreading::yield();
+		if(m_TockensList.size() == 0)
+			std::clog << "Wrong token list" << std::endl;
+		EString name = m_TockensList[m_TockensList.size() - 1];//m_TockensList.back();
 		lua_getglobal(Lua, m_TockensList[0].c_str());
 		//*
 		if(lua_gettop(Lua) == 0)
