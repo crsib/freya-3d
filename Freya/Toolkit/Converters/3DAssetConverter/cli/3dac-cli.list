@@ -1,0 +1,24 @@
+
+#
+# Header files
+#
+SET(3DAC_HEADER_FILES
+  src/common.h
+)
+
+#
+# Source files
+#
+SET(3DAC_SOURCE_FILES 
+  src/main.cpp
+  src/common.cpp
+)
+
+#
+# All in one
+#
+SOURCE_GROUP("Main" FILES
+  src/main.cpp
+  src/common.h
+  src/common.cpp
+)
