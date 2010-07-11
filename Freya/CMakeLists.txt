@@ -204,3 +204,5 @@ MESSAGE (STATUS "Copying data directory... (Using ${CMAKE_COMMAND})")
 EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E copy_directory ${APP_DATA} ${CMAKE_SOURCE_DIR}/Build/Bin )
 EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E copy_directory ${APP_STD_DATA} ${CMAKE_SOURCE_DIR}/Build/Bin )
 ENDIF()
+
+ADD_SUBDIRECTORY ( Toolkit/Converters )
