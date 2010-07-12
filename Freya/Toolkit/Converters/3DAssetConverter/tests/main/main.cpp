@@ -12,10 +12,8 @@ int main(int argc, char* argv[])
         core::filesystem::Filesystem* fs = core::EngineCore::getFilesystem();
 		fs->mount("pwd");
 
-        dac::AssetLoader loader("3DAC/hello.x");
-		core::EngineCore::getTaskManager()->addAsynchronousTask(&loader);
-
-        while(loader.getState() == dac::AssetLoader::S_LOADING) {}
+        dac::AssetLoader loader("/3DAC/pyramob.3ds");
+		loader();
 
         dac::AssetPtr asset = loader.getAsset();
 
@@ -25,9 +23,7 @@ int main(int argc, char* argv[])
         size_t qq = asset->meshes.size();
         DAC_ASSERT3(asset->meshes.size() > 0, "No meshes to export", return 0);
         dac::GDataExporter exporter(asset->meshes[0], "mesh0.vdata");
-        core::EngineCore::getTaskManager()->addAsynchronousTask(&exporter);
-
-        while(exporter.getState() == dac::GDataExporter::S_EXPORTING) {}
+        exporter();
 
         DAC_ASSERT2(exporter.getState() == dac::GDataExporter::S_READY, "Wasn't exported!");
 
