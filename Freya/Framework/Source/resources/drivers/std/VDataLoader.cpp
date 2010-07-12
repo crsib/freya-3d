@@ -157,15 +157,16 @@ Resource *VDataLoader::loadSynchronous(const EString & ID)
 			memcpy(data->indicies->map(renderer::VBOAccess::WRITE_ONLY),reinterpret_cast<char*>(raw_data) + offset,data->number_of_indicies*sizeof(uint16_t));
 			data->indicies->unmap();
 			offset += data->number_of_indicies*sizeof(uint16_t);
-			//	std::cout << "\t\tNumber of indicies: " << data->number_of_indicies << std::endl;
+			std::cout << "\t\tNumber of indicies: " << data->number_of_indicies << std::endl;
 		}
 		memcpy(&data->size_of_vertex_data,reinterpret_cast<char*>(raw_data) + offset,sizeof(uint32_t));
 		offset += sizeof(uint32_t);
+		std::cout << "\t\tSize of vertex buffer: " << data->size_of_vertex_data << std::endl;
 		data->vertex_data = core::EngineCore::getRenderingDriver()->createVertexBufferObject();
 		data->vertex_data->setData(renderer::VBOTarget::VERTEX,renderer::VBOUsage::STATIC_DRAW,data->size_of_vertex_data,NULL);
 		memcpy(data->vertex_data->map(renderer::VBOAccess::WRITE_ONLY),reinterpret_cast<char*>(raw_data) + offset,data->size_of_vertex_data);
 		data->vertex_data->unmap();
-		//std::cout << "\t\tSize of vertex buffer: " << data->size_of_vertex_data << std::endl;
+		
 		core::memory::Free(raw_data,core::memory::GENERIC_POOL);
 		Resource* res = resources::__internal::createResource(data);
 		resources::__internal::finalizeResource(res);
