@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
         core::filesystem::Filesystem* fs = core::EngineCore::getFilesystem();
 		fs->mount("pwd");
 
-        dac::AssetLoader loader("/3DAC/pyramob.3ds");
+        dac::AssetLoader loader("/3DAC/jeep1.3ds");
 		loader();
 
         dac::AssetPtr asset = loader.getAsset();

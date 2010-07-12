@@ -49,7 +49,7 @@ namespace dac
 	    binWrite<uint32>(renderer::Primitive::TRIANGLES, out);
 
 	    // 16-bit unsigned integer index_count 
-	    binWrite<uint16>(1, out);
+	    binWrite<uint16>(mesh->mNumFaces * 3, out);
 
 	    // 16-bit unsigned integer buffer_offset
 	    binWrite<uint16>(0, out);
@@ -59,11 +59,11 @@ namespace dac
         unsigned int vertexSize = 0;
 
         binWriteVE(renderer::VertexElement(0, 
-            renderer::VertexFormat::POSITION, renderer::VertexFormat::FLOAT3, 0), out);
+            renderer::VertexFormat::POSITION, renderer::VertexFormat::FLOAT3, vertexSize), out);
         vertexSize += sizeof(float) * 3; // FIXME: Make it with engine help :)
 
-		binWriteVE(renderer::VertexElement(1, 
-            renderer::VertexFormat::NORMAL, renderer::VertexFormat::FLOAT3, 0), out);
+		binWriteVE(renderer::VertexElement(0, 
+            renderer::VertexFormat::NORMAL, renderer::VertexFormat::FLOAT3, vertexSize), out);
         vertexSize += sizeof(float) * 3;
 
 	    // Last declaration element
@@ -73,14 +73,15 @@ namespace dac
             makeIndices();
 
 	    // 16-bit unsigned int  number_of_indicies
-        binWrite<uint16>(mesh->mFaces->mNumIndices, out);
+        binWrite<uint16>(mesh->mFaces[0].mNumIndices * mesh->mNumFaces, out);
 
 	    // 16-bit unsigned int array indcies
-	    for (unsigned int i = 0; i < mesh->mFaces->mNumIndices; ++i)
-            binWrite<uint16>(mesh->mFaces->mIndices[i], out);
+		for(unsigned face = 0; face < mesh->mNumFaces; ++face)
+			for (unsigned int i = 0; i < mesh->mFaces[face].mNumIndices; ++i)
+			    binWrite<uint16>(mesh->mFaces[face].mIndices[i], out);
 
 	    // 32-bit unsigned integer 	size_of_vertex_data
-	    binWrite<uint32>(vertexSize, out);
+	    binWrite<uint32>(vertexSize * mesh->mNumVertices, out);
 
 	    // Raw vertex data
         for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
