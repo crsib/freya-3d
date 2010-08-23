@@ -5,6 +5,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <freya.h>
+#include <scenegraph/AABB.h>
 #include <assimp/assimp.hpp>
 #include <assimp/aiPostProcess.h>
 #include <assimp/aiScene.h>

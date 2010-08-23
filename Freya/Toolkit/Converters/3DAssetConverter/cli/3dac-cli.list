@@ -4,6 +4,7 @@
 #
 SET(3DAC_HEADER_FILES
   src/common.h
+  src/progopt.h
 )
 
 #
@@ -21,4 +22,5 @@ SOURCE_GROUP("Main" FILES
   src/main.cpp
   src/common.h
   src/common.cpp
+  src/progopt.h
 )
