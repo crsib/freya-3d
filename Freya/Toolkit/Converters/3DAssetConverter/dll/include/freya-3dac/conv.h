@@ -7,6 +7,20 @@
 
 namespace dac 
 {
+    namespace rvf = renderer::VertexFormat;
+
+    // Copied because of problems with Freya engine allocations
+    struct FreyaVertexElement// : public EngineSubsystem
+    {
+	    FreyaVertexElement(unsigned sid,renderer::VertexFormat::USAGE usg,renderer::VertexFormat::TYPE tp,unsigned off)
+	    : streamID(sid),usage(usg),type(tp),offset(off){}
+	    FreyaVertexElement(){}
+	    unsigned				streamID;
+	    renderer::VertexFormat::USAGE		usage;
+	    renderer::VertexFormat::TYPE		type;
+	    unsigned 				offset;
+    };
+
     class _3DAC_EXPORT Exception : public std::exception
     {
     public:
@@ -36,7 +50,10 @@ namespace dac
         aiMesh* _mesh;
 
     public:
-        
+
+        //Mesh(aiMesh* mesh);
+
+        scenegraph::AABB getAABB() const;
     };
 
     class _3DAC_EXPORT GDataExporter : public core::taskmanager::Task
@@ -104,15 +121,18 @@ namespace dac
 
         State getState() const { return mState; }
 
-        /// Can be nullptr :)
+        /// Returns valid assert only when state is S_READY, otherwise nullptr. \sa getState
         AssetPtr getAsset() { return mAsset; }
 
+        String getSourceFilepath() const { return mFilepath; }
+
     protected:
-        static Assimp::Importer mImporter;
+
+        Assimp::Importer mImporter;
 
         State mState;
 
-        String mFilename;
+        String mFilepath;
 
         AssetPtr mAsset;
     };

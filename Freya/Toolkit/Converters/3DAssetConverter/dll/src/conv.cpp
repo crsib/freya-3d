@@ -6,6 +6,47 @@
 namespace dac
 {
     //
+    // Mesh
+    //
+
+
+    //Mesh::Mesh(aiMesh* mesh)
+    //:   _mesh(mesh)
+    //{
+    //    hasAnim // ???
+    //}
+
+    btVector3 convAmp2Blt(const aiVector3D& v)
+    {
+        return btVector3(v.x, v.y, v.z);
+    }
+
+    scenegraph::AABB Mesh::getAABB() const
+    {
+        aiVector3D m, M;
+
+        if (_mesh->mNumVertices != 0)
+        {
+            m = M = _mesh->mVertices[0];
+
+            for (unsigned int i = 1; i < _mesh->mNumVertices; ++i)
+            {
+                const aiVector3D& v = _mesh->mVertices[i];
+
+                if (v.x < m.x) m.x = v.x;
+                if (v.y < m.y) m.y = v.y;
+                if (v.z < m.z) m.z = v.z;
+
+                if (v.x > M.x) M.x = v.x;
+                if (v.y > M.y) M.y = v.y;
+                if (v.z > M.z) M.z = v.z;
+            }
+        }
+
+        return scenegraph::AABB::FromMM(convAmp2Blt(m), convAmp2Blt(M));
+    }
+
+    //
     // GDataExporter
     //
     GDataExporter::GDataExporter(const Mesh& mesh, const String& filename)
@@ -17,16 +58,126 @@ namespace dac
     template <typename T>
     void binWrite(const T& write, std::ostream& stream)
     {
-
-	    stream.write((char*)&write, sizeof(write)); 
+	    stream.write((const char*)&write, sizeof(write)); 
     }
 
-    void binWriteVE(const renderer::VertexElement& write, std::ostream& stream)
+    void binWrite(const void* write, unsigned int sz, std::ostream& stream)
     {
-        binWrite<uint32>(write.streamID, stream);
-        binWrite<uint32>(write.usage,    stream);
-        binWrite<uint32>(write.type,     stream);
-        binWrite<uint32>(write.offset,   stream);
+	    stream.write((const char*)&write, sz); 
+    }
+
+    void binWriteV3(const aiVector3D& v, std::ostream& stream)
+    {
+	    binWrite<float>(v.x, stream);
+        binWrite<float>(v.y, stream);
+        binWrite<float>(v.z, stream);
+    }
+
+    // Not a miss. Print V3 as V2.
+    void binWriteV2(const aiVector3D& v, std::ostream& stream)
+    {
+	    binWrite<float>(v.x, stream);
+        binWrite<float>(v.y, stream);
+    }
+
+    void binWriteV2(const aiVector2D& v, std::ostream& stream)
+    {
+	    binWrite<float>(v.x, stream);
+        binWrite<float>(v.y, stream);
+    }
+
+    class VertexDecl
+    {
+    public:
+
+        VertexDecl();
+
+        void add(rvf::USAGE usage, rvf::TYPE type);
+
+        bool has(rvf::USAGE usage) const;
+
+        static int getSize(rvf::TYPE type);
+
+        void writeElements(std::ostream& stream) const; // BAd arcH
+
+
+        unsigned int getVertexSize() const { return mVertexSize; }
+
+        //std::pair<const void*, unsigned int> rawElements() const;
+        //const void* getRawElementsPtr() const;
+        //unsigned int getRawElementsSize() const;
+        //static rvf::TYPE defaultType4Usage(rvf::USAGE usage);
+    
+    protected:
+        std::vector<FreyaVertexElement> mElements;
+
+        unsigned int mVertexSize;
+    };
+
+    VertexDecl::VertexDecl()
+    :   mVertexSize(0)
+    {
+        mElements.push_back(FreyaVertexElement((unsigned)-1,rvf::UNUSED,rvf::DWORD,0));
+    }
+
+    void VertexDecl::writeElements(std::ostream& stream) const
+    {
+        for (size_t i = 0; i < mElements.size(); ++i)
+        {
+            binWrite<uint32>(mElements[i].streamID, stream);
+            binWrite<uint32>(mElements[i].usage,    stream);
+            binWrite<uint32>(mElements[i].type,     stream);
+            binWrite<uint32>(mElements[i].offset,   stream);
+        }
+    }
+
+    int VertexDecl::getSize(rvf::TYPE type)
+    {
+        switch (type) // Because life without hardcoding isn't real life :D
+        { // ...But FIXME. What about x64?
+        case rvf::FLOAT1: return 4;
+		case rvf::FLOAT2: return 4 * 2;
+		case rvf::FLOAT3: return 4 * 3;
+		case rvf::FLOAT4: return 4 * 4;
+		case rvf::DWORD:  return 4;
+		case rvf::UBYTE4: return 4 * 1;
+        case rvf::SHORT2: return 2 * 2;
+        case rvf::SHORT4: return 4 * 2;
+        default:
+            DAC_ERROR("Unknown vertex format type `" << type << "`!");
+            return 0;
+        }
+    }
+
+    void VertexDecl::add(rvf::USAGE usage, rvf::TYPE type)
+    {
+        mElements.insert(mElements.end() - 1, 
+            FreyaVertexElement(0, usage, type, mVertexSize));
+
+        mVertexSize += getSize(type);
+    }
+
+    bool VertexDecl::has(rvf::USAGE usage) const
+    {
+        for (size_t i = 0; i < mElements.size(); ++i)
+            if (mElements[i].usage == usage)
+                return true;
+
+        return false;
+    }
+
+    rvf::USAGE texIndex2Type(unsigned int index)
+    {
+        switch (index)
+        {
+        case 0: return rvf::TEXT_COORD0;
+        case 1: return rvf::TEXT_COORD1;
+        case 2: return rvf::TEXT_COORD2;
+        case 3: return rvf::TEXT_COORD3;
+        default: 
+            DAC_ERROR(index << " - such big texture index isn't supported by Assimp!");
+            return rvf::TEXT_COORD0;
+        }
     }
 
     int GDataExporter::operator()()
@@ -36,7 +187,7 @@ namespace dac
         aiMesh* mesh = mMesh._mesh;
 
         DAC_ASSERT(mesh != nullptr);
-        //DAC_ASSERT(mesh->mPrimitiveTypes != aiPrimitiveType_TRIANGLE);
+        DAC_ASSERT(mesh->mPrimitiveTypes == aiPrimitiveType_TRIANGLE);
 
         std::ofstream out(mFilename.c_str(), std::ios_base::binary);
 
@@ -56,18 +207,19 @@ namespace dac
 
         renderer::VertexElement vertexElement;
 
-        unsigned int vertexSize = 0;
+        VertexDecl vdecl;
 
-        binWriteVE(renderer::VertexElement(0, 
-            renderer::VertexFormat::POSITION, renderer::VertexFormat::FLOAT3, vertexSize), out);
-        vertexSize += sizeof(float) * 3; // FIXME: Make it with engine help :)
+        vdecl.add(rvf::POSITION, rvf::FLOAT3);
+        vdecl.add(rvf::NORMAL,   rvf::FLOAT3);
 
-		binWriteVE(renderer::VertexElement(0, 
-            renderer::VertexFormat::NORMAL, renderer::VertexFormat::FLOAT3, vertexSize), out);
-        vertexSize += sizeof(float) * 3;
+        unsigned int texIndex = 0;
+        // NB! Assimp imports not more than 4 different texture coords
+        // TODO: Warn if can
+        for (; mesh->HasTextureCoords(texIndex); ++texIndex)
+            vdecl.add(texIndex2Type(texIndex), rvf::FLOAT2); // TODO: Third dim.
 
-	    // Last declaration element
-	    binWriteVE(renderer::VertexElement((unsigned)-1,renderer::VertexFormat::UNUSED,renderer::VertexFormat::DWORD,0), out);
+        // Write vertices declaration
+        vdecl.writeElements(out);
 	
         if (!mesh->mFaces)
             makeIndices();
@@ -81,35 +233,34 @@ namespace dac
 			    binWrite<uint16>(mesh->mFaces[face].mIndices[i], out);
 
 	    // 32-bit unsigned integer 	size_of_vertex_data
-	    binWrite<uint32>(vertexSize * mesh->mNumVertices, out);
+        binWrite<uint32>(vdecl.getVertexSize() * mesh->mNumVertices, out);
 
 	    // Raw vertex data
         for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
         {
-            binWrite<float>(mesh->mVertices[i].x, out);
-            binWrite<float>(mesh->mVertices[i].y, out);
-            binWrite<float>(mesh->mVertices[i].z, out);
+            // Found way to do it even more slowly
 
-            binWrite<float>(mesh->mNormals[i].x, out);
-            binWrite<float>(mesh->mNormals[i].y, out);
-            binWrite<float>(mesh->mNormals[i].z, out);
+            if (vdecl.has(rvf::POSITION))
+                binWriteV3(mesh->mVertices[i], out);
+
+            if (vdecl.has(rvf::NORMAL))
+                binWriteV3(mesh->mNormals[i], out);
+
+            // Textures
+            for (unsigned int texi = 0; vdecl.has(texIndex2Type(texi)); ++texi)
+                binWriteV2(mesh->mTextureCoords[texi][i], out);
         }
 
 	    out.close();
 
         mState = S_READY;
-        return ReturnValue::DONE;
+        return Task::DONE;
     }
 
     void GDataExporter::makeIndices()
     {
-        DAC_ERROR("Not implemented");
+        DAC_ERROR("Making indices isn't implemented!");
     }
-
-    //
-    // Mesh
-    //
-
 
     //
     // Asset
@@ -118,10 +269,8 @@ namespace dac
     //
     // AssetLoader
     //
-    Assimp::Importer AssetLoader::mImporter;
-
-    AssetLoader::AssetLoader(const String& filename)
-    :   mFilename(filename), mState(S_LOADING)
+    AssetLoader::AssetLoader(const String& filepath)
+    :   mFilepath(filepath), mState(S_LOADING)
     {
     }
 
@@ -135,6 +284,8 @@ namespace dac
             if (filename[i] == '.')
                 break;
 
+        if (i == -1) return "";
+
         for (++i; i < sz; ++i)
             ext += filename[i];
 
@@ -145,32 +296,25 @@ namespace dac
 	{
         mState = S_LOADING;
 
-        core::filesystem::Filesystem* fs = core::EngineCore::getFilesystem();
-		size_t fileSize;
-        void* fileData = fs->read(mFilename, &fileSize);
+        size_t fileSize;
+        void* fileData = core::EngineCore::getFilesystem()->read(mFilepath, &fileSize);
 
-        DAC_ASSERT3(fileData != nullptr, "Can't open file `" << mFilename << "`!", 
-            mState = S_FAILED; return ReturnValue::DONE);
+        DAC_ASSERT3(fileData != nullptr, "Can't open file `" << mFilepath << "`!", 
+            mState = S_FAILED; return Task::DONE); 
 
         const aiScene* scene = mImporter.ReadFileFromMemory(fileData, fileSize, 
-            aiProcessPreset_TargetRealtime_Fast, getFileExt(mFilename).c_str());
-        
-        String err;
+            aiProcessPreset_TargetRealtime_Fast, getFileExt(mFilepath).c_str());
 
-        if (scene == nullptr)
-        {
-            err = mImporter.GetErrorString();
-        }
+        // TODO. How do I know that it was from GENERIC_POOL?
+        core::memory::Free(fileData, core::memory::GENERIC_POOL);
 
-        DAC_ASSERT3(scene != nullptr, "No scene!", 
-            mState = S_FAILED; return ReturnValue::DONE);
+        DAC_ASSERT3(scene, "Load failed! Assimp desc: " << 
+            mImporter.GetErrorString() << "", mState = S_FAILED; return Task::DONE)
         
         AssetPtr asset(new Asset());
-
         asset->_scene = scene;
-
+       
         asset->meshes.reserve(scene->mNumMeshes);
-
         for (size_t i = 0; i < scene->mNumMeshes; ++i)
         {
             Mesh mesh;
@@ -180,7 +324,8 @@ namespace dac
 
         mAsset = asset; // Assign only when it's done
         mState = S_READY;
-		return ReturnValue::DONE;
+
+		return Task::DONE;
 	}
 
 } // namespace dac
