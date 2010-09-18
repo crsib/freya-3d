@@ -54,7 +54,7 @@ namespace dac
     {
     }
 
-    // perversion FIXME! And Dangerous!
+    // WARNING! Don't call it for unpacked structures, that have to be packed :). Captain.
     template <typename T>
     void binWrite(const T& write, std::ostream& stream)
     {
@@ -98,15 +98,9 @@ namespace dac
 
         static int getSize(rvf::TYPE type);
 
-        void writeElements(std::ostream& stream) const; // BAd arcH
-
+        void writeElements(std::ostream& stream) const;
 
         unsigned int getVertexSize() const { return mVertexSize; }
-
-        //std::pair<const void*, unsigned int> rawElements() const;
-        //const void* getRawElementsPtr() const;
-        //unsigned int getRawElementsSize() const;
-        //static rvf::TYPE defaultType4Usage(rvf::USAGE usage);
     
     protected:
         std::vector<FreyaVertexElement> mElements;
@@ -187,7 +181,8 @@ namespace dac
         aiMesh* mesh = mMesh._mesh;
 
         DAC_ASSERT(mesh != nullptr);
-        DAC_ASSERT(mesh->mPrimitiveTypes == aiPrimitiveType_TRIANGLE);
+        // assimp made this work
+        //DAC_ASSERT(mesh->mPrimitiveTypes == aiPrimitiveType_TRIANGLE);
 
         std::ofstream out(mFilename.c_str(), std::ios_base::binary);
 
@@ -292,6 +287,45 @@ namespace dac
         return ext;
     }
 
+    void printNode(const aiNode* node, int offset)
+    {
+        for (int i = 0; i < offset; ++i) 
+            std::cout << " ";
+        std::cout << node->mName.data << std::endl;
+
+        for (unsigned int i = 0; i < node->mNumChildren; ++i)
+        {
+            printNode(node->mChildren[i], offset + 1);
+        }
+    }
+
+    bool hasAnimation(const aiScene* scene, unsigned int meshId)
+    {
+        //printNode(scene->mRootNode, 0);
+
+        for (size_t animIter = 0; animIter < scene->mNumAnimations; ++animIter)
+        {
+            const aiAnimation* anim = scene->mAnimations[animIter];
+
+            for (size_t nodeIter = 0; nodeIter < anim->mNumChannels; ++nodeIter)
+            {
+                aiNodeAnim* animNode = anim->mChannels[nodeIter];
+                aiNode* sceneNode = scene->mRootNode->FindNode(animNode->mNodeName);
+
+                if (sceneNode)
+                {
+                    for (size_t meshIter = 0; meshIter < sceneNode->mNumMeshes; ++meshIter)
+                    {
+                        if (sceneNode->mMeshes[meshIter] == meshId)
+                            return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
     int AssetLoader::operator() ()
 	{
         mState = S_LOADING;
@@ -305,7 +339,7 @@ namespace dac
         const aiScene* scene = mImporter.ReadFileFromMemory(fileData, fileSize, 
             aiProcessPreset_TargetRealtime_Fast, getFileExt(mFilepath).c_str());
 
-        // TODO. How do I know that it was from GENERIC_POOL?
+        // FIXME. How do I know that it was from GENERIC_POOL?
         core::memory::Free(fileData, core::memory::GENERIC_POOL);
 
         DAC_ASSERT3(scene, "Load failed! Assimp desc: " << 
@@ -315,10 +349,11 @@ namespace dac
         asset->_scene = scene;
        
         asset->meshes.reserve(scene->mNumMeshes);
-        for (size_t i = 0; i < scene->mNumMeshes; ++i)
+        for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
         {
             Mesh mesh;
             mesh._mesh = scene->mMeshes[i];
+            mesh.hasAnim = hasAnimation(scene, i);
             asset->meshes.push_back(mesh);
         }
 

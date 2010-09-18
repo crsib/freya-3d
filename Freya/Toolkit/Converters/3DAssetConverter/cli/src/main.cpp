@@ -6,23 +6,21 @@ void printHelp()
 {
     std::cout << "Using: freya-3dac {command}" << std::endl;
     std::cout << "List of commands: " << std::endl;
-    std::cout << "    list {filepath} - path to supported asset." << std::endl;
-}
-
-// No sense until haven't got a mesh name
-void printMesh(const dac::Mesh& mesh, std::ostream& stream)
-{
+    std::cout << "   list {filepath}" << std::endl;
+    std::cout << "      Prints meshes information from file {filepath}" << std::endl;
+    std::cout << "   convert {filepath} -nodes {node_name1} {node_name2}" << std::endl;
+    std::cout << "      Convert meshes to vdata" << std::endl;
 }
 
 int main(int argc, char* argv[])
 {
     po::Args args(argc, argv);
 
-    freopen("3dac.log", "w", stdout);// Freya core log covers full cmd screen :)
+    freopen("3dac.log", "w", stdout);// Freya core log covers whole cmd screen :)
 
     if (args.num_args() > 0)
     {
-        core::EngineCore core(argc,argv, "freya-3dac-cli");
+        core::EngineCore core(argc, argv, "freya-3dac");
 
         core::filesystem::Filesystem* fs = core::EngineCore::getFilesystem();
 		fs->mount("pwd");
@@ -47,9 +45,11 @@ int main(int argc, char* argv[])
             DAC_ASSERT3(loader.getState() == dac::AssetLoader::S_READY && 
                 asset.get() != nullptr, "Wasn't loaded!", return 1);
 
-            //for (size_t i = 0; i < asset->meshes.size(); ++i)
-            //    printMesh(asset->meshes[i], std::cout);
-
+            // No sense until haven't got a mesh name
+            for (size_t i = 0; i < asset->meshes.size(); ++i)
+            {
+                std::cout << "Mesh " << i << "; Has animation: " << asset->meshes[i].hasAnim << std::endl;
+            }
         } 
         else if(args.num_arg(0) == "convert")
         {
@@ -109,13 +109,13 @@ int main(int argc, char* argv[])
                         DAC_ASSERT2(exporter.getState() == dac::GDataExporter::S_READY, "Wasn't exported!");
                         std::cout << "  Mesh exported to '" << exportName.str() << "'" << std::endl;
                     }
-                }//for (size_t nodesIter = 0; nodesIter < nodes->count(); ++nodesIter)
-            }//if (nodes->is_single() && (*nodes)[0].as_string() == "*")
+                } //for (size_t nodesIter = 0; nodesIter < nodes->count(); ++nodesIter)
+            } //if (nodes->is_single() && (*nodes)[0].as_string() == "*")
         }
-        else
+        else //"switch"
             printHelp();
     }
-    else
+    else //if (args.num_args() > 0)
         printHelp();
 
     return 0;
