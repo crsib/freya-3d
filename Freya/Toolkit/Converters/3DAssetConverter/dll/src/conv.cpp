@@ -16,7 +16,7 @@ namespace dac
     //    hasAnim // ???
     //}
 
-    btVector3 convAmp2Blt(const aiVector3D& v)
+    btVector3 convAssimp2Bullet(const aiVector3D& v)
     {
         return btVector3(v.x, v.y, v.z);
     }
@@ -43,14 +43,14 @@ namespace dac
             }
         }
 
-        return scenegraph::AABB::FromMM(convAmp2Blt(m), convAmp2Blt(M));
+        return scenegraph::AABB::FromMM(convAssimp2Bullet(m), convAssimp2Bullet(M));
     }
 
     //
     // GDataExporter
     //
-    GDataExporter::GDataExporter(const Mesh& mesh, const String& filename)
-    :   mMesh(mesh), mFilename(filename), mState(S_EXPORTING)
+    GDataExporter::GDataExporter(const std::vector<Mesh>& meshes, const String& filename)
+    :   mMeshes(meshes), mFilename(filename), mState(S_EXPORTING)
     {
     }
 
@@ -174,87 +174,139 @@ namespace dac
         }
     }
 
+    struct ExportMeshInfo
+    {
+        VertexDecl vdecl;
+        uint16 index_count;
+        uint16 buffer_offset;
+        uint32 vertex_elem_offset;
+    };
+
     int GDataExporter::operator()()
     {
         mState = S_EXPORTING;
 
-        aiMesh* mesh = mMesh._mesh;
-
-        DAC_ASSERT(mesh != nullptr);
-        // assimp made this work
-        //DAC_ASSERT(mesh->mPrimitiveTypes == aiPrimitiveType_TRIANGLE);
-
         std::ofstream out(mFilename.c_str(), std::ios_base::binary);
 
-	    // Via http://freya3d.org/wiki/WorldDataFormats/GeometricData (20.02.2010)
+        std::vector<ExportMeshInfo> infos;
+        infos.resize(mMeshes.size());
+
+        uint16 index_buffer_offset   = 0;
+        uint32 vertex_elem_offset   = 0;
+        uint16 number_of_indices    = 0;
+        uint32 size_of_vertex_data  = 0;
+
+        //
+        // Calculate offsets, counts...
+        //
+
+        for (size_t i = 0; i < mMeshes.size(); ++i)
+        {
+            ExportMeshInfo& info    = infos[i];
+
+            aiMesh* mesh            = mMeshes[i]._mesh;
+            info.index_count        = mesh->mNumFaces * 3;
+
+            info.buffer_offset      = index_buffer_offset;
+            info.vertex_elem_offset = vertex_elem_offset;
+            
+            index_buffer_offset     += info.index_count;
+            vertex_elem_offset      += mesh->mNumVertices;
+            number_of_indices       += info.index_count;
+
+            info.vdecl.add(rvf::POSITION, rvf::FLOAT3);
+            info.vdecl.add(rvf::NORMAL,   rvf::FLOAT3);
+
+            unsigned int texIndex = 0;
+            // NB! Assimp imports not more than 4 different texture coords
+            // TODO: Warn if can
+            for (; mesh->HasTextureCoords(texIndex); ++texIndex)
+                info.vdecl.add(texIndex2Type(texIndex), rvf::FLOAT2); // TODO: Third dim.
+
+            size_of_vertex_data += mesh->mNumVertices * info.vdecl.getVertexSize();
+
+        }
+
+        //
+        // Write batch headers
+        //
+
+        
+        // Via http://freya3d.org/wiki/WorldDataFormats/GeometricData (20.02.2010)
 
 	    //(16-bit unsigned int) 	num_batches
-	    binWrite<uint16>(1, out);
+	    binWrite<uint16>(infos.size(), out);
 
-	    // 32-bit unsigned integer assembly_type
-	    binWrite<uint32>(renderer::Primitive::TRIANGLES, out);
+        for (size_t i = 0; i < infos.size(); ++i)
+        {
+            ExportMeshInfo& info = infos[i];
 
-	    // 16-bit unsigned integer index_count 
-	    binWrite<uint16>(mesh->mNumFaces * 3, out);
+	        // 32-bit unsigned integer assembly_type
+	        binWrite<uint32>(renderer::Primitive::TRIANGLES, out);
 
-	    // 16-bit unsigned integer buffer_offset
-	    binWrite<uint16>(0, out);
+	        // 16-bit unsigned integer index_count 
+	        binWrite<uint16>(info.index_count, out);
 
-        renderer::VertexElement vertexElement;
+	        // 16-bit unsigned integer buffer_offset
+	        binWrite<uint16>(info.buffer_offset, out);
 
-        VertexDecl vdecl;
+            renderer::VertexElement vertexElement;
 
-        vdecl.add(rvf::POSITION, rvf::FLOAT3);
-        vdecl.add(rvf::NORMAL,   rvf::FLOAT3);
+            // Write vertices declaration
+            info.vdecl.writeElements(out);
+        }
 
-        unsigned int texIndex = 0;
-        // NB! Assimp imports not more than 4 different texture coords
-        // TODO: Warn if can
-        for (; mesh->HasTextureCoords(texIndex); ++texIndex)
-            vdecl.add(texIndex2Type(texIndex), rvf::FLOAT2); // TODO: Third dim.
+        //
+        // Write indices
+        //
 
-        // Write vertices declaration
-        vdecl.writeElements(out);
+        // 16-bit unsigned int  number_of_indicies
+        binWrite<uint16>(number_of_indices, out);
+
+        for (size_t i = 0; i < infos.size(); ++i)
+        {
+            ExportMeshInfo& info = infos[i];
+            aiMesh* mesh = mMeshes[i]._mesh;
 	
-        if (!mesh->mFaces)
-            makeIndices();
+		    for(unsigned int face = 0; face < mesh->mNumFaces; ++face)
+            {
+			    for (unsigned int ind = 0; ind < mesh->mFaces[face].mNumIndices; ++ind)
+                    binWrite<uint16>(info.vertex_elem_offset + mesh->mFaces[face].mIndices[ind], out);
+            }
+        }
 
-	    // 16-bit unsigned int  number_of_indicies
-        binWrite<uint16>(mesh->mFaces[0].mNumIndices * mesh->mNumFaces, out);
-
-	    // 16-bit unsigned int array indcies
-		for(unsigned face = 0; face < mesh->mNumFaces; ++face)
-			for (unsigned int i = 0; i < mesh->mFaces[face].mNumIndices; ++i)
-			    binWrite<uint16>(mesh->mFaces[face].mIndices[i], out);
+        //
+        // Write vertices
+        //
 
 	    // 32-bit unsigned integer 	size_of_vertex_data
-        binWrite<uint32>(vdecl.getVertexSize() * mesh->mNumVertices, out);
+        binWrite<uint32>(size_of_vertex_data, out);
 
-	    // Raw vertex data
-        for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
+        for (size_t i = 0; i < infos.size(); ++i)
         {
-            // Found way to do it even more slowly
+            ExportMeshInfo& info = infos[i];
+            aiMesh* mesh = mMeshes[i]._mesh;
 
-            if (vdecl.has(rvf::POSITION))
-                binWriteV3(mesh->mVertices[i], out);
+	        // Raw vertex data
+            for (unsigned int v = 0; v < mesh->mNumVertices; ++v)
+            {
+                // Found way to do it even more slowly
+                if (info.vdecl.has(rvf::POSITION))
+                    binWriteV3(mesh->mVertices[v], out);
 
-            if (vdecl.has(rvf::NORMAL))
-                binWriteV3(mesh->mNormals[i], out);
+                if (info.vdecl.has(rvf::NORMAL))
+                    binWriteV3(mesh->mNormals[v], out);
 
-            // Textures
-            for (unsigned int texi = 0; vdecl.has(texIndex2Type(texi)); ++texi)
-                binWriteV2(mesh->mTextureCoords[texi][i], out);
+                // Textures
+                for (unsigned int t = 0; info.vdecl.has(texIndex2Type(t)); ++t)
+                    binWriteV2(mesh->mTextureCoords[t][v], out);
+            }
         }
 
 	    out.close();
 
         mState = S_READY;
         return Task::DONE;
-    }
-
-    void GDataExporter::makeIndices()
-    {
-        DAC_ERROR("Making indices isn't implemented!");
     }
 
     //
@@ -291,18 +343,15 @@ namespace dac
     {
         for (int i = 0; i < offset; ++i) 
             std::cout << " ";
+
         std::cout << node->mName.data << std::endl;
 
         for (unsigned int i = 0; i < node->mNumChildren; ++i)
-        {
             printNode(node->mChildren[i], offset + 1);
-        }
     }
 
     bool hasAnimation(const aiScene* scene, unsigned int meshId)
     {
-        //printNode(scene->mRootNode, 0);
-
         for (size_t animIter = 0; animIter < scene->mNumAnimations; ++animIter)
         {
             const aiAnimation* anim = scene->mAnimations[animIter];
