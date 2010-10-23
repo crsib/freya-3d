@@ -8,8 +8,8 @@ void printHelp()
     std::cout << "List of commands: " << std::endl;
     std::cout << "   list {filepath}" << std::endl;
     std::cout << "      Prints meshes information from file {filepath}" << std::endl;
-    std::cout << "   convert {filepath} -nodes {node_name1} {node_name2}" << std::endl;
-    std::cout << "      Convert meshes to vdata" << std::endl;
+    std::cout << "   convert {filepath} -nodes {node_name1} {node_name2} ... -o {out_file}" << std::endl;
+    std::cout << "      Convert nodes and exports to {out_file}" << std::endl;
 }
 
 int main(int argc, char* argv[])
@@ -54,9 +54,13 @@ int main(int argc, char* argv[])
         else if(args.num_arg(0) == "convert")
         {
             const po::Value* pathv;
+            const po::Value* outFilepathv;
 
             DAC_ASSERT3((pathv = args.has_num_arg(1)) != nullptr, 
-                "Expected second argument as path to file!", printHelp(); return 1);
+                "Expected second argument as path to source file!", printHelp(); return 1);
+
+            DAC_ASSERT3((outFilepathv = args.has_key_arg_val("o")) != nullptr, 
+                "Expected `-o {file_out}` argument - path to export file!", printHelp(); return 1);
 
             std::string path = pathv->as_string();
 
@@ -70,47 +74,34 @@ int main(int argc, char* argv[])
 
             const po::Values* nodes = args.has_key_arg_arr("nodes");
 
-            // FIXME. Tiny copy-paste
+            std::vector<dac::Mesh> exportMeshes;
+
+            // Export all nodes
             if (nodes == nullptr || (nodes->is_single() && (*nodes)[0].as_string() == "*"))
             {
                 std::cout << "Exporting all meshes" << std::endl;
-                for (size_t meshesIter = 0; meshesIter < asset->meshes.size(); ++meshesIter)
-                {
-                    std::ostringstream exportName;
-                    exportName << "mesh" << meshesIter << ".vdata";
-
-                    dac::GDataExporter exporter(asset->meshes[meshesIter], exportName.str());
-                    exporter();
-                    DAC_ASSERT2(exporter.getState() == dac::GDataExporter::S_READY, "Wasn't exported!");
-                    std::cout << "Mesh exported to '" << exportName.str() << "'" << std::endl;
-                }
+                exportMeshes = asset->meshes;
             }
-            else
+            else // Select nodes
             {
                 for (size_t nodesIter = 0; nodesIter < nodes->count(); ++nodesIter)
                 {
                     std::string nodeName = (*nodes)[nodesIter].as_string();
                     aiNode* nodePtr = asset->_scene->mRootNode->FindNode(nodeName);
 
-                    std::cout << "Exporting '" << nodePtr->mName.data << "' node" << std::endl;
-
-                    for (unsigned int meshesIter = 0; meshesIter < nodePtr->mNumMeshes; ++meshesIter)
+                    if (nodePtr)
                     {
-                        aiMesh* aiMesh = asset->_scene->mMeshes[nodePtr->mMeshes[meshesIter]];
-
-                        std::ostringstream exportName;
-                        exportName << nodePtr->mName.data << meshesIter << ".vdata";
-
-                        dac::Mesh dacMesh;
-                        dacMesh._mesh = aiMesh;
-
-                        dac::GDataExporter exporter(dacMesh, exportName.str());
-                        exporter();
-                        DAC_ASSERT2(exporter.getState() == dac::GDataExporter::S_READY, "Wasn't exported!");
-                        std::cout << "  Mesh exported to '" << exportName.str() << "'" << std::endl;
+                        for (unsigned int meshesIter = 0; meshesIter < nodePtr->mNumMeshes; ++meshesIter)
+                            exportMeshes.push_back(asset->meshes[nodePtr->mMeshes[meshesIter]]);
                     }
-                } //for (size_t nodesIter = 0; nodesIter < nodes->count(); ++nodesIter)
-            } //if (nodes->is_single() && (*nodes)[0].as_string() == "*")
+                    else
+                        DAC_ERROR("No such node `" << nodeName << "` to export !");                  
+                }
+            }
+
+            dac::GDataExporter exporter(exportMeshes, outFilepathv->as_string());
+            exporter();
+            DAC_ASSERT2(exporter.getState() == dac::GDataExporter::S_READY, "Wasn't exported!");
         }
         else //"switch"
             printHelp();

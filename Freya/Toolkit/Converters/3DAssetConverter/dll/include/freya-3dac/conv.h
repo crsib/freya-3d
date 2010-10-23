@@ -69,7 +69,7 @@ namespace dac
 
     public:
 
-        GDataExporter(const Mesh& mesh, const String& filename);
+        GDataExporter(const std::vector<Mesh>& meshes, const String& filename);
 
 	    virtual int operator() ();
 
@@ -83,7 +83,7 @@ namespace dac
 
         String mFilename;
 
-        Mesh mMesh;
+        std::vector<Mesh> mMeshes;
     };
 
     // No need in incapsulation

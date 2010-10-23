@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
             asset.get() != nullptr, "Wasn't loaded!", return 1);
 
         DAC_ASSERT3(asset->meshes.size() > 0, "No meshes to export!", return 0);
-        dac::GDataExporter exporter(asset->meshes[0], "mesh0.vdata");
+        dac::GDataExporter exporter(asset->meshes, "meshes.vdata");
         exporter();
 
         DAC_ASSERT2(exporter.getState() == dac::GDataExporter::S_READY, "Wasn't exported!");
