@@ -23,11 +23,26 @@ private:
 class EXPORT ClassNode : public CppNode
 {
 public:
+	enum BASE_TYPE
+	{
+		PRIVATE = 0,
+		PROTECTED = 1,
+		PUBLIC = 2,
+		VIRTUAL = 3
+	};
+
 	ClassNode(const std::string& class_name, CppNode* parent) : CppNode(NODE_TYPE_CLASS,parent,class_name)
 	{}
 	virtual ~ClassNode(){}
 
+	typedef std::vector<cpp_type*> base_class_list_t;
 
+	size_t				baseCount() const {return m_BaseClassList.size();}
+	cpp_type*			getBase(size_t idx){return m_BaseClassList.at(idx);}
+	void				addBase(cpp_type* node){m_BaseClassList.push_back(node);}
+
+private:
+	base_class_list_t				m_BaseClassList;
 };
 
 class EXPORT AnonymousStructNode : public CppNode
