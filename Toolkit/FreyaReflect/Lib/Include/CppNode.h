@@ -50,6 +50,7 @@ public:
 		NODE_TYPE_TEMPLATE_SPECIALIZATION,
 		NODE_TYPE_STL_SPECIALIZATION
 	};
+
 private:
 	CppNode();
 	CppNode(const CppNode&);

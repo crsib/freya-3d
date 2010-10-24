@@ -20,7 +20,7 @@ CppTypeFactory* CppTypeFactory::getInstance()
 	assert(m_Instance);
 	return m_Instance;
 }
-
+ 
 cpp_type_t* CppTypeFactory::getType( cpp_type_header_t header, const std::string& qualified_name )
 {
 	type_map_iterator_t	it = m_TypeMap.find(qualified_name);

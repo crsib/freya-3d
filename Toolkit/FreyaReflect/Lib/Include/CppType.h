@@ -13,19 +13,22 @@ class FreyaReflect;
 
 typedef struct		cpp_type_header
 {
-	bool		by_constant							: 1;
+	bool		by_constant							: 1;  // Bit 0
 
-	bool		by_reference						: 1;
-	bool		by_pointer							: 1;
-	bool		by_constant_pointer					: 1;
-	bool		by_constant_reference				: 1;
+	bool		by_reference						: 1;  // Bit 1
+	bool		by_pointer							: 1;  // Bit 2
+	bool		by_constant_pointer					: 1;  // Bit 3
+	bool		by_constant_reference				: 1;  // Bit 4
 
-	bool		is_basic_type						: 1;
-	bool		is_template_instantation			: 1;
-	bool		is_user_type						: 1;
-	bool		is_stl_type							: 1;
+	bool		is_basic_type						: 1;  // Bit 5
+	bool		is_template_instantation			: 1;  // Bit 6
+	bool		is_user_type						: 1;  // Bit 7
+	bool		is_stl_type							: 1;  // Bit 8
 
-	unsigned	__reserved__						: (32 - 9);
+	//For class inheritance
+	bool		access_type							: 2;  // Bits 9-10
+
+	unsigned	__reserved__						: (32 - 11);
 } cpp_type_header_t;
 
 bool	operator < (const cpp_type_header_t& _1,const cpp_type_header_t& _2);
