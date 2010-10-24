@@ -91,7 +91,7 @@ public:
 						AnonymousStructNode* n = new AnonymousStructNode(node_stack.top());
 						node_stack.top()->addNode(n);
 						node_stack.push(n);
-						return true;
+						//return true;
 					}
 					if(node_stack.top()->getNodeNamed(class_spec->name->getName()))
 						return false;
@@ -102,8 +102,17 @@ public:
 						ClassNode* n = new ClassNode(class_spec->name->getName(),node_stack.top());
 						node_stack.top()->addNode(n);
 						node_stack.push(n);
-						return true; //Recursively pass the class structure down 
+						//return true; //Recursively pass the class structure down 
 					}
+					//Load the base classes
+
+					//Ok, parse down the class members
+					//0 means private, 1 means protected, 2 means public
+					//We do not parse private data
+					int access = class_spec->keyword == TI_CLASS ? 0 : 2;
+					
+					node_stack.pop();
+					return false;
 				} //Truly a class or a struct if(class_spec->keyword == TI_CLASS || class_spec->keyword == TI_STRUCT)
 			}//TS_CLASSSPEC
 			break;
