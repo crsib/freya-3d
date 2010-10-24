@@ -113,6 +113,8 @@ FreyaReflect::FreyaReflect()
 	addDefinition("__WIN32");
 	addDefinition("WIN32");
 	addDefinition("_WCHAR_T_DEFINED");
+	addDefinition("_M_IX86");
+	addDefinition("__w64=");
 	//addDefinition("__cplusplus=199711L");
 #else
 	addDefinition("__GNUC__=");
@@ -512,7 +514,7 @@ bool FreyaReflect::parse()
 		return false;
 	}
 	//Delete temp file
-	boost::filesystem::remove(temp_name);
+	//boost::filesystem::remove(temp_name);
 	return true;
 }
 
