@@ -17,6 +17,10 @@ namespace scenegraph
 class AABB : public btDbvtAabbMm
 {
 public:
+    AABB(){}
+
+    AABB(const btDbvtAabbMm& aabb) : btDbvtAabbMm(aabb) {}
+
 	static void* operator new(size_t sz)
 	{
 		return core::memory::Allocate(sz,core::memory::CLASS_POOL);

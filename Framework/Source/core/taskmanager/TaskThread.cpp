@@ -76,7 +76,7 @@ public:
 						man->m_SecThreadSchedule.pop_front();
 						man->m_AuxLock = 0;
 
-						if(task)
+						if(task && task->retainCount() > 0)
 						{
 							switch((*task)())
 							{
