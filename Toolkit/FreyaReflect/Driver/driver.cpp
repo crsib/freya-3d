@@ -86,8 +86,7 @@ int main (int argc, char* argv[])
 			file_list.push_back(*it);
 	} //Just populate the list
 
-	for(size_t i = 0; i < file_list.size(); ++i)
-		std::cout << file_list[i] << std::endl;
+	//Now, start tree populating.
 
 	//system("pause");
 	return 0;
