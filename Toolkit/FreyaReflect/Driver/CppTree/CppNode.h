@@ -5,6 +5,8 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 
+#include "CppTree/CppType.h"
+
 class CppNode;
 
 //Node specializations
@@ -134,6 +136,8 @@ public:
 
 	CppNodePtr  getChildByName(const std::string& name);
 
+	void		addChild(CppNodePtr child) { m_Children.push_back(child); }
+
 protected:
 	node_array_t		m_Children;
 };
@@ -143,6 +147,16 @@ class CppNodeVariableDecl : public CppNode
 public:
 	CppNodeVariableDecl(CppNode* parent = NULL, NODE_TYPE type = NODE_TYPE_VARIABLE_DECL, const std::string& name = "") : CppNode(parent,type,name) {}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
+
+	void	setType(CppType* type) { m_Type = type; }
+	CppType* getCppType() { return m_Type; }
+	const CppType* getCppType() const { return m_Type; }
+
+	bool	hasValue() const { return m_HasValue; }
+	void	setHasValue(bool h) { m_HasValue = h; }
+protected:
+	CppType*	m_Type;
+	bool		m_HasValue;
 };
 
 class CppNodeNamespace : public CppNodeScope
@@ -150,6 +164,8 @@ class CppNodeNamespace : public CppNodeScope
 public:
 	CppNodeNamespace(const std::string& name, CppNode* parent = NULL) : CppNodeScope(parent,NODE_TYPE_NAMESPACE, name) {}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
+
+	bool isAnonymous() const { return m_NodeName == ""; }
 };
 
 class CppNodeEnum : public CppNodeScope
@@ -166,15 +182,41 @@ public:
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 
 	long long int		getValue() const { return m_Value; }
-private:
+	void				setValue(const long long int& v) { m_Value = v;}
+protected:
 	long long int		m_Value;
 };
 
 class CppNodeFunction : public CppNode
 {
 public:
-	CppNodeFunction(const std::string& name, CppNode* parent = NULL) : CppNode(parent,NODE_TYPE_FUNCTION, name) {}
+	CppNodeFunction(const std::string& name, CppNode* parent = NULL) 
+		: CppNode(parent,NODE_TYPE_FUNCTION, name) { m_ReturnValue = NULL; m_HasReturnValue = (m_ReturnValue != NULL); }
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
+	typedef std::vector<CppType*>	argument_list_t;
+	typedef argument_list_t::iterator argument_list_iterator_t;
+	typedef argument_list_t::const_iterator argument_list_const_iterator_t;
+
+	argument_list_iterator_t		args_begin() { return m_ArgumentList.begin(); }
+	argument_list_const_iterator_t	args_begin() const { return m_ArgumentList.end(); }
+	
+	argument_list_iterator_t		args_end() { return m_ArgumentList.end(); }
+	argument_list_const_iterator_t	args_end() const { return m_ArgumentList.end(); }
+
+	size_t							argumentsCount() const { return m_ArgumentList.size(); }
+
+	void							addArgument(CppType* arg) { m_ArgumentList.push_back(arg); }
+
+	void							setReturnValue(CppType* type = NULL) { m_ReturnValue = type; m_HasReturnValue = (m_ReturnValue != NULL); }
+	CppType*						getReturnValue() { return m_ReturnValue; }
+	const CppType*					getReturnValue() const { return m_ReturnValue; }
+
+	bool							hasReturnValue() const { return m_HasReturnValue; }
+ 
+protected:
+	argument_list_t				m_ArgumentList;
+	CppType*					m_ReturnValue;
+	bool						m_HasReturnValue;
 };
 
 class CppNodeFunctionTemplateSpecialization : public CppNodeFunction
@@ -184,6 +226,19 @@ public:
 		: CppNodeFunction(name, parent)
 	{m_NodeType = NODE_TYPE_FUNCTION_TEMPLATE_SPECIALIZATION; }
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
+
+	argument_list_iterator_t		targs_begin() { return m_TemplateArgumentList.begin(); }
+	argument_list_const_iterator_t	targs_begin() const { return m_TemplateArgumentList.end(); }
+
+	argument_list_iterator_t		targs_end() { return m_TemplateArgumentList.end(); }
+	argument_list_const_iterator_t	targs_end() const { return m_TemplateArgumentList.end(); }
+
+	size_t							templateArgumentsCount() const { return m_TemplateArgumentList.size(); }
+	void							addTemplateArgument(CppType* decl) { m_TemplateArgumentList.push_back(decl); }
+
+
+protected:
+	CppNodeFunction::argument_list_t				m_TemplateArgumentList;
 };
 
 class CppNodeGlobalVariable : public CppNodeVariableDecl
@@ -197,7 +252,7 @@ class CppNodeGlobalConstant : public CppNodeGlobalVariable
 {
 public:
 	CppNodeGlobalConstant(const std::string& name, CppNode* parent = NULL) : CppNodeGlobalVariable (name,parent) 
-	{ m_NodeType = NODE_TYPE_GLOBAL_CONSTANT; }
+	{ m_NodeType = NODE_TYPE_GLOBAL_CONSTANT; m_HasValue = true;}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 };
 
@@ -206,6 +261,14 @@ class CppNodeTypedef : public CppNode
 public:
 	CppNodeTypedef(const std::string& name, CppNode* parent = NULL) : CppNode(parent,NODE_TYPE_TYPEDEF,name) {}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
+
+	void		setAliasType(CppType* type) { m_AliasType = type; }
+
+	CppType*	getAliasType() { return m_AliasType; }
+	const CppType* getAliasType() const { return m_AliasType; }
+
+protected:
+	CppType*	m_AliasType;
 };
 
 class CppNodeClass : public CppNodeScope
@@ -213,6 +276,64 @@ class CppNodeClass : public CppNodeScope
 public:
 	CppNodeClass(const std::string& name, CppNode* parent = NULL) : CppNodeScope(parent,NODE_TYPE_CLASS,name) {}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
+
+	enum ACCESS_TYPE
+	{
+		ACCESS_TYPE_PUBLIC,
+		ACCESS_TYPE_PROTECTED
+		//Private members are ignored
+	};
+	//Only public bases are taken into account. private/protected bases have nothing to do with reflection data.
+	typedef std::pair<CppType*, bool> base_type_t;
+	typedef std::vector<base_type_t>			base_type_list_t;
+	typedef base_type_list_t::iterator			base_type_list_iterator_t;
+	typedef base_type_list_t::const_iterator	base_type_list_const_iterator_t;
+
+	typedef std::vector<CppNodeClassMethod*>	method_list_t;
+	typedef method_list_t::iterator				method_list_iterator_t;
+	typedef method_list_t::const_iterator		method_list_const_iterator_t;
+
+	typedef std::vector<CppNodeClassMember*>	member_list_t;
+	typedef member_list_t::iterator				member_list_iterator_t;
+	typedef member_list_t::const_iterator		member_list_const_iterator_t;
+
+	base_type_list_iterator_t					bases_begin() { return m_BaseClasses.begin(); }
+	base_type_list_const_iterator_t				bases_begin() const { return m_BaseClasses.begin(); }
+
+	base_type_list_iterator_t					bases_end() { return m_BaseClasses.end(); }
+	base_type_list_const_iterator_t				bases_end() const { return m_BaseClasses.end(); }
+	
+	size_t										baseClassCount() const { return m_BaseClasses.size(); }
+
+	void										addBaseClass(const base_type_t& bc) { m_BaseClasses.push_back(bc); }
+
+
+	method_list_iterator_t						methods_begin() { return m_Metods.begin(); }
+	method_list_const_iterator_t				methods_begin() const { return m_Metods.begin(); }
+
+	method_list_iterator_t						methods_end() { return m_Metods.end(); }
+	method_list_const_iterator_t				methods_end() const { return m_Metods.end(); }
+	
+	size_t										methodsCount() const { return m_Metods.size(); }
+
+	void										addMethod(CppNodeClassMethod* m) { m_Metods.push_back(m); }
+
+
+	member_list_iterator_t						members_begin() { return m_Members.begin(); }
+	member_list_const_iterator_t				members_begin() const { return m_Members.begin(); }
+
+	member_list_iterator_t						members_end() { return m_Members.end(); }
+	member_list_const_iterator_t				members_end() const { return m_Members.end(); }
+	
+	size_t										membersCount() const { return m_Members.size(); }
+
+	void										addMember(CppNodeClassMember* m) { m_Members.push_back(m); }
+
+protected:
+	base_type_list_t							m_BaseClasses;
+	member_list_t								m_Members;
+	method_list_t								m_Metods;
+
 };
 
 class CppNodeClassTemplateSpecialization : public CppNodeClass
@@ -221,6 +342,22 @@ public:
 	CppNodeClassTemplateSpecialization(const std::string& name, CppNode* parent = NULL) 
 		: CppNodeClass(name,parent) { m_NodeType = NODE_TYPE_CLASS_TEMPLATE_SPECIALIZATION; }
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
+
+	typedef std::vector<CppType*>	template_argument_list_t;
+	typedef template_argument_list_t::iterator template_argument_list_iterator_t;
+	typedef template_argument_list_t::const_iterator template_argument_list_const_iterator_t;
+	
+	template_argument_list_iterator_t		targs_begin() { return m_TemplateArgumentList.begin(); }
+	template_argument_list_const_iterator_t	targs_begin() const { return m_TemplateArgumentList.end(); }
+
+	template_argument_list_iterator_t		targs_end() { return m_TemplateArgumentList.end(); }
+	template_argument_list_const_iterator_t	targs_end() const { return m_TemplateArgumentList.end(); }
+
+	size_t							templateArgumentsCount() const { return m_TemplateArgumentList.size(); }
+	void							addTemplateArgument(CppType* decl) { m_TemplateArgumentList.push_back(decl); }
+
+protected:
+	template_argument_list_t		m_TemplateArgumentList;
 };
 
 class CppNodeAnonymousStruct : public CppNodeClass
@@ -251,15 +388,34 @@ class CppNodeClassMethod : public CppNodeFunction
 {
 public:
 	CppNodeClassMethod(const std::string& name, CppNode* parent = NULL) 
-		: CppNodeFunction(name,parent) { m_NodeType = NODE_TYPE_CLASS_METHOD; }
+		: CppNodeFunction(name,parent) 
+{
+	m_NodeType = NODE_TYPE_CLASS_METHOD; 
+	m_AccessType = CppNodeClass::ACCESS_TYPE_PUBLIC;
+	m_IsConstant = false;
+}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
+
+	void						setAccessType(CppNodeClass::ACCESS_TYPE type) { m_AccessType = type; } 
+	CppNodeClass::ACCESS_TYPE	getAccessType() const { return m_AccessType; }
+
+	void						setMethodConstQualifier(bool c) { m_IsConstant = c; }
+	bool						getMethodConstQualifier() const { return m_IsConstant; }
+
+protected:
+	CppNodeClass::ACCESS_TYPE	m_AccessType;
+	bool						m_IsConstant;
 };
 
 class CppNodeClassConstructor : public CppNodeClassMethod
 {
 public:
 	CppNodeClassConstructor(CppNode* parent = NULL) 
-		: CppNodeClassMethod("",parent) { m_NodeType = NODE_TYPE_CLASS_CONSTRUCTOR; }
+		: CppNodeClassMethod("",parent) 
+	{ 
+		m_NodeType = NODE_TYPE_CLASS_CONSTRUCTOR; 
+		if(m_ParentNode) m_NodeName =  m_ParentNode->getNodeName();
+	}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 };
 
@@ -267,7 +423,11 @@ class CppNodeClassCopyConstructor : public CppNodeClassMethod
 {
 public:
 	CppNodeClassCopyConstructor(CppNode* parent = NULL) : CppNodeClassMethod("",parent)
-	{ m_NodeType = NODE_TYPE_CLASS_COPY_CONSTRUCTOR; }
+	{ 
+		m_NodeType = NODE_TYPE_CLASS_COPY_CONSTRUCTOR; 
+		if(m_ParentNode) m_NodeName =  m_ParentNode->getNodeName();
+		//Add correct type here
+	}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 };
 
@@ -275,7 +435,10 @@ class CppNodeClassDestructor : public CppNodeClassMethod
 {
 public:
 	CppNodeClassDestructor(CppNode* parent = NULL) : CppNodeClassMethod("", parent)
-	{ m_NodeType = NODE_TYPE_CLASS_DESTRUCTOR; }
+	{ 
+		m_NodeType = NODE_TYPE_CLASS_DESTRUCTOR; 
+		if(m_ParentNode) m_NodeName =  std::string("~") + m_ParentNode->getNodeName();
+	}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 };
 
@@ -283,7 +446,10 @@ class CppNodeClassOperatorEqual : public CppNodeClassMethod
 {
 public:
 	CppNodeClassOperatorEqual(CppNode* parent = NULL) : CppNodeClassMethod("operator =",parent) 
-	{ m_NodeType = NODE_TYPE_CLASS_OPERATOR_EQUAL; }
+	{ 
+		m_NodeType = NODE_TYPE_CLASS_OPERATOR_EQUAL; 
+		m_NodeName = "operator =";
+	}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 };
 
@@ -297,8 +463,18 @@ public:
 class CppNodeConversionOperator : public CppNode
 {
 public:
-	CppNodeConversionOperator(CppNode* parent = NULL) : CppNode(parent,NODE_TYPE_CLASS_CONVERSION_OPERATOR,"") {}
+	CppNodeConversionOperator(CppNode* parent = NULL) : CppNode(parent,NODE_TYPE_CLASS_CONVERSION_OPERATOR,"") 
+	{
+		m_NodeName = "operator";
+	}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
+
+	void		setConversionResultType(CppType* type) { m_ConvType = type; }
+	CppType*	getConversionResultType() { return m_ConvType; }	
+	const CppType* getConversionResultType() const { return m_ConvType; }
+
+protected:
+	CppType*	 m_ConvType;
 };
 
 #endif // CppNode_h__
