@@ -15,6 +15,7 @@ class CppNodeVariableDecl;
 class CppNodeNamespace;
 class CppNodeEnum;
 class CppNodeEnumValue;
+class CppNodeFunctionProto;
 class CppNodeFunction;
 class CppNodeFunctionTemplateSpecialization;
 class CppNodeGlobalVariable;
@@ -32,6 +33,7 @@ class CppNodeClassDestructor;
 class CppNodeClassOperatorEqual;
 class CppNodeClassMember;
 class CppNodeConversionOperator;
+class CppNodeClassMemberPointer;
 
 class CppNodeVisitor
 {
@@ -44,6 +46,7 @@ public:
 	virtual void	visit(CppNodeNamespace* n) {}
 	virtual	void	visit(CppNodeEnum* n){ }
 	virtual void    visit(CppNodeEnumValue* n) {}
+	virtual void	visit(CppNodeFunctionProto* n) {}
 	virtual void	visit(CppNodeFunction* n) {}
 	virtual void	visit(CppNodeFunctionTemplateSpecialization* n) {}
 	virtual void	visit(CppNodeGlobalVariable* n) {}
@@ -61,6 +64,7 @@ public:
 	virtual	void	visit(CppNodeClassOperatorEqual* n) {}
 	virtual	void	visit(CppNodeClassMember* n) {}
 	virtual void	visit(CppNodeConversionOperator* n) {}
+	virtual void	visit(CppNodeClassMemberPointer* n) {}
 };
 
 class CppNode
@@ -70,32 +74,34 @@ class CppNode
 public:
 	enum	NODE_TYPE
 	{
-		NODE_TYPE_UNKNOWN,
-		NODE_TYPE_SCOPE,
-		NODE_TYPE_VARIABLE_DECL,
-		NODE_TYPE_NAMESPACE,
-		NODE_TYPE_ENUM,
-		NODE_TYPE_ENUM_VALUE,
-		NODE_TYPE_FUNCTION,
-		NODE_TYPE_FUNCTION_TEMPLATE_SPECIALIZATION,
-		NODE_TYPE_GLOBAL_VARIABLE,
-		NODE_TYPE_GLOBAL_CONSTANT,
-		NODE_TYPE_TYPEDEF,
-		NODE_TYPE_CLASS,
-		NODE_TYPE_CLASS_TEMPLATE_SPECIALIZATION,
-		NODE_TYPE_ANONYMOUS_STRUCT,
-		NODE_TYPE_ANONYMOUS_UNION,
-		NODE_TYPE_UNION,
-		NODE_TYPE_CLASS_METHOD,
-		NODE_TYPE_CLASS_CONSTRUCTOR,
-		NODE_TYPE_CLASS_COPY_CONSTRUCTOR,
-		NODE_TYPE_CLASS_DESTRUCTOR,
-		NODE_TYPE_CLASS_OPERATOR_EQUAL,
-		NODE_TYPE_CLASS_CONVERSION_OPERATOR,
-		NODE_TYPE_CLASS_MEMBER
+		NODE_TYPE_UNKNOWN								=	0,
+		NODE_TYPE_SCOPE									=	1 << 1,
+		NODE_TYPE_VARIABLE_DECL							=	1 << 2,
+		NODE_TYPE_NAMESPACE								=	1 << 3,
+		NODE_TYPE_ENUM									=	1 << 4,
+		NODE_TYPE_ENUM_VALUE							=	1 << 5,
+		NODE_TYPE_FUNCTION_PROTO						=	1 << 6,
+		NODE_TYPE_FUNCTION								=	1 << 7,
+		NODE_TYPE_FUNCTION_TEMPLATE_SPECIALIZATION		=	1 << 8,
+		NODE_TYPE_GLOBAL_VARIABLE						=	1 << 9,
+		NODE_TYPE_GLOBAL_CONSTANT						=	1 << 10,
+		NODE_TYPE_TYPEDEF								=	1 << 11,
+		NODE_TYPE_CLASS									=	1 << 12,
+		NODE_TYPE_CLASS_TEMPLATE_SPECIALIZATION			=	1 << 13,
+		NODE_TYPE_ANONYMOUS_STRUCT						=	1 << 14,
+		NODE_TYPE_ANONYMOUS_UNION						=	1 << 15,
+		NODE_TYPE_UNION									=	1 << 16,
+		NODE_TYPE_CLASS_METHOD							=	1 << 17,
+		NODE_TYPE_CLASS_CONSTRUCTOR						=	1 << 18,
+		NODE_TYPE_CLASS_COPY_CONSTRUCTOR				=	1 << 19,		
+		NODE_TYPE_CLASS_DESTRUCTOR						=	1 << 20,
+		NODE_TYPE_CLASS_OPERATOR_EQUAL					=	1 << 21,
+		NODE_TYPE_CLASS_CONVERSION_OPERATOR				=	1 << 22,
+		NODE_TYPE_CLASS_MEMBER							=	1 << 23,
+		NODE_TYPE_CLASS_MEMBER_POINTER					=	1 << 24					
 	};
 
-	CppNode(CppNode* parent = NULL, NODE_TYPE type = NODE_TYPE_UNKNOWN, const std::string& name = "") 
+	CppNode(CppNode* parent = NULL, unsigned type = NODE_TYPE_UNKNOWN, const std::string& name = "") 
 		: m_NodeType(type), m_ParentNode(parent), m_NodeName(name) {}
 	virtual ~CppNode() {}
 	virtual void		acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
@@ -103,13 +109,13 @@ public:
 	std::string			getNodeName() const { return m_NodeName; }
 	void				setNodeName(const std::string& name) { m_NodeName = name; }
 
-	NODE_TYPE			getNodeType() const { return m_NodeType; }
+	unsigned			getNodeType() const { return m_NodeType; }
 	CppNode*			getParent() const { return m_ParentNode; }
 
 	std::string			getScopedName() const;
 protected:
 	std::string			m_NodeName;
-	NODE_TYPE			m_NodeType;
+	unsigned			m_NodeType;
 	CppNode*			m_ParentNode;
 };
 
@@ -118,7 +124,7 @@ typedef boost::shared_ptr<CppNode> CppNodePtr;
 class CppNodeScope : public CppNode
 {
 public:
-	CppNodeScope(CppNode* parent = NULL, NODE_TYPE type = NODE_TYPE_SCOPE, const std::string& name = "") : CppNode(parent,type,name) {}
+	CppNodeScope(CppNode* parent = NULL, NODE_TYPE type = NODE_TYPE_SCOPE, const std::string& name = "") : CppNode(parent,type | NODE_TYPE_SCOPE,name) {}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 	typedef std::vector< CppNodePtr > node_array_t;
 	typedef node_array_t::iterator node_array_iterator_t;
@@ -145,7 +151,7 @@ protected:
 class CppNodeVariableDecl : public CppNode
 {
 public:
-	CppNodeVariableDecl(CppNode* parent = NULL, NODE_TYPE type = NODE_TYPE_VARIABLE_DECL, const std::string& name = "") : CppNode(parent,type,name) {}
+	CppNodeVariableDecl(CppNode* parent = NULL, NODE_TYPE type = NODE_TYPE_VARIABLE_DECL, const std::string& name = "") : CppNode(parent,type | NODE_TYPE_VARIABLE_DECL,name) {}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 
 	void	setType(CppType* type) { m_Type = type; }
@@ -187,11 +193,17 @@ protected:
 	long long int		m_Value;
 };
 
-class CppNodeFunction : public CppNode
+class CppNodeFunctionProto : public CppNode
 {
 public:
-	CppNodeFunction(const std::string& name, CppNode* parent = NULL) 
-		: CppNode(parent,NODE_TYPE_FUNCTION, name) { m_ReturnValue = NULL; m_HasReturnValue = (m_ReturnValue != NULL); }
+	CppNodeFunctionProto(CppNode* parent = NULL,const std::string& name = "") 
+		: CppNode(parent,NODE_TYPE_FUNCTION_PROTO, name) 
+	{ 
+		m_ReturnValue = NULL; 
+		m_HasReturnValue = false;
+		m_IsOperator = false;
+		m_OpType = clang::OO_None;
+	}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 	typedef std::vector<CppType*>	argument_list_t;
 	typedef argument_list_t::iterator argument_list_iterator_t;
@@ -213,10 +225,31 @@ public:
 
 	bool							hasReturnValue() const { return m_HasReturnValue; }
  
+	bool							isOverloadedOperator() const { return m_IsOperator; }
+	void							setAsOverloadedOperator(bool op, clang::OverloadedOperatorKind kind = clang::OO_None) { m_IsOperator = op; m_OpType = kind;}
+	clang::OverloadedOperatorKind   getOverloadedOperatorKind() { return m_OpType; }
+
+	std::string						getProtoString() const; //Return string of form (void) or (const std::string const )
+
 protected:
-	argument_list_t				m_ArgumentList;
-	CppType*					m_ReturnValue;
-	bool						m_HasReturnValue;
+	argument_list_t					m_ArgumentList;
+	CppType*						m_ReturnValue;
+
+	bool							m_HasReturnValue;
+	bool							m_IsOperator;
+
+	clang::OverloadedOperatorKind	m_OpType;
+};
+
+class CppNodeFunction : public CppNodeFunctionProto
+{
+public:
+	CppNodeFunction(const std::string& name, CppNode* parent = NULL) 
+		: CppNodeFunctionProto(parent, name) 
+	{ 
+		m_NodeType = NODE_TYPE_FUNCTION;
+	}
+	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 };
 
 class CppNodeFunctionTemplateSpecialization : public CppNodeFunction
@@ -224,7 +257,7 @@ class CppNodeFunctionTemplateSpecialization : public CppNodeFunction
 public:
 	CppNodeFunctionTemplateSpecialization(const std::string& name, CppNode* parent = NULL) 
 		: CppNodeFunction(name, parent)
-	{m_NodeType = NODE_TYPE_FUNCTION_TEMPLATE_SPECIALIZATION; }
+	{ m_NodeType = NODE_TYPE_FUNCTION_TEMPLATE_SPECIALIZATION | NODE_TYPE_FUNCTION; }
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 
 	argument_list_iterator_t		targs_begin() { return m_TemplateArgumentList.begin(); }
@@ -252,7 +285,7 @@ class CppNodeGlobalConstant : public CppNodeGlobalVariable
 {
 public:
 	CppNodeGlobalConstant(const std::string& name, CppNode* parent = NULL) : CppNodeGlobalVariable (name,parent) 
-	{ m_NodeType = NODE_TYPE_GLOBAL_CONSTANT; m_HasValue = true;}
+	{ m_NodeType = NODE_TYPE_GLOBAL_CONSTANT | NODE_TYPE_GLOBAL_VARIABLE; m_HasValue = true;}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 };
 
@@ -340,7 +373,7 @@ class CppNodeClassTemplateSpecialization : public CppNodeClass
 {
 public:
 	CppNodeClassTemplateSpecialization(const std::string& name, CppNode* parent = NULL) 
-		: CppNodeClass(name,parent) { m_NodeType = NODE_TYPE_CLASS_TEMPLATE_SPECIALIZATION; }
+		: CppNodeClass(name,parent) { m_NodeType = NODE_TYPE_CLASS_TEMPLATE_SPECIALIZATION | NODE_TYPE_CLASS | NODE_TYPE_SCOPE; }
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 
 	typedef std::vector<CppType*>	template_argument_list_t;
@@ -364,7 +397,7 @@ class CppNodeAnonymousStruct : public CppNodeClass
 {
 public:
 	CppNodeAnonymousStruct(CppNode* parent = NULL) 
-		: CppNodeClass("",parent) { m_NodeType = NODE_TYPE_ANONYMOUS_STRUCT; }
+		: CppNodeClass("",parent) { m_NodeType |= NODE_TYPE_ANONYMOUS_STRUCT; }
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 };
 
@@ -380,7 +413,7 @@ class CppNodeAnonymousUnion : public CppNodeUnion
 public:
 	CppNodeAnonymousUnion(CppNode* parent = NULL) 
 		: CppNodeUnion("", parent) 
-	{ m_NodeType = NODE_TYPE_ANONYMOUS_UNION; }
+	{ m_NodeType |= NODE_TYPE_ANONYMOUS_UNION; }
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 };
 
@@ -390,7 +423,7 @@ public:
 	CppNodeClassMethod(const std::string& name, CppNode* parent = NULL) 
 		: CppNodeFunction(name,parent) 
 {
-	m_NodeType = NODE_TYPE_CLASS_METHOD; 
+	m_NodeType |= NODE_TYPE_CLASS_METHOD; 
 	m_AccessType = CppNodeClass::ACCESS_TYPE_PUBLIC;
 	m_IsConstant = false;
 }
@@ -402,9 +435,22 @@ public:
 	void						setMethodConstQualifier(bool c) { m_IsConstant = c; }
 	bool						getMethodConstQualifier() const { return m_IsConstant; }
 
+	bool						isVirtual() const { return m_IsVirtual; }
+	void						setVirtual(bool v) { m_IsVirtual = v; }
+
+	bool						isAbstract() const { return m_IsVirtual && m_IsAbstract; }
+	void						setAbstract(bool a) { m_IsAbstract = a; if(a) m_IsVirtual = true; }
+
+	bool						isStatic() const { return m_IsStatic; }
+	void						setStatic(bool s) { m_IsStatic = s; if(s) {m_IsVirtual = m_IsAbstract = m_IsConstant = false;} }
+
 protected:
 	CppNodeClass::ACCESS_TYPE	m_AccessType;
+
 	bool						m_IsConstant;
+	bool						m_IsVirtual;
+	bool						m_IsAbstract;
+	bool						m_IsStatic;
 };
 
 class CppNodeClassConstructor : public CppNodeClassMethod
@@ -413,10 +459,15 @@ public:
 	CppNodeClassConstructor(CppNode* parent = NULL) 
 		: CppNodeClassMethod("",parent) 
 	{ 
-		m_NodeType = NODE_TYPE_CLASS_CONSTRUCTOR; 
+		m_NodeType |= NODE_TYPE_CLASS_CONSTRUCTOR; 
 		if(m_ParentNode) m_NodeName =  m_ParentNode->getNodeName();
 	}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
+
+	bool			isExplicit() const { return m_IsExplicit; }
+	void			setExplicit(bool e) { m_IsExplicit = e; }
+protected:
+	bool			m_IsExplicit;
 };
 
 class CppNodeClassCopyConstructor : public CppNodeClassMethod
@@ -424,9 +475,8 @@ class CppNodeClassCopyConstructor : public CppNodeClassMethod
 public:
 	CppNodeClassCopyConstructor(CppNode* parent = NULL) : CppNodeClassMethod("",parent)
 	{ 
-		m_NodeType = NODE_TYPE_CLASS_COPY_CONSTRUCTOR; 
+		m_NodeType |= NODE_TYPE_CLASS_COPY_CONSTRUCTOR; 
 		if(m_ParentNode) m_NodeName =  m_ParentNode->getNodeName();
-		//Add correct type here
 	}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 };
@@ -436,7 +486,7 @@ class CppNodeClassDestructor : public CppNodeClassMethod
 public:
 	CppNodeClassDestructor(CppNode* parent = NULL) : CppNodeClassMethod("", parent)
 	{ 
-		m_NodeType = NODE_TYPE_CLASS_DESTRUCTOR; 
+		m_NodeType |= NODE_TYPE_CLASS_DESTRUCTOR; 
 		if(m_ParentNode) m_NodeName =  std::string("~") + m_ParentNode->getNodeName();
 	}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
@@ -447,8 +497,10 @@ class CppNodeClassOperatorEqual : public CppNodeClassMethod
 public:
 	CppNodeClassOperatorEqual(CppNode* parent = NULL) : CppNodeClassMethod("operator =",parent) 
 	{ 
-		m_NodeType = NODE_TYPE_CLASS_OPERATOR_EQUAL; 
+		m_NodeType |= NODE_TYPE_CLASS_OPERATOR_EQUAL; 
 		m_NodeName = "operator =";
+		m_IsOperator = true;
+		m_OpType   = clang::OO_Equal;
 	}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 };
@@ -458,6 +510,11 @@ class CppNodeClassMember : public CppNodeVariableDecl
 public:
 	CppNodeClassMember(const std::string& name,CppNode* parent = NULL) : CppNodeVariableDecl(parent,NODE_TYPE_CLASS_MEMBER,name) {}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
+
+	bool	isStatic() const { return m_IsStatic; }
+	bool	setStatic(bool s) { m_IsStatic = s; }
+protected:
+	bool	m_IsStatic;
 };
 
 class CppNodeConversionOperator : public CppNode
@@ -476,5 +533,24 @@ public:
 protected:
 	CppType*	 m_ConvType;
 };
+
+class CppNodeClassMemberPointer : public CppNode
+{
+public:
+	CppNodeClassMemberPointer(CppNode* parent = NULL) : CppNode(parent, NODE_TYPE_CLASS_MEMBER_POINTER,"") {}
+	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
+
+	void			setClass(CppNode* c) { m_Class = c; }
+	CppNode*		getClass() { return m_Class; }
+	const CppNode*	getClass() const { return m_Class; }
+
+	void			setPointeeType(CppType* c) { m_Type = c;}
+	CppType*		getPointeeType(){ return m_Type; }
+	const CppType*	getPointeeType() const { return m_Type; }
+protected:
+	CppNode*		m_Class;
+	CppType*		m_Type;
+};
+
 
 #endif // CppNode_h__

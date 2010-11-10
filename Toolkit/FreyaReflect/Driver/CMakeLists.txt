@@ -57,12 +57,12 @@ SOURCE_GROUP("Generated" FILES "${CMAKE_SOURCE_DIR}/Build/Generates/SVN_Revision
 
 ######## Find Clang Frontend #################
 
-find_package( ClangFrontend REQUIRED)
+find_package( ClangFrontend REQUIRED )
 include_directories( ${CLANGFRONTEND_INCLUDE_DIR} )
 message ( STATUS "ClangFrontend: \n\tinclude: ${CLANGFRONTEND_INCLUDE_DIR} \n\tlibs: ${CLANGFRONTEND_LIBRARIES}" )
 
 ######## Create exec and link ################
-find_package ( BoostSTLPort REQUIRED)
+find_package ( BoostSTLPort REQUIRED )
 include_directories( ${Boost_INCLUDE_DIRS} )
 include(GenerateProject)
 
