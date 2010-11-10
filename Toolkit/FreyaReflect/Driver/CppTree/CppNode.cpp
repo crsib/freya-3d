@@ -18,3 +18,21 @@ CppNodePtr  CppNodeScope::getChildByName(const std::string& name)
 	}
 	return CppNodePtr();
 }
+
+std::string CppNodeFunctionProto::getProtoString() const
+{
+	std::string outp = "(";
+	if(m_ArgumentList.size())
+	{
+		for(argument_list_const_iterator_t it = m_ArgumentList.begin(), end = m_ArgumentList.end(); it != end; ++it)
+		{
+			outp += (*it)->getQualifiedName();
+			if(*it != m_ArgumentList.back())
+				outp += ", ";
+		}
+		outp += ")";
+	}
+	else 
+		outp = "(void)";
+	return outp;
+}
