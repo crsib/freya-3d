@@ -16,10 +16,9 @@ endif (NOT CLANGFRONTEND_INCLUDE_DIR)
 
 # Look for the library dir
 if (NOT CLANGFRONTEND_LIBRARY_DIR)
-  find_library(LLVM_CORE LLVMSupport)
-  get_filename_component(CLANGFRONTEND_LIBRARY_DIR ${LLVM_CORE} PATH)
-  set(CLANGFRONTEND_LIBRARY_DIR ${LLVM_LIB_DIR} CACHE PATH "Path to LLVM Libraries")
-  set(LLVM_CORE "")
+  find_library( LLVM_TMP LLVMSupport )
+  get_filename_component(CLANGFRONTEND_LIBRARY_DIR ${LLVM_TMP} PATH)
+  #set(CLANGFRONTEND_LIBRARY_DIR ${LLVM_LIB_DIR} CACHE PATH "Path to LLVM Libraries")
 endif (NOT CLANGFRONTEND_LIBRARY_DIR)
 
 # Lib macro
@@ -63,6 +62,7 @@ macro(find_clang_library Name ReleaseLibName DebugLibName)
 	mark_as_advanced(CLANG_${Name}_DEBUG)
 endmacro(find_clang_library)
 
+find_llvm_library(CORE LLVMCore LLVMCore_d)
 find_llvm_library(SYSTEM LLVMSystem LLVMSystem_d)
 find_llvm_library(SUPPORT LLVMSupport LLVMSupport_d)
 find_llvm_library(MC LLVMMC LLVMMC_d)

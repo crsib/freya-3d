@@ -35,6 +35,9 @@ class CppNodeClassMember;
 class CppNodeConversionOperator;
 class CppNodeClassMemberPointer;
 
+class CppNodePointer;
+class CppNodeReference;
+
 class CppNodeVisitor
 {
 public: 
@@ -65,6 +68,8 @@ public:
 	virtual	void	visit(CppNodeClassMember* n) {}
 	virtual void	visit(CppNodeConversionOperator* n) {}
 	virtual void	visit(CppNodeClassMemberPointer* n) {}
+	virtual void	visit(CppNodePointer* n) {}
+	virtual void	visit(CppNodeReference* n) {}
 };
 
 class CppNode
@@ -98,7 +103,9 @@ public:
 		NODE_TYPE_CLASS_OPERATOR_EQUAL					=	1 << 21,
 		NODE_TYPE_CLASS_CONVERSION_OPERATOR				=	1 << 22,
 		NODE_TYPE_CLASS_MEMBER							=	1 << 23,
-		NODE_TYPE_CLASS_MEMBER_POINTER					=	1 << 24					
+		NODE_TYPE_CLASS_MEMBER_POINTER					=	1 << 24,
+		NODE_TYPE_POINTER								=	1 << 25,
+		NODE_TYPE_REFERNCE								=	1 << 26
 	};
 
 	CppNode(CppNode* parent = NULL, unsigned type = NODE_TYPE_UNKNOWN, const std::string& name = "") 
@@ -552,5 +559,44 @@ protected:
 	CppType*		m_Type;
 };
 
+class CppNodePointer : public CppNode
+{
+public:
+	CppNodePointer(CppNode* parent = NULL) : CppNode(parent, NODE_TYPE_POINTER,"") {}
+	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
+	
+	void			setPointeeType(CppType* pointee) { m_PointeeType = pointee; }
+	CppType*		getPointeeType() { return m_PointeeType; }
+	const CppType*	getPointeeType() const { return m_PointeeType; }
+
+protected:
+	CppType*		m_PointeeType;
+};
+
+class CppNodeReference : public CppNode
+{
+public:
+	enum	REFERENCE_TYPE
+	{
+		REFERENCE_TYPE_LVALUE,
+		REFERENCE_TYPE_RVALUE
+	};
+
+	CppNodeReference(CppNode* parent = NULL) : CppNode(parent, NODE_TYPE_POINTER,"") {}
+	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
+	
+
+	
+	void			setReferencedType(CppType* pointee) { m_ReferencedType = pointee; }
+	CppType*		getReferencedType() { return m_ReferencedType; }
+	const CppType*	getReferencedType() const { return m_ReferencedType; }
+
+	void			setReferenceType(REFERENCE_TYPE type) { m_RefernceType = type; }
+	REFERENCE_TYPE	getReferenceType() const { return m_RefernceType; }
+
+protected:
+	CppType*		m_ReferencedType;
+	REFERENCE_TYPE  m_RefernceType;
+};
 
 #endif // CppNode_h__
