@@ -10,13 +10,48 @@
 #include <string>
 #include <vector>
 
+#include "CppTree/ASTParser.h"
+
 //================================= cl options =========================================================
-llvm::cl::opt<std::string>	ReflectionOutputFile("refl-output",llvm::cl::desc("Specify output filename for reflection file. Output will be redirected to stdout, if not specified"), llvm::cl::value_desc("filename"));
-llvm::cl::opt<std::string>	LuaOutputFile("lua-output",llvm::cl::desc("Specify output filename for Lua bindings file. Output will be suppressed, if not specified"), llvm::cl::value_desc("filename"));
-llvm::cl::opt<std::string>  XMLOutputFile("xml-output",llvm::cl::desc("Specify output filename for XML de-serialization of AST part, used for reflection"),llvm::cl::value_desc("filename"));
+//Output flags
+llvm::cl::opt<std::string>	ReflectionOutputFile("refl-output",llvm::cl::desc("Specify output filename for reflection file. Use stdout to redirect output to standard output"), llvm::cl::value_desc("filename"));
+llvm::cl::opt<std::string>	LuaOutputFile("lua-output",llvm::cl::desc("Specify output filename for Lua bindings file.  Use stdout to redirect output to standard output"), llvm::cl::value_desc("filename"));
+llvm::cl::opt<std::string>  XMLOutputFile("xml-output",llvm::cl::desc("Specify output filename for XML deserialization of AST.  Use stdout to redirect output to standard output"),llvm::cl::value_desc("filename"));
+//Input flags
 llvm::cl::opt<bool>			RecursiveScan("R", llvm::cl::desc("Treat input as a directory and scan it recursively for header files. Supported extensions are (*.h;*.hpp;*.ipp;*.hxx)"));
+//Generators flag
+llvm::cl::opt<bool>			EmitInterfaceImplemetationsToLua("lua-emit-impl-classes",
+	llvm::cl::desc("Generate Lua bindings for classes, that just implement the interface. Will produce larger output."));
+llvm::cl::opt<std::string>	UseCustomAllocModel("use-custom-alloc",
+	llvm::cl::desc("Make the output classes to be ancestors of class, which overrides memory management operators. This base class must be reflected."),
+	llvm::cl::value_desc("qualified class name"));
+llvm::cl::opt<bool>			UseLuaJit("use-luajit",
+	llvm::cl::desc("Generate JIT controlling code. Requires LuaJIT 2.0 backend to work"));
+//Preprocessor flags
 llvm::cl::list<std::string> IncludeDirs("I",llvm::cl::desc("Global include directory"),llvm::cl::value_desc("directory"),llvm::cl::Prefix);
+llvm::cl::list<std::string> Definitions("D",llvm::cl::desc("Defines a preprocessor definition. Uses default GCC syntax"),llvm::cl::value_desc("directory"),llvm::cl::Prefix);
+llvm::cl::list<std::string> UnDefinitions("U",llvm::cl::desc("Undefines a preprocessor definition."),llvm::cl::value_desc("directory"),llvm::cl::Prefix);
+
+//Language flags
+extern llvm::cl::opt<bool>			UseC99;
+extern llvm::cl::opt<bool>			UseC;
+extern llvm::cl::opt<bool>			UseCpp0x;
+extern llvm::cl::opt<bool>			UseMSVS;
+extern llvm::cl::opt<bool>			UseRTTI;
+
+llvm::cl::opt<bool>					UseC99("c99",llvm::cl::desc("Treat input language as C99"));
+llvm::cl::opt<bool>					UseC("c",llvm::cl::desc("Treat input language as C"));
+llvm::cl::opt<bool>					UseCpp0x("c++0x",llvm::cl::desc("Enable some C++0x features. Use Clang documentation for the full list of supported features"));
+llvm::cl::opt<bool>					UseMSVS("msvc",llvm::cl::desc("Enable Microsoft's extensions"));
+llvm::cl::opt<bool>					UseRTTI("rtti",llvm::cl::desc("Enable RTTI support while parsing C++ input. Results in slow parsing"));
+
+
+extern llvm::cl::opt<bool>			BeVerbose;
+llvm::cl::opt<bool>					BeVerbose("v",llvm::cl::desc("Verbose mode"));
+
 llvm::cl::list<std::string> InputFilenames(llvm::cl::Positional, llvm::cl::desc("<Input files>"), llvm::cl::OneOrMore);
+
+
 //======================================================================================================
 
 void	print_version_string()
@@ -87,7 +122,7 @@ int main (int argc, char* argv[])
 	} //Just populate the list
 
 	//Now, start tree populating.
-
+	CppTreePtr	ast_tree = prepareASTTree(file_list,IncludeDirs,Definitions,UnDefinitions);
 	//system("pause");
 	return 0;
 }

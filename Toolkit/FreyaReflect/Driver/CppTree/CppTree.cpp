@@ -17,7 +17,7 @@ CppTree::~CppTree()
 
 
 
-CppNode* CppTree::findNode( const std::string& node ) const
+CppNode* CppTree::findNodeBySignature( const std::string& node ) const
 {
 	std::vector< std::string > tok_list;
 	boost::split(tok_list, node, boost::is_any_of("::"), boost::token_compress_on);
@@ -46,20 +46,42 @@ CppNode* CppTree::findNode( const std::string& node ) const
 		CppNode* tmp = static_cast<CppNodeScope*>(cur_node)->getChildByName(tok_list.back()).get();
 		if(tmp)
 			return tmp;
-	}
+		else //if(tmp)
+		{
+			std::string& search_name = tok_list.back();
+			for(CppNodeScope::node_array_const_iterator_t 
+				it = static_cast<CppNodeScope*>(cur_node)->begin(), end = static_cast<CppNodeScope*>(cur_node)->end();
+				it != end; ++it)
+			{
+				if((*it)->getNodeType() & CppNode::NODE_TYPE_FUNCTION)
+				{
+					if(search_name == (*it)->getNodeName() + static_cast<CppNodeFunction*>(it->get())->getProtoString())
+						return it->get();
+				}
+			}
+		}//if(tmp)
+	} //if(cur_node->getNodeType() & CppNode::NODE_TYPE_SCOPE)
 	//The easiest of cases left
 	//This is a class member
 	if(cur_node->getNodeType() & CppNode::NODE_TYPE_CLASS)
 	{
+		std::string& search_name = tok_list.back();
+
 		for(CppNodeClass::member_list_const_iterator_t 
 			it = static_cast<CppNodeClass*>(cur_node)->members_begin(),
 			end = static_cast<CppNodeClass*>(cur_node)->members_end();
 			it != end; ++it)
-				if ((*it)->getNodeName() == tok_list.back())
+				if ((*it)->getNodeName() == search_name)
 					return *it;
-	}
-	//This one is a function pointer.
-	
+
+			//Well, lets hope, that this is a class method
+		for(CppNodeClass::method_list_const_iterator_t 
+			it = static_cast<CppNodeClass*>(cur_node)->methods_begin(),
+			end = static_cast<CppNodeClass*>(cur_node)->methods_end();
+			it != end; ++it)
+				if ((*it)->getNodeName() + (*it)->getProtoString() == search_name)
+					return *it;
+	} //if(cur_node->getNodeType() & CppNode::NODE_TYPE_CLASS)
 
 	return NULL;
 }

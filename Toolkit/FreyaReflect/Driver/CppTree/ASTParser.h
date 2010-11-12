@@ -4,10 +4,11 @@
 #include <vector>
 #include <string>
 #include <boost/shared_ptr.hpp>
+#include "CppTree/CppTree.h"
+#include "CppTree/CppNode.h"
+#include "CppTree/CppType.h"
 
-class CppTree;
-
-boost::shared_ptr<CppTree>	prepareASTTree
+CppTreePtr	prepareASTTree
 	(
 		const std::vector<std::string>& header_paths, 
 		const std::vector<std::string>& search_paths,

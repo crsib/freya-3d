@@ -4,6 +4,8 @@
 #include <clang/ast/Type.h>
 #include <string>
 
+#include <boost/shared_ptr.hpp>
+
 class CppTree;
 class CppNode;
 
@@ -64,5 +66,7 @@ public:
 
 	std::string			getQualifiedName() const { return m_QualifiedName; }
 };
+
+typedef boost::shared_ptr<CppType> CppTypePtr;
 
 #endif // CppType_h__
