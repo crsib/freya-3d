@@ -7,12 +7,14 @@
 
 #ifndef ENGINECORE_H_
 #define ENGINECORE_H_
+
+#include "freya_config.h"
 #include <iostream>
 #include "core/EString.h"
 #include "internal.h"
-#include "config.h"
 #include "core/multithreading/ImplementationFactory.h"
 #include "core/memory/MemoryPools.h"
+
 namespace resources
 {
 class ResourceManager;
