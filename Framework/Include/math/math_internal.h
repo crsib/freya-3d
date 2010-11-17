@@ -148,8 +148,12 @@ __declspec(align(16)) union int4
 	__m128 xmm;
 	float  val[4];
 		};
+		
 #elif defined(__GNUC__)
-typedef int32_t __int32;
+#ifndef __int32
+#define __int32 int
+#endif
+
 union int4
 {
 	__m128i 	xmm;

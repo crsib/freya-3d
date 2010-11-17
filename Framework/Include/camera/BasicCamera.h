@@ -1,13 +1,12 @@
 #ifndef CBASICCAMERA_H_
 #define CBASICCAMERA_H_
 
-
+#include "core/EngineCore.h"
 #include "math/vector3d.hpp"
 #include "math/quaternion.hpp"
 #include "math/frustum.hpp"
 #include "math/plane.hpp"
 #include "renderer/RenderingAPIDriver.h"
-#include "core/EngineCore.h"
 #include "core/EngineSubsystem.h"
 
 #include "internal.h"
