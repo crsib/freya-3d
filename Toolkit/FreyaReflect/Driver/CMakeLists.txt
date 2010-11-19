@@ -35,6 +35,8 @@ DRIVER_SOURCES
 # main executable  #
 ####################
 ./driver.cpp  
+
+"${CMAKE_SOURCE_DIR}/Build/Generated/headers_package.cpp"
 )
 ######## Gen revision file ####################
 FIND_PACKAGE(Subversion)
@@ -52,8 +54,8 @@ include_directories( "${CMAKE_SOURCE_DIR}/Build/Generated" )
 include_directories( "./" )
 
 SET_SOURCE_FILES_PROPERTIES("${CMAKE_SOURCE_DIR}/Build/Generates/SVN_Revision.h" PROPERTIES GENERATED YES)
+SET_SOURCE_FILES_PROPERTIES("${CMAKE_SOURCE_DIR}/Build/Generated/headers_package.cpp" PROPERTIES GENERATED YES )
 SOURCE_GROUP("Generated" FILES "${CMAKE_SOURCE_DIR}/Build/Generates/SVN_Revision.h")
-
 
 ######## Find Clang Frontend #################
 
@@ -69,5 +71,20 @@ include(GenerateProject)
 #GenerateProject( ./ ${DRIVER_INCLUDES} )
 #GenerateProject( ./ ${DRIVER_SOURCES} )
 
+######## Header builder ######################
+# Build zlib
+add_subdirectory( "${CMAKE_SOURCE_DIR}/../../Framework/3party/zlib" ${CMAKE_SOURCE_DIR}/Build/Static)
+include_directories( "${CMAKE_SOURCE_DIR}/../../Framework/3party/zlib" )
+message ( STATUS "Configuring header packaging tool" )
+add_executable( build_headers HeaderBuilder/main.cpp )
+target_link_libraries ( build_headers ${GLOBAL_LINK_LIBRARIES} ${CLANGFRONTEND_LIBRARIES} zlib ) 
+######## Generate packed headers
+message ( STATUS "Configuring reflector" )
+file(GLOB_RECURSE CLANG_HEADERS "${CMAKE_SOURCE_DIR}/Driver/clang/*" )
+add_custom_command(OUTPUT "${CMAKE_SOURCE_DIR}/Build/Generated/headers_package.cpp"
+                    COMMAND build_headers "${CMAKE_SOURCE_DIR}/clang/include/" "${CMAKE_SOURCE_DIR}/Build/Generated/headers_package.cpp"
+                    DEPENDS  ${CLANG_HEADERS}
+                    VERBATIM)
+######## Freya reflect
 add_executable( freyareflect ${DRIVER_INCLUDES} ${DRIVER_SOURCES} )
-target_link_libraries( freyareflect ${GLOBAL_LINK_LIBRARIES} ${CLANGFRONTEND_LIBRARIES} )
+target_link_libraries( freyareflect ${GLOBAL_LINK_LIBRARIES} ${CLANGFRONTEND_LIBRARIES} zlib )

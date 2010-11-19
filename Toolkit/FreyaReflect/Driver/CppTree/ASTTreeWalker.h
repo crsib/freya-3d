@@ -2,6 +2,10 @@
 #define ASTTreeWalker_h__
 
 #include <iostream>
+#include <vector>
+#include <vector>
+#include <boost/unordered/unordered_set.hpp>
+#include <string>
 
 #include <llvm/Support/CommandLine.h>
 
@@ -44,14 +48,40 @@
 
 #include <clang/Parse/ParseAST.h>
 
-extern llvm::cl::opt<bool>			BeVerbose;
+#include "CppTree/CppTree.h"
 
+class CppNode;
+class CppType;
+
+
+extern llvm::cl::opt<bool>			BeVerbose;
+//This class is private by it nature. So I dont' see any reason for nice and incapsulated OO code here
 class ASTTreeWalker : public clang::ASTConsumer
 {
 public:
-	ASTTreeWalker() : clang::ASTConsumer() { }
+	ASTTreeWalker();
 	virtual ~ASTTreeWalker() { }
 	virtual void HandleTopLevelDecl( clang::DeclGroupRef decl);
+
+	//Public properties
+	clang::SourceManager*					source_manager;
+	boost::unordered_set<std::string>		locations_to_parse;
+
+	std::stack<CppNode*>					node_stack;
+
+	CppTreePtr								tree_ptr;
+
+protected:
+	CppNode*								m_RootNode;
+
+	bool			isDeclFromUserFile(clang::SourceLocation loc)
+	{
+		std::string filename ( source_manager->getBufferName(loc) );
+		return (locations_to_parse.find("") != locations_to_parse.end());
+	}
+
+	void			handleDeclGroup( clang::DeclGroupRef decl );
+
 };
 
 #endif // ASTTreeWalker_h__
