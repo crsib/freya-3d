@@ -10,6 +10,7 @@
 
 CppTreePtr	prepareASTTree
 	(
+		const std::string& include_path,
 		const std::vector<std::string>& header_paths, 
 		const std::vector<std::string>& search_paths,
 		const std::vector<std::string>& defs,

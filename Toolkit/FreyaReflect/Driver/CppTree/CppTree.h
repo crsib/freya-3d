@@ -21,7 +21,7 @@ class CppTree
 {
 protected:
 	CppNode*		m_RootNode;
-	typedef			std::map<std::string,  CppTypePtr> type_map_t;
+	typedef			std::map<std::string,  CppTypePtr> type_map_t;	
 	type_map_t		m_TypeMap;
 
 public:

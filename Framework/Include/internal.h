@@ -39,7 +39,7 @@ class IntToType
 	#ifndef _MSC_VER
 		#include <stdint.h>
 	#else
-		//#ifndef __FREYA_REFLECT
+		#ifndef FREYA_REFLECT
 			typedef signed __int32 int32_t;
 			typedef unsigned __int32 uint32_t;
 			typedef unsigned __int16 uint16_t;
@@ -48,7 +48,7 @@ class IntToType
 			typedef unsigned __int8 uint8_t;
 			#pragma warning(disable:4251)
 			#pragma warning(disable:4800)
-		//#endif
+		#endif
 	#endif
 #endif
 

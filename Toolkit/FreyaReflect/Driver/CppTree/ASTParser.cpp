@@ -12,6 +12,7 @@ extern llvm::cl::opt<bool>			UseRTTI;
 extern llvm::cl::opt<bool>			UseCpp0x;
 
 CppTreePtr prepareASTTree( 
+	const std::string& include_path,
 	const std::vector<std::string>& header_paths, 
 	const std::vector<std::string>& search_paths, 
 	const std::vector<std::string>& defs, 
@@ -51,7 +52,7 @@ CppTreePtr prepareASTTree(
 	headerSearchOptions.UseStandardIncludes = 1;
 	
 	headerSearchOptions.Verbose = BeVerbose;
-	headerSearchOptions.ResourceDir = "D:\\Devel\\Projects\\Freya3D\\Freya\\Toolkit\\FreyaReflect\\clang";
+	headerSearchOptions.ResourceDir = include_path;
 
 	for(size_t i = 0; i < search_paths.size(); ++i)
 		headerSearchOptions.AddPath(search_paths[i],clang::frontend::Angled,true,false,false);
@@ -104,7 +105,7 @@ CppTreePtr prepareASTTree(
 		preprocessorOptions,
 		headerSearchOptions,
 		frontendOptions);
-
+	 
 	//Create temp file
 	llvm::sys::Path tmp;
 	tmp.createTemporaryFileOnDisk();
@@ -120,6 +121,8 @@ CppTreePtr prepareASTTree(
 				"#include <stdint.h>\n"
 				"#define __int32 int\n"
 				"#define __int64 long long int\n"
+				"#define __w64 \n"
+				"#ifdef _MSC_VER\n#undef _MSC_VER\n#endif\n"
 			    "#endif\n";
 	}
 
@@ -165,6 +168,8 @@ CppTreePtr prepareASTTree(
 		0 /* size_reserve*/);
 	// clang::ASTConsumer astConsumer;
 	ASTTreeWalker astConsumer;
+	astConsumer.source_manager = &sourceManager;
+	astConsumer.locations_to_parse = boost::unordered_set<std::string>(header_paths.begin(), header_paths.end());
 
 	pTextDiagnosticPrinter->BeginSourceFile(languageOptions,&preprocessor);
 
@@ -179,5 +184,5 @@ CppTreePtr prepareASTTree(
 		astContext.PrintStats();	
 	}
 	tmp.eraseFromDisk();
-	return CppTreePtr();
+	return astConsumer.tree_ptr;
 }

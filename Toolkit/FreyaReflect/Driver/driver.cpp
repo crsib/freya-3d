@@ -10,7 +10,12 @@
 #include <string>
 #include <vector>
 
+#include <zlib.h>
+#include <cstdio>
+
 #include "CppTree/ASTParser.h"
+
+#include <memory>
 
 //================================= cl options =========================================================
 //Output flags
@@ -85,7 +90,91 @@ void	header_files_collector(std::vector<std::string>& path_list, const llvm::sys
 		}//for(auto it = paths.begin(), end = paths.end(); it != end; ++it)
 	} //if(current_dir.getDirectoryContents(paths,NULL))
 }
+//======================================================================================================
+//================== Write temporary headers ===========================================================
+llvm::sys::Path	write_down_temp_rutime()
+{
+	extern const size_t num_files;
+	extern const size_t uncompressed_size;
+	extern const size_t compressed_size;
 
+	extern unsigned char	compressed_headers[];
+
+	std::auto_ptr<unsigned char>	__managed_out_buffer (new unsigned char [uncompressed_size]);
+	unsigned char* buffer = __managed_out_buffer.get();
+//*
+	int ret;
+	z_stream strm;
+
+	strm.zalloc = Z_NULL;
+	strm.zfree = Z_NULL;
+	strm.opaque = Z_NULL;
+	ret = inflateInit(&strm); //Very aggressive compression
+	if (ret != Z_OK)
+	{
+		//delete buffer;
+		throw std::exception("zlib inflateInit failed");
+	}
+
+	strm.avail_in = compressed_size;
+	strm.avail_out = uncompressed_size;
+
+	strm.next_in = compressed_headers;
+	strm.next_out = buffer;
+
+	ret = inflate(&strm,Z_FINISH);
+
+	if(ret != Z_STREAM_END)
+	{
+		//delete buffer;
+		throw std::exception("Failed to decompress headers");
+	}
+
+	inflateEnd(&strm);
+	//*/
+	llvm::sys::Path	temp_path = llvm::sys::Path::GetTemporaryDirectory();
+	llvm::sys::Path path (temp_path.str() + "/include");
+	path.createDirectoryOnDisk(true);
+
+	size_t offset = 0;
+	for(size_t i = 0; i < num_files; ++i)
+	{
+		size_t filename_size = *reinterpret_cast<size_t*>(buffer + offset);
+		offset += sizeof(size_t);
+		size_t file_size =  *reinterpret_cast<size_t*>(buffer + offset);
+		offset += sizeof(size_t);
+		std::string filename (reinterpret_cast<char*>(buffer + offset), filename_size);
+		offset += filename_size;
+
+		llvm::sys::Path tmp(filename);
+		tmp.eraseComponent();
+
+		if(!tmp.empty() && (tmp.str() != filename))
+		{
+			llvm::sys::Path dir_path (path.str() + "/" + tmp.str());
+			//std::clog << "Checking " << dir_path.str() << " for temporary runtime storage" << std::endl;
+			if(!dir_path.exists())
+			{
+				dir_path.createDirectoryOnDisk(true);
+
+				if(BeVerbose)
+					std::clog << "Creating " << dir_path.str() << " for temporary runtime storage" << std::endl;
+			}
+		}
+
+		//Now, write da file down
+		
+		FILE* output_file = fopen((path.str() + "/" + filename).c_str(), "wb");
+		if(!output_file)
+			throw std::exception("Failed to create a file");
+		fwrite(buffer + offset,1,file_size,output_file);
+		fclose(output_file);
+
+		offset+= file_size;
+	}
+	
+	return temp_path;
+}
 //======================================================================================================
 
 int main (int argc, char* argv[])
@@ -120,9 +209,23 @@ int main (int argc, char* argv[])
 		for(auto it = InputFilenames.begin(), end = InputFilenames.end(); it != end; ++it)
 			file_list.push_back(*it);
 	} //Just populate the list
+	//Write down headers
+	try
+	{
+		llvm::sys::Path path = write_down_temp_rutime();
+		//Now, start tree populating.
+		CppTreePtr	ast_tree = prepareASTTree(path.str(),file_list,IncludeDirs,Definitions,UnDefinitions);
 
-	//Now, start tree populating.
-	CppTreePtr	ast_tree = prepareASTTree(file_list,IncludeDirs,Definitions,UnDefinitions);
+		path.eraseFromDisk(true);
+
+		//Run generators here
+	}
+	catch (std::exception& e)
+	{
+		std::cerr << e.what() << std::endl;
+		return 1;
+	}
+	
 	//system("pause");
 	return 0;
 }
