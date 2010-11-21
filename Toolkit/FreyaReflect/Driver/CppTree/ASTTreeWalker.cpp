@@ -18,8 +18,6 @@ void ASTTreeWalker::HandleTopLevelDecl( clang::DeclGroupRef d )
 	
 	for(DeclGroupRef::iterator it = d.begin(), end = d.end(); it != end; ++it)
 	{
-		//if(!isDeclFromUserFile((*it)->getLocation()))
-		//	continue;
 		Decl* decl = *it;
 		chooseVisitor(decl);
 
@@ -52,6 +50,21 @@ void ASTTreeWalker::chooseVisitor( Decl* decl )
 		break;
 	case Decl::Enum:
 		visitEnum(static_cast<EnumDecl*>(decl));
+		break;
+	case Decl::CXXRecord:
+	case Decl::Record:
+	case Decl::ClassTemplateSpecialization:
+		visitClass(static_cast<RecordDecl*>(decl));
+		break;
+	case Decl::Var:
+		visitVarDecl(static_cast<VarDecl*>(decl));
+		break;
+	case Decl::Typedef:
+		visitTypedef(static_cast<TypedefDecl*>(decl));
+		break;
+	case Decl::Function:
+		visitFunction(static_cast<FunctionDecl*>(decl));
+		break;
 	}
 }
 
@@ -71,7 +84,9 @@ void ASTTreeWalker::visitNamespaceDecl( clang::NamespaceDecl* decl )
 				nodeptr->setNodeFlag(CppNode::NODE_FLAG_USER_SUPPLIED);
 			node = nodeptr->cast_to<CppNodeNamespace>();
 			parent->addChild(nodeptr);
-			std::clog << "namespace " << node->getScopedName() << std::endl;
+			//Register search map for improved type resolving
+			m_DirectSearchMap[decl] = node;
+			m_ReverseSearchMap[node] = decl;
 		}
 		else if(found->getNodeType() & CppNode::NODE_TYPE_NAMESPACE)
 			node = static_cast<CppNodeNamespace*>(found.get());
@@ -118,7 +133,10 @@ void ASTTreeWalker::visitEnum( clang::EnumDecl* decl )
 
 			node = nodeptr->cast_to<CppNodeEnum>();
 			parent->addChild(nodeptr);
-			std::clog << "enum " << node->getScopedName() << std::endl;
+
+			//Register search map for improved type resolving
+			m_DirectSearchMap[decl] = node;
+			m_ReverseSearchMap[node] = decl;
 		}
 		else
 			node = static_cast<CppNodeEnum*>(found.get());
@@ -139,9 +157,86 @@ void ASTTreeWalker::visitEnum( clang::EnumDecl* decl )
 			if(user_supplied_enum)
 				eval->setNodeFlag(CppNode::NODE_FLAG_USER_SUPPLIED);
 
-			std::clog << "enum value " << eval->getScopedName() << " = " << eval->getValue() << std::endl;
+			//Register search map for improved type resolving
+			m_DirectSearchMap[val] = eval;
+			m_ReverseSearchMap[eval] = val;
 		}
 	}
 	else
 		throw std::exception("scope node is expected");
+}
+
+void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
+{
+	if(node_stack.top()->getNodeType() & CppNode::NODE_TYPE_SCOPE)
+	{
+		//Ok, this is much more complicated, than the previous cases
+		CppNodeScope*	parent = static_cast<CppNodeScope*>(node_stack.top());
+		CppNodeScope*	node = NULL; //We do not know, what real type is it.
+		CppNodePtr		found = parent->getChildByName( decl->getName() );
+		if( !found )
+		{
+			//Ok, we could not find a specific node
+			//First of all, we do not separate class and struct.
+			//Yet we do separate union, anonymous struct and class template specializtion
+			//Also, union is not derived from class, as it lacks support of methods
+			//Lets chose the correct base for the node
+			CppNodePtr	__managed_node;
+			if(decl->isClass() || decl->isStruct())
+			{
+				if(!decl->isAnonymousStructOrUnion())
+					__managed_node = CppNodePtr(new CppNodeClass(decl->getName(),parent));
+				else
+					__managed_node = CppNodePtr(new CppNodeAnonymousStruct(parent));
+			}
+			else //This is a union, as enums a handled separately
+			{
+				if(!decl->isAnonymousStructOrUnion())
+					__managed_node = CppNodePtr(new CppNodeUnion(decl->getName(),parent));
+				else
+					__managed_node = CppNodePtr(new CppNodeAnonymousUnion(parent));
+			}
+
+			node = __managed_node->cast_to<CppNodeScope>();
+			parent->addChild(__managed_node);
+
+			m_DirectSearchMap[decl] = node;
+			m_ReverseSearchMap[node] = decl;
+
+			if(isDeclFromUserFile(decl->getLocation()))
+				node->setNodeFlag(CppNode::NODE_FLAG_USER_SUPPLIED);
+
+			std::clog << "Class (union) " << node->getScopedName() << std::endl;
+		}
+		else
+			node = found->cast_to<CppNodeScope>();
+
+		//Push class on top
+		node_stack.push(node);
+
+		//Remove class from the stack
+		node_stack.pop();
+	}
+	else
+		throw std::exception("scope node is expected");
+}
+
+void ASTTreeWalker::resolveQualType( clang::QualType* type )
+{
+
+}
+
+void ASTTreeWalker::visitVarDecl( clang::VarDecl* decl )
+{
+
+}
+
+void ASTTreeWalker::visitTypedef( clang::TypedefDecl* decl )
+{
+
+}
+
+void ASTTreeWalker::visitFunction( clang::FunctionDecl* decl )
+{
+
 }
