@@ -2,6 +2,7 @@
 #include <llvm/Support/CommandLine.h>
 #include <CppTree/ASTTreeWalker.h>
 #include <llvm/System/Path.h>
+#include <clang/Basic/FileSystemOptions.h>
 #include <llvm/Support/raw_ostream.h>
 #include <ctime>
 //Language flags
@@ -28,23 +29,25 @@ CppTreePtr prepareASTTree(
 		new clang::TextDiagnosticPrinter(
 		llvm::outs(),
 		diagnosticOptions);
-	clang::Diagnostic diagnostic(pTextDiagnosticPrinter);
+	llvm::IntrusiveRefCntPtr<clang::DiagnosticIDs> ids(new clang::DiagnosticIDs);
+	clang::Diagnostic diagnostic(ids,pTextDiagnosticPrinter);
 
 	clang::LangOptions languageOptions;
 	languageOptions.CPlusPlus = !(UseC.getValue() || UseC99.getValue());
 	languageOptions.Microsoft = 0;//UseMSVS.getValue();
 	languageOptions.Bool = true;
-	languageOptions.CPlusPlus0x = 1;//UseCpp0x.getValue();
+	languageOptions.CPlusPlus0x = UseCpp0x.getValue();
 	languageOptions.Exceptions = languageOptions.CPlusPlus;
 	languageOptions.C99 = UseC99.getValue();
 	languageOptions.RTTI = languageOptions.CPlusPlus && UseRTTI.getValue();
 	languageOptions.GNUKeywords = 1;
 	//languageOptions.
 	//languageOptions.NoBuiltin = 1;
-
-	clang::SourceManager sourceManager(diagnostic);
 	clang::FileManager fileManager;
-	clang::HeaderSearch headerSearch(fileManager);
+	clang::FileSystemOptions filesystemOpts;
+	//filesystemOpts
+	clang::SourceManager sourceManager(diagnostic,fileManager,filesystemOpts);
+	clang::HeaderSearch headerSearch(fileManager,filesystemOpts);
 
 	clang::HeaderSearchOptions headerSearchOptions;
 	headerSearchOptions.UseBuiltinIncludes = 1;
@@ -102,6 +105,7 @@ CppTreePtr prepareASTTree(
 	preprocessor.getBuiltinInfo().InitializeBuiltins(preprocessor.getIdentifierTable(),preprocessor.getLangOptions().NoBuiltin);
 	clang::InitializePreprocessor(
 		preprocessor,
+		filesystemOpts,
 		preprocessorOptions,
 		headerSearchOptions,
 		frontendOptions);
@@ -126,6 +130,10 @@ CppTreePtr prepareASTTree(
 			    "#endif\n";
 	}
 
+	if(!UseCpp0x)
+		os <<	"#define nullptr (0)\n"
+				"#define _LIBCPP_HAS_NO_UNICODE_CHARS\n";
+
 	os <<	"#ifndef NULL\n"
 			"#define NULL 0\n"
 			"#endif\n"
@@ -148,7 +156,7 @@ CppTreePtr prepareASTTree(
 	os.flush();
 	os.close();
 
-	const clang::FileEntry *pFile = fileManager.getFile(tmp.c_str());
+	const clang::FileEntry *pFile = fileManager.getFile(tmp.c_str(),filesystemOpts);
 	sourceManager.createMainFileID(pFile);
 	//preprocessor.EnterMainSourceFile();
 

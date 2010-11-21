@@ -55,12 +55,20 @@ class CppType;
 
 
 extern llvm::cl::opt<bool>			BeVerbose;
-//This class is private by it nature. So I dont' see any reason for nice and incapsulated OO code here
+//This class is private by it nature. So I dont' see any reason for nice and encapsulated OO code here
 class ASTTreeWalker : public clang::ASTConsumer
 {
 public:
 	ASTTreeWalker();
 	virtual ~ASTTreeWalker() { }
+	//************************************
+	// Method:    HandleTopLevelDecl
+	// FullName:  ASTTreeWalker::HandleTopLevelDecl
+	// Access:    public 
+	// Returns:   void
+	// Qualifier:
+	// Parameter: clang::DeclGroupRef decl
+	//************************************
 	virtual void HandleTopLevelDecl( clang::DeclGroupRef decl);
 
 	//Public properties
@@ -74,13 +82,13 @@ public:
 protected:
 	CppNode*								m_RootNode;
 
-	bool			isDeclFromUserFile(clang::SourceLocation loc)
-	{
-		std::string filename ( source_manager->getBufferName(loc) );
-		return (locations_to_parse.find("") != locations_to_parse.end());
-	}
+	bool			isDeclFromUserFile(clang::SourceLocation loc);
 
-	void			handleDeclGroup( clang::DeclGroupRef decl );
+	void			visitNamespaceDecl(clang::NamespaceDecl* decl);
+	void			visitDeclContext(clang::DeclContext* decl);
+	void			visitEnum(clang::EnumDecl* decl);
+
+	void			chooseVisitor( clang::Decl* decl );
 
 };
 

@@ -108,8 +108,27 @@ public:
 		NODE_TYPE_REFERNCE								=	1 << 26
 	};
 
+	enum ACCESS_TYPE
+	{
+		ACCESS_TYPE_PUBLIC,
+		ACCESS_TYPE_PROTECTED
+		//Private members are ignored
+	};
+
+	enum NODE_FLAG
+	{
+		//This node is from user supplied header
+		NODE_FLAG_USER_SUPPLIED,
+		//This node is from external code and is used by user supplied code
+		NODE_FLAG_USED,
+		//This node is from external code and is not used by user supplied code
+		NODE_FLAG_EXTERNAL,
+		//This node is from deserialized AST code
+		NODE_FLAG_DESERIALIZED
+	};
+
 	CppNode(CppNode* parent = NULL, unsigned type = NODE_TYPE_UNKNOWN, const std::string& name = "") 
-		: m_NodeType(type), m_ParentNode(parent), m_NodeName(name) {}
+		: m_NodeType(type), m_ParentNode(parent), m_NodeName(name), m_AccessType(ACCESS_TYPE_PUBLIC),m_NodeFlag(NODE_FLAG_EXTERNAL) {}
 	virtual ~CppNode() {}
 	virtual void		acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 
@@ -120,10 +139,23 @@ public:
 	CppNode*			getParent() const { return m_ParentNode; }
 
 	std::string			getScopedName() const;
+
+	void				setAccessType(ACCESS_TYPE type) { m_AccessType = type; } 
+	ACCESS_TYPE			getAccessType() const { return m_AccessType; }
+
+	void				setNodeFlag(NODE_FLAG f) { m_NodeFlag = f; }
+	NODE_FLAG			getNodeFlag() const		 { return m_NodeFlag; }
+	
+	bool				needsReflection() { return (m_NodeFlag == NODE_FLAG_USED || m_NodeFlag == NODE_FLAG_USER_SUPPLIED); }
+
+	template<class T>
+	T*					cast_to() { return static_cast<T*>(this); }
 protected:
 	std::string			m_NodeName;
 	unsigned			m_NodeType;
 	CppNode*			m_ParentNode;
+	ACCESS_TYPE			m_AccessType;
+	NODE_FLAG			m_NodeFlag;
 };
 
 typedef boost::shared_ptr<CppNode> CppNodePtr;
@@ -317,12 +349,6 @@ public:
 	CppNodeClass(const std::string& name, CppNode* parent = NULL) : CppNodeScope(parent,NODE_TYPE_CLASS,name) {}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 
-	enum ACCESS_TYPE
-	{
-		ACCESS_TYPE_PUBLIC,
-		ACCESS_TYPE_PROTECTED
-		//Private members are ignored
-	};
 	//Only public bases are taken into account. private/protected bases have nothing to do with reflection data.
 	typedef std::pair<CppType*, bool> base_type_t;
 	typedef std::vector<base_type_t>			base_type_list_t;
@@ -431,13 +457,9 @@ public:
 		: CppNodeFunction(name,parent) 
 {
 	m_NodeType |= NODE_TYPE_CLASS_METHOD; 
-	m_AccessType = CppNodeClass::ACCESS_TYPE_PUBLIC;
 	m_IsConstant = false;
 }
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
-
-	void						setAccessType(CppNodeClass::ACCESS_TYPE type) { m_AccessType = type; } 
-	CppNodeClass::ACCESS_TYPE	getAccessType() const { return m_AccessType; }
 
 	void						setMethodConstQualifier(bool c) { m_IsConstant = c; }
 	bool						getMethodConstQualifier() const { return m_IsConstant; }
@@ -452,8 +474,6 @@ public:
 	void						setStatic(bool s) { m_IsStatic = s; if(s) {m_IsVirtual = m_IsAbstract = m_IsConstant = false;} }
 
 protected:
-	CppNodeClass::ACCESS_TYPE	m_AccessType;
-
 	bool						m_IsConstant;
 	bool						m_IsVirtual;
 	bool						m_IsAbstract;

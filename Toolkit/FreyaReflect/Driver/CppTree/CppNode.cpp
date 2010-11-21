@@ -2,8 +2,13 @@
 
 std::string CppNode::getScopedName() const
 {
-	if(m_ParentNode && m_ParentNode->getParent()) //The only one node has NULL parent - the outermost namespace
-		return m_ParentNode->m_NodeName + "::" + m_NodeName;
+	if(m_ParentNode && m_ParentNode->getParent()) //The only one node has NULL parent - the outermost namespace (::)
+	{
+		if(!m_NodeName.empty())
+			return m_ParentNode->getScopedName() + "::" + m_NodeName;
+		else
+			return m_ParentNode->getScopedName();
+	}
 	else 
 		return m_NodeName;
 }
