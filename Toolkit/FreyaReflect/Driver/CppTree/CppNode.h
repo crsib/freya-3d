@@ -105,7 +105,7 @@ public:
 		NODE_TYPE_CLASS_MEMBER							=	1 << 23,
 		NODE_TYPE_CLASS_MEMBER_POINTER					=	1 << 24,
 		NODE_TYPE_POINTER								=	1 << 25,
-		NODE_TYPE_REFERNCE								=	1 << 26
+		NODE_TYPE_REFERENCE								=	1 << 26
 	};
 
 	enum ACCESS_TYPE
@@ -602,7 +602,7 @@ public:
 		REFERENCE_TYPE_RVALUE
 	};
 
-	CppNodeReference(CppNode* parent = NULL) : CppNode(parent, NODE_TYPE_POINTER,"") {}
+	CppNodeReference(CppNode* parent = NULL) : CppNode(parent, NODE_TYPE_REFERENCE,"") {}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 	
 

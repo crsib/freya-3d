@@ -5,6 +5,7 @@
 #include <vector>
 #include <vector>
 #include <boost/unordered/unordered_set.hpp>
+#include <boost/unordered/unordered_map.hpp>
 #include <string>
 
 #include <llvm/Support/CommandLine.h>
@@ -80,13 +81,21 @@ public:
 	CppTreePtr								tree_ptr;
 
 protected:
-	CppNode*								m_RootNode;
+	CppNode*										m_RootNode;
+	boost::unordered_map<clang::Decl*,CppNode*>		m_DirectSearchMap;
+	boost::unordered_map<CppNode*,clang::Decl*>		m_ReverseSearchMap;
 
 	bool			isDeclFromUserFile(clang::SourceLocation loc);
 
 	void			visitNamespaceDecl(clang::NamespaceDecl* decl);
 	void			visitDeclContext(clang::DeclContext* decl);
 	void			visitEnum(clang::EnumDecl* decl);
+	void			visitClass(clang::RecordDecl* decl);
+
+	void			resolveQualType(clang::QualType* type);
+	void			visitVarDecl(clang::VarDecl* decl);
+	void			visitTypedef(clang::TypedefDecl* decl);
+	void			visitFunction(clang::FunctionDecl* decl);
 
 	void			chooseVisitor( clang::Decl* decl );
 
