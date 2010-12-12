@@ -92,7 +92,7 @@ protected:
 	void			visitEnum(clang::EnumDecl* decl);
 	void			visitClass(clang::RecordDecl* decl);
 
-	void			resolveQualType(clang::QualType* type);
+	CppTypePtr		resolveQualType(clang::QualType* type);
 	void			visitVarDecl(clang::VarDecl* decl);
 	void			visitTypedef(clang::TypedefDecl* decl);
 	void			visitFunction(clang::FunctionDecl* decl);

@@ -17,8 +17,19 @@ CppTree::~CppTree()
 
 
 
-CppNode* CppTree::findNodeBySignature( const std::string& node ) const
+CppNode* CppTree::findNodeBySignature( const std::string& _node ) const
 {
+	std::string node(_node);
+
+	if( node.find("class ") != std::string::npos )
+		node.erase(0,6);
+	else if( node.find("struct ") != std::string::npos)
+		node.erase(0,7);
+	else if( node.find("enum ") != std::string::npos )
+		node.erase(0,5);
+
+	boost::trim(node);
+
 	std::vector< std::string > tok_list;
 	boost::split(tok_list, node, boost::is_any_of("::"), boost::token_compress_on);
 	CppNode*  cur_node = m_RootNode;

@@ -7,6 +7,8 @@
 #include <set>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/unordered_map.hpp>
+
 #include "CppTree/CppType.h"
 
 class CppNode;
@@ -21,7 +23,7 @@ class CppTree
 {
 protected:
 	CppNode*		m_RootNode;
-	typedef			std::map<std::string,  CppTypePtr> type_map_t;	
+	typedef			boost::unordered_map<std::string,  CppTypePtr> type_map_t;	
 	type_map_t		m_TypeMap;
 
 public:
