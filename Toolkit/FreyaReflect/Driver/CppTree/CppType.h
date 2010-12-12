@@ -9,6 +9,8 @@
 class CppTree;
 class CppNode;
 
+class ASTTreeWalker;
+
 class CppType
 {
 public: 
@@ -20,24 +22,26 @@ public:
 
 			bool            is_reference                                    : 1;  // Bit 1
 			bool            is_pointer                                      : 1;  // Bit 2
-			bool            is_constant_pointer                             : 1;  // Bit 3
-			bool            is_constant_reference                           : 1;  // Bit 4
+			bool			is_array										: 1;  // Bit 3
+			bool            is_constant_pointer                             : 1;  // Bit 4
+			bool            is_constant_reference                           : 1;  // Bit 5
 
-			bool            is_builtin	                                    : 1;  // Bit 5
-			bool            is_template_specialization                      : 1;  // Bit 6
-			bool            is_user_type                                    : 1;  // Bit 7
-			bool            is_stl_type                                     : 1;  // Bit 8
+			bool            is_builtin	                                    : 1;  // Bit 6
+			bool            is_template_specialization                      : 1;  // Bit 7
+			bool            is_user_type                                    : 1;  // Bit 8
+			bool            is_stl_type                                     : 1;  // Bit 9
 
-			bool			is_volatile										: 1; // Bit 9
-			bool			is_volatile_pointer								: 1; // Bit 10
-			unsigned        __reserved__                                    : (32 - 11);
+			bool			is_volatile										: 1; // Bit 10
+			bool			is_volatile_pointer								: 1; // Bit 11
+			//unsigned        __reserved__                                    : (32 - 12);
 		};
 		unsigned		mask;
 	} cpp_type_header_t;
 private:
 	CppType() : m_ASTNode(NULL) { m_TypeHeader.mask = 0u; }
+public:
 	virtual ~CppType() {}
-
+private:
 	//Make it not copyable
 	CppType(const CppType&);
 	CppType& operator = (const CppType&);
@@ -65,6 +69,8 @@ public:
 	const CppNode*		getUserType() const { return m_ASTNode; }
 
 	std::string			getQualifiedName() const { return m_QualifiedName; }
+
+	friend class ASTTreeWalker;
 };
 
 typedef boost::shared_ptr<CppType> CppTypePtr;

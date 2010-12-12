@@ -156,6 +156,8 @@ protected:
 	CppNode*			m_ParentNode;
 	ACCESS_TYPE			m_AccessType;
 	NODE_FLAG			m_NodeFlag;
+
+friend class ASTTreeWalker;
 };
 
 typedef boost::shared_ptr<CppNode> CppNodePtr;
@@ -582,15 +584,20 @@ protected:
 class CppNodePointer : public CppNode
 {
 public:
-	CppNodePointer(CppNode* parent = NULL) : CppNode(parent, NODE_TYPE_POINTER,"") {}
+	CppNodePointer(CppNode* parent = NULL) : CppNode(parent, NODE_TYPE_POINTER,""), m_PointeeType(NULL), m_IsArray(false) {}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 	
 	void			setPointeeType(CppType* pointee) { m_PointeeType = pointee; }
 	CppType*		getPointeeType() { return m_PointeeType; }
 	const CppType*	getPointeeType() const { return m_PointeeType; }
 
+	void			setDeclaredAsArray(bool a) { m_IsArray = a; }
+	bool			isDeclaredAsArray() const  { return m_IsArray; }
 protected:
 	CppType*		m_PointeeType;
+	bool			m_IsArray;
+
+friend class ASTTreeWalker;
 };
 
 class CppNodeReference : public CppNode
@@ -617,6 +624,7 @@ public:
 protected:
 	CppType*		m_ReferencedType;
 	REFERENCE_TYPE  m_RefernceType;
+friend class ASTTreeWalker;
 };
 
 #endif // CppNode_h__
