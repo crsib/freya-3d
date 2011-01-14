@@ -58,6 +58,7 @@ void ASTTreeWalker::chooseVisitor( Decl* decl )
 	case Decl::Record:
 	case Decl::ClassTemplateSpecialization:
 		//if(static_cast<TagDecl*>(decl)->isDefinition())
+			std::cout << "Visiting class decl" << std::endl;
 			visitClass(static_cast<RecordDecl*>(decl));
 		break;
 	case Decl::Var:
@@ -187,7 +188,7 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 		CppNodeScope*	parent = static_cast<CppNodeScope*>(node_stack.top());
 		CppNodeScope*	node = NULL; //We do not know, what real type is it.
 		CppNodePtr		found = parent->getChildByName( decl->getName() );
-		if( !found )
+		if( !found || clang::ClassTemplateSpecializationDecl::classof(decl))
 		{
 			//Ok, we could not find a specific node
 			//First of all, we do not separate class and struct.
@@ -195,21 +196,36 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 			//Also, union is not derived from class, as it lacks support of methods
 			//Lets chose the correct base for the node
 			CppNodePtr	__managed_node;
-			if(decl->isClass() || decl->isStruct())
+			if(!clang::ClassTemplateSpecializationDecl::classof(decl))
 			{
-				if(!decl->isAnonymousStructOrUnion())
-					__managed_node = CppNodePtr(new CppNodeClass(decl->getName(),parent));
-				else
-					__managed_node = CppNodePtr(new CppNodeAnonymousStruct(parent));
+				if(decl->isClass() || decl->isStruct())
+				{
+					if(!decl->isAnonymousStructOrUnion())
+						__managed_node = CppNodePtr(new CppNodeClass(decl->getName(),parent));
+					else
+						__managed_node = CppNodePtr(new CppNodeAnonymousStruct(parent));
+				}
+				else //This is a union, as enums a handled separately
+				{
+					if(!decl->isAnonymousStructOrUnion())
+						__managed_node = CppNodePtr(new CppNodeUnion(decl->getName(),parent));
+					else
+						__managed_node = CppNodePtr(new CppNodeAnonymousUnion(parent));
+				}
 			}
-			else //This is a union, as enums a handled separately
+			else
 			{
-				if(!decl->isAnonymousStructOrUnion())
-					__managed_node = CppNodePtr(new CppNodeUnion(decl->getName(),parent));
-				else
-					__managed_node = CppNodePtr(new CppNodeAnonymousUnion(parent));
-			}
+				std::cout << "Template specialization" << std::endl;
+				//Read template types
+				ClassTemplateSpecializationDecl* tdecl = static_cast<ClassTemplateSpecializationDecl*>(decl);
+				const TemplateArgumentList& t_args = tdecl->getTemplateInstantiationArgs();
 
+				for(size_t ta_i = 0; ta_i < t_args.size(); ++ta_i)
+				{
+					const TemplateArgument& arg = t_args[ta_i];
+
+				}
+			}
 			node = __managed_node->cast_to<CppNodeScope>();
 			parent->addChild(__managed_node);
 
@@ -363,7 +379,21 @@ CppTypePtr ASTTreeWalker::resolveQualType( clang::QualType* type )
 		} // Non built in type
 		//Generate name
 		std::cout << "Finalizing type " << std::endl;
-		type_ptr->m_QualifiedName = type->getAsString();
+
+		if(!TypeOfType::classof(type_s) && !TypeOfExprType::classof(type_s) && !BuiltinType::classof(type_s) && !DecltypeType::classof(type_s))
+			type_ptr->m_QualifiedName = type->getAsString();
+		else
+		{
+			std::cout << "Desugaring typeof\n";
+			if(TypeOfType::classof(type_s))
+				type_ptr->m_QualifiedName = static_cast<TypeOfType*>(type_s)->desugar().getAsString();
+			else if(TypeOfExprType::classof(type_s))
+				type_ptr->m_QualifiedName = static_cast<TypeOfExprType*>(type_s)->desugar().getAsString();
+			else if(BuiltinType::classof(type_s))
+				type_ptr->m_QualifiedName = static_cast<BuiltinType*>(type_s)->desugar().getAsString();
+			else
+				type_ptr->m_QualifiedName = static_cast<DecltypeType*>(type_s)->desugar().getAsString();
+		}
 		type_ptr->m_TypeHeader.is_stl_type = (type_ptr->m_QualifiedName.find("std::") != std::string::npos);
 		type_ptr->m_TypeHeader.is_user_type = !(type_ptr->m_TypeHeader.is_builtin && type_ptr->m_TypeHeader.is_stl_type);
 

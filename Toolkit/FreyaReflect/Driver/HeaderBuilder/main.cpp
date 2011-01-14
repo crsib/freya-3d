@@ -1,7 +1,7 @@
 #include <fstream>
 #include <iostream>
 #include <iomanip>
-#include <llvm/System/Path.h>
+#include <llvm/Support/Path.h>
 #include <llvm/Support/Regex.h>
 
 #include <cstdio>
@@ -30,7 +30,7 @@ static size_t						uncompressed_size = 0;
 
 void	header_files_collector(const llvm::sys::Path& base_path,const llvm::sys::Path& current_dir)
 {
-	if(current_dir.getLast() == ".svn")//We do not want to parse .svn directories
+	if(llvm::sys::path::filename(current_dir.str())== ".svn")//We do not want to parse .svn directories
 		return;
 	std::set<llvm::sys::Path> paths;
 	std::string err;
