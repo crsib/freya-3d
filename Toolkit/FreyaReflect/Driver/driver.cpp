@@ -1,6 +1,6 @@
 #include "version.h"
 //LLVM includes
-#include <llvm/System/Path.h>
+#include <llvm/Support/Path.h>
 #include <llvm/Support/Regex.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Config/config.h>
@@ -69,7 +69,7 @@ void	print_version_string()
 
 void	header_files_collector(std::vector<std::string>& path_list, const llvm::sys::Path& current_dir)
 {
-	if(current_dir.getLast() == ".svn")//We do not want to parse .svn directories
+	if(llvm::sys::path::filename(current_dir.str()) == ".svn")//We do not want to parse .svn directories
 		return;
 	std::set<llvm::sys::Path> paths;
 	std::string err;

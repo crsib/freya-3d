@@ -11,7 +11,7 @@
 #include <llvm/Support/CommandLine.h>
 
 #include <llvm/Support/raw_ostream.h>
-#include <llvm/System/Host.h>
+#include <llvm/Support/Host.h>
 
 #include <clang/Frontend/DiagnosticOptions.h>
 #include <clang/Frontend/TextDiagnosticPrinter.h>

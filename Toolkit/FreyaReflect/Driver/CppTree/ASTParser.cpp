@@ -1,7 +1,7 @@
 #include "CppTree/ASTParser.h"
 #include <llvm/Support/CommandLine.h>
 #include <CppTree/ASTTreeWalker.h>
-#include <llvm/System/Path.h>
+#include <llvm/Support/Path.h>
 #include <clang/Basic/FileSystemOptions.h>
 #include <llvm/Support/raw_ostream.h>
 #include <ctime>
@@ -43,11 +43,12 @@ CppTreePtr prepareASTTree(
 	languageOptions.GNUKeywords = 1;
 	//languageOptions.
 	//languageOptions.NoBuiltin = 1;
-	clang::FileManager fileManager;
 	clang::FileSystemOptions filesystemOpts;
+	clang::FileManager fileManager(filesystemOpts);
+	
 	//filesystemOpts
-	clang::SourceManager sourceManager(diagnostic,fileManager,filesystemOpts);
-	clang::HeaderSearch headerSearch(fileManager,filesystemOpts);
+	clang::SourceManager sourceManager(diagnostic,fileManager);
+	clang::HeaderSearch headerSearch(fileManager);
 
 	clang::HeaderSearchOptions headerSearchOptions;
 	headerSearchOptions.UseBuiltinIncludes = 1;
@@ -102,10 +103,9 @@ CppTreePtr prepareASTTree(
 	frontendOptions.ShowTimers = BeVerbose.getValue();
 	frontendOptions.ShowStats = BeVerbose.getValue();
 
-	preprocessor.getBuiltinInfo().InitializeBuiltins(preprocessor.getIdentifierTable(),preprocessor.getLangOptions().NoBuiltin);
+	preprocessor.getBuiltinInfo().InitializeBuiltins(preprocessor.getIdentifierTable(),languageOptions);
 	clang::InitializePreprocessor(
 		preprocessor,
-		filesystemOpts,
 		preprocessorOptions,
 		headerSearchOptions,
 		frontendOptions);
@@ -156,7 +156,7 @@ CppTreePtr prepareASTTree(
 	os.flush();
 	os.close();
 
-	const clang::FileEntry *pFile = fileManager.getFile(tmp.c_str(),filesystemOpts);
+	const clang::FileEntry *pFile = fileManager.getFile(tmp.c_str());
 	sourceManager.createMainFileID(pFile);
 	//preprocessor.EnterMainSourceFile();
 
