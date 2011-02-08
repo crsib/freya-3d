@@ -264,7 +264,7 @@ CppTypePtr ASTTreeWalker::resolveQualType( clang::QualType* type )
 	{
 		type_ptr = CppTypePtr( new CppType() );
 
-		Type* type_s =  type->getTypePtr();
+		const Type* type_s =  type->getTypePtr();
 
 		if( type_s->isBuiltinType() || type_s->isVoidPointerType()) //void* is not really builtin. Yet no need to resove it further recursively
 		{
@@ -386,13 +386,13 @@ CppTypePtr ASTTreeWalker::resolveQualType( clang::QualType* type )
 		{
 			std::cout << "Desugaring typeof\n";
 			if(TypeOfType::classof(type_s))
-				type_ptr->m_QualifiedName = static_cast<TypeOfType*>(type_s)->desugar().getAsString();
+				type_ptr->m_QualifiedName = static_cast<const TypeOfType*>(type_s)->desugar().getAsString();
 			else if(TypeOfExprType::classof(type_s))
-				type_ptr->m_QualifiedName = static_cast<TypeOfExprType*>(type_s)->desugar().getAsString();
+				type_ptr->m_QualifiedName = static_cast<const TypeOfExprType*>(type_s)->desugar().getAsString();
 			else if(BuiltinType::classof(type_s))
-				type_ptr->m_QualifiedName = static_cast<BuiltinType*>(type_s)->desugar().getAsString();
+				type_ptr->m_QualifiedName = static_cast<const BuiltinType*>(type_s)->desugar().getAsString();
 			else
-				type_ptr->m_QualifiedName = static_cast<DecltypeType*>(type_s)->desugar().getAsString();
+				type_ptr->m_QualifiedName = static_cast<const DecltypeType*>(type_s)->desugar().getAsString();
 		}
 		type_ptr->m_TypeHeader.is_stl_type = (type_ptr->m_QualifiedName.find("std::") != std::string::npos);
 		type_ptr->m_TypeHeader.is_user_type = !(type_ptr->m_TypeHeader.is_builtin && type_ptr->m_TypeHeader.is_stl_type);
