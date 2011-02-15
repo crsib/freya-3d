@@ -1,11 +1,12 @@
 #include "CppTree/CppNode.h"
+#include <boost/lexical_cast.hpp>
 
 std::string CppNode::getScopedName() const
 {
 	if(m_ParentNode && m_ParentNode->getParent()) //The only one node has NULL parent - the outermost namespace (::)
 	{
 		if(!m_NodeName.empty())
-			return m_ParentNode->getScopedName() + "::" + m_NodeName;
+			return m_ParentNode->getScopedName() + "::" + getNodeName();
 		else
 			return m_ParentNode->getScopedName();
 	}
@@ -40,4 +41,32 @@ std::string CppNodeFunctionProto::getProtoString() const
 	else 
 		outp = "(void)";
 	return outp;
+}
+
+std::string CppNodeClassTemplateSpecialization::getNodeName() const
+{
+	std::string name = m_NodeName + "< ";
+	size_t last_i = m_TemplateArgumentList.size() - 1;
+
+	for(size_t i = 0; i < last_i; ++i)
+	{
+		name += m_TemplateArgumentList[i]->getStringValue() + ", ";
+	}
+	name += m_TemplateArgumentList[last_i]->getStringValue() + " >";
+
+	return name; 
+}
+
+std::string CppNodeClassTemplateSpecialization::TemplateArgument::getStringValue()
+{
+	switch (m_Type)
+	{
+	case CPP_TYPE:
+		return m_CppType->getQualifiedName();
+	case INTEGER:
+		return boost::lexical_cast<std::string>(m_IntValue);
+	case TEMPLATE:
+		return m_TemplateName;
+	}
+	return "unknown";
 }

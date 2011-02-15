@@ -132,7 +132,7 @@ public:
 	virtual ~CppNode() {}
 	virtual void		acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 
-	std::string			getNodeName() const { return m_NodeName; }
+	virtual std::string	getNodeName() const { return m_NodeName; }
 	void				setNodeName(const std::string& name) { m_NodeName = name; }
 
 	unsigned			getNodeType() const { return m_NodeType; }
@@ -195,14 +195,14 @@ public:
 	CppNodeVariableDecl(CppNode* parent = NULL, NODE_TYPE type = NODE_TYPE_VARIABLE_DECL, const std::string& name = "") : CppNode(parent,type | NODE_TYPE_VARIABLE_DECL,name) {}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 
-	void	setType(CppType* type) { m_Type = type; }
-	CppType* getCppType() { return m_Type; }
-	const CppType* getCppType() const { return m_Type; }
+	void	setType(CppTypePtr type) { m_Type = type; }
+	CppTypePtr getCppType() { return m_Type; }
+	const CppTypePtr getCppType() const { return m_Type; }
 
 	bool	hasValue() const { return m_HasValue; }
 	void	setHasValue(bool h) { m_HasValue = h; }
 protected:
-	CppType*	m_Type;
+	CppTypePtr	m_Type;
 	bool		m_HasValue;
 };
 
@@ -336,13 +336,13 @@ public:
 	CppNodeTypedef(const std::string& name, CppNode* parent = NULL) : CppNode(parent,NODE_TYPE_TYPEDEF,name) {}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 
-	void		setAliasType(CppType* type) { m_AliasType = type; }
+	void		setAliasType(CppTypePtr type) { m_AliasType = type; }
 
-	CppType*	getAliasType() { return m_AliasType; }
-	const CppType* getAliasType() const { return m_AliasType; }
+	CppTypePtr	getAliasType() { return m_AliasType; }
+	const CppTypePtr getAliasType() const { return m_AliasType; }
 
 protected:
-	CppType*	m_AliasType;
+	CppTypePtr	m_AliasType;
 };
 
 class CppNodeClass : public CppNodeScope
@@ -407,11 +407,43 @@ protected:
 class CppNodeClassTemplateSpecialization : public CppNodeClass
 {
 public:
+	class TemplateArgument
+	{
+		TemplateArgument();
+		TemplateArgument(const TemplateArgument&);
+		TemplateArgument& operator = (const TemplateArgument&);
+	public:
+		enum TYPE
+		{
+			CPP_TYPE,
+			INTEGER,
+			TEMPLATE
+		};
+
+		TemplateArgument(CppTypePtr node) : m_Type(CPP_TYPE), m_CppType(node),m_IntValue(0) {}
+		TemplateArgument(long long intv) : m_Type(INTEGER), m_IntValue(intv) {}
+		TemplateArgument(const std::string& name) : m_Type(TEMPLATE), m_TemplateName(name),m_IntValue(0) {}
+		std::string		getStringValue();
+
+		TYPE			getType() const { return m_Type; }
+		CppTypePtr		getCppNode() { return m_CppType; }
+		long long		getIntValue() const { return m_IntValue; }
+		const std::string& getTemplateName() const { return m_TemplateName; }
+	private:
+		TYPE	m_Type;
+		
+		CppTypePtr	m_CppType;
+		long long	m_IntValue;
+		std::string		m_TemplateName;
+	};
+
+	typedef boost::shared_ptr<TemplateArgument> TemplateArgumentPtr;
+	
 	CppNodeClassTemplateSpecialization(const std::string& name, CppNode* parent = NULL) 
 		: CppNodeClass(name,parent) { m_NodeType = NODE_TYPE_CLASS_TEMPLATE_SPECIALIZATION | NODE_TYPE_CLASS | NODE_TYPE_SCOPE; }
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 
-	typedef std::vector<CppType*>	template_argument_list_t;
+	typedef std::vector<TemplateArgumentPtr>	template_argument_list_t;
 	typedef template_argument_list_t::iterator template_argument_list_iterator_t;
 	typedef template_argument_list_t::const_iterator template_argument_list_const_iterator_t;
 	
@@ -422,8 +454,9 @@ public:
 	template_argument_list_const_iterator_t	targs_end() const { return m_TemplateArgumentList.end(); }
 
 	size_t							templateArgumentsCount() const { return m_TemplateArgumentList.size(); }
-	void							addTemplateArgument(CppType* decl) { m_TemplateArgumentList.push_back(decl); }
+	void							addTemplateArgument(const TemplateArgumentPtr& decl) { m_TemplateArgumentList.push_back(decl); }
 
+	virtual std::string				getNodeName() const;
 protected:
 	template_argument_list_t		m_TemplateArgumentList;
 };
@@ -541,7 +574,7 @@ public:
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 
 	bool	isStatic() const { return m_IsStatic; }
-	bool	setStatic(bool s) { m_IsStatic = s; }
+	void	setStatic(bool s) { m_IsStatic = s; }
 protected:
 	bool	m_IsStatic;
 };
