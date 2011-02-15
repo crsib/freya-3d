@@ -62,7 +62,8 @@ void ASTTreeWalker::chooseVisitor( Decl* decl )
 			visitClass(static_cast<RecordDecl*>(decl));
 		break;
 	case Decl::Var:
-		visitVarDecl(static_cast<VarDecl*>(decl));
+	case Decl::Field:
+		visitVarDecl(static_cast<DeclaratorDecl*>(decl));
 		break;
 	case Decl::Typedef:
 		visitTypedef(static_cast<TypedefDecl*>(decl));
@@ -75,6 +76,7 @@ void ASTTreeWalker::chooseVisitor( Decl* decl )
 		break;
 	default:
 		std::cout << "Unknown decl type " << decl->getDeclKindName() << std::endl;
+		break;
 	}
 }
 
@@ -182,6 +184,9 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 	if(spec == AS_private)//We do ignore private access.
 		return;
 
+	if(clang::ClassTemplateDecl::classof(decl))
+		return;
+
 	if(node_stack.top()->getNodeType() & CppNode::NODE_TYPE_SCOPE)
 	{
 		//Ok, this is much more complicated, than the previous cases
@@ -192,7 +197,7 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 		{
 			//Ok, we could not find a specific node
 			//First of all, we do not separate class and struct.
-			//Yet we do separate union, anonymous struct and class template specializtion
+			//Yet we do separate union, anonymous struct and class template specialization
 			//Also, union is not derived from class, as it lacks support of methods
 			//Lets chose the correct base for the node
 			CppNodePtr	__managed_node;
@@ -213,19 +218,70 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 						__managed_node = CppNodePtr(new CppNodeAnonymousUnion(parent));
 				}
 			}
-			else
+			else //Template specialization
 			{
 				std::cout << "Template specialization" << std::endl;
 				//Read template types
 				ClassTemplateSpecializationDecl* tdecl = static_cast<ClassTemplateSpecializationDecl*>(decl);
 				const TemplateArgumentList& t_args = tdecl->getTemplateInstantiationArgs();
-
+				boost::shared_ptr<CppNodeClassTemplateSpecialization> m_TemplateSpecialization(new CppNodeClassTemplateSpecialization(decl->getName(),parent));
 				for(size_t ta_i = 0; ta_i < t_args.size(); ++ta_i)
 				{
 					const TemplateArgument& arg = t_args[ta_i];
+					//Get the argument type
+					TemplateArgument::ArgKind arg_kind = arg.getKind();
+					
+					switch(arg_kind)
+					{
+					case TemplateArgument::ArgKind::Type:
+					{
+						std::clog << "Resolving type: " << std::endl;
+						CppTypePtr	qual_type = resolveQualType(&arg.getAsType());
+						assert(qual_type);
+						std::clog << "Type resolved to: " << qual_type->getQualifiedName() << std::endl;
 
+						CppNodeClassTemplateSpecialization::TemplateArgumentPtr a_ptr(new CppNodeClassTemplateSpecialization::TemplateArgument(qual_type));
+
+						m_TemplateSpecialization->addTemplateArgument(a_ptr);
+					}
+						break;
+					case TemplateArgument::ArgKind::Integral:
+						m_TemplateSpecialization->addTemplateArgument(CppNodeClassTemplateSpecialization::TemplateArgumentPtr(
+							new CppNodeClassTemplateSpecialization::TemplateArgument(*arg.getAsIntegral()->getRawData())));
+						break;
+					case TemplateArgument::ArgKind::Template:
+						m_TemplateSpecialization->addTemplateArgument(CppNodeClassTemplateSpecialization::TemplateArgumentPtr(
+							new CppNodeClassTemplateSpecialization::TemplateArgument(arg.getAsTemplate().getAsTemplateDecl()->getName())));
+						break;
+					default:
+						{
+							static const char* __names[] = {
+								"NULL",
+								"TYPE",
+								"DECLARATION",
+								"INTEGRAL",
+								"TEMPLATE",
+								"TEMPLATEEXPANSION",
+								"EXPRESSION",
+								"PACK"
+							};
+							throw std::exception( (std::string("Unresolved parameter type: ") + __names[arg_kind]).c_str() );
+						}
+					}
+				} // Loop through template arguments
+				//Check, if current specialization exists
+
+				std::clog << "Found template specialization " << m_TemplateSpecialization->getScopedName() << std::endl;
+				if(!m_TemplateSpecializationLookup[m_TemplateSpecialization->getScopedName()])
+				{
+					std::clog << "Adding template specialization " << m_TemplateSpecialization->getScopedName() << std::endl;
+					m_TemplateSpecializationLookup[m_TemplateSpecialization->getScopedName()] = m_TemplateSpecialization;
+					__managed_node = m_TemplateSpecialization;
 				}
-			}
+				else
+					__managed_node = m_TemplateSpecializationLookup[m_TemplateSpecialization->getScopedName()];
+			} //end node deduction
+
 			node = __managed_node->cast_to<CppNodeScope>();
 			parent->addChild(__managed_node);
 
@@ -241,10 +297,13 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 			node = found->cast_to<CppNodeScope>();
 
 		//Push class on top
-		node_stack.push(node);
-
-		//Remove class from the stack
-		node_stack.pop();
+		//if(decl->isDefinition())
+		{
+			node_stack.push(node);
+			visitDeclContext(static_cast<DeclContext*>(decl));
+			//Remove class from the stack
+			node_stack.pop();
+		}
 	}
 	else
 		throw std::exception("scope node is expected");
@@ -403,11 +462,68 @@ CppTypePtr ASTTreeWalker::resolveQualType( clang::QualType* type )
 	return type_ptr;
 }
 
-void ASTTreeWalker::visitVarDecl( clang::VarDecl* decl )
+void ASTTreeWalker::visitVarDecl( clang::DeclaratorDecl* decl )
 {
 	AccessSpecifier spec = decl->getAccess();
 	if(spec == AS_private)//We do ignore private access.
 		return;
+
+	if(node_stack.top()->getNodeType() & CppNode::NODE_TYPE_SCOPE)
+	{
+		//Ok, this is much more complicated, than the previous cases
+		CppNodeScope*	parent = static_cast<CppNodeScope*>(node_stack.top());
+		CppNodeVariableDecl*	node = NULL; //We do not know, what real type is it.
+		CppNodePtr		found = parent->getChildByName( decl->getName() );
+		if( !found )
+		{
+
+			CppNodePtr nodeptr;
+			//= CppNodePtr(new CppNodeTypedef(decl->getName(),node_stack.top()));
+			if(decl->isCXXClassMember())
+			{
+				nodeptr = CppNodePtr( new CppNodeClassMember(decl->getName(), parent) );
+				if(clang::VarDecl::classof(decl) && static_cast<clang::VarDecl*>(decl)->isStaticDataMember())
+					nodeptr->cast_to<CppNodeClassMember>()->setStatic( true );
+				else
+					nodeptr->cast_to<CppNodeClassMember>()->setStatic( false );
+				nodeptr->cast_to<CppNodeClassMember>()->setHasValue( false );
+			}
+			else if(clang::VarDecl::classof(decl) && static_cast<clang::VarDecl*>(decl)->hasGlobalStorage())
+			{
+				if(decl->getType().isConstQualified())
+				{
+					nodeptr = CppNodePtr( new CppNodeGlobalConstant(decl->getName(), parent) );
+					nodeptr->cast_to<CppNodeGlobalConstant>()->setHasValue(true);
+				}
+				else
+				{
+					nodeptr = CppNodePtr( new CppNodeGlobalVariable(decl->getName(), parent) );
+					nodeptr->cast_to<CppNodeGlobalVariable>()->setHasValue(false);
+				}
+			}
+			else
+			{
+				nodeptr = CppNodePtr( new CppNodeVariableDecl(parent, CppNode::NODE_TYPE_VARIABLE_DECL, decl->getName()) );
+				nodeptr->cast_to<CppNodeVariableDecl>()->setHasValue(false);
+			}
+			if(isDeclFromUserFile(decl->getLocation()))
+				nodeptr->setNodeFlag(CppNode::NODE_FLAG_USER_SUPPLIED);
+			node = nodeptr->cast_to<CppNodeVariableDecl>();
+			parent->addChild(nodeptr);
+			if(decl->getAccess() == AS_protected)
+				node->setAccessType(CppNode::ACCESS_TYPE_PROTECTED);
+
+			node->setType(resolveQualType(&decl->getType()));
+
+			std::clog << "var " << node->getScopedName() << " -> " << node->getCppType()->getQualifiedName() << std::endl;
+
+			//Register search map for improved type resolving
+			m_DirectSearchMap[decl] = node;
+			m_ReverseSearchMap[node] = decl;
+		}
+	}
+	else
+		throw std::exception("scope node is expected");
 }
 
 void ASTTreeWalker::visitTypedef( clang::TypedefDecl* decl )
@@ -432,7 +548,7 @@ void ASTTreeWalker::visitTypedef( clang::TypedefDecl* decl )
 			if(decl->getAccess() == AS_protected)
 				node->setAccessType(CppNode::ACCESS_TYPE_PROTECTED);
 
-			node->setAliasType(resolveQualType(&decl->getUnderlyingType()).get());
+			node->setAliasType(resolveQualType(&decl->getUnderlyingType()));
 
 			std::clog << "typedef " << node->getScopedName() << " -> " << node->getAliasType()->getQualifiedName() << std::endl;
 

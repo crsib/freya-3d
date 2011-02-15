@@ -51,7 +51,11 @@
 
 #include "CppTree/CppTree.h"
 
+#include <boost/shared_ptr.hpp>
+
 class CppNode;
+typedef boost::shared_ptr<CppNode> CppNodePtr;
+
 class CppType;
 
 
@@ -84,6 +88,7 @@ protected:
 	CppNode*										m_RootNode;
 	boost::unordered_map<clang::Decl*,CppNode*>		m_DirectSearchMap;
 	boost::unordered_map<CppNode*,clang::Decl*>		m_ReverseSearchMap;
+	boost::unordered_map<std::string, CppNodePtr>		m_TemplateSpecializationLookup;
 
 	bool			isDeclFromUserFile(clang::SourceLocation loc);
 
@@ -93,7 +98,7 @@ protected:
 	void			visitClass(clang::RecordDecl* decl);
 
 	CppTypePtr		resolveQualType(clang::QualType* type);
-	void			visitVarDecl(clang::VarDecl* decl);
+	void			visitVarDecl(clang::DeclaratorDecl* decl);
 	void			visitTypedef(clang::TypedefDecl* decl);
 	void			visitFunction(clang::FunctionDecl* decl);
 

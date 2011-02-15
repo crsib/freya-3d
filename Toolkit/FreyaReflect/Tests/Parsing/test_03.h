@@ -1,13 +1,24 @@
 #ifndef TEST_03_H_
 #define TEST_03_H_
 
+#include <string>
+
 typedef int* pint;
 typedef int** ppint;
 typedef pint* pppint;
 
+std::string s;
+
 namespace a
 {
-	class tmp {};
+	class tmp
+	{
+	public:
+		float avar;
+		
+	protected:
+		static int asvar;
+	};
 	
 	typedef tmp * const TmpPtr;
 	
@@ -25,7 +36,19 @@ namespace a
 	class templated_test {};
 	
 	typedef templated_test<int> IntTemplate;
-	
+
+	//"Difficult" template test
+	template<
+		class T, 
+		template<class> class S,
+		int
+	>
+	class SomeStrangeTemplate {};
+
+	typedef SomeStrangeTemplate<float*, templated_test, 2 + 2> SomeStrangeTemplateSpecialization;
+
+	typedef templated_test<IntTemplate> DualTemplate;
+
 	class ClassMemberTest
 	{
 	public: 
@@ -33,10 +56,14 @@ namespace a
 	};
 	
 	typedef void (ClassMemberTest::* SomePtrToClassMethod)(void) ;
+
+	//typedef std::basic_string<int> string32;
 }
 
 typedef a::TmpPtr localTmpPtr;
 
 typedef void* pvoid;
+
+const int var = 0;
 
 #endif
