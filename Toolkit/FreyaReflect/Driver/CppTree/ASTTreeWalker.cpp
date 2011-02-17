@@ -6,12 +6,15 @@
 
 #include "clang/ast/DeclTemplate.h"
 
+#include <boost/algorithm/string.hpp>
+
 using namespace clang;
 
 ASTTreeWalker::ASTTreeWalker() : clang::ASTConsumer(), tree_ptr(new CppTree) 
 { 
 	m_RootNode  = tree_ptr->getRootNode();
 	node_stack.push(m_RootNode);
+	decl_stack.push(NULL);
 }
 
 
@@ -57,8 +60,6 @@ void ASTTreeWalker::chooseVisitor( Decl* decl )
 	case Decl::CXXRecord:
 	case Decl::Record:
 	case Decl::ClassTemplateSpecialization:
-		//if(static_cast<TagDecl*>(decl)->isDefinition())
-			std::cout << "Visiting class decl" << std::endl;
 			visitClass(static_cast<RecordDecl*>(decl));
 		break;
 	case Decl::Var:
@@ -69,13 +70,17 @@ void ASTTreeWalker::chooseVisitor( Decl* decl )
 		visitTypedef(static_cast<TypedefDecl*>(decl));
 		break;
 	case Decl::Function:
+	case Decl::CXXConstructor:
+	case Decl::CXXDestructor:
+	//case Decl::CXXConversion:
+	case Decl::CXXMethod:
 		visitFunction(static_cast<FunctionDecl*>(decl));
 		break;
 	case Decl::ClassTemplate:
 		visitClass(static_cast<ClassTemplateDecl*>(decl)->getTemplatedDecl());
 		break;
 	default:
-		std::cout << "Unknown decl type " << decl->getDeclKindName() << std::endl;
+		std::clog << "Unknown decl type " << decl->getDeclKindName() << std::endl;
 		break;
 	}
 }
@@ -106,10 +111,10 @@ void ASTTreeWalker::visitNamespaceDecl( clang::NamespaceDecl* decl )
 			throw std::exception("node with the same name of different type found");
 
 		node_stack.push(node);
-
+		decl_stack.push(decl);
 		//Iterate through children
 		visitDeclContext(static_cast<DeclContext*>(decl));
-
+		decl_stack.pop();
 		node_stack.pop();
 	}
 	else
@@ -119,14 +124,13 @@ void ASTTreeWalker::visitNamespaceDecl( clang::NamespaceDecl* decl )
 void ASTTreeWalker::visitDeclContext( clang::DeclContext* decl )
 {
 	for(DeclContext::decl_iterator it = decl->decls_begin(), end = decl->decls_end(); it != end; ++it)
-		chooseVisitor(*it);
+		if(*it != decl_stack.top() && !it->isImplicit())
+			chooseVisitor(*it);
 }
 
 void ASTTreeWalker::visitEnum( clang::EnumDecl* decl )
 {
 	AccessSpecifier spec = decl->getAccess();
-	if(spec == AS_private)//We do ignore private access.
-		return;
 
 	if(node_stack.top()->getNodeType() & CppNode::NODE_TYPE_SCOPE)
 	{
@@ -153,8 +157,10 @@ void ASTTreeWalker::visitEnum( clang::EnumDecl* decl )
 		else
 			node = static_cast<CppNodeEnum*>(found.get());
 
-		if(decl->getAccess() == AS_protected)
+		if(spec == AS_protected)
 			node->setAccessType(CppNode::ACCESS_TYPE_PROTECTED);
+		else if(spec == AS_private)
+			node->setAccessType(CppNode::ACCESS_TYPE_PRIVATE);
 
 		//Add children
 		for(EnumDecl::enumerator_iterator it = decl->enumerator_begin(), end = decl->enumerator_end();
@@ -181,8 +187,6 @@ void ASTTreeWalker::visitEnum( clang::EnumDecl* decl )
 void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 {
 	AccessSpecifier spec = decl->getAccess();
-	if(spec == AS_private)//We do ignore private access.
-		return;
 
 	if(clang::ClassTemplateDecl::classof(decl))
 		return;
@@ -220,7 +224,6 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 			}
 			else //Template specialization
 			{
-				std::cout << "Template specialization" << std::endl;
 				//Read template types
 				ClassTemplateSpecializationDecl* tdecl = static_cast<ClassTemplateSpecializationDecl*>(decl);
 				const TemplateArgumentList& t_args = tdecl->getTemplateInstantiationArgs();
@@ -235,11 +238,9 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 					{
 					case TemplateArgument::ArgKind::Type:
 					{
-						std::clog << "Resolving type: " << std::endl;
 						CppTypePtr	qual_type = resolveQualType(&arg.getAsType());
 						assert(qual_type);
-						std::clog << "Type resolved to: " << qual_type->getQualifiedName() << std::endl;
-
+						
 						CppNodeClassTemplateSpecialization::TemplateArgumentPtr a_ptr(new CppNodeClassTemplateSpecialization::TemplateArgument(qual_type));
 
 						m_TemplateSpecialization->addTemplateArgument(a_ptr);
@@ -271,10 +272,8 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 				} // Loop through template arguments
 				//Check, if current specialization exists
 
-				std::clog << "Found template specialization " << m_TemplateSpecialization->getScopedName() << std::endl;
 				if(!m_TemplateSpecializationLookup[m_TemplateSpecialization->getScopedName()])
 				{
-					std::clog << "Adding template specialization " << m_TemplateSpecialization->getScopedName() << std::endl;
 					m_TemplateSpecializationLookup[m_TemplateSpecialization->getScopedName()] = m_TemplateSpecialization;
 					__managed_node = m_TemplateSpecialization;
 				}
@@ -297,11 +296,13 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 			node = found->cast_to<CppNodeScope>();
 
 		//Push class on top
-		//if(decl->isDefinition())
+		if(decl->isDefinition())
 		{
 			node_stack.push(node);
+			decl_stack.push(decl);
 			visitDeclContext(static_cast<DeclContext*>(decl));
 			//Remove class from the stack
+			decl_stack.pop();
 			node_stack.pop();
 		}
 	}
@@ -313,8 +314,6 @@ CppTypePtr ASTTreeWalker::resolveQualType( clang::QualType* type )
 {
 	//Ok, we would just hope, that we will catch up,
 	//how the asString method works
-
-	std::cout << "\nresolveQualType entry: " << type->getAsString() << std::endl;
 
 	//Ok, check the map
 	CppTypePtr type_ptr = tree_ptr->getTypeBySignature(type->getAsString());
@@ -329,7 +328,6 @@ CppTypePtr ASTTreeWalker::resolveQualType( clang::QualType* type )
 		{
 			type_ptr->m_TypeHeader.is_builtin = true;
 			type_ptr->m_ASTNode = NULL;
-			std::cout << "Atomic type" << std::endl;
 		}
 		else 
 		{
@@ -339,18 +337,10 @@ CppTypePtr ASTTreeWalker::resolveQualType( clang::QualType* type )
 				CppTypePtr base_type = resolveQualType(&type_s->getPointeeType());
 
 				//Try to get the Pointer/Reference from tree
-
-				std::cout << "Resolving unqualified type node " << type->getLocalUnqualifiedType().getAsString() << std::endl;
-
 				CppNode* ptr = tree_ptr->findNodeBySignature(type->getLocalUnqualifiedType().getAsString());
 
 				if(ptr)
-					std::cout << "Node already declared! " << std::endl;
-				
-				if(ptr)
-				{
 					type_ptr->m_ASTNode = ptr;
-				}
 				else 
 				{
 					if(node_stack.top()->getNodeType() & CppNode::NODE_TYPE_SCOPE)
@@ -389,8 +379,6 @@ CppTypePtr ASTTreeWalker::resolveQualType( clang::QualType* type )
 
 						node->m_NodeName = node_name;
 						parent->addChild(node);
-						
-						std::cout << "Created wrap node " << node->getScopedName() << std::endl;
 
 						type_ptr->m_ASTNode = node.get();
 					}
@@ -408,27 +396,21 @@ CppTypePtr ASTTreeWalker::resolveQualType( clang::QualType* type )
 				}
 				else if(type_s->isRecordType() || type_s->isEnumeralType())
 				{
-					std::cout << "class type" << std::endl;
 					//Get underlying type
 					CppNode* underl = m_DirectSearchMap[type_s->getAs<TagType>()->getDecl()];
 					if(underl)
-					{
 						type_ptr->m_ASTNode = underl;
-						std::cout << "Resolved to " << underl->getScopedName() << std::endl; 
-					}
 					else 
 					{	
-						std::cout << "Trying to resolve the type! " << std::endl;
 						chooseVisitor(type_s->getAs<TagType>()->getDecl());
 
 						underl = m_DirectSearchMap[type_s->getAs<TagType>()->getDecl()];
 						if(underl)
-						{
 							type_ptr->m_ASTNode = underl;
-							std::cout << "Resolved to " << underl->getScopedName() << std::endl; 
-						}
 						else 
-							throw std::exception("Underlying type failed to resolve");
+						{
+							throw std::exception((std::string("Underlying type failed to resolve: ") + type->getAsString()).c_str());
+						}
 					}
 
 					type_ptr->m_TypeHeader.is_constant = type->isLocalConstQualified();
@@ -437,13 +419,11 @@ CppTypePtr ASTTreeWalker::resolveQualType( clang::QualType* type )
 			} // General case
 		} // Non built in type
 		//Generate name
-		std::cout << "Finalizing type " << std::endl;
 
 		if(!TypeOfType::classof(type_s) && !TypeOfExprType::classof(type_s) && !BuiltinType::classof(type_s) && !DecltypeType::classof(type_s))
 			type_ptr->m_QualifiedName = type->getAsString();
 		else
 		{
-			std::cout << "Desugaring typeof\n";
 			if(TypeOfType::classof(type_s))
 				type_ptr->m_QualifiedName = static_cast<const TypeOfType*>(type_s)->desugar().getAsString();
 			else if(TypeOfExprType::classof(type_s))
@@ -456,17 +436,19 @@ CppTypePtr ASTTreeWalker::resolveQualType( clang::QualType* type )
 		type_ptr->m_TypeHeader.is_stl_type = (type_ptr->m_QualifiedName.find("std::") != std::string::npos);
 		type_ptr->m_TypeHeader.is_user_type = !(type_ptr->m_TypeHeader.is_builtin && type_ptr->m_TypeHeader.is_stl_type);
 
+		boost::erase_range(type_ptr->m_QualifiedName, boost::find_first(type_ptr->m_QualifiedName,std::string("class ") ) );
+		boost::erase_range(type_ptr->m_QualifiedName, boost::find_first(type_ptr->m_QualifiedName,std::string("struct ") ) );
+		boost::erase_range(type_ptr->m_QualifiedName, boost::find_first(type_ptr->m_QualifiedName,std::string("union ") ) );
+		boost::erase_range(type_ptr->m_QualifiedName, boost::find_first(type_ptr->m_QualifiedName,std::string("enum ") ) );
+
 		tree_ptr->addType(type_ptr);
 	} // Type not found
-	std::cout << "End of type resolving\n" << std::endl; 
 	return type_ptr;
 }
 
 void ASTTreeWalker::visitVarDecl( clang::DeclaratorDecl* decl )
 {
 	AccessSpecifier spec = decl->getAccess();
-	if(spec == AS_private)//We do ignore private access.
-		return;
 
 	if(node_stack.top()->getNodeType() & CppNode::NODE_TYPE_SCOPE)
 	{
@@ -510,8 +492,10 @@ void ASTTreeWalker::visitVarDecl( clang::DeclaratorDecl* decl )
 				nodeptr->setNodeFlag(CppNode::NODE_FLAG_USER_SUPPLIED);
 			node = nodeptr->cast_to<CppNodeVariableDecl>();
 			parent->addChild(nodeptr);
-			if(decl->getAccess() == AS_protected)
+			if(spec == AS_protected)
 				node->setAccessType(CppNode::ACCESS_TYPE_PROTECTED);
+			else if(spec == AS_private)
+				node->setAccessType(CppNode::ACCESS_TYPE_PRIVATE);
 
 			node->setType(resolveQualType(&decl->getType()));
 
@@ -529,8 +513,6 @@ void ASTTreeWalker::visitVarDecl( clang::DeclaratorDecl* decl )
 void ASTTreeWalker::visitTypedef( clang::TypedefDecl* decl )
 {
 	AccessSpecifier spec = decl->getAccess();
-	if(spec == AS_private)//We do ignore private access.
-		return;
 
 	if(node_stack.top()->getNodeType() & CppNode::NODE_TYPE_SCOPE)
 	{
@@ -545,8 +527,10 @@ void ASTTreeWalker::visitTypedef( clang::TypedefDecl* decl )
 				nodeptr->setNodeFlag(CppNode::NODE_FLAG_USER_SUPPLIED);
 			node = nodeptr->cast_to<CppNodeTypedef>();
 			parent->addChild(nodeptr);
-			if(decl->getAccess() == AS_protected)
+			if(spec == AS_protected)
 				node->setAccessType(CppNode::ACCESS_TYPE_PROTECTED);
+			else if(spec == AS_private)
+				node->setAccessType(CppNode::ACCESS_TYPE_PRIVATE);
 
 			node->setAliasType(resolveQualType(&decl->getUnderlyingType()));
 
@@ -564,6 +548,76 @@ void ASTTreeWalker::visitTypedef( clang::TypedefDecl* decl )
 void ASTTreeWalker::visitFunction( clang::FunctionDecl* decl )
 {
 	AccessSpecifier spec = decl->getAccess();
-	if(spec == AS_private)//We do ignore private access.
-		return;
+
+	if(decl->getBuiltinID())
+		return; //Nope, there is definetly no interst in built ins
+	//Ok, this case is rather difficult. Lets start from the very basic check
+	CppNode* parent = node_stack.top();
+	if(parent->getNodeType() & CppNode::NODE_TYPE_SCOPE)
+	{
+		std::string func_name = decl->getNameAsString();
+		//Now, we should first generate real prototype of the function
+		typedef std::auto_ptr<CppNodeFunctionProto> func_node_ptr_t;
+		func_node_ptr_t func_node;
+
+		//First of all, choose the correct type based on declaration kind
+		switch(decl->getKind())
+		{
+		case Decl::Function:
+			func_node = func_node_ptr_t ( new CppNodeFunction( func_name, parent ) );
+			break;
+		case Decl::CXXMethod:
+			if(!static_cast<CXXMethodDecl*>(decl)->isCopyAssignmentOperator())
+				func_node = func_node_ptr_t ( new CppNodeClassMethod( func_name, parent ) );
+			else
+				func_node = func_node_ptr_t ( new CppNodeClassOperatorEqual( parent ) );
+			break;
+		case Decl::CXXConstructor:
+			if(!static_cast<CXXConstructorDecl*>(decl)->isCopyOrMoveConstructor())
+				func_node = func_node_ptr_t ( new CppNodeClassConstructor( parent ) );
+			else
+				func_node = func_node_ptr_t ( new CppNodeClassCopyConstructor( parent ) );
+			break;
+		case Decl::CXXDestructor:
+			func_node = func_node_ptr_t ( new CppNodeClassDestructor( parent ) );
+			break;
+		}
+
+		//Set the return value
+		QualType& ret_qtype = decl->getType()->getAs<FunctionType>()->getResultType();
+		if( !ret_qtype->isVoidType() )
+			func_node->setReturnValue( resolveQualType( &ret_qtype ) );
+
+		//Parse arguments
+		for(FunctionDecl::param_iterator it = decl->param_begin(), end = decl->param_end(); it != end; ++it)
+		{
+			ParmVarDecl* parm = *it;
+
+			func_node->addArgument(CppNodeFunctionProto::argument_ptr_t ( 
+				new CppNodeFunctionProto::argument_t(resolveQualType(&parm->getType()), parm->hasDefaultArg())));
+		}
+
+		if( decl->isOverloadedOperator() )
+			func_node->setAsOverloadedOperator(true, decl->getOverloadedOperator() );
+		if( decl->getKind() != Decl::Function )
+		{
+			CXXMethodDecl* mdecl = static_cast<CXXMethodDecl*>(decl);
+			CppNodeClassMethod* m = static_cast<CppNodeClassMethod*>(func_node.get());
+
+			m->setAbstract( mdecl->isPure() );
+			m->setVirtual( mdecl->isVirtual() );
+			m->setStatic ( mdecl->isStatic() );
+			m->setMethodConstQualifier( mdecl->isStatic() ? false : (mdecl->getTypeQualifiers() & Qualifiers::Const ) );
+
+			if( decl->getKind() == Decl::CXXConstructor )
+				static_cast<CppNodeClassConstructor*>(m)->setExplicit( !mdecl->isImplicit() );
+		}
+
+		//Test
+		std::cout 
+			<< "func: " << (func_node->hasReturnValue() ? func_node->getReturnValue()->getQualifiedName() : "void") << " " 
+			<< func_node->getScopedName() << std::endl;
+	}
+	else //if(node_stack.top()->getNodeType() & CppNode::NODE_TYPE_SCOPE)
+		throw std::exception("scope node is expected");
 }

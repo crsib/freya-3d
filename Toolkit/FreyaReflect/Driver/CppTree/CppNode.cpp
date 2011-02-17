@@ -32,7 +32,7 @@ std::string CppNodeFunctionProto::getProtoString() const
 	{
 		for(argument_list_const_iterator_t it = m_ArgumentList.begin(), end = m_ArgumentList.end(); it != end; ++it)
 		{
-			outp += (*it)->getQualifiedName();
+			outp += (*it)->Type->getQualifiedName();
 			if(*it != m_ArgumentList.back())
 				outp += ", ";
 		}
@@ -40,7 +40,13 @@ std::string CppNodeFunctionProto::getProtoString() const
 	}
 	else 
 		outp = "(void)";
+
 	return outp;
+}
+
+std::string CppNodeFunctionProto::getNodeName() const
+{
+	return m_NodeName + getProtoString();
 }
 
 std::string CppNodeClassTemplateSpecialization::getNodeName() const
@@ -69,4 +75,9 @@ std::string CppNodeClassTemplateSpecialization::TemplateArgument::getStringValue
 		return m_TemplateName;
 	}
 	return "unknown";
+}
+
+std::string CppNodeClassMethod::getNodeName() const
+{
+	return m_NodeName + getProtoString() + (m_IsConstant ? " const" : "");
 }

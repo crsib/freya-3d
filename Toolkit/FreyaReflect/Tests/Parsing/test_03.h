@@ -1,13 +1,9 @@
 #ifndef TEST_03_H_
 #define TEST_03_H_
 
-#include <string>
-
 typedef int* pint;
 typedef int** ppint;
 typedef pint* pppint;
-
-std::string s;
 
 namespace a
 {
@@ -52,7 +48,9 @@ namespace a
 	class ClassMemberTest
 	{
 	public: 
-		void foo();
+		void foo(float a, int b, int c);
+		ClassMemberTest& operator+= ( const ClassMemberTest& _o );
+		ClassMemberTest  operator + ( const ClassMemberTest& _o ) const; 
 	};
 	
 	typedef void (ClassMemberTest::* SomePtrToClassMethod)(void) ;
