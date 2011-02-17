@@ -111,8 +111,9 @@ public:
 	enum ACCESS_TYPE
 	{
 		ACCESS_TYPE_PUBLIC,
-		ACCESS_TYPE_PROTECTED
-		//Private members are ignored
+		ACCESS_TYPE_PROTECTED,
+		//Private members are ignored, yet we need to parse them due to STL impl
+		ACCESS_TYPE_PRIVATE
 	};
 
 	enum NODE_FLAG
@@ -240,13 +241,22 @@ public:
 	CppNodeFunctionProto(CppNode* parent = NULL,const std::string& name = "") 
 		: CppNode(parent,NODE_TYPE_FUNCTION_PROTO, name) 
 	{ 
-		m_ReturnValue = NULL; 
 		m_HasReturnValue = false;
 		m_IsOperator = false;
 		m_OpType = clang::OO_None;
 	}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
-	typedef std::vector<CppType*>	argument_list_t;
+
+	struct argument_t
+	{
+		CppTypePtr		Type;
+		bool			HasDefaultVal;
+		argument_t( const CppTypePtr& _type, bool _has_def ) : Type(_type), HasDefaultVal(_has_def) {};
+	};
+
+	typedef boost::shared_ptr<argument_t> argument_ptr_t;
+
+	typedef std::vector<argument_ptr_t>	argument_list_t;
 	typedef argument_list_t::iterator argument_list_iterator_t;
 	typedef argument_list_t::const_iterator argument_list_const_iterator_t;
 
@@ -258,11 +268,11 @@ public:
 
 	size_t							argumentsCount() const { return m_ArgumentList.size(); }
 
-	void							addArgument(CppType* arg) { m_ArgumentList.push_back(arg); }
+	void							addArgument(const argument_ptr_t& arg) { m_ArgumentList.push_back(arg); }
 
-	void							setReturnValue(CppType* type = NULL) { m_ReturnValue = type; m_HasReturnValue = (m_ReturnValue != NULL); }
-	CppType*						getReturnValue() { return m_ReturnValue; }
-	const CppType*					getReturnValue() const { return m_ReturnValue; }
+	void							setReturnValue(const CppTypePtr& type) { m_ReturnValue = type; m_HasReturnValue = (m_ReturnValue); }
+	CppTypePtr						getReturnValue() { return m_ReturnValue; }
+	const CppTypePtr				getReturnValue() const { return m_ReturnValue; }
 
 	bool							hasReturnValue() const { return m_HasReturnValue; }
  
@@ -272,9 +282,10 @@ public:
 
 	std::string						getProtoString() const; //Return string of form (void) or (const std::string const )
 
+	std::string						getNodeName() const;
 protected:
 	argument_list_t					m_ArgumentList;
-	CppType*						m_ReturnValue;
+	CppTypePtr						m_ReturnValue;
 
 	bool							m_HasReturnValue;
 	bool							m_IsOperator;
@@ -288,7 +299,7 @@ public:
 	CppNodeFunction(const std::string& name, CppNode* parent = NULL) 
 		: CppNodeFunctionProto(parent, name) 
 	{ 
-		m_NodeType = NODE_TYPE_FUNCTION;
+		m_NodeType |= NODE_TYPE_FUNCTION;
 	}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 };
@@ -298,7 +309,7 @@ class CppNodeFunctionTemplateSpecialization : public CppNodeFunction
 public:
 	CppNodeFunctionTemplateSpecialization(const std::string& name, CppNode* parent = NULL) 
 		: CppNodeFunction(name, parent)
-	{ m_NodeType = NODE_TYPE_FUNCTION_TEMPLATE_SPECIALIZATION | NODE_TYPE_FUNCTION; }
+	{ m_NodeType |= NODE_TYPE_FUNCTION_TEMPLATE_SPECIALIZATION | NODE_TYPE_FUNCTION; }
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 
 	argument_list_iterator_t		targs_begin() { return m_TemplateArgumentList.begin(); }
@@ -308,7 +319,7 @@ public:
 	argument_list_const_iterator_t	targs_end() const { return m_TemplateArgumentList.end(); }
 
 	size_t							templateArgumentsCount() const { return m_TemplateArgumentList.size(); }
-	void							addTemplateArgument(CppType* decl) { m_TemplateArgumentList.push_back(decl); }
+	void							addTemplateArgument(const argument_ptr_t& decl) { m_TemplateArgumentList.push_back(decl); }
 
 
 protected:
@@ -508,6 +519,7 @@ public:
 	bool						isStatic() const { return m_IsStatic; }
 	void						setStatic(bool s) { m_IsStatic = s; if(s) {m_IsVirtual = m_IsAbstract = m_IsConstant = false;} }
 
+	std::string					getNodeName() const;
 protected:
 	bool						m_IsConstant;
 	bool						m_IsVirtual;
@@ -532,10 +544,10 @@ protected:
 	bool			m_IsExplicit;
 };
 
-class CppNodeClassCopyConstructor : public CppNodeClassMethod
+class CppNodeClassCopyConstructor : public CppNodeClassConstructor
 {
 public:
-	CppNodeClassCopyConstructor(CppNode* parent = NULL) : CppNodeClassMethod("",parent)
+	CppNodeClassCopyConstructor(CppNode* parent = NULL) : CppNodeClassConstructor(parent)
 	{ 
 		m_NodeType |= NODE_TYPE_CLASS_COPY_CONSTRUCTOR; 
 		if(m_ParentNode) m_NodeName =  m_ParentNode->getNodeName();

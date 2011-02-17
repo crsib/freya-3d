@@ -81,6 +81,7 @@ public:
 	boost::unordered_set<std::string>		locations_to_parse;
 
 	std::stack<CppNode*>					node_stack;
+	std::stack<clang::Decl*>				decl_stack;
 
 	CppTreePtr								tree_ptr;
 
