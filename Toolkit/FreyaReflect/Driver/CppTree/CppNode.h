@@ -362,8 +362,8 @@ public:
 	CppNodeClass(const std::string& name, CppNode* parent = NULL) : CppNodeScope(parent,NODE_TYPE_CLASS,name) {}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 
-	//Only public bases are taken into account. private/protected bases have nothing to do with reflection data.
-	typedef std::pair<CppType*, bool> base_type_t;
+	//
+	typedef std::pair<CppTypePtr, ACCESS_TYPE>	base_type_t;
 	typedef std::vector<base_type_t>			base_type_list_t;
 	typedef base_type_list_t::iterator			base_type_list_iterator_t;
 	typedef base_type_list_t::const_iterator	base_type_list_const_iterator_t;
