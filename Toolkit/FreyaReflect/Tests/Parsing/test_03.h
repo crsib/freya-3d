@@ -45,7 +45,7 @@ namespace a
 
 	typedef templated_test<IntTemplate> DualTemplate;
 
-	class ClassMemberTest
+	class ClassMemberTest : public DualTemplate
 	{
 	public: 
 		void foo(float a, int b, int c);

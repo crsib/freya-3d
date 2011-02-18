@@ -80,7 +80,7 @@ void ASTTreeWalker::chooseVisitor( Decl* decl )
 		visitClass(static_cast<ClassTemplateDecl*>(decl)->getTemplatedDecl());
 		break;
 	default:
-		std::clog << "Unknown decl type " << decl->getDeclKindName() << std::endl;
+		//std::clog << "Unknown decl type " << decl->getDeclKindName() << std::endl;
 		break;
 	}
 }
@@ -94,6 +94,14 @@ void ASTTreeWalker::visitNamespaceDecl( clang::NamespaceDecl* decl )
 		CppNodeNamespace * parent = static_cast<CppNodeNamespace*>(node_stack.top());
 		CppNodeNamespace* node = NULL;
 		CppNodePtr found  = parent->getChildByName( decl->getName() );
+
+		if(!found && (parent->getNodeName() == decl->getName()))
+		{
+			//std::clog << "Already in the scope!" << std::endl;
+			m_DirectSearchMap[decl] = parent;
+			return;
+		}
+
 		if(!found)
 		{
 			CppNodePtr nodeptr = CppNodePtr(new CppNodeNamespace(decl->getName(),node_stack.top()));
@@ -124,7 +132,7 @@ void ASTTreeWalker::visitNamespaceDecl( clang::NamespaceDecl* decl )
 void ASTTreeWalker::visitDeclContext( clang::DeclContext* decl )
 {
 	for(DeclContext::decl_iterator it = decl->decls_begin(), end = decl->decls_end(); it != end; ++it)
-		if(*it != decl_stack.top() && !it->isImplicit())
+		//if(*it != decl_stack.top() && !it->isImplicit())
 			chooseVisitor(*it);
 }
 
@@ -137,6 +145,14 @@ void ASTTreeWalker::visitEnum( clang::EnumDecl* decl )
 		CppNodeScope*	parent = static_cast<CppNodeScope*>(node_stack.top());
 		CppNodeEnum*	node = NULL;
 		CppNodePtr		found = parent->getChildByName( decl->getName() );
+
+		if(!found && (parent->getNodeName() == decl->getName()))
+		{
+		//	std::clog << "Already in the scope!" << std::endl;
+			m_DirectSearchMap[decl] = parent;
+			return;
+		}
+
 		bool			user_supplied_enum = false;
 		if( !found )
 		{
@@ -197,6 +213,14 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 		CppNodeScope*	parent = static_cast<CppNodeScope*>(node_stack.top());
 		CppNodeScope*	node = NULL; //We do not know, what real type is it.
 		CppNodePtr		found = parent->getChildByName( decl->getName() );
+
+		if(!found && ( parent->getNodeName() == decl->getName() ))
+		{
+			//std::clog << "Already in the scope!" << std::endl;
+			m_DirectSearchMap[decl] = parent;
+			return;
+		}
+
 		if( !found || clang::ClassTemplateSpecializationDecl::classof(decl))
 		{
 			//Ok, we could not find a specific node
@@ -290,10 +314,27 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 			if(isDeclFromUserFile(decl->getLocation()))
 				node->setNodeFlag(CppNode::NODE_FLAG_USER_SUPPLIED);
 
-			std::clog << "Class (union) " << node->getScopedName() << std::endl;
+		//	std::clog << "Class (union) " << node->getScopedName() << std::endl;
+
+			//Parse bases:
+			if( CXXRecordDecl::classof(decl) && decl->isDefinition() )
+			{
+				CXXRecordDecl* cxx_decl = static_cast<CXXRecordDecl*>(decl);
+				
+				for( CXXRecordDecl::base_class_iterator it = cxx_decl->bases_begin(), end = cxx_decl->bases_end(); it != end; ++it )
+				{
+					CXXBaseSpecifier& base_class = *it;
+					CppNode::ACCESS_TYPE access = base_class.getAccessSpecifier() == AS_public ? CppNode::ACCESS_TYPE_PUBLIC :
+						(base_class.getAccessSpecifier() == AS_protected ? CppNode::ACCESS_TYPE_PROTECTED : CppNode::ACCESS_TYPE_PRIVATE );
+					static_cast<CppNodeClass*>(node)->addBaseClass(CppNodeClass::base_type_t(std::make_pair(resolveQualType(&base_class.getType()), access)));
+				}
+			}
 		}
 		else
+		{
 			node = found->cast_to<CppNodeScope>();
+			m_DirectSearchMap[decl] = node;
+		}
 
 		//Push class on top
 		if(decl->isDefinition())
@@ -407,8 +448,12 @@ CppTypePtr ASTTreeWalker::resolveQualType( clang::QualType* type )
 						underl = m_DirectSearchMap[type_s->getAs<TagType>()->getDecl()];
 						if(underl)
 							type_ptr->m_ASTNode = underl;
+						else if( node_stack.top()->getNodeName() == type_s->getAs<TagType>()->getDecl()->getNameAsString() )
+							underl = node_stack.top();
 						else 
 						{
+							std::clog << "[ERROR]: Decl not found: " << type_s->getAs<TagType>()->getDecl()->getNameAsString() << std::endl;
+							std::clog << "[ERROR]: Stack top: " << node_stack.top()->getNodeName() << std::endl; 
 							throw std::exception((std::string("Underlying type failed to resolve: ") + type->getAsString()).c_str());
 						}
 					}
@@ -499,7 +544,7 @@ void ASTTreeWalker::visitVarDecl( clang::DeclaratorDecl* decl )
 
 			node->setType(resolveQualType(&decl->getType()));
 
-			std::clog << "var " << node->getScopedName() << " -> " << node->getCppType()->getQualifiedName() << std::endl;
+			//std::clog << "var " << node->getScopedName() << " -> " << node->getCppType()->getQualifiedName() << std::endl;
 
 			//Register search map for improved type resolving
 			m_DirectSearchMap[decl] = node;
@@ -534,7 +579,7 @@ void ASTTreeWalker::visitTypedef( clang::TypedefDecl* decl )
 
 			node->setAliasType(resolveQualType(&decl->getUnderlyingType()));
 
-			std::clog << "typedef " << node->getScopedName() << " -> " << node->getAliasType()->getQualifiedName() << std::endl;
+			//std::clog << "typedef " << node->getScopedName() << " -> " << node->getAliasType()->getQualifiedName() << std::endl;
 
 			//Register search map for improved type resolving
 			m_DirectSearchMap[decl] = node;
@@ -557,7 +602,7 @@ void ASTTreeWalker::visitFunction( clang::FunctionDecl* decl )
 	{
 		std::string func_name = decl->getNameAsString();
 		//Now, we should first generate real prototype of the function
-		typedef std::auto_ptr<CppNodeFunctionProto> func_node_ptr_t;
+		typedef boost::shared_ptr<CppNodeFunctionProto> func_node_ptr_t;
 		func_node_ptr_t func_node;
 
 		//First of all, choose the correct type based on declaration kind
@@ -613,10 +658,8 @@ void ASTTreeWalker::visitFunction( clang::FunctionDecl* decl )
 				static_cast<CppNodeClassConstructor*>(m)->setExplicit( !mdecl->isImplicit() );
 		}
 
-		//Test
-		std::cout 
-			<< "func: " << (func_node->hasReturnValue() ? func_node->getReturnValue()->getQualifiedName() : "void") << " " 
-			<< func_node->getScopedName() << std::endl;
+		if(!static_cast<CppNodeScope*>(parent)->getChildByName(func_node->getNodeName()))
+			static_cast<CppNodeScope*>(parent)->addChild(func_node);
 	}
 	else //if(node_stack.top()->getNodeType() & CppNode::NODE_TYPE_SCOPE)
 		throw std::exception("scope node is expected");
