@@ -7,12 +7,14 @@
 
 #ifndef ENGINECORE_H_
 #define ENGINECORE_H_
+
+#include "freya_config.h"
 #include <iostream>
 #include "core/EString.h"
 #include "internal.h"
-#include "config.h"
 #include "core/multithreading/ImplementationFactory.h"
 #include "core/memory/MemoryPools.h"
+
 namespace resources
 {
 class ResourceManager;
@@ -67,7 +69,7 @@ class TaskManager;
 namespace memory
 {
 
-#ifdef _FREYA_SHARED_PLUGIN
+//#ifdef _FREYA_SHARED_PLUGIN
 //!uses memory arena to allocate a memory block
 /*!
 * This function allocates a memory block inside the memory arena.
@@ -76,7 +78,7 @@ namespace memory
 * \return pointer to a newly created block
 */
 EXPORT void* Allocate(size_t sz,unsigned id); //General in place STL allocation
-#endif
+//#endif
 //!Uses memory arena to reallocate a memory block
 /*!
 * This function reallocates a memory block inside the memory arena.
@@ -87,7 +89,7 @@ EXPORT void* Allocate(size_t sz,unsigned id); //General in place STL allocation
 * \return pointer to reallocated block of memory (as it possipbly could move)
 */
 EXPORT void* Reallocate(void* p,size_t sz,unsigned id);
-#ifdef _FREYA_SHARED_PLUGIN
+//#ifdef _FREYA_SHARED_PLUGIN
 //!uses memory arena to free a memory block
 /*!
 * This function frees a memory block inside the memory arena.
@@ -96,7 +98,7 @@ EXPORT void* Reallocate(void* p,size_t sz,unsigned id);
 * \param p  is a pointer to memory block inside memory arena
 */
 EXPORT void  Free(void* p,unsigned id);
-#endif
+//#endif
 
 class MemoryArena;
 }

@@ -9,23 +9,8 @@
 #define RESOURCE_H_
 
 #include "core/PluginCore.h"
-#ifdef _FREYA_SHARED_PLUGIN
-#include <cstdlib>
-namespace core
-{
-namespace memory
-{
-	extern void* (*Allocate)(size_t,unsigned);
-	extern void  (*Free)(void*,unsigned);
-}
-	extern core::PluginCore*	CoreInstance;
-}
-#else
-namespace core
-{
-	extern core::PluginCore*	CoreInstance;
-}
-#endif
+#include "internal.h"
+
 /*
  *
  */
@@ -54,8 +39,8 @@ resources::Resource* 	createResource(T*	res);
 template<typename T>
 resources::Resource* 	setResource(Resource* res,T*);
 // Sets resource as ready
-void					finalizeResource(resources::Resource*);
-void					destroyResource(resources::Resource*);
+EXPORT void					finalizeResource(resources::Resource*);
+EXPORT void					destroyResource(resources::Resource*);
 }
 //! This class provides a general abstraction of resource
 /*!
@@ -63,7 +48,7 @@ void					destroyResource(resources::Resource*);
  * This class provides functionality for checking resource status, maintaining a single copy of resource
  * and other functionality related for easy and scalable resource management
  */
-class Resource: virtual public ::EngineSubsystem
+class EXPORT Resource: virtual public ::EngineSubsystem
 {
 	friend class resources::ResourceManager;
 	friend class __internal::ResourceLibrary;

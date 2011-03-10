@@ -104,7 +104,7 @@ void						SceneNode::detach(SceneNode* parent,DETACH_MODE mode)
 math::matrix4x4
 SceneNode::getWorldTransform(unsigned forParentIdx) const
 {
-
+	return math::matrix4x4::identity;
 }
 
 AABB

@@ -127,7 +127,7 @@ class colour
 	//colour operator* (const colour& c) const; // gives a warning about argb_t to colour conversion
 	bool operator== (const colour& c) const;
 
-	colour();
+	//colour();
 	colour(float r, float g, float b, float a);
 };
 

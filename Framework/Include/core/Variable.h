@@ -23,6 +23,7 @@ struct lua_State;
 
 namespace core
 {
+class Runnable;
 namespace lua
 {
 class LuaCore;
@@ -42,7 +43,8 @@ public:
 		VECTOR3D,
 		QUATERNION,
 		MATRIX3X3,
-		MATRIX4X4
+		MATRIX4X4,
+		LUA_CFUNCTION
 	};
 
 	explicit Variable(bool v);
@@ -150,6 +152,7 @@ private:
 		math::quaternion*	m_Quaternion;
 		math::matrix3x3*	m_Matrix3x3;
 		math::matrix4x4*	m_Matrix4x4;
+		int					(*m_CFunc)(lua_State* l);
 	};
 
 	void					m_Clear();

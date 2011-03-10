@@ -38,18 +38,18 @@ namespace core
 	{
 		typedef unsigned (*DRIVERSCOUNTPTR)();
 		typedef  unsigned (*DRIVERTYPEPTR)(unsigned);
-		typedef void 	 (*SETMEMORYALLOCATORPTR)(core::memory::ALLOCATE,core::memory::FREE,core::PluginCore*);
+	//	typedef void 	 (*SETMEMORYALLOCATORPTR)(core::memory::ALLOCATE,core::memory::FREE,core::PluginCore*);
 		typedef const char* (*DRIVERNAMEPTR)(unsigned);
 		typedef core::drivermodel::Driver* (*CREATEDRIVERPTR)(const char * );
 		
 		struct SOProcs : public EngineSubsystem
 		{
-			SOProcs() :  drivers_count(0), driver_type(0),set_memory_allocator(0),driver_name(0),create_driver(0)
+			SOProcs() :  drivers_count(0), driver_type(0),driver_name(0),create_driver(0)
 			{
 			}
 			DRIVERSCOUNTPTR			drivers_count;
 			DRIVERTYPEPTR			driver_type;
-			SETMEMORYALLOCATORPTR	set_memory_allocator;
+			//SETMEMORYALLOCATORPTR	set_memory_allocator;
 			DRIVERNAMEPTR			driver_name;
 			CREATEDRIVERPTR			create_driver;
 		};
@@ -136,17 +136,9 @@ namespace core
 					}
 					//Get pointers
 					
-					soid->procs.set_memory_allocator = __internal::soSym<__internal::SETMEMORYALLOCATORPTR>(soid->handle,"set_memory_allocator");
-					if(soid->procs.set_memory_allocator == NULL)
-					{
-#ifndef	_WIN32
-						std::cout << dlerror() << std::endl;
-#endif
-						throw EngineException();//TODO: Replace this wit a more apropriate exception						
-					}
 					
 					soid->procs.create_driver = __internal::soSym<__internal::CREATEDRIVERPTR>(soid->handle,"create_driver");
-					if(soid->procs.set_memory_allocator == NULL)
+					if(soid->procs.create_driver == NULL)
 					{
 #ifndef	_WIN32
 						std::cout << dlerror() << std::endl;
@@ -155,10 +147,6 @@ namespace core
 					}
 					
 					soid->loaded = 1;
-					
-					//Run desired methods
-					(soid->procs.set_memory_allocator)(core::memory::Allocate,core::memory::Free,core::EngineCore::getPluginCore());
-
 				}
 				//if(m_DriverType == core::drivermodel::RENDERER)
 				return (soid->procs.create_driver)(m_Name.c_str());
@@ -230,14 +218,6 @@ namespace core
 							throw EngineException();//TODO: Replace tis wit a more apropriate exception						
 						}
 						
-						soid->procs.set_memory_allocator = __internal::soSym<__internal::SETMEMORYALLOCATORPTR>(soid->handle,"set_memory_allocator");
-						if(soid->procs.set_memory_allocator == NULL)
-						{
-#ifndef	_WIN32
-							std::cout << dlerror() << std::endl;
-#endif
-							throw EngineException();//TODO: Replace tis wit a more apropriate exception						
-						}
 						
 						soid->procs.driver_type = __internal::soSym<__internal::DRIVERTYPEPTR>(soid->handle,"driver_type");
 						if(soid->procs.driver_name == NULL)
@@ -250,7 +230,6 @@ namespace core
 						
 						
 						//Run desired methods
-						(soid->procs.set_memory_allocator)(core::memory::Allocate,core::memory::Free,core::EngineCore::getPluginCore());
 						unsigned lib_count = (soid->procs.drivers_count)();
 						for(unsigned i = 0; i < lib_count; i++)
 						{

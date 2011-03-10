@@ -278,7 +278,7 @@ void		OpenGL_GLSL_Driver::setStreamSource(unsigned sourceID,VertexBufferObject* 
 
 OpenGL_GLSL_Driver::VertexFormat::VertexFormat(renderer::VertexElement* format,StreamSource*	streams)
 : EngineSubsystem()
-  {
+{
 	m_Format = format;
 	m_Streams = streams;
 	bool end = false;
@@ -302,7 +302,7 @@ OpenGL_GLSL_Driver::VertexFormat::VertexFormat(renderer::VertexElement* format,S
 		else end = true;
 	}
 
-  }
+}
 
 void	OpenGL_GLSL_Driver::VertexFormat::enable()
 {
@@ -322,6 +322,9 @@ void	OpenGL_GLSL_Driver::VertexFormat::enable()
 	for(unsigned i = 0; i < m_Length; i ++)
 	{
 		VertexElement*	elem = m_Format + i;
+		//std::cout << "r number of comp: " << (int)num_components[elem->type]  << std::endl;
+		//std::cout << "r offset: " << elem->offset << std::endl;
+
 		if(lastStream != elem->streamID)
 		{
 			m_Streams[lastStream].buffer->unbind();
@@ -341,6 +344,19 @@ void	OpenGL_GLSL_Driver::VertexFormat::enable()
 			case renderer::VertexFormat::NORMAL:
 				glEnableClientState(GL_NORMAL_ARRAY);
 				glNormalPointer(type_of_component[elem->type],m_Streams[lastStream].stride,(void*)(m_Streams[lastStream].offset + elem->offset));
+				break;
+			case renderer::VertexFormat::TANGENT:
+				glClientActiveTextureARB(GL_TEXTURE1);
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				glTexCoordPointer(num_components[elem->type],type_of_component[elem->type],m_Streams[lastStream].stride,(void*)(m_Streams[lastStream].offset + elem->offset));
+				break;
+			case renderer::VertexFormat::BINORMAL:
+				glClientActiveTextureARB(GL_TEXTURE2);
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				glTexCoordPointer(num_components[elem->type],type_of_component[elem->type],m_Streams[lastStream].stride,(void*)(m_Streams[lastStream].offset + elem->offset));
+				break;
+			case renderer::VertexFormat::POINT_SIZE:
+
 				break;
 			default:
 				if(elem->usage < renderer::VertexFormat::UNUSED)
@@ -489,11 +505,11 @@ void		OpenGL_GLSL_Driver::drawPrimitive(renderer::Primitive::type primitives,uns
 	m_VF->disable();
 }
 
-void		OpenGL_GLSL_Driver::drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* buf)
+void		OpenGL_GLSL_Driver::drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* buf,ptrdiff_t offset)
 {
 	m_VF->enable();
 	buf->bind(VBOType::INDEX);
-	glDrawElements(OpenGL_GLSL_Tables::Primitive[primitives],count,OpenGL_GLSL_Tables::DataType[type],0);
+	glDrawElements(OpenGL_GLSL_Tables::Primitive[primitives],count,OpenGL_GLSL_Tables::DataType[type],(void*)offset);
 	buf->unbind();
 	m_VF->disable();
 }
@@ -511,7 +527,7 @@ void		OpenGL_GLSL_Driver::drawPrimitive(renderer::Primitive::type primitives,uns
 	delete instd;
 }
 
-void		OpenGL_GLSL_Driver::drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* indexBuffer,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData)
+void		OpenGL_GLSL_Driver::drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* indexBuffer,ptrdiff_t offset,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData)
 {
 	OpenGL_GLSL_Driver::VertexFormat*	instd = new OpenGL_GLSL_Driver::VertexFormat(instanceDeclaration,m_Streams);
 	m_VF->enable();
@@ -519,7 +535,7 @@ void		OpenGL_GLSL_Driver::drawIndexedPrimitive(renderer::Primitive::type primiti
 	for(unsigned i = 0; i < numInstances; i++)
 	{
 		instd->enableImmediate(i,instanceData);
-		glDrawElements(OpenGL_GLSL_Tables::Primitive[primitives],count,OpenGL_GLSL_Tables::DataType[type],0);
+		glDrawElements(OpenGL_GLSL_Tables::Primitive[primitives],count,OpenGL_GLSL_Tables::DataType[type],(void*)offset);
 	}
 	indexBuffer->unbind();
 	m_VF->disable();
@@ -726,9 +742,9 @@ void		OpenGL_GLSL_Driver::clipArea(float left,float top, float right,float botto
 }
 
 const math::matrix4x4 OpenGL_GLSL_Driver::getMatrix(renderer::Matrix::type mtx) const
-		{
+{
 	return m_Matricies[mtx];
-		}
+}
 
 }
 }

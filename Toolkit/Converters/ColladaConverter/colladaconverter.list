@@ -1,0 +1,21 @@
+
+#
+# Header files
+#
+SET(COLLADA_CONVERTER_HEADER_FILES
+	Src/common.h
+
+	Src/LuaGenerator.h
+	Src/GData.h
+)
+
+#
+# Source files
+#
+SET(COLLADA_CONVERTER_SOURCE_FILES 
+	src/main.cpp
+	src/common.cpp
+
+	src/LuaGenerator.cpp
+	src/GData.cpp
+)

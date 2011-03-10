@@ -8,21 +8,6 @@
 #ifndef RENDERINGAPIDRIVER_H_
 #define RENDERINGAPIDRIVER_H_
 
-#ifdef _FREYA_SHARED_PLUGIN
-#include <cstdlib>
-namespace core
-{
-namespace memory
-{
-extern void* (*Allocate)(size_t,unsigned);
-extern void  (*Free)(void*,unsigned);
-}
-}
-#endif
-/*
- *
- */
-
 #include "renderer/3DConstants.h"
 #include "core/EString.h"
 #include "core/memory/MemoryAllocator.h"
@@ -207,10 +192,10 @@ public:
 
 	//Rendering commands (all using vbo as data source)
 	virtual void		drawPrimitive(renderer::Primitive::type primitives,unsigned first,unsigned count) = 0;//Render non-idexed primitive assembled as {primitves},starting from element {first} with count of elements (vertices)
-	virtual void		drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* indexBuffer) = 0;//Type is described by DataType
+	virtual void		drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* indexBuffer, ptrdiff_t offset = 0) = 0;//Type is described by DataType
 
 	virtual void		drawPrimitive(renderer::Primitive::type primitives,unsigned first,unsigned count,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData) = 0;//Render non-idexed primitive assembled as {primitves},starting from element {first} with count of elements (vertices)
-	virtual void		drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* indexBuffer,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData) = 0;//Type is described by DataType
+	virtual void		drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* indexBuffer,ptrdiff_t offset,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData) = 0;//Type is described by DataType
 
 	virtual void 		setRenderMode(renderer::RenderSide::type side,renderer::RenderMode::type mode) = 0;
 
