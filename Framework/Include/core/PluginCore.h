@@ -3,21 +3,12 @@
 
 #include "core/memory/MemoryPools.h"
 
-#ifdef _FREYA_SHARED_PLUGIN
-#include <cstdlib>
-namespace core
-{
-namespace memory
-{
-	extern void* (*Allocate)(size_t,unsigned);
-	extern void  (*Free)(void*,unsigned);
-}
-}
-#endif
-
 #include "core/EngineSubsystem.h"
 #include "core/EString.h"
 //#include "renderer/RenderingAPIDriver.h"
+
+
+
 namespace resources
 {
 class ResourceManager;
@@ -200,7 +191,7 @@ public:
 	//! Destroy a mutex
 	virtual void								destroyMutex(core::multithreading::Mutex*  mutex) = 0;
 	//! Create a condition variable
-	 core::multithreading::Condition*	createCondition();
+	 core::multithreading::Condition*			createCondition();
 	//! Destroy a condition variable
 	virtual void								destroyCondition(core::multithreading::Condition* cond) = 0;
 
@@ -210,5 +201,30 @@ public:
 
 };
 }
+
+#ifdef _FREYA_SHARED_PLUGIN
+namespace core
+{
+#ifdef _MSC_VER
+	__declspec(dllimport)
+#else
+	extern
+#endif
+	PluginCore* CoreInstance;
+}
+#else
+namespace core
+{
+	extern
+#if defined(_MSC_VER)
+#ifdef _SHARED_BUILD
+	__declspec(dllexport)
+#else
+	__declspec(dllimport)
+#endif
+#endif
+	PluginCore* CoreInstance;
+}
+#endif
 
 #endif

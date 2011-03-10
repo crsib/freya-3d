@@ -1,0 +1,27 @@
+$#include "windowmanager/DriverSubsystems/InputDevices/KeyDrivenDevice.h"
+namespace windowmanager
+{
+
+namespace input
+{
+namespace KeyAction
+{
+enum
+{
+	PRESSED,
+	DOWN,
+	UP
+};
+}
+
+
+class KeyDrivenDevice
+{
+public:
+	EString id() const;
+	bool getKeyState(unsigned Key);
+	void updateState(); //Updates state
+};
+
+}
+}

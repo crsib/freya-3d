@@ -8,20 +8,6 @@
 #ifndef FRAMEBUFFER_H_
 #define FRAMEBUFFER_H_
 
-#ifdef _FREYA_SHARED_PLUGIN
-#include <cstdlib>
-namespace core
-{
-namespace memory
-{
-	extern void* (*Allocate)(size_t,unsigned);
-	extern void  (*Free)(void*,unsigned);
-}
-}
-#endif
-/*
- *
- */
 #include "core/EngineSubsystem.h"
 
 #include "renderer/3DConstants.h"
@@ -34,7 +20,7 @@ class Texture;
  * This class provides API independent abstraction for off-screen frame buffer.
  * This class can be constructed using RenderingAPI driver only.
  */
-class Framebuffer: virtual public ::EngineSubsystem
+class EXPORT Framebuffer: virtual public ::EngineSubsystem
 {
 public:
 	//! Set dimensions of off-screen frame buffer.
@@ -94,7 +80,7 @@ public:
 	 * \param side is either a cube texture side described by CubeTextureSide, either depth level of 3d texture
 	 * \param level is a mip level of an attachment point with enumeration from 0
 	 */
-	virtual void 	attachTexture(renderer::FramebufferAttachment::type attach_to,const Texture* tex,unsigned side,unsigned level = 0) = 0; //Version for cubic textures
+	virtual void 	attachTexture(renderer::FramebufferAttachment::type attach_to,const Texture* tex,unsigned side,unsigned level) = 0; //Version for cubic textures
 
 	//Draw targets/read target
 	//! Set draw buffers
@@ -121,8 +107,8 @@ public:
 	//framebuffer status
 	//! Retrieve the described frame buffer status
 	/*!
-	 *  Retieves current status of described framebuffer
-	 *  \return stutus of frame buffer described by FramebufferStatus
+	 *  Retrieves current status of described framebuffer
+	 *  \return status of frame buffer described by FramebufferStatus
 	 */
 	virtual unsigned status() const = 0;
 };

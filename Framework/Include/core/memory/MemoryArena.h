@@ -11,29 +11,28 @@
 /*
  *
  */
+#include "MemoryPools.h"
 #include <cstdlib>
 #include <vector>
+#include "internal.h"
 
-#include "core/taskmanager/Task.h"
 namespace core
 {
-class EngineCore;
 namespace memory
 {
 
+
+extern EXPORT unsigned memory_allocated;
+extern EXPORT unsigned allocation_count;
+extern EXPORT unsigned deallocation_count;
+extern EXPORT unsigned alloc_dealloc_dif;
+extern EXPORT unsigned allocated_for_buffers;
+
 namespace __internal
 {
-	class MemoryPool;
-	class MemoryBuffer;
+class MemoryPool;
 }
 
-#ifdef _FREYA_DEBUG_MEMORY
-	extern unsigned memory_allocated;
-	extern unsigned allocation_count;
-	extern unsigned deallocation_count;
-	extern unsigned alloc_dealloc_dif;
-	extern unsigned allocated_for_buffers;
-#endif
 class MemoryArena
 {
 public:
@@ -45,10 +44,10 @@ public:
 	/*!
 	 * Adds a pool to memory arena.
 	 * \param size is a desired preallocated size in bytes
-	 * \param alligment is a desired memory alligment. This value is a \$ log_2 \$ of needed memory alligment in bytes
+	 * \param alignment is a desired memory alignment in bytes
 	 * \throw MemoryException if pool allocation failed
 	 */
-	unsigned	addPool(size_t size,size_t alligment);
+	unsigned	addPool(size_t size,size_t alignment);
 
 	//! Allocate memory block
 	/*!
@@ -70,6 +69,7 @@ public:
 	void		free(void* p,unsigned pool = 0);
 private:
 	std::vector<__internal::MemoryPool*>		m_Pools;
+
 };
 
 } //Namespace memory

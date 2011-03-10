@@ -49,8 +49,8 @@
 #   include "config.h"
 #endif
 
-#if defined(CEGUI_STATIC)
-#	if defined(CEGUI_FALAGARD_RENDERER)
+#if 1
+#	if 1 || defined(CEGUI_FALAGARD_RENDERER)
 #		include "WindowRendererSets/Falagard/FalModule.h"
 #	endif
 #endif
@@ -314,7 +314,7 @@ void Scheme::loadWindowRendererFactories()
     {
         if (!(*cmod).wrModule)
         {
-#if !defined(CEGUI_STATIC)
+#if 0
             // load dynamic module as required
             if (!(*cmod).dynamicModule)
                 (*cmod).dynamicModule = new DynamicModule((*cmod).name);

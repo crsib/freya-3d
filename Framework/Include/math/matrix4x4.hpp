@@ -28,7 +28,7 @@ static const float4  mtx4d_fourth_row 	= {{0,0,0,1}};
 MATH_OBJECT_DECL class matrix4x4
 {
 public:
-	matrix4x4(__m128 _1,__m128 _2,__m128 _3,__m128 _4)
+	 matrix4x4(const __m128& _1,const __m128& _2,const __m128& _3,const __m128& _4)
 	{
 		row[0] = _1;
 		row[1] = _2;
@@ -102,10 +102,10 @@ public:
 
 	//view
 	static
-	matrix4x4 lookat(const vector3d& from, const vector3d& to, const vector3d up);
+	matrix4x4 lookat(const vector3d& from, const vector3d& to, const vector3d& up);
 
 	static
-	matrix4x4 billboard(const vector3d& from, const vector3d& to, const vector3d up);
+	matrix4x4 billboard(const vector3d& from, const vector3d& to, const vector3d& up);
 
 	matrix4x4 	operator + () const;
 	matrix4x4 	operator - () const;
@@ -793,7 +793,7 @@ matrix4x4	matrix4x4::frustumMatrix (float top,float left,float bottom,float righ
 
 //view
 inline
-matrix4x4 matrix4x4::lookat(const vector3d& from, const vector3d& to, const vector3d up)
+matrix4x4 matrix4x4::lookat(const vector3d& from, const vector3d& to, const vector3d& up)
 {
 	vector3d f = (to - from);
 	vector3d s = f*up;
@@ -815,7 +815,7 @@ matrix4x4 matrix4x4::lookat(const vector3d& from, const vector3d& to, const vect
 }
 
 inline
-matrix4x4 matrix4x4::billboard(const vector3d& from, const vector3d& to, const vector3d up)
+matrix4x4 matrix4x4::billboard(const vector3d& from, const vector3d& to, const vector3d& up)
 {
 	vector3d f = (to - from);
 	vector3d s = f*up;
@@ -826,9 +826,9 @@ matrix4x4 matrix4x4::billboard(const vector3d& from, const vector3d& to, const v
 	u.normalize();
 
 	matrix4x4 m;
-	m.row[0] = s.xmm;
-	m.row[1] = u.xmm;
-	m.row[2] = -f.xmm;
+	m.row[0] =  s.xmm;
+	m.row[1] =  u.xmm;
+	m.row[2] = (-f).xmm;
 
 	m._14 = -(s,from);
 	m._24 = -(u,from);

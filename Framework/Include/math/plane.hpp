@@ -60,7 +60,7 @@ public:
 	}
 	~plane(){}
 
-	int   classify(const vector3d& point)
+	int   classify(const vector3d& point) const
 	{
 		float   v = signedDistance (point);
 		if (v > math::eps)
@@ -71,13 +71,13 @@ public:
 		return IN_PLANE;
 	}
 
-	float signedDistance(const vector3d& point)
+	float signedDistance(const vector3d& point) const
 	{
 		return (m_Normal , point) + m_Distance;
 	}
 	float distance(vector3d& point)
 	{
-		return (float)((fabs((m_Normal, point) + m_Distance)));
+		return (float)((math::abs((m_Normal, point) + m_Distance)));
 	}
 
 	void rotate(const vector3d & Dir, float angle)

@@ -11,6 +11,6 @@
 #include "core/memory/MemoryAllocator.h"
 #include <vector>
 //! String list class to be used inside engine
-typedef std::vector<EString,core::memory::MemoryAllocator<EString> > EStringList;
+typedef std::vector<EString > EStringList;
 
 #endif /* ESTRINGLIST_H_ */

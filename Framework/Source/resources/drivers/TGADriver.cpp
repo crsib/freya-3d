@@ -4,12 +4,14 @@
  *  Created on: 07.07.2009
  *      Author: vedenko
  */
-
+#undef _FREYA_SHARED_PLUGIN
 #include "TGADriver.h"
 
 #include <cstring>
 
+
 #include "core/PluginCore.h"
+
 #include "renderer/RenderingAPIDriver.h"
 #include "renderer/DriverSubsystems/Texture.h"
 #include "core/filesystem/Filesystem.h"
@@ -25,6 +27,15 @@
 
 #include <iostream>
 
+namespace core
+{
+namespace memory
+{
+void* 	Allocate(size_t sz,unsigned id);
+void 	Free(void* p,unsigned id);
+}
+}
+
 #ifdef _MSC_VER
 #define		log2(x) (log(x)/log(2.0f))
 #endif
@@ -37,11 +48,23 @@ template<>
 resources::Resource* 	createResource(renderer::Texture*	resource)
 {
 	resources::Resource* res = new resources::Resource;
+	if(resource == NULL)
+		return res;
 	res->m_Resource = dynamic_cast<EngineSubsystem*>(resource);
 	if(res->m_Resource == NULL)
 		throw resources::ResourceException ("Failed to create resource");
 	return res;
 }	
+
+template<>
+resources::Resource* 	setResource(Resource* res,renderer::Texture*	resource)
+{
+	res->m_Resource = dynamic_cast<EngineSubsystem*>(resource);
+	if(res->m_Resource == NULL)
+		throw resources::ResourceException ("Failed to create resource");
+	return res;
+}
+
 }
 namespace drivers
 {
@@ -109,7 +132,7 @@ void __calculateMipMap(unsigned level, unsigned width, unsigned height,void* mem
 
 
 renderer::Texture*	__load(const EString& path,bool mipMaps)
-				{
+										{
 	unsigned char*	file = reinterpret_cast<unsigned char*> (core::CoreInstance->getFilesystem()->read(path));
 	unsigned char*  data = file + sizeof(TGAHeader);
 	//BYTES per pixel
@@ -235,7 +258,7 @@ renderer::Texture*	__load(const EString& path,bool mipMaps)
 	core::memory::Free(mem,core::memory::GENERIC_POOL);
 	core::memory::Free(file,core::memory::GENERIC_POOL);
 	return tex;
-				}
+										}
 }
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++ Asynchronous loader +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -253,184 +276,190 @@ public:
 	{
 		switch(mode)
 		{
-		case	LOADING:
-		{
-			//std::cout << "Loading tga texture" << std::endl;
-			unsigned char*	file = reinterpret_cast<unsigned char*> (core::CoreInstance->getFilesystem()->read(path));
-			unsigned char*  data = file + sizeof(TGAHeader);
-			//BYTES per pixel
-			TGAHeader head;
-			::memcpy(&head,file,sizeof(TGAHeader));
-			Bpp = head.Bpp >> 3;
-			unsigned char rgb[4];
-			width = head.Width;
-			height = head.Height;
-			//Allocate enough memory
-			unsigned char* mem = reinterpret_cast<unsigned char*> (core::memory::Allocate(Bpp*head.Width*head.Height,core::memory::GENERIC_POOL));
-			if(mem == NULL)
-				throw EngineException();
-			unsigned	n = 0; //Number of processed pixels
-
-			if(head.DataType == 2) //Uncompressed
+			case	LOADING:
 			{
-				//Read block data
-				while(n < static_cast<unsigned>(head.Width*head.Height))
+				//std::cout << "Loading tga texture: "  << path << std::endl;
+				unsigned char*	file = reinterpret_cast<unsigned char*> (core::CoreInstance->getFilesystem()->read(path));
+				unsigned char*  data = file + sizeof(TGAHeader);
+				//BYTES per pixel
+				TGAHeader head;
+				::memcpy(&head,file,sizeof(TGAHeader));
+				Bpp = head.Bpp >> 3;
+				unsigned char rgb[4];
+				width = head.Width;
+				height = head.Height;
+				//Allocate enough memory
+				unsigned char* mem = reinterpret_cast<unsigned char*> (core::memory::Allocate(Bpp*head.Width*head.Height,core::memory::GENERIC_POOL));
+				if(mem == NULL)
+					throw EngineException();
+				unsigned	n = 0; //Number of processed pixels
+
+				if(head.DataType == 2) //Uncompressed
 				{
-					::memcpy(rgb,data,Bpp);
-					data+=Bpp;
-
-					if(Bpp == 3)
-					{
-						mem[n*3 + 0] = rgb[2]; //Let us believe, that we are all under little endian machines
-						mem[n*3 + 1] = rgb[1];
-						mem[n*3 + 2] = rgb[0];
-					}
-					else
-					{
-						mem[n*4 + 0] = rgb[2]; //Let us believe, that we are all under little endian machines
-						mem[n*4 + 1] = rgb[1];
-						mem[n*4 + 2] = rgb[0];
-						mem[n*4 + 3] = rgb[3];
-					}
-
-					n++;
-				}
-
-			}
-			else if(head.DataType == 10) //RLE compressed
-			{
-				while(n < static_cast<unsigned>(head.Width*head.Height))
-				{
-					unsigned char chunkHead;
-					chunkHead = *data;
-					++data;
-					bool isRLE = chunkHead & 128;
-					unsigned numPix = (chunkHead & 127) + 1;
-
-					if(isRLE)
+					//Read block data
+					while(n < static_cast<unsigned>(head.Width*head.Height))
 					{
 						::memcpy(rgb,data,Bpp);
 						data+=Bpp;
 
-
-						for(unsigned i = 0; i< numPix; i++) //Fill with pixels
+						if(Bpp == 3)
 						{
-							if(Bpp == 3)
-							{
-								mem[n*3 + 0] = rgb[2]; //Let us believe, that we are all under little endian machines
-								mem[n*3 + 1] = rgb[1];
-								mem[n*3 + 2] = rgb[0];
-							}
-							else
-							{
-								mem[n*4 + 0] = rgb[2]; //Let us believe, that we are all under little endian machines
-								mem[n*4 + 1] = rgb[1];
-								mem[n*4 + 2] = rgb[0];
-								mem[n*4 + 3] = rgb[3];
-							}
-							n++;
+							mem[n*3 + 0] = rgb[2]; //Let us believe, that we are all under little endian machines
+							mem[n*3 + 1] = rgb[1];
+							mem[n*3 + 2] = rgb[0];
 						}
+						else
+						{
+							mem[n*4 + 0] = rgb[2]; //Let us believe, that we are all under little endian machines
+							mem[n*4 + 1] = rgb[1];
+							mem[n*4 + 2] = rgb[0];
+							mem[n*4 + 3] = rgb[3];
+						}
+
+						n++;
 					}
-					else	//No rle compression
+
+				}
+				else if(head.DataType == 10) //RLE compressed
+				{
+					while(n < static_cast<unsigned>(head.Width*head.Height))
 					{
-						for(unsigned i = 0; i< numPix; i++) //Fill with pixels
+						unsigned char chunkHead;
+						chunkHead = *data;
+						++data;
+						bool isRLE = chunkHead & 128;
+						unsigned numPix = (chunkHead & 127) + 1;
+
+						if(isRLE)
 						{
 							::memcpy(rgb,data,Bpp);
 							data+=Bpp;
 
-							if(Bpp == 3)
+
+							for(unsigned i = 0; i< numPix; i++) //Fill with pixels
 							{
-								mem[n*3 + 0] = rgb[2]; //Let us believe, that we are all under little endian machines
-								mem[n*3 + 1] = rgb[1];
-								mem[n*3 + 2] = rgb[0];
+								if(Bpp == 3)
+								{
+									mem[n*3 + 0] = rgb[2]; //Let us believe, that we are all under little endian machines
+									mem[n*3 + 1] = rgb[1];
+									mem[n*3 + 2] = rgb[0];
+								}
+								else
+								{
+									mem[n*4 + 0] = rgb[2]; //Let us believe, that we are all under little endian machines
+									mem[n*4 + 1] = rgb[1];
+									mem[n*4 + 2] = rgb[0];
+									mem[n*4 + 3] = rgb[3];
+								}
+								n++;
 							}
-							else
-							{
-								mem[n*4 + 0] = rgb[2]; //Let us believe, that we are all under little endian machines
-								mem[n*4 + 1] = rgb[1];
-								mem[n*4 + 2] = rgb[0];
-								mem[n*4 + 3] = rgb[3];
-							}
-							n++;
 						}
-
-					}
-				}
-			}
-			memory = nmem = mem;
-			mode = TEXTUREFILL;
-			maxlevel = max(width,height);
-			maxlevel = ceil(log2((float)maxlevel));
-			w = width;
-			h = height;
-			core::memory::Free(file,core::memory::GENERIC_POOL);
-			//std::cout << "Switching to main thread" << std::endl;
-			return ASyncTGALoader::MAIN_THREAD;
-		}
-		break;
-		case 	MIPMAP:
-		{
-			//std::cout << "Creating mipmap " << level << std::endl;
-			w = width >> level;
-			if(w == 0)
-				w = 1;
-			h = height >> level;
-			if(h == 0)
-				h = 1;
-			//Ok, algorithm idea.
-			//Consumptions: texture is a power of two one
-			nmem = reinterpret_cast<unsigned char*> (core::memory::Allocate(Bpp*w*h,core::memory::GENERIC_POOL));
-			//We sum blocks of size max(1 << level, w), max (1 << level ,h)
-			unsigned wb = min((1u << level),width);
-			unsigned hb = min((1u << level),height);
-			//unsigned offset = 0;
-			for(unsigned i = 0;i < w; i++)
-				for(unsigned j = 0; j < h; j++)
-				{
-
-					for(unsigned b = 0;b < Bpp;b++)
-					{
-						unsigned sum = 0;
-						for(unsigned _x = i*wb;_x< (i+1)*wb;_x++)
-							for(unsigned _y = j*hb;_y < (j+1)*hb;_y++)
+						else	//No rle compression
+						{
+							for(unsigned i = 0; i< numPix; i++) //Fill with pixels
 							{
-								sum += reinterpret_cast<unsigned char*>(memory)[_x*height*Bpp + _y*Bpp + b];
+								::memcpy(rgb,data,Bpp);
+								data+=Bpp;
+
+								if(Bpp == 3)
+								{
+									mem[n*3 + 0] = rgb[2]; //Let us believe, that we are all under little endian machines
+									mem[n*3 + 1] = rgb[1];
+									mem[n*3 + 2] = rgb[0];
+								}
+								else
+								{
+									mem[n*4 + 0] = rgb[2]; //Let us believe, that we are all under little endian machines
+									mem[n*4 + 1] = rgb[1];
+									mem[n*4 + 2] = rgb[0];
+									mem[n*4 + 3] = rgb[3];
+								}
+								n++;
 							}
-						sum /= wb*hb;
-						nmem[(i*h + j)*Bpp + b] = sum;
+
+						}
 					}
 				}
-			mode = TEXTUREFILL;
-			//std::cout << "Switching to main thread" << std::endl;
-			return ASyncTGALoader::MAIN_THREAD;
-		}
-		break;
-		case	TEXTUREFILL:
-		{
-			//std::cout << "Uploading texture to accelerator " << level << std::endl;
-			if(level <= maxlevel)
-			{
-				if(Bpp == 3)
-					tex->loadTexture(renderer::TextureType::TEXTURE_2D,level,renderer::TextureInternalFormat::RGB8,
-							renderer::TextureFormat::RGB,renderer::TextureStorage::UNSIGNED_BYTE,
-							w,h,nmem);
-				else
-					tex->loadTexture(renderer::TextureType::TEXTURE_2D,level,renderer::TextureInternalFormat::RGBA8,
-							renderer::TextureFormat::RGBA,renderer::TextureStorage::UNSIGNED_BYTE,
-							w,h,nmem);
-				if(level > 0)
-					core::memory::Free(nmem,core::memory::GENERIC_POOL);
-				level++;
-				mode = MIPMAP;
-				//std::cout << "Switching to sec thread" << std::endl;
-				if(level <= maxlevel)
-					return ASyncTGALoader::SECONDARY_THREAD;
+				memory = nmem = mem;
+				mode = TEXTUREFILL;
+				maxlevel = max(width,height);
+				maxlevel = ceil(log2((float)maxlevel));
+				w = width;
+				h = height;
+				core::memory::Free(file,core::memory::GENERIC_POOL);
+				//std::cout << "Switching to main thread " << path << std::endl;
+				return ASyncTGALoader::MAIN_THREAD;
 			}
-		}
-		break;
+			break;
+			case 	MIPMAP:
+			{
+				//std::cout << "Creating mipmap " << level << path << std::endl;
+				w = width >> level;
+				if(w == 0)
+					w = 1;
+				h = height >> level;
+				if(h == 0)
+					h = 1;
+				//Ok, algorithm idea.
+				//Consumptions: texture is a power of two one
+				nmem = reinterpret_cast<unsigned char*> (core::memory::Allocate(Bpp*w*h,core::memory::GENERIC_POOL));
+				//We sum blocks of size max(1 << level, w), max (1 << level ,h)
+				unsigned wb = min((1u << level),width);
+				unsigned hb = min((1u << level),height);
+				//unsigned offset = 0;
+				for(unsigned i = 0;i < w; i++)
+					for(unsigned j = 0; j < h; j++)
+					{
+
+						for(unsigned b = 0;b < Bpp;b++)
+						{
+							unsigned sum = 0;
+							for(unsigned _x = i*wb;_x< (i+1)*wb;_x++)
+								for(unsigned _y = j*hb;_y < (j+1)*hb;_y++)
+								{
+									sum += reinterpret_cast<unsigned char*>(memory)[_x*height*Bpp + _y*Bpp + b];
+								}
+							sum /= wb*hb;
+							nmem[(i*h + j)*Bpp + b] = sum;
+						}
+					}
+				mode = TEXTUREFILL;
+				//std::cout << "Switching to main thread " << path << std::endl;
+				return ASyncTGALoader::MAIN_THREAD;
+			}
+			break;
+			case	TEXTUREFILL:
+			{
+				if(tex == NULL)
+				{
+					tex = core::CoreInstance->getRenderingDriver()->createTexture();
+					res = __internal::setResource(res,tex);
+				}
+				//std::cout << "Uploading texture to accelerator " << level << " " << path << std::endl;
+				if(level <= maxlevel)
+				{
+					if(Bpp == 3)
+						tex->loadTexture(renderer::TextureType::TEXTURE_2D,level,renderer::TextureInternalFormat::RGB8,
+								renderer::TextureFormat::RGB,renderer::TextureStorage::UNSIGNED_BYTE,
+								w,h,nmem);
+					else
+						tex->loadTexture(renderer::TextureType::TEXTURE_2D,level,renderer::TextureInternalFormat::RGBA8,
+								renderer::TextureFormat::RGBA,renderer::TextureStorage::UNSIGNED_BYTE,
+								w,h,nmem);
+					if(level > 0)
+						core::memory::Free(nmem,core::memory::GENERIC_POOL);
+					level++;
+					mode = MIPMAP;
+					//std::cout << "Switching to sec thread" << path << std::endl;
+					if(level <= maxlevel)
+						return ASyncTGALoader::SECONDARY_THREAD;
+				}
+			}
+			break;
 		}
 		core::memory::Free(memory,core::memory::GENERIC_POOL);
 		resources::__internal::finalizeResource(res);
+		//std::cout << "Loaded " << path << std::endl;
 		return ASyncTGALoader::DONE;
 	}
 
@@ -464,14 +493,14 @@ TGADriver::~TGADriver()
 }
 
 bool	TGADriver::unique() const
-		{
+{
 	return true;
-		}
+}
 
 EString TGADriver::id() const
-		{
+{
 	return "tga";
-		}
+}
 
 Resource*	TGADriver::loadSynchronous(const EString& ID)
 {
@@ -539,10 +568,10 @@ Resource*	TGADriver::loadAsynchronous(const EString& ID)
 	}
 	if(IDch.find(':') != EString::npos)
 		throw resources::ResourceException("Malformed resource ID");
-	renderer::Texture* tex = core::CoreInstance->getRenderingDriver()->createTexture();
+	//renderer::Texture* tex = core::CoreInstance->getRenderingDriver()->createTexture();
 	__tga_async_internal::ASyncTGALoader*	loader = new __tga_async_internal::ASyncTGALoader;
-	loader->res = resources::__internal::createResource(tex);
-	loader->tex = tex;
+	loader->res = resources::__internal::createResource((renderer::Texture*)0);
+	loader->tex = NULL;
 	loader->mipMaps = mipMaps;
 	loader->path = IDch;
 	core::CoreInstance->getTaskManager()->addAsynchronousTask(loader);

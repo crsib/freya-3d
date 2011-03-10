@@ -30,7 +30,7 @@ WMException::WMException()
 
 //============================== Destructor==============================
 
-WMException::~WMException()
+WMException::~WMException() throw()
 {
 }
 

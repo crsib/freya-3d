@@ -23,11 +23,12 @@ struct lua_State;
 
 namespace core
 {
+class Runnable;
 namespace lua
 {
-	class LuaCore;
+class LuaCore;
 }
-class EXPORT Variable: virtual public ::EngineSubsystem
+class EXPORT Variable : public ::EngineSubsystem
 {
 	friend class core::lua::LuaCore;
 protected:
@@ -42,7 +43,8 @@ public:
 		VECTOR3D,
 		QUATERNION,
 		MATRIX3X3,
-		MATRIX4X4
+		MATRIX4X4,
+		LUA_CFUNCTION
 	};
 
 	explicit Variable(bool v);
@@ -64,16 +66,17 @@ public:
 		m_Double = 0.0;
 	}
 
-	bool				toBoolean();
-	int					toInteger();
-	double				toDouble();
-	EString				toString();
-	math::vector3d		toVector3d();
-	math::quaternion 	toQuaternion();
-	math::matrix3x3		toMatrix3x3();
-	math::matrix4x4     toMatrix4x4();
+	bool				toBoolean() const;
+	int					toInteger() const;
+	double				toDouble() const ;
+	EString				toString() const;
+	math::vector3d		toVector3d() const;
+	math::quaternion 	toQuaternion() const;
+	math::matrix3x3		toMatrix3x3() const;
+	math::matrix4x4     toMatrix4x4() const;
 
-	unsigned			getType() const
+	unsigned
+	getType() const
 	{
 		return m_Type;
 	}
@@ -90,45 +93,52 @@ public:
 
 	Variable& operator = (const Variable& v);
 	//Cast operators
-	operator 			bool ()
+	operator
+	bool ()  const
 	{
 		return toBoolean();
 	}
 
-	operator 			int  ()
+	operator
+	int  ()  const
 	{
 		return toInteger();
 	}
 
-	operator			double()
+	operator
+	double() const
 	{
 		return toDouble();
 	}
-	operator			EString()
+	operator
+	EString() const
 	{
 		return toString();
 	}
 
-	operator			math::vector3d()
+	operator
+	math::vector3d() const
 	{
 		return toVector3d();
 	}
 
-	operator			math::quaternion()
+	operator
+	math::quaternion()
 	{
 		return toQuaternion();
 	}
 
-	operator			math::matrix3x3()
+	operator
+	math::matrix3x3() const
 	{
 		return toMatrix3x3();
 	}
 
-	operator			math::matrix4x4()
+	operator
+	math::matrix4x4() const
 	{
 		return toMatrix4x4();
 	}
-
 
 private:
 	unsigned 			m_Type;
@@ -142,11 +152,17 @@ private:
 		math::quaternion*	m_Quaternion;
 		math::matrix3x3*	m_Matrix3x3;
 		math::matrix4x4*	m_Matrix4x4;
+		int					(*m_CFunc)(lua_State* l);
 	};
 
 	void					m_Clear();
 };
 
+inline
+std::ostream&	operator << (std::ostream& o,const Variable& var)
+{
+	return o << var.toString();
+}
 }
 
 #endif /* VARIABLE_H_ */

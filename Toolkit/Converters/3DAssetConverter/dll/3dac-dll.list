@@ -1,0 +1,27 @@
+
+#
+# Header files
+#
+SET(3DAC_DLL_HEADER_FILES
+  include/freya-3dac/conv.h
+  include/freya-3dac/common.h
+)
+
+#
+# Source files
+#
+SET(3DAC_DLL_SOURCE_FILES 
+  src/conv.cpp
+  src/common.cpp
+)
+
+#
+# All in one
+#
+SOURCE_GROUP("Main" FILES
+  include/freya-3dac/common.h
+  src/common.cpp
+  
+  include/freya-3dac/conv.h
+  src/conv.cpp
+)

@@ -18,6 +18,12 @@
 #include <xmmintrin.h>
 #include <emmintrin.h>
 
+#ifdef _MSC_VER
+#	pragma warning(disable:4305) 
+#	pragma warning(disable:4244) 
+#	pragma warning(disable:4700)
+#endif
+
 #ifdef __SSE3__
 #include <pmmintrin.h>
 #endif
@@ -44,16 +50,6 @@
 
 
 
-#ifdef _FREYA_SHARED_PLUGIN
-namespace core
-{
-namespace memory
-{
-	extern void* (*Allocate)(size_t,unsigned);
-	extern void  (*Free)(void*,unsigned);
-}
-}
-#else
 namespace core
 {
 namespace memory
@@ -62,7 +58,6 @@ namespace memory
 	EXPORT void  Free(void*,unsigned);
 }
 }
-#endif
 
 #define MATH_MEMORY_FUNCTIONS \
 		static void* operator new(size_t sz)\
@@ -148,13 +143,17 @@ union float4
 #endif
 
 #ifdef _MSC_VER
-__declspec(align(16)) union float4
+__declspec(align(16)) union int4
 		{
 	__m128 xmm;
 	float  val[4];
 		};
+		
 #elif defined(__GNUC__)
-typedef int32_t __int32;
+#ifndef __int32
+#define __int32 int
+#endif
+
 union int4
 {
 	__m128i 	xmm;
@@ -188,20 +187,34 @@ _EPI32_CONST(0x7f, 0x7f);
 _EPI32_CONST(0xff, 0xff);
 }
 
-#ifndef __SSE3__
-
+#if !defined(__SSE3__)  
 inline
-__m128 _mm_hadd_ps( __m128& a, __m128& b)
+__m128 _mm_hadd_ps_f( __m128& a, __m128& b)
 {
    __m128 tempA = _mm_shuffle_ps(a,b, _MM_SHUFFLE(2,0,2,0));
    __m128 tempB = _mm_shuffle_ps(a,b, _MM_SHUFFLE(3,1,3,1));
    return _mm_add_ps( tempB, tempA);
 }
-#endif
 
+#else
+#define _mm_hadd_ps_f _mm_hadd_ps
+#endif
 //==================== Implementation =====================================================================
 namespace math
 {
+
+union bin_float
+{
+	float f;
+	unsigned i;
+};
+
+inline
+float abs(const float scalar) {
+	bin_float bf = {scalar};
+	bf.i &= 0x7FFFFFFFU;
+	return bf.f;
+}
 
 inline float sqrt(float _)
 {
@@ -211,7 +224,7 @@ inline float sqrt(float _)
 	return _;
 }
 
-inline float4		  sqrt(float4 _)
+inline float4		  sqrt(float4& _)
 {
 	__m128 xmm0 = _mm_load_ps(_.val);
 	xmm0 = _mm_sqrt_ps(xmm0);
@@ -248,7 +261,7 @@ inline float floor(float _)
 	return (float)val;
 }
 
-inline float4 floor(float4 _)
+inline float4 floor(float4& _)
 {
 	__m128	xmm0	= _mm_load_ps			( _.val );
 	__m128i	xmm1 	= _mm_cvttps_epi32		( xmm0	);
@@ -277,7 +290,7 @@ inline float rcp(float _)
 	return _;
 }
 
-inline float4 rcp(float4 _)
+inline float4 rcp(float4& _)
 {
 	__m128	xmm0	= _mm_load_ps			( _.val );
 	xmm0	= __invert_ps			( xmm0 );
@@ -302,7 +315,7 @@ inline float rcp_sqrt(float _)
 	return _;
 }
 
-inline float4 rcp_sqrt(float4 _)
+inline float4 rcp_sqrt(float4& _)
 {
 	__m128	xmm0	= _mm_load_ps			( _.val );
 	xmm0	= __rsqrt_ps			( xmm0 );
@@ -320,7 +333,7 @@ inline float4 rcp_sqrt(float _1,float _2, float _3, float _4)
 }
 
 //! __/_
-inline float4 rcp_mull(float4 __,float4 _)
+inline float4 rcp_mull(float4& __,float4& _)
 {
 	__m128	xmm0	= _mm_load_ps			( _.val );
 	xmm0	= __invert_ps			( xmm0 );
@@ -330,7 +343,7 @@ inline float4 rcp_mull(float4 __,float4 _)
 	return _;
 }
 //! __/(_)^0.5
-inline float4 rcp_sqrt_mull(float4 __,float4 _)
+inline float4 rcp_sqrt_mull(float4& __,float4& _)
 {
 	__m128	xmm0	= _mm_load_ps			( _.val );
 	xmm0	= __rsqrt_ps			( xmm0 );
@@ -344,7 +357,7 @@ static const float _2_pi = 6.283185307179586476925;
 static const float _2_pi_m1 = 1.0 / _2_pi;
 static const float pi_m1 	= 1.0 / pi;
 
-//static const float4 szero = {0.0,0.0,0.0,0.0};
+//static const float4& szero = {0.0,0.0,0.0,0.0};
 static const float  pi_s	= (float) math::__internal::sub_divisions / pi;
 //static const float  m_pi	= -pi;
 inline float sin(float _)
@@ -369,7 +382,7 @@ inline float sin(float _)
 	int		r1		= _mm_comilt_ss			( xmm1, xmm7 );
 	if(r1)
 	{
-		//float4	mmm; mmm.xmm = xmm1;
+		//float4&	mmm; mmm.xmm = xmm1;
 		xmm6	= _mm_load_ss			( &_2_pi );
 		//std::cout << "repeating - pass " << mmm << " n " << n << std::endl;
 		xmm1 = _mm_add_ss					(xmm1,xmm6);
@@ -380,7 +393,7 @@ inline float sin(float _)
 	r1		= _mm_comigt_ss			( xmm1, xmm8 );
 	if(r1)
 	{
-		//float4	mmm; mmm.xmm = xmm1;
+		//float4&	mmm; mmm.xmm = xmm1;
 		//std::cout << "repeating + pass " << mmm << " n " << n << std::endl;
 		goto loop;
 	}
@@ -427,7 +440,7 @@ inline float cos(float _)
 	int		r1		= _mm_comilt_ss			( xmm1, xmm7 );
 	if(r1)
 	{
-		//float4	mmm; mmm.xmm = xmm1;
+		//float4&	mmm; mmm.xmm = xmm1;
 		xmm6	= _mm_load_ss			( &_2_pi );
 		//std::cout << "repeating - pass " << mmm << " n " << n << std::endl;
 		xmm1 = _mm_add_ss					(xmm1,xmm6);
@@ -436,7 +449,7 @@ inline float cos(float _)
 	r1		= _mm_comigt_ss			( xmm1, xmm8 );
 	if(r1)
 	{
-		//float4	mmm; mmm.xmm = xmm1;
+		//float4&	mmm; mmm.xmm = xmm1;
 		//std::cout << "repeating + pass " << mmm << " n " << n << std::endl;
 		goto loop;
 	}
@@ -491,7 +504,7 @@ inline float acos(float _)
 
 inline void sincos(float _,float* sin,float* cos)
 {
-	__m128	  xmm7	= _mm_xor_ps			( xmm7,xmm7);
+	__m128	  xmm7	= _mm_setzero_ps();
 
 	__m128 xmm8  	= _mm_load_ss 			( &_2_pi );
 	__m128  xmm1	= _mm_load_ss			( &_ );
@@ -510,7 +523,7 @@ inline void sincos(float _,float* sin,float* cos)
 	int		r1		= _mm_comilt_ss			( xmm1, xmm7 );
 	if(r1)
 	{
-		//float4	mmm; mmm.xmm = xmm1;
+		//float4&	mmm; mmm.xmm = xmm1;
 		xmm6	= _mm_load_ss			( &_2_pi );
 		//std::cout << "repeating - pass " << mmm << " n " << n << std::endl;
 		xmm1 = _mm_add_ss					(xmm1,xmm6);
@@ -519,7 +532,7 @@ inline void sincos(float _,float* sin,float* cos)
 	r1		= _mm_comigt_ss			( xmm1, xmm8 );
 	if(r1)
 	{
-		//float4	mmm; mmm.xmm = xmm1;
+		//float4&	mmm; mmm.xmm = xmm1;
 		//std::cout << "repeating + pass " << mmm << " n " << n << std::endl;
 		goto loop;
 	}
@@ -532,7 +545,7 @@ inline void sincos(float _,float* sin,float* cos)
 	__m128	xmm2	= _mm_load_ss			( math::__internal::cos_table + n );
 	__m128	xmm3	= _mm_load_ss			( math::__internal::cos_table + n + 1 );
 	//__m128  xmm4	= _mm_load_ss			( zero.val );
-	__m128	  xmm4	= _mm_xor_ps			( xmm4,xmm4);
+	__m128	  xmm4	= _mm_setzero_ps			();
 	xmm4	= _mm_cvtsi32_ss		( xmm4, n );
 	//Now, compute xmm0 - xmm4 -> xmm0
 	xmm5	= _mm_sub_ss			( xmm0,xmm4 );
@@ -582,7 +595,7 @@ inline   float   tan(float _)
 	int		r1		= _mm_comilt_ss			( xmm1, xmm7 );
 	if(r1)
 	{
-		//float4	mmm; mmm.xmm = xmm1;
+		//float4&	mmm; mmm.xmm = xmm1;
 		xmm6	= _mm_load_ss			( &_2_pi );
 		//std::cout << "repeating - pass " << mmm << " n " << n << std::endl;
 		xmm1 = _mm_add_ss					(xmm1,xmm6);
@@ -591,7 +604,7 @@ inline   float   tan(float _)
 	r1		= _mm_comigt_ss			( xmm1, xmm8 );
 	if(r1)
 	{
-		//float4	mmm; mmm.xmm = xmm1;
+		//float4&	mmm; mmm.xmm = xmm1;
 		//std::cout << "repeating + pass " << mmm << " n " << n << std::endl;
 		goto loop;
 	}
@@ -640,7 +653,7 @@ inline   float   cot(float _)
 {
 	//First of all, convert _ to -PI,PI range
 	//__m128 xmm7  	= _mm_load_ss 			( zero.val );
-	__m128	  xmm7	= _mm_xor_ps			( xmm7,xmm7);
+	__m128	  xmm7	= _mm_setzero_ps			( );
 	__m128 xmm8  	= _mm_load_ss 			( &_2_pi );
 	__m128  xmm1	= _mm_load_ss			( &_ );
 	loop:
@@ -658,7 +671,7 @@ inline   float   cot(float _)
 	int		r1		= _mm_comilt_ss			( xmm1, xmm7 );
 	if(r1)
 	{
-		//float4	mmm; mmm.xmm = xmm1;
+		//float4&	mmm; mmm.xmm = xmm1;
 		xmm6	= _mm_load_ss			( &_2_pi );
 		//std::cout << "repeating - pass " << mmm << " n " << n << std::endl;
 		xmm1 = _mm_add_ss					(xmm1,xmm6);
@@ -667,7 +680,7 @@ inline   float   cot(float _)
 	r1		= _mm_comigt_ss			( xmm1, xmm8 );
 	if(r1)
 	{
-		//float4	mmm; mmm.xmm = xmm1;
+		//float4&	mmm; mmm.xmm = xmm1;
 		//std::cout << "repeating + pass " << mmm << " n " << n << std::endl;
 		goto loop;
 	}
@@ -680,7 +693,7 @@ inline   float   cot(float _)
 	__m128	xmm2	= _mm_load_ss			( math::__internal::cos_table + n );
 	__m128	xmm3	= _mm_load_ss			( math::__internal::cos_table + n + 1 );
 	//__m128  xmm4	= _mm_load_ss			( zero.val );
-	__m128	  xmm4	= _mm_xor_ps			( xmm4,xmm4);
+	__m128	  xmm4	= _mm_setzero_ps			();
 	xmm4	= _mm_cvtsi32_ss		( xmm4, n );
 	//Now, compute xmm0 - xmm4 -> xmm0
 	xmm5	= _mm_sub_ss			( xmm0,xmm4 );

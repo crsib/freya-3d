@@ -8,17 +8,6 @@
 #ifndef SHADER_H_
 #define SHADER_H_
 
-#ifdef _FREYA_SHARED_PLUGIN
-#include <cstdlib>
-namespace core
-{
-namespace memory
-{
-	extern void* (*Allocate)(size_t,unsigned);
-	extern void  (*Free)(void*,unsigned);
-}
-}
-#endif
 /*
  *
  */
@@ -43,7 +32,7 @@ class Texture;
  * There are various overloaded versions of Shader::setUniform and Shader::setAttribute. They are divided into to groups: setting value by name and by ID.
  * They will be documented only briefly.
  */
-class Shader: virtual public ::EngineSubsystem
+class EXPORT Shader: virtual public ::EngineSubsystem
 {
 public:
 	//Attaches (and compiles)
@@ -146,49 +135,6 @@ public:
 	virtual void 	 setUniform(unsigned location,const math::matrix3x3& val) = 0;//!< An overloaded version of setUniform
 	virtual void 	 setUniform(const EString& name,const math::matrix3x3& val) = 0;//!< An overloaded version of setUniform
 
-	//attributes
-	//! Retrieve attribute parameter location by its name
-	/*!
-	 * Retrieves attribute parameter location by its name
-	 * \param name is a name of attribute location
-	 * \return API depended attribute ID
-	 */
-	virtual unsigned getAttributeLocation(const EString& name) = 0;
-
-	virtual void 	 setAttribute(unsigned location,int val) = 0;//!< An overloaded version of setAttribute
-	virtual void 	 setAttribute(const EString& name,int val) = 0;//!< An overloaded version of setAttribute
-
-	virtual void 	 setAttribute(unsigned location,float val) = 0;//!< An overloaded version of setAttribute
-	virtual void 	 setAttribute(const EString& name,float val) = 0;//!< An overloaded version of setAttribute
-
-	virtual void 	 setAttribute(unsigned location,int val,int val1) = 0;//!< An overloaded version of setAttribute
-	virtual void 	 setAttribute(const EString& name,int val,int val1) = 0;//!< An overloaded version of setAttribute
-
-	virtual void 	 setAttribute(unsigned location,float val,float val1) = 0;//!< An overloaded version of setAttribute
-	virtual void 	 setAttribute(const EString& name,float val,float val1) = 0;//!< An overloaded version of setAttribute
-
-	virtual void 	 setAttribute(unsigned location,int val,int val1,int val2) = 0;//!< An overloaded version of setAttribute
-	virtual void 	 setAttribute(const EString& name,int val,int val1,int val2) = 0;//!< An overloaded version of setAttribute
-
-	virtual void 	 setAttribute(unsigned location,float val,float val1,float val2) = 0;//!< An overloaded version of setAttribute
-	virtual void 	 setAttribute(const EString& name,float val,float val1,float val2) = 0;//!< An overloaded version of setAttribute
-
-	virtual void 	 setAttribute(unsigned location,int val,int val1,int val2,int val3) = 0;//!< An overloaded version of setAttribute
-	virtual void 	 setAttribute(const EString& name,int val,int val1,int val2,int val3) = 0;//!< An overloaded version of setAttribute
-
-	virtual void 	 setAttribute(unsigned location,float val,float val1,float val2,float val3) = 0;//!< An overloaded version of setAttribute
-	virtual void 	 setAttribute(const EString& name,float val,float val1,float val2,float val3) = 0;//!< An overloaded version of setAttribute
-
-	virtual void 	 setAttribute(unsigned location,const math::vector3d& val) = 0;//!< An overloaded version of setAttribute
-	virtual void 	 setAttribute(const EString& name,const math::vector3d& val) = 0;//!< An overloaded version of setAttribute
-
-	virtual void 	 setAttribute(unsigned location,const math::quaternion& val) = 0;//!< An overloaded version of setAttribute
-	virtual void 	 setAttribute(const EString& name,const math::quaternion& val) = 0;//!< An overloaded version of setAttribute
-
-	virtual void 	 setAttribute(unsigned location,const math::vector3d& val,float val1) = 0;//!< An overloaded version of setAttribute
-	virtual void 	 setAttribute(const EString& name,const math::vector3d& val,float val2) = 0;//!< An overloaded version of setAttribute
-
-
 	//Geometry shader
 	//! Set geometry shader parameter
 	/*!
@@ -204,16 +150,16 @@ public:
 	/*!
 	 * Sets the texture to shader
 	 * \param location is an ID of sampler parameter
-	 * \param tex is pointer to Texture object
+	 * \param tex is sampler id.
 	 */
-	virtual void	 setTexture(unsigned location,Texture* tex) = 0;
+	virtual void	 setTexture(unsigned location,renderer::TextureUnit::type unit) = 0;
 	//! Set the texture to shader (overloaded version)
 	/*!
 	 * Sets the texture to shader
 	 * \param name is name string of sampler parameter
 	 * \param tex is pointer to Texture object
 	 */
-	virtual void 	 setTexture(const EString& name,Texture* tex) = 0;
+	virtual void 	 setTexture(const EString& name,renderer::TextureUnit::type unit) = 0;
 };
 
 }

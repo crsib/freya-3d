@@ -1,3 +1,77 @@
+$lfile "lua_debug.lua"
+
+$#include "core/lua/lua_libraries/lua_helpers.h"
+$#include "core/EString.h"
+
+typedef std::string  EString;
+typedef std::vector<EString> EStringList;
+namespace std
+{
+class vector {
+
+	TEMPLATE_BIND(T, EString)
+
+	void clear();
+	int size() const;
+
+	const T& operator[](int index) const;
+	T& operator[](int index);
+	void push_back(T val);
+
+	vector();
+	~vector();
+};
+}
+
+void include(const EString& modName, const EString& path);
+
+enum	MemControl
+{
+	TOTAL_ALLOCATED,
+	ALLOCATION_COUNT,
+	DEALLOCATION_COUNT,
+	ALLOCATED_FOR_BUFFERS
+};
+
+unsigned memoryUsage(MemControl ctrl);
+
+const char* keyboardKeyName(size_t i);
+
+const char* mouseButtonName(size_t i);
+
+namespace core
+{
+namespace taskmanager
+{
+
+class LuaTask : public core::taskmanager::Task
+{
+public:
+	LuaTask(const EString& metName);
+	~LuaTask();
+};
+
+}
+}
+
+class		VDataRenderer : public EngineSubsystem
+{
+public:
+	VDataRenderer();
+	
+	virtual ~VDataRenderer();
+
+	bool	hasTangentSpace();
+
+	void	reload(const EString& path);
+	void	enableBumpMapping(bool val);
+	void	render(const math::vector3d& light_pos, const math::vector3d& eye_pos);
+};
+
+void	setQuitCallback(const EString& luaFn);
+
+void	setWheelCallback(const EString& luaFn);
+
 //Packages
 $#include "core/lua/tolua++/tolua_base.h"
 //Math
@@ -8,7 +82,30 @@ $pfile "math/matrix3x3.lpkg"
 $pfile "math/matrix4x4.lpkg"
 $pfile "math/wrap_math.lpkg"
 $pfile "math/plane.lpkg"
+$pfile "math/frustum.lpkg"
 
+$pfile "core/EngineCore.lpkg"
+$pfile "core/Filesystem.lpkg"
+$pfile "core/MemoryArena.lpkg"
+$pfile "core/MemoryPools.lpkg"
+$pfile "core/TaskManager.lpkg"
+$pfile "core/Task.lpkg"
+
+$pfile "renderer/RenderingAPIDriver.lpkg"
+$pfile "renderer/Shader.lpkg"
+$pfile "renderer/VertexBufferObject.lpkg"
+$pfile "renderer/Texture.lpkg"
+$pfile "renderer/Framebuffer.lpkg"
+
+$pfile "resource/Resource.lpkg"
+$pfile "resource/ResourceManager.lpkg"
+
+$pfile "windowmanager/WindowManagerDriver.lpkg"
+$pfile "windowmanager/KeyboardKeys.lpkg"
+$pfile "windowmanager/KeyDrivenDevice.lpkg"
+$pfile "windowmanager/MovementDrivenDevice.lpkg"
+$pfile "windowmanager/MouseButtons.lpkg"
+$pfile "windowmanager/Callback.lpkg"
 
 //CEGUI
-$pfile "../../../../3party/cegui/src/ScriptingModules/LuaScriptModule/package/CEGUI.pkg"
+$pfile "../../../../3party/cegui/src/ScriptingModules/LuaScriptModule/package/CEGUI.pkg" 

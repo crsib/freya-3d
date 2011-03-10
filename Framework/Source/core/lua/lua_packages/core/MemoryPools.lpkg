@@ -1,0 +1,17 @@
+namespace core
+{
+namespace memory
+{
+	enum MEMORYPOOLTYPE
+	{
+		DEFAULT_POOL,
+		STL_POOL ,
+		MATH_POOL,
+		GENERIC_POOL,
+		CLASS_POOL,
+		LUA_POOL,
+		CEGUI_POOL,
+		WORLD_POOL
+	};
+}
+}

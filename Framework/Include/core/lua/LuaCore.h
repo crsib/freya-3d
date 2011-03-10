@@ -16,23 +16,26 @@ extern "C"
 {
 	#include "core/lua/luajit.h"
 }
+
 #include "core/Variable.h"
+#include <algorithm>
 #include <vector>
 #include "core/memory/MemoryAllocator.h"
 #include "core/lua/LuaFunction.h"
 #include "core/EString.h"
+#include "core/multithreading/ThreadID.h"
+
+#include "internal.h"
 namespace core
 {
 	class EngineCore;
 namespace lua
 {
-class LuaCore: public EngineSubsystem
+class EXPORT LuaCore: public EngineSubsystem
 {
 	friend class core::EngineCore;
 	friend class LuaFunction;
 protected:
-	typedef std::vector<Variable*,core::memory::MemoryAllocator<Variable*> > VariableVector;
-	typedef std::vector<LuaFunction*, core::memory::MemoryAllocator<LuaFunction*> > LuaFunctionVector;
 	LuaCore();
 	virtual ~LuaCore();
 public:
@@ -44,25 +47,20 @@ public:
 		FULL_OPTIMIZATION
 	};
 
-	void	startJIT(unsigned OptLevel = FULL_OPTIMIZATION);
-	void	stopJIT();
+	void			startJIT(unsigned OptLevel = FULL_OPTIMIZATION);
+	void			stopJIT();
 
-	void	compileFunction(const LuaFunction& func);
+	void			compileFunction(const LuaFunction& func);
 
 	//Variables
-	Variable&	getValue(const EString& name);//modules are parsed correctly
-	void		setValue(const EString& name,const Variable& var);
+	Variable		getValue(const EString& name);//modules are parsed correctly
+	void			setValue(const EString& name,const Variable& var);
 
-	template<typename T>
-	Variable& createValue(const T& val);
 
-	void	destroyValue(Variable* var);
-
-	void	pushValue(const Variable& var);
-	Variable& popValue();
+	void			pushValue(const Variable& var);
+	Variable 		popValue();
 	//Functions
-	LuaFunction&	createFunction(const EString& name,unsigned NumArgs,unsigned NumRet);
-	void			destroyFunction(LuaFunction* func);
+	LuaFunction		getFuction(const EString& name,unsigned NumArgs,unsigned NumRet);
 	//Now, some scripts inclusion/runnig (otherwise, what the hell this parser needed)
 	void			runScript(const EString& script);
 	void			includeModule(const EString& module_name,const EString& script);
@@ -71,8 +69,35 @@ public:
 	void			restartGarbageCollector();
 	void			stopGarbageCollector();
 
+	void			createLuaThread(const core::multithreading::ThreadID& thrd);
+
 private:
 	lua_State*			m_VirtualMachine;
+	class LuaStates : public ::EngineSubsystem
+	{
+	public:
+		typedef std::vector <std::pair<const core::multithreading::ThreadID*,lua_State*> , core::memory::MemoryAllocator<std::pair<const core::multithreading::ThreadID*,lua_State*> > > vect;
+
+		void		add(const core::multithreading::ThreadID& thrd,lua_State* ls)
+		{
+			created.push_back(std::make_pair(&thrd,ls));
+		}
+
+		lua_State*	operator[] (const core::multithreading::ThreadID& thrd)
+		{
+
+			for(size_t i = 0; i < created.size(); i++)
+			{
+				if(*(created[i].first) == thrd)
+					return created[i].second;
+			}
+			return NULL;
+		}
+
+		vect 	created;
+	};
+	//typedef		std::map<const core::multithreading::ThreadID*,lua_State*,std::less<const core::multithreading::ThreadID* >, core::memory::MemoryAllocator<std::pair<const core::multithreading::ThreadID*,lua_State*> > > LuaStates;
+	LuaStates			m_States;
 public:
 	lua_State*			getVM()
 	{
@@ -82,19 +107,8 @@ private:
 	unsigned			m_JITInstalled;
 	unsigned			m_JITStarted;
 
-	VariableVector		m_Variables;
-	LuaFunctionVector	m_Functions;
-
 	unsigned			m_OptLevel;
 };
-
-template<typename T>
-Variable& LuaCore::createValue(const T& val)
-{
-	Variable*	var = new Variable(val);
-	m_Variables.push_back(var);
-	return *var;
-}
 
 }
 }

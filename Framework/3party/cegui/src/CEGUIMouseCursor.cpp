@@ -36,7 +36,7 @@
 #include "CEGUIImageset.h"
 #include "CEGUIImage.h"
 #include "CEGUIGeometryBuffer.h"
-
+#include <iostream>
 // Start of CEGUI namespace section
 namespace CEGUI
 {
@@ -135,6 +135,7 @@ void MouseCursor::setImage(const String& imageset, const String& image_name)
 *************************************************************************/
 void MouseCursor::draw(void) const
 {
+	//std::cout << "Rendering cursor " << (d_cursorImage) << std::endl;
     if (d_visible && d_cursorImage)
         d_geometry->draw();
 }

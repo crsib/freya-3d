@@ -73,7 +73,7 @@ void		OpenGL_GLSL_Shader::addShader(renderer::ShaderType::type type,const EStrin
 
 	glGetObjectParameterivARB(shader, GL_OBJECT_COMPILE_STATUS_ARB, &compileStatus);
 
-	if(compileStatus == 0) //Whoa, this shader is no compiled. Ats a good idea to generate exeption )))
+	if(compileStatus == 0) //Whoa, this shader is not compiled. Ats a good idea to generate exception )))
 	{
 		GLint       logLength     = 0;
 		GLsizei     charsWritten  = 0;
@@ -677,14 +677,14 @@ void		OpenGL_GLSL_Shader:: setGeometryShader(unsigned maxOutVerts,renderer::Prim
 	glProgramParameteriEXT(m_ShaderObject,GL_GEOMETRY_OUTPUT_TYPE_EXT,outType);
 }
 
-void		OpenGL_GLSL_Shader:: setTexture(unsigned location,Texture* tex)
+void		OpenGL_GLSL_Shader:: setTexture(unsigned location,renderer::TextureUnit::type unit)
 {
-	setUniform(location,(int)tex->getTextureUnit());
+	setUniform(location,(int)unit);
 }
 
-void		OpenGL_GLSL_Shader::	 setTexture(const EString& name,Texture* tex)
+void		OpenGL_GLSL_Shader::	 setTexture(const EString& name,renderer::TextureUnit::type unit)
 {
-	setUniform(name,(int)tex->getTextureUnit());
+	setUniform(name,(int)unit);
 }
 
 }

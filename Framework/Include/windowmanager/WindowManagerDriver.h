@@ -91,6 +91,8 @@ public:
 	//! Destroys window (does not destroys RAPIDriver)
 	virtual void		destroyWindow() = 0;
 
+	virtual unsigned	getWindowWidth() const = 0;
+	virtual unsigned	getWindowHeight() const = 0;
 	//Time
 	virtual unsigned	getTickCount() = 0;
 	//Input
@@ -105,12 +107,7 @@ public:
 	virtual void		setQuitCallback(const Callback& callback) = 0;
 	//! Set the mouse wheel callback. p1 is int and represents a mouse. p2 is int and represents an event value
 	virtual void		setMouseWheelCallback(const Callback& callback) = 0;
-	//Sets the mode for whole device.
-	//For keydriven devices it is available to set individual callbacks for keys
-	//For undestardable reason, its no efficient way to make the movement based actions to send messages only in specicified areas.
-	//(Actually, resulting speed will be the same)
-	virtual void		setKeydrivenDeviceMode(unsigned mode) = 0;
-	virtual void		setMovementDrivenDevice(unsigned mode) = 0;
+
 	//This function will post a user event
 	virtual void		postUserEvent(unsigned uid, void* arg1, void* arg2) = 0;
 	//WM

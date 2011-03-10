@@ -34,7 +34,8 @@
 #define _CEGUIBase_h_
 
 #include <cassert>
-
+#include <cstdio>
+#include <cstdlib>
 #include "freya/CEGUIMemory.h"
 // bring in configuration options
 #include "CEGUIConfig.h"
@@ -54,8 +55,8 @@
 #   endif
 #       define CEGUIPRIVATE
 #else
-#       define CEGUIEXPORT
-#       define CEGUIPRIVATE
+#       define CEGUIEXPORT  __attribute__ ((visibility("default")))
+#       define CEGUIPRIVATE __attribute__ ((visibility("hidden")))
 #endif
 
 

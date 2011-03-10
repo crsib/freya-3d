@@ -15,7 +15,7 @@ public:
 	{
 		m_Msg = s;
 	}
-	virtual ~WMException();
+	virtual ~WMException() throw();
 
 	virtual EString message() const;
 private:

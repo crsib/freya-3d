@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout >
+    <Window Type="DefaultWindow" Name="Root" >
+        <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
+         <Window Type="TaharezLook/StaticText" Name="Root/Memory">
+        	<Property Name="ID" Value="1002" />
+        	<Property Name="Text" Value="0 B / 0 Mb" />
+        	<Property Name="Font" Value="DejaVuSans-10" />
+        	<Property Name="HorzFormatting" Value="WordWrapRightAligned" />
+        	<Property Name="UnifiedAreaRect" Value="{{0.7,0},{0.93,0},{0.99,0},{0.99,0}}" />
+        </Window>
+        <Window Type="TaharezLook/FrameWindow" Name="Root/Statistics" >
+            <Property Name="Text" Value="Statistics" />
+            <Property Name="TitlebarFont" Value="DejaVuSans-10" />
+            <Property Name="TitlebarEnabled" Value="True" />
+            <Property Name="UnifiedAreaRect" Value="{{0.699692,0},{0.0447619,0},{0.982099,0},{0.294762,0}}" />
+            <Window Type="TaharezLook/StaticText" Name="Root/Statistics/FPS_TEXT" >
+                <Property Name="Text" Value="FPS:" />
+                <Property Name="HorzExtent" Value="22" />
+                <Property Name="VertExtent" Value="12.4227" />
+                <Property Name="UnifiedAreaRect" Value="{{0.05,0},{0.05,0},{0.2347,0},{0.3,0}}" />
+            </Window>
+            <Window Type="TaharezLook/StaticText" Name="Root/Statistics/FPS_Value" >
+            	<Property Name="ID" Value="102" />
+                <Property Name="Text" Value="000.00" />
+                <Property Name="HorzExtent" Value="38" />
+                <Property Name="VertExtent" Value="12.4227" />
+                <Property Name="UnifiedAreaRect" Value="{{0.254099,0},{0.05,0},{0.525957,0},{0.3,0}}" />
+            </Window>
+            <Window Type="TaharezLook/StaticText" Name="Root/Statistics/Model_name_static" >
+                <Property Name="Text" Value="Model:" />
+                <Property Name="HorzExtent" Value="34" />
+                <Property Name="VertExtent" Value="12.4227" />
+                <Property Name="UnifiedAreaRect" Value="{{0.05,0},{0.32,0},{0.307924,0},{0.57,0}}" />
+            </Window>
+            <Window Type="TaharezLook/StaticText" Name="Root/Statistics/Model_Name_Value" >
+                <Property Name="Text" Value="cube.vdata" />
+                <Property Name="HorzExtent" Value="60" />
+                <Property Name="VertExtent" Value="12.4227" />
+                <Property Name="UnifiedAreaRect" Value="{{0.321858,0},{0.32,0},{0.965301,0},{0.57,0}}" />
+            </Window>
+            <Window Type="TaharezLook/Checkbox" Name="Root/Statistics/Enable_Bump_Shader" >
+                <Property Name="Font" Value="DejaVuSans-10" />
+                <Property Name="ID"   Value="110" />
+                <Property Name="Disabled" Value="True" />
+                <Event	  Name="CheckStateChanged" Function="bump_enabler_clicked" />
+                <Property Name="Text" Value="Enable bump shader" />
+                <Property Name="UnifiedAreaRect" Value="{{0.0448092,0},{0.628571,0},{0.939618,0},{0.878571,0}}" />
+                <Property Name="ClippedByParent" Value="False" />
+            </Window>
+            <Window Type="TaharezLook/StaticText" Name="Root/Statistics/Shader_Lang" >
+            	<Property Name="ID" Value="103" />
+                <Property Name="Text" Value="GLSL 1.10" />
+                <Property Name="HorzExtent" Value="55" />
+                <Property Name="VertExtent" Value="12.4227" />
+                <Property Name="UnifiedAreaRect" Value="{{0.554645,0},{0.0428573,0},{0.963115,0},{0.292857,0}}" />
+            </Window>
+        </Window>
+        <Window Type="TaharezLook/FrameWindow" Name="Root/FS_FRAME" >
+            <Property Name="Text" Value="Filesystem" />
+            <Property Name="TitlebarFont" Value="DejaVuSans-10" />
+            <Property Name="TitlebarEnabled" Value="True" />
+            <Property Name="UnifiedAreaRect" Value="{{0.701196,0},{0.337619,0},{0.985205,0},{0.735536,0}}" />
+            <Window Type="TaharezLook/SystemButton" Name="Root/FS_FRAME/Load" >
+            	<Property Name="ID"	  Value="202" />
+                <Property Name="Text" Value="Load selected" />
+                <Property Name="UnifiedAreaRect" Value="{{0.0363956,0},{0.766493,0},{0.963259,0},{0.922252,0}}" />
+                <Property Name="ClippedByParent" Value="False" />
+                <Event Name="Clicked" Function="reload_data" />
+                <Property Name="Disabled" Value="True" />
+            </Window>
+            <Window Type="TaharezLook/Listbox" Name="Root/FS_FRAME/DirectoryView" >
+            	<Property Name="ID" Value="201" />
+            	<Event Name="ItemSelectionChanged" Function="selection_changed" />
+                <Property Name="UnifiedAreaRect" Value="{{0.0527637,0},{0.0287961,0},{0.94001,0},{0.71335,0}}" />
+                
+            </Window>
+        </Window>
+        <Window Type="TaharezLook/FrameWindow" Name="Root/Controls" >
+            <Property Name="Text" Value="Controls" />
+            <Property Name="TitlebarFont" Value="DejaVuSans-10" />
+            <Property Name="TitlebarEnabled" Value="True" />
+            <Property Name="UnifiedAreaRect" Value="{{0.0078125,0},{0.0416667,0},{0.257813,0},{0.329167,0}}" />
+            <Window Type="TaharezLook/RadioButton" Name="Root/Controls/Light_Ctrl" >
+                <Property Name="Text" Value="Light" />
+                <Property Name="UnifiedAreaRect" Value="{{0.08125,0},{-0,0},{0.43125,0},{0.244203,0}}" />
+            </Window>
+            <Window Type="TaharezLook/RadioButton" Name="Root/Controls/Camera_Ctrl" >
+            	<Event Name="SelectStateChanged" Function="controller_changed" />
+            	<Property Name="ID" Value="310" />
+                <Property Name="Text" Value="Camera" />
+                <Property Name="Selected" Value="True" />
+                <Property Name="UnifiedAreaRect" Value="{{0.41875,0},{0,0},{0.85625,0},{0.260869,0}}" />
+            </Window>
+            <Window Type="TaharezLook/StaticText" Name="Root/Controls/Text_Box" >
+                <Property Name="Text" >Arrows - rotate
+W/S      - zoom in/out
+B          - enable bump
+Esq       - exit</Property>
+                <Property Name="HorzExtent" Value="115" />
+                <Property Name="VertExtent" Value="49.6909" />
+                <Property Name="VertFormatting" Value="TopAligned" />
+                <Property Name="UnifiedAreaRect" Value="{{0.0625001,0},{0.221739,0},{0.925,0},{0.848551,0}}" />
+                <Property Name="ClippedByParent" Value="True" />
+            </Window>
+        </Window>
+    </Window>
+</GUILayout>

@@ -70,7 +70,10 @@ OpenGL_GLSL_Driver::OpenGL_GLSL_Driver()
 			renderer::futures::TEXTURE_BUFFER				|
 			renderer::futures::R2VB							|
 			renderer::futures::VERTEX_SHADER				|
-			renderer::futures::FRAGMENT_SHADER;
+			renderer::futures::FRAGMENT_SHADER				|
+			renderer::futures::HAS_DEFAULT_PROJECTION_BIND  |
+			renderer::futures::HAS_DEFAULT_VIEW_BIND		|
+			renderer::futures::HAS_DEFUALT_WORLD_BIND;
 	m_VF = NULL;
 	m_RendererName = EString(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
 	m_RendererVendor = EString(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
@@ -84,7 +87,7 @@ OpenGL_GLSL_Driver::OpenGL_GLSL_Driver()
 			<< " px\n\tMaximum cube texture size: " << m_MaxCubeTextureSize
 			<< " px\n\tMaximum 3D texture size: " << m_Max3DTextureSize
 			<< " px\n\tNumber of draw buffers: " << m_NumDrawBuffers
-			<< " \n\tnumber of texture units: " << m_TextureUnits << std::endl;
+			<< " \n\tNumber of texture units: " << m_TextureUnits << std::endl;
 }
 
 OpenGL_GLSL_Driver::~OpenGL_GLSL_Driver()
@@ -99,30 +102,35 @@ OpenGL_GLSL_Driver::~OpenGL_GLSL_Driver()
 		delete *it;
 }
 
-EString		OpenGL_GLSL_Driver::id() const
-		{
+EString
+OpenGL_GLSL_Driver::id() const
+{
 	return EString("OpenGL 1.5 GLSL");
-		}
+}
 
-EString		OpenGL_GLSL_Driver::getAPIName() const
-		{
+EString
+OpenGL_GLSL_Driver::getAPIName() const
+{
 	return EString("OpenGL 1.5");
-		}
+}
 
-EString		OpenGL_GLSL_Driver::getShaderAPIName() const
-		{
+EString
+OpenGL_GLSL_Driver::getShaderAPIName() const
+{
 	return EString("GLSL_1_10");
-		}
+}
 
-bool	OpenGL_GLSL_Driver::futuresState(unsigned futures) const
-		{
+bool
+OpenGL_GLSL_Driver::futuresState(unsigned futures) const
+{
 	return (m_Futures & futures) == futures;
-		}
+}
 
-unsigned OpenGL_GLSL_Driver::futures() const
-		{
+unsigned
+OpenGL_GLSL_Driver::futures() const
+{
 	return m_Futures;
-		}
+}
 
 void		OpenGL_GLSL_Driver::setViewport(unsigned x, unsigned y,unsigned width,unsigned height)
 {
@@ -270,7 +278,7 @@ void		OpenGL_GLSL_Driver::setStreamSource(unsigned sourceID,VertexBufferObject* 
 
 OpenGL_GLSL_Driver::VertexFormat::VertexFormat(renderer::VertexElement* format,StreamSource*	streams)
 : EngineSubsystem()
-  {
+{
 	m_Format = format;
 	m_Streams = streams;
 	bool end = false;
@@ -294,7 +302,7 @@ OpenGL_GLSL_Driver::VertexFormat::VertexFormat(renderer::VertexElement* format,S
 		else end = true;
 	}
 
-  }
+}
 
 void	OpenGL_GLSL_Driver::VertexFormat::enable()
 {
@@ -314,6 +322,9 @@ void	OpenGL_GLSL_Driver::VertexFormat::enable()
 	for(unsigned i = 0; i < m_Length; i ++)
 	{
 		VertexElement*	elem = m_Format + i;
+		//std::cout << "r number of comp: " << (int)num_components[elem->type]  << std::endl;
+		//std::cout << "r offset: " << elem->offset << std::endl;
+
 		if(lastStream != elem->streamID)
 		{
 			m_Streams[lastStream].buffer->unbind();
@@ -333,6 +344,19 @@ void	OpenGL_GLSL_Driver::VertexFormat::enable()
 			case renderer::VertexFormat::NORMAL:
 				glEnableClientState(GL_NORMAL_ARRAY);
 				glNormalPointer(type_of_component[elem->type],m_Streams[lastStream].stride,(void*)(m_Streams[lastStream].offset + elem->offset));
+				break;
+			case renderer::VertexFormat::TANGENT:
+				glClientActiveTextureARB(GL_TEXTURE1);
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				glTexCoordPointer(num_components[elem->type],type_of_component[elem->type],m_Streams[lastStream].stride,(void*)(m_Streams[lastStream].offset + elem->offset));
+				break;
+			case renderer::VertexFormat::BINORMAL:
+				glClientActiveTextureARB(GL_TEXTURE2);
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				glTexCoordPointer(num_components[elem->type],type_of_component[elem->type],m_Streams[lastStream].stride,(void*)(m_Streams[lastStream].offset + elem->offset));
+				break;
+			case renderer::VertexFormat::POINT_SIZE:
+
 				break;
 			default:
 				if(elem->usage < renderer::VertexFormat::UNUSED)
@@ -481,11 +505,11 @@ void		OpenGL_GLSL_Driver::drawPrimitive(renderer::Primitive::type primitives,uns
 	m_VF->disable();
 }
 
-void		OpenGL_GLSL_Driver::drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* buf)
+void		OpenGL_GLSL_Driver::drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* buf,ptrdiff_t offset)
 {
 	m_VF->enable();
 	buf->bind(VBOType::INDEX);
-	glDrawElements(OpenGL_GLSL_Tables::Primitive[primitives],count,OpenGL_GLSL_Tables::DataType[type],0);
+	glDrawElements(OpenGL_GLSL_Tables::Primitive[primitives],count,OpenGL_GLSL_Tables::DataType[type],(void*)offset);
 	buf->unbind();
 	m_VF->disable();
 }
@@ -494,7 +518,7 @@ void		OpenGL_GLSL_Driver::drawPrimitive(renderer::Primitive::type primitives,uns
 {
 	OpenGL_GLSL_Driver::VertexFormat*	instd = new OpenGL_GLSL_Driver::VertexFormat(instanceDeclaration,m_Streams);
 	m_VF->enable();
-	for(int i = 0; i < numInstances; i++)
+	for(unsigned i = 0; i < numInstances; i++)
 	{
 		instd->enableImmediate(i,instanceData);
 		glDrawArrays(OpenGL_GLSL_Tables::Primitive[primitives],first,count);
@@ -503,15 +527,15 @@ void		OpenGL_GLSL_Driver::drawPrimitive(renderer::Primitive::type primitives,uns
 	delete instd;
 }
 
-void		OpenGL_GLSL_Driver::drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* indexBuffer,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData)
+void		OpenGL_GLSL_Driver::drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* indexBuffer,ptrdiff_t offset,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData)
 {
 	OpenGL_GLSL_Driver::VertexFormat*	instd = new OpenGL_GLSL_Driver::VertexFormat(instanceDeclaration,m_Streams);
 	m_VF->enable();
 	indexBuffer->bind(VBOType::INDEX);
-	for(int i = 0; i < numInstances; i++)
+	for(unsigned i = 0; i < numInstances; i++)
 	{
 		instd->enableImmediate(i,instanceData);
-		glDrawElements(OpenGL_GLSL_Tables::Primitive[primitives],count,OpenGL_GLSL_Tables::DataType[type],0);
+		glDrawElements(OpenGL_GLSL_Tables::Primitive[primitives],count,OpenGL_GLSL_Tables::DataType[type],(void*)offset);
 	}
 	indexBuffer->unbind();
 	m_VF->disable();
@@ -604,7 +628,7 @@ void		OpenGL_GLSL_Driver::setPolygonOffset(float factor,float units)
 	glPolygonOffset(factor,units);
 }
 
-const float*
+const unsigned*
 OpenGL_GLSL_Driver::getViewport() const
 {
 	return m_ViewPort;
@@ -642,7 +666,8 @@ OpenGL_GLSL_Driver::numTextureUnits() const
 
 void		OpenGL_GLSL_Driver::setTexture(renderer::TextureUnit::type unit, Texture* tex)
 {
-	static_cast<OpenGL_GLSL_Texture*>(tex)->bind(unit);
+	if(tex)
+		static_cast<OpenGL_GLSL_Texture*>(tex)->bind(unit);
 }
 
 void 		OpenGL_GLSL_Driver::setMatrix(renderer::Matrix::type mode,const math::matrix4x4& mtx)
@@ -665,6 +690,7 @@ void 		OpenGL_GLSL_Driver::setMatrix(renderer::Matrix::type mode,const math::mat
 	//glLoadTransposeMatrixfARB(const_cast<GLfloat*>((const float*)mtx));
 	glLoadMatrixf(math::transposed(mtx));
 	glActiveTextureARB(GL_TEXTURE0);
+	m_Matricies[mode] = mtx;
 }
 
 void 		OpenGL_GLSL_Driver::enableAlphaBlend()
@@ -699,6 +725,26 @@ OpenGL_GLSL_Driver::getRendererVendor() const
 	return m_RendererVendor;
 }
 
+//Scissor test
+void		OpenGL_GLSL_Driver::enableScissorTest()
+{
+	glEnable(GL_SCISSOR_TEST);
+}
+
+void		OpenGL_GLSL_Driver::disableScissorTest()
+{
+	glDisable(GL_SCISSOR_TEST);
+}
+
+void		OpenGL_GLSL_Driver::clipArea(float left,float top, float right,float bottom)
+{
+	glScissor(left,top,math::abs(right - left), math::abs(top - bottom));
+}
+
+const math::matrix4x4 OpenGL_GLSL_Driver::getMatrix(renderer::Matrix::type mtx) const
+{
+	return m_Matricies[mtx];
+}
 
 }
 }

@@ -58,12 +58,14 @@
 #include "CEGUIRenderingContext.h"
 #include "CEGUIDefaultResourceProvider.h"
 #include "CEGUIImageCodec.h"
+#include "CEGUIRenderTarget.h"
 #include "elements/CEGUIAll.h"
 #include <ctime>
 #include <clocale>
 
+#include <iostream>
 //This block includes the proper headers when static linking
-#if defined(CEGUI_STATIC)
+#if 1 || defined(CEGUI_STATIC)
     // XML Parser
 	#ifdef CEGUI_WITH_EXPAT
 		#include "XMLParserModules/ExpatParser/CEGUIExpatParserModule.h"
@@ -90,6 +92,10 @@
 
 #define S_(X) #X
 #define STRINGIZE(X) S_(X)
+
+#ifdef _MSC_VER
+#	pragma comment(lib, "winmm.lib")
+#endif
 
 // Start of CEGUI namespace section
 namespace CEGUI
@@ -234,7 +240,7 @@ System::System(Renderer& renderer,
     // constructor, we mark it as so and leave the logger untouched. This allows
     // the user to fully customize the logger as he sees fit without fear of
     // seeing its configuration overwritten by this.
-#ifdef CEGUI_HAS_DEFAULT_LOGGER
+#if 1
     if (d_ourLogger)
         new DefaultLogger();
 #endif
@@ -421,7 +427,9 @@ void System::renderGUI(void)
 	}
 
     d_renderer->getDefaultRenderingRoot().draw();
+    //d_renderer->getDefaultRenderingRoot().getRenderTarget().activate();
 	MouseCursor::getSingleton().draw();
+	//d_renderer->getDefaultRenderingRoot().getRenderTarget().deactivate();
     d_renderer->endRendering();
 
     // do final destruction on dead-pool windows
@@ -488,6 +496,7 @@ void System::setDefaultFont(Font* font)
 *************************************************************************/
 void System::setDefaultMouseCursor(const Image* image)
 {
+	//std::cout << "Setting mouse cursor " << image << std::endl;
     // the default, default, is for nothing!
     if (image == (const Image*)DefaultMouseCursor)
         image = 0;
@@ -523,6 +532,7 @@ void System::setDefaultMouseCursor(const Image* image)
 *************************************************************************/
 void System::setDefaultMouseCursor(const String& imageset, const String& image_name)
 {
+	//std::cout << "Setting mouse cursor from " << imageset << " with " << image_name << std::endl;
 	setDefaultMouseCursor(&ImagesetManager::getSingleton().get(imageset).getImage(image_name));
 }
 
@@ -1504,7 +1514,7 @@ void System::setupXMLParser()
     // handle creation / initialisation of XMLParser
     if (!d_xmlParser)
     {
-#ifndef CEGUI_STATIC
+#if 0
         setXMLParser(d_defaultXMLParserName);
 #else
         //Static Linking Call
@@ -1545,7 +1555,7 @@ void System::cleanupXMLParser()
         delete d_parserModule;
         d_parserModule = 0;
     }
-#ifdef CEGUI_STATIC
+#if 1
     else
         //Static Linking Call
         destroyParser(d_xmlParser);
@@ -1557,7 +1567,7 @@ void System::cleanupXMLParser()
 //----------------------------------------------------------------------------//
 void System::setXMLParser(const String& parserName)
 {
-#ifndef CEGUI_STATIC
+#if 0
     cleanupXMLParser();
     // load dynamic module
     d_parserModule = new DynamicModule(String("CEGUI") + parserName);
@@ -1687,7 +1697,7 @@ void System::setupImageCodec(const String& codecName)
     // Test whether we should use the default codec or not
     if (codecName.empty())
         // when statically linked the default codec is already in the system
-        #if defined(CEGUI_STATIC)
+        #if 1
             d_imageCodecModule = 0;
         #else
             d_imageCodecModule =
@@ -1707,7 +1717,7 @@ void System::setupImageCodec(const String& codecName)
     }
     else
     {
-        #if defined(CEGUI_STATIC)
+        #if 1
             d_imageCodec = createImageCodec();
         #else
             throw InvalidRequestException("Unable to load codec " + codecName);
@@ -1730,7 +1740,7 @@ void System::cleanupImageCodec()
     }
     else
     {
-        #if defined(CEGUI_STATIC)
+        #if 1
             destroyImageCodec(d_imageCodec);
         #endif
     }

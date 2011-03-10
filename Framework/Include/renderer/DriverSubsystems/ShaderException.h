@@ -8,20 +8,7 @@
 #ifndef SHADEREXCEPTION_H_
 #define SHADEREXCEPTION_H_
 
-#ifdef _FREYA_SHARED_PLUGIN
-#include <cstdlib>
-namespace core
-{
-namespace memory
-{
-	extern void* (*Allocate)(size_t,unsigned);
-	extern void  (*Free)(void*,unsigned);
-}
-}
-#endif
-/*
- *
- */
+
 #include "core/EngineException.h"
 #include "renderer/3DConstants.h"
 namespace renderer
@@ -30,7 +17,7 @@ namespace renderer
 /*!
  * All shader exceptions should be inherited from this base class (or be thrown using this class)
  */
-class ShaderException: public EngineException
+class EXPORT ShaderException: public EngineException
 {
 public:
 	//! Generate message by shader type (described by ShaderType)
@@ -46,7 +33,7 @@ public:
 		m_Message = EString("[renderer]: Unknown shader exception ocured");
 		m_Type = static_cast<unsigned>(-1);
 	}
-	virtual ~ShaderException()
+	virtual ~ShaderException() throw()
 	{
 	}
 	//! As always, this function returns exception message

@@ -10,7 +10,7 @@
 #ifdef _MSC_VER
 #	pragma warning(disable:4275)
 #	pragma warning(disable:4251)
-typedef std::vector<EString,core::memory::MemoryAllocator<EString> > EStringList;
+typedef std::vector<EString>  EStringList;
 #endif
 
 namespace core
@@ -132,12 +132,9 @@ public:
 	//!Available search modes to override FIFO
 	enum SearchMode
 	{
-
-		EVERYWHERE,/*!< Same as FIFO*/
-
-		ON_WRITABLE,/*!< Search on writable drivers only*/
-
-		ON_READ_ONLY/*!< Search on readonly drivers only*/
+		EVERYWHERE,
+		ON_WRITABLE,
+		ON_READ_ONLY
 	};
 	//Returns -1 if file is not found on the filesystem
 	//!Get global driver ID
