@@ -8,21 +8,6 @@
 #ifndef VERTEXBUFFEROBJECT_H_
 #define VERTEXBUFFEROBJECT_H_
 
-
-#ifdef _FREYA_SHARED_PLUGIN
-#include <cstdlib>
-namespace core
-{
-namespace memory
-{
-	extern void* (*Allocate)(size_t,unsigned);
-	extern void  (*Free)(void*,unsigned);
-}
-}
-#endif
-/*
- *
- */
 #include <cstdlib>
 
 #include "core/EngineSubsystem.h"
@@ -36,7 +21,7 @@ namespace renderer
  * memory exchange between RAM and VRAM an is often threaded as a source for vertex data. Another way of using VBO are different VRAM -> VRAM and RAM -> VRAM,
  * such as implementation of render to vertex buffer technique and efficient loading of texture data (which could be implemented in renderer::Texture implemetation
  */
-class VertexBufferObject : virtual public ::EngineSubsystem
+class EXPORT VertexBufferObject : virtual public ::EngineSubsystem
 {
 public:
 	//Default target

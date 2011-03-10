@@ -13,6 +13,7 @@ local function open_cpp_file()
 	file_h:write("namespace math\n{\nnamespace __internal\n{\n\n")
 	-- Include h file
 	file_cpp:write("#include \"math_lookup_tables.h\"\n\n" )
+	file_cpp:write("#ifdef _MSC_VER\n#\tpragma warning(disable:4305)\n#endif\n\n ")
 	file_cpp:write("namespace math\n{\nnamespace __internal\n{\n\n")
 	return file_cpp,file_h
 end

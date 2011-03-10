@@ -5,6 +5,16 @@
  *      Author: vedenko
  */
 
+#ifdef	_MSC_VER
+#include <intrin.h>
+extern "C"
+{
+	long _InterlockedCompareExchange (long volatile *, long, long);
+	long __cdecl _InterlockedIncrement(long volatile *);
+	long __cdecl _InterlockedDecrement(long volatile *);
+}
+#endif
+
 #include "core/multithreading/ThreadBlocks.h"
 #include "config.h"
 

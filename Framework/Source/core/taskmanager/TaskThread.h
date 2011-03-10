@@ -21,6 +21,8 @@ namespace core
 namespace multithreading
 {
 class Thread;
+class Mutex;
+class Condition;
 }
 
 namespace taskmanager
@@ -32,21 +34,20 @@ namespace __internal
 {
 class __thread_function;
 
-class TaskThread: virtual public ::EngineSubsystem
+class TaskThread : virtual public ::EngineSubsystem
 {
 	friend class core::taskmanager::TaskManager;
 	friend class __thread_function;
 private:
-	TaskThread();
+	TaskThread(multithreading::Condition* cond, multithreading::Mutex* mut);
 
 public:
 	virtual ~TaskThread();
-	void addTask(Task* task);
-	size_t count();
-	bool operator < (const TaskThread& other) const;
 private:
-	core::multithreading::RingBuffer<Task*,32>*		m_Buffer;
 	core::multithreading::Thread*					m_Thread;
+	//This primitives will be only used to put manager to the sleep state
+	multithreading::Condition*						m_Condition;
+	multithreading::Mutex*							m_Mutex;
 	static unsigned									m_Active;
 	__thread_function*								m_Func;
 };

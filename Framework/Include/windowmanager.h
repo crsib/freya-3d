@@ -15,7 +15,6 @@
 #include "windowmanager/DriverSubsystems/InputDevices/KeyDrivenDevice.h"
 #include "windowmanager/DriverSubsystems/InputDevices/MouseButtons.h"
 #include "windowmanager/DriverSubsystems/InputDevices/MovementDrivenDevice.h"
-#include "windowmanager/DriverSubsystems/RenderingAPIInitialization/RenderingAPIInitialization.h"
 namespace KeyboardKeys = windowmanager::input::KeyboardKeys;
 
 #endif /* WINDOWMANAGER_H_ */

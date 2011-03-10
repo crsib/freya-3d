@@ -19,7 +19,7 @@ namespace sdl
 {
 SDLMouseButtons::SDLMouseButtons()
 {
-	m_Mouse = SDL_SelectMouse(-1);
+	//m_Mouse = SDL_SelectMouse(-1);
 
 }
 
@@ -32,11 +32,15 @@ EString SDLMouseButtons::id() const
 	return EString("mouse_buttons");
 }
 
-void SDLMouseButtons::updateState(){}
+void SDLMouseButtons::updateState()
+{
+	m_State = SDL_GetMouseState(NULL,NULL);
+}
 
 bool SDLMouseButtons::getKeyState(unsigned key)
 {
-	return SDL_GetMouseState(m_Mouse,NULL,NULL) & SDL_BUTTON(key);
+	//std::cout << "[SDL::MOUSE]: Key state requested: " << m_State << std::endl;
+	return (m_State & SDL_BUTTON(key));
 	return false;
 }
 

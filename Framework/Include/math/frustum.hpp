@@ -13,10 +13,6 @@
 
 #include "math_internal.h"
 
-namespace core
-{
-extern core::PluginCore*	CoreInstance;
-}
 namespace math
 {
 inline bool AreCollinear(const math::vector3d& a,const math::vector3d& b,const math::vector3d& c)
@@ -112,7 +108,7 @@ public:
 	}
 
 	int
-	operator ()(const math::vector3d& point)
+	operator ()(const math::vector3d& point) const
 	{
 		if(NearPlane.classify(point) == math::plane::IN_BACK)
 			return false;

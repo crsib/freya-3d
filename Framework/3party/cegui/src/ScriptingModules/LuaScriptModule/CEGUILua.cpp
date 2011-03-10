@@ -190,7 +190,7 @@ void LuaScriptModule::createBindings(void)
 {
 	CEGUI::Logger::getSingleton().logEvent( "---- Creating Lua bindings ----" );
 	// init CEGUI module
-	tolua_CEGUI_open(d_state);
+	//tolua_CEGUI_open(d_state);
 }
 
 
@@ -201,8 +201,8 @@ void LuaScriptModule::destroyBindings(void)
 {
 	CEGUI::Logger::getSingleton().logEvent( "---- Destroying Lua bindings ----" );
 	// is this ok ?
-	lua_pushnil(d_state);
-	lua_setglobal(d_state,"CEGUI");
+	//lua_pushnil(d_state);
+	//lua_setglobal(d_state,"CEGUI");
 }
 
 

@@ -8,21 +8,6 @@
 #ifndef RENDERINGAPIDRIVER_H_
 #define RENDERINGAPIDRIVER_H_
 
-#ifdef _FREYA_SHARED_PLUGIN
-#include <cstdlib>
-namespace core
-{
-namespace memory
-{
-extern void* (*Allocate)(size_t,unsigned);
-extern void  (*Free)(void*,unsigned);
-}
-}
-#endif
-/*
- *
- */
-
 #include "renderer/3DConstants.h"
 #include "core/EString.h"
 #include "core/memory/MemoryAllocator.h"
@@ -49,39 +34,40 @@ namespace futures
 enum RenderFutures
 {
 	//Texturing
-			MULTITEXTURE 					= 0x1,
-			CUBE_MAP	   					= 0x2,
-			RECTANGLE_TEXTURE	 			= 0x4,
-			TEXTURE_3D						= 0x8,
-			FLOAT_TEXTURE					= 0x10,
-			NPOT_TEXTURE					= 0x20,
-			COMPRESSED_TEXTURE				= 0x40,
-			S3TC_TEXTURE					= 0x80,
-			DEPTH_TEXTURE					= 0x100,
-			GENERATE_MIPMAPS				= 0x200,
-			ANISOTROPIC_FILTERING			= 0x400,
-			TEXTURE_ARRAY					= 0x800,
+			MULTITEXTURE 					= 0x1,  // bit 1
+			CUBE_MAP	   					= 0x2,  // bit 2
+			RECTANGLE_TEXTURE	 			= 0x4,  // bit 3
+			TEXTURE_3D						= 0x8,  // bit 4
+			FLOAT_TEXTURE					= 0x10,  // bit 5
+			NPOT_TEXTURE					= 0x20,  // bit 6
+			COMPRESSED_TEXTURE				= 0x40,  // bit 7
+			S3TC_TEXTURE					= 0x80,  // bit 8
+			DEPTH_TEXTURE					= 0x100,  // bit 9
+			GENERATE_MIPMAPS				= 0x200,  // bit 10
+			ANISOTROPIC_FILTERING			= 0x400,  // bit 11
+			TEXTURE_ARRAY					= 0x800,  // bit 12
 
 			//Framebuffers
-			FRAMEBUFFER						= 0x1000,
-			MRT								= 0x2000,
-			PACKED_DEPTH_STENCIL			= 0x4000,
+			FRAMEBUFFER						= 0x1000,  // bit 13
+			MRT								= 0x2000,  // bit 14
+			PACKED_DEPTH_STENCIL			= 0x4000,  // bit 15
 
 			//VBO
-			VERTEX_BUFFER					= 0x10000,
-			TEXTURE_BUFFER					= 0x20000,
+			VERTEX_BUFFER					= 0x10000,  // bit 17
+			TEXTURE_BUFFER					= 0x20000,  // bit 18
 			PIXEL_BUFFER					= TEXTURE_BUFFER,
-			R2VB							= 0x40000,
+			R2VB							= 0x40000,  // bit 19
 
 			//Shaders
-			VERTEX_SHADER					= 0x100000,
-			FRAGMENT_SHADER					= 0x200000,
-			GEOMETRY_SHADER					= 0x400000,
-			SM40							= 0x800000,
+			VERTEX_SHADER					= 0x100000,  // bit 21
+			FRAGMENT_SHADER					= 0x200000,  // bit 22
+			GEOMETRY_SHADER					= 0x400000,  // bit 23
+			SM40							= 0x800000,  // bit 24
 
-			//Misc
-
-
+			//Matricies
+			HAS_DEFAULT_VIEW_BIND			= 0x1000000, // bit 25
+			HAS_DEFUALT_WORLD_BIND			= 0x2000000, // bit 26
+			HAS_DEFAULT_PROJECTION_BIND		= 0x4000000, // bit 27
 };
 
 }
@@ -92,6 +78,7 @@ struct VertexElement : public EngineSubsystem
 {
 	VertexElement(unsigned sid,renderer::VertexFormat::USAGE usg,renderer::VertexFormat::TYPE tp,unsigned off)
 	: streamID(sid),usage(usg),type(tp),offset(off){}
+	VertexElement(){}
 	unsigned				streamID;
 	VertexFormat::USAGE		usage;
 	VertexFormat::TYPE		type;
@@ -132,7 +119,7 @@ public:
 
 	//Viewport settings
 	virtual void 		setViewport(unsigned x, unsigned y,unsigned width,unsigned height) = 0; //Sets the viewport
-	virtual const float*	 	getViewport() const = 0;
+	virtual const unsigned*	 	getViewport() const = 0;
 
 	//Renderer capabilities
 	virtual int			maxTextureSize() const = 0;
@@ -152,6 +139,11 @@ public:
 	virtual void 		clearDepth() = 0;//Clears depth
 
 	virtual void 		depthFunction(renderer::TestFunction::type func) = 0;//Func is described in TestFunction namespace
+	//Scissor test
+	virtual void		enableScissorTest() = 0;
+	virtual void		disableScissorTest() = 0;
+	virtual void		clipArea(float left,float top, float right,float bottom) = 0;
+
 	//Stencil test
 	virtual void 		enableStencilTest() = 0;
 	virtual void 		disableStencilTest() = 0;
@@ -185,7 +177,7 @@ public:
 	virtual void 		setPolygonOffset(float factor,float units) = 0;
 	//Matricies
 	virtual void 		setMatrix(renderer::Matrix::type,const math::matrix4x4& mtx) = 0;//Loades matrix in row-major form
-
+	virtual const math::matrix4x4 getMatrix(renderer::Matrix::type) const = 0;
 	//Auto generation of texture coordinates
 	virtual void 		enableGeneration(renderer::TextureCoord::type coord,renderer::TextureGenMode::type mode) = 0; //enables generation for coord described by TextureCoord with mode descripbed by TextureGenMode
 	virtual void		disableGeneration(renderer::TextureCoord::type coord) = 0;
@@ -200,10 +192,10 @@ public:
 
 	//Rendering commands (all using vbo as data source)
 	virtual void		drawPrimitive(renderer::Primitive::type primitives,unsigned first,unsigned count) = 0;//Render non-idexed primitive assembled as {primitves},starting from element {first} with count of elements (vertices)
-	virtual void		drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* indexBuffer) = 0;//Type is described by DataType
+	virtual void		drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* indexBuffer, ptrdiff_t offset = 0) = 0;//Type is described by DataType
 
 	virtual void		drawPrimitive(renderer::Primitive::type primitives,unsigned first,unsigned count,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData) = 0;//Render non-idexed primitive assembled as {primitves},starting from element {first} with count of elements (vertices)
-	virtual void		drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* indexBuffer,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData) = 0;//Type is described by DataType
+	virtual void		drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* indexBuffer,ptrdiff_t offset,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData) = 0;//Type is described by DataType
 
 	virtual void 		setRenderMode(renderer::RenderSide::type side,renderer::RenderMode::type mode) = 0;
 

@@ -76,19 +76,59 @@ private:
 	static renderer::VertexBufferObject* m_VBO;
 	static renderer::VertexBufferObject* m_Ind;
 	renderer::RenderingAPIDriver*		m_Rapi;
+
 	struct VertexData
 	{
 		math::vector3d vert; //normal is equal to vertex, as we construct the unit sphere
 		math::vector3d t;
 		math::vector3d b;
-		float u;
-		float v;
+		union
+		{
+			struct
+			{
+				float u;
+				float v;
+			};
+			__m128	mem;
+		};
+		void* operator new(size_t sz)
+		{
+			return core::memory::Allocate(sz,core::memory::MATH_POOL);
+		}
+		void* operator new[](size_t sz)
+						{
+			return core::memory::Allocate(sz,core::memory::MATH_POOL);
+						}
+		void	operator delete(void * p)
+		{
+			core::memory::Free(p,core::memory::MATH_POOL);
+		}
+		void	operator delete[](void * p)
+						{
+			core::memory::Free(p,core::memory::MATH_POOL);
+						}
 	};
 	struct IndexData
 	{
 		unsigned short t1;
 		unsigned short t2;
 		unsigned short t3;
+		void* operator new(size_t sz)
+		{
+			return core::memory::Allocate(sz,core::memory::GENERIC_POOL);
+		}
+		void* operator new[](size_t sz)
+						{
+			return core::memory::Allocate(sz,core::memory::GENERIC_POOL);
+						}
+		void	operator delete(void * p)
+		{
+			core::memory::Free(p,core::memory::GENERIC_POOL);
+		}
+		void	operator delete[](void * p)
+						{
+			core::memory::Free(p,core::memory::GENERIC_POOL);
+						}
 	};
 };
 
@@ -104,6 +144,7 @@ Sphere<x_div,y_div>::Sphere()
 	m_Rapi = core::EngineCore::getRenderingDriver();
 	if(m_VBO == NULL)
 	{
+		//std::cout << "sizeof(VertexData) = " << sizeof(VertexData) << std::endl;
 		//We need to construct our sphere according the x and y subdivisons
 		VertexData* arr = new VertexData[(x_div + 2) * y_div + 1];
 		float alpha_ofs = 2.0*math::pi / x_div;
@@ -183,11 +224,11 @@ void Sphere<x_div,y_div>::render()
 	if(m_Shader)
 	{
 		if(m_Diffuse)
-			m_Shader->setTexture("diffuse",m_Diffuse);
+			m_Shader->setTexture("diffuse",renderer::TextureUnit::TEXTURE0);
 		if(m_Specular)
-			m_Shader->setTexture("specular",m_Specular);
+			m_Shader->setTexture("specular",renderer::TextureUnit::TEXTURE1);
 		if(m_Bump)
-			m_Shader->setTexture("bump",m_Bump);
+			m_Shader->setTexture("bump",renderer::TextureUnit::TEXTURE2);
 		m_Shader->bind();
 	}
 
@@ -200,6 +241,8 @@ void Sphere<x_div,y_div>::render()
 
 	m_Rapi->drawIndexedPrimitive(renderer::Primitive::TRIANGLES,(x_div) * (y_div + 1) * 2 * 3,renderer::DataType::UNSIGNED_SHORT,m_Ind);
 
+	if(m_Shader)
+		m_Shader->unbind();
 }
 
 

@@ -19,7 +19,7 @@ public:
 	DriverException() : m_Msg("[renderer]: Unknown exception")
 	{
 	}
-	virtual ~DriverException() {}
+	virtual ~DriverException() throw(){}
 //! As always, this function returns exception message
 	virtual EString message() const
 	{

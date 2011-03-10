@@ -1,0 +1,26 @@
+$#include "renderer/DriverSubsystems/Texture.h"
+
+namespace renderer
+{
+
+class Texture
+{
+public:
+
+	void loadTexture(renderer::TextureType::type textureType,unsigned level,renderer::TextureInternalFormat::type textureInternalFormat,renderer::TextureFormat::type textureStorageFormat,renderer::TextureStorage::type textureStorage,unsigned width,unsigned height,void* data);
+	void loadTexture(renderer::TextureType::type textureType,unsigned level,renderer::TextureInternalFormat::type textureInternalFormat,renderer::TextureFormat::type textureStorageFormat,renderer::TextureStorage::type textureStorage,unsigned width,unsigned height,unsigned side_or_depth,void* data);
+	renderer::TextureType::type getTextureType() const;
+	renderer::TextureUnit::type getTextureUnit() const;
+	void* map(unsigned level,unsigned side);
+	void  unmap(unsigned level,unsigned side);
+	void  setMinFilter(renderer::TextureFiltering::type filter);
+	void  setMagFilter(renderer::TextureFiltering::type filter);
+	void  setAnisotropy(float val);
+	void  generateMipMaps();
+	void    clampS(renderer::TextureClamping::type clamp);
+	void    clampT(renderer::TextureClamping::type clamp);
+	void    clampR(renderer::TextureClamping::type clamp);
+	void    clampQ(renderer::TextureClamping::type clamp);//Clamping is described by TextureClamping enum
+};
+
+}

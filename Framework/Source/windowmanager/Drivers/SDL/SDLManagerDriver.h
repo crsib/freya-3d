@@ -12,18 +12,6 @@
  *
  */
 
-#ifdef _FREYA_SHARED_PLUGIN
-#include <cstdlib>
-namespace core
-{
-namespace memory
-{
-extern void* (*Allocate)(size_t,unsigned);
-extern void  (*Free)(void*,unsigned);
-}
-}
-#endif 
-
 #include "windowmanager/WindowManagerDriver.h"
 #include "core/memory/MemoryAllocator.h"
 
@@ -131,6 +119,9 @@ public:
 	virtual void		grabInput(bool grab_state);
 	virtual void		showCursor(bool show_state);
 	virtual void		swapBuffers();
+
+	virtual unsigned	getWindowWidth() const;
+	virtual unsigned	getWindowHeight() const;
 private:
 	//resource managment system
 	KeyDrivenDeviceList 		m_KeyDrivenDeviceList;

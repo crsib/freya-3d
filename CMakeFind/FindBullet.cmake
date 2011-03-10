@@ -24,6 +24,7 @@ macro(_FIND_BULLET_LIBRARY _var)
      NAMES 
         ${ARGN}
      PATHS
+		$ENV{PATH}
         ${BULLET_ROOT}
         ${BULLET_ROOT}/out/release8/libs
         ${BULLET_ROOT}/out/debug8/libs
@@ -49,13 +50,13 @@ find_path(BULLET_INCLUDE_DIR NAMES btBulletCollisionCommon.h
 
 # Find the libraries
 
-_FIND_BULLET_LIBRARY(BULLET_DYNAMICS_LIBRARY        BulletDynamics)
+_FIND_BULLET_LIBRARY(BULLET_DYNAMICS_LIBRARY        BulletDynamics bulletdynamics libbulletdynamics)
 _FIND_BULLET_LIBRARY(BULLET_DYNAMICS_LIBRARY_DEBUG  BulletDynamics_d)
-_FIND_BULLET_LIBRARY(BULLET_COLLISION_LIBRARY       BulletCollision)
+_FIND_BULLET_LIBRARY(BULLET_COLLISION_LIBRARY       BulletCollision bulletcollision libbulletcollision)
 _FIND_BULLET_LIBRARY(BULLET_COLLISION_LIBRARY_DEBUG BulletCollision_d)
-_FIND_BULLET_LIBRARY(BULLET_MATH_LIBRARY            LinearMath BulletMath)
+_FIND_BULLET_LIBRARY(BULLET_MATH_LIBRARY            LinearMath BulletMath linearmath liblinearmath bulletmath libbulletmath)
 _FIND_BULLET_LIBRARY(BULLET_MATH_LIBRARY_DEBUG      LinearMath_d BulletMath_d)
-_FIND_BULLET_LIBRARY(BULLET_SOFTBODY_LIBRARY        BulletSoftBody)
+_FIND_BULLET_LIBRARY(BULLET_SOFTBODY_LIBRARY        BulletSoftBody bulletsoftbody libbulletsoftbody)
 _FIND_BULLET_LIBRARY(BULLET_SOFTBODY_LIBRARY_DEBUG  BulletSoftBody_d)
 
 

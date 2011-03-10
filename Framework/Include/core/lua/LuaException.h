@@ -16,7 +16,7 @@ public:
 	{
 		m_Msg = EString("[LUA]: Lua internal error: ") + msg;
 	}
-	virtual ~LuaException() {}
+	virtual ~LuaException() throw(){}
 
 	virtual EString message() const
 	{

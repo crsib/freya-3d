@@ -39,11 +39,10 @@ void	Resource::waitForResource()
 {
 	while(m_Ready == 0)
 	{
-		//core::multithreading::yield();
-#ifndef _WIN32
-	sched_yield();
+#ifndef _MSC_VER
+		sched_yield();
 #else
-	Sleep(0);
+		Sleep(0);
 #endif
 	}
 }

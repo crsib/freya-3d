@@ -9,23 +9,8 @@
 #define RESOURCE_H_
 
 #include "core/PluginCore.h"
-#ifdef _FREYA_SHARED_PLUGIN
-#include <cstdlib>
-namespace core
-{
-namespace memory
-{
-	extern void* (*Allocate)(size_t,unsigned);
-	extern void  (*Free)(void*,unsigned);
-}
-	extern core::PluginCore*	CoreInstance;
-}
-#else
-namespace core
-{
-	extern core::PluginCore*	CoreInstance;
-}
-#endif
+#include "internal.h"
+
 /*
  *
  */
@@ -51,9 +36,11 @@ namespace __internal
 class ResourceLibrary;
 template<typename T>
 resources::Resource* 	createResource(T*	res);
+template<typename T>
+resources::Resource* 	setResource(Resource* res,T*);
 // Sets resource as ready
-void					finalizeResource(resources::Resource*);
-void					destroyResource(resources::Resource*);
+EXPORT void					finalizeResource(resources::Resource*);
+EXPORT void					destroyResource(resources::Resource*);
 }
 //! This class provides a general abstraction of resource
 /*!
@@ -61,12 +48,14 @@ void					destroyResource(resources::Resource*);
  * This class provides functionality for checking resource status, maintaining a single copy of resource
  * and other functionality related for easy and scalable resource management
  */
-class Resource: virtual public ::EngineSubsystem
+class EXPORT Resource: virtual public ::EngineSubsystem
 {
 	friend class resources::ResourceManager;
 	friend class __internal::ResourceLibrary;
 	template<typename T>
 	friend resources::Resource* 	resources::__internal::createResource(T*);
+	template<typename T>
+	friend resources::Resource* 	resources::__internal::setResource(Resource* res,T*);
 	friend void						resources::__internal::destroyResource(resources::Resource*);
 	friend void						resources::__internal::finalizeResource(resources::Resource*);
 private://TODO: make this private
@@ -123,7 +112,8 @@ Resource::operator T()
 	T op = dynamic_cast<T> (m_Resource);
 	if(op != NULL)
 		return op;
-	else throw resources::ResourceException("Failed to cast data to required type");
+	else
+		throw resources::ResourceException(EString("Failed to cast data to required type: res_id =  ") + m_ResourceID);
 }
 template<typename T>
 T	Resource::get()
@@ -132,7 +122,8 @@ T	Resource::get()
 	T op = dynamic_cast<T> (m_Resource);
 	if(op != NULL)
 		return op;
-	else throw resources::ResourceException("Failed to cast data to required type");
+	else
+		throw resources::ResourceException(EString("Failed to cast data to required type: res_id =  ") + m_ResourceID);
 }
 
 }

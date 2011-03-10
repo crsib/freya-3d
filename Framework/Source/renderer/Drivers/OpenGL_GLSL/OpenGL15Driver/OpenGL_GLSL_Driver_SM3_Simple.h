@@ -46,6 +46,11 @@ public:
 	typedef std::list<OpenGL_GLSL_Framebuffer*,core::memory::MemoryAllocator<OpenGL_GLSL_Framebuffer*> >::iterator FramebufferListIterator;
 	typedef std::list<OpenGL_GLSL_Shader*,core::memory::MemoryAllocator<OpenGL_GLSL_Shader*> >::iterator ShaderListIterator;
 
+	//Scissor test
+	virtual void		enableScissorTest();
+	virtual void		disableScissorTest();
+	virtual void		clipArea(float left,float top, float right,float bottom);
+
 	virtual EString id() const;
 	virtual EString getAPIName() const;
 	virtual EString getShaderAPIName() const;
@@ -59,7 +64,7 @@ public:
 
 	//Viewport settings
 	virtual void 		setViewport(unsigned x, unsigned y,unsigned width,unsigned height); //Sets the viewport
-	virtual const float*	 	getViewport() const;
+	virtual const unsigned*	 	getViewport() const;
 
 	//Renderer capabilities
 	virtual int			maxTextureSize() const;
@@ -114,7 +119,7 @@ public:
 	virtual void 		setPolygonOffset(float factor,float units);
 	//Matricies
 	virtual void 		setMatrix(renderer::Matrix::type,const math::matrix4x4& mtx);//Loades matrix in row-major form
-
+	virtual const math::matrix4x4 getMatrix(renderer::Matrix::type) const;
 	//Auto generation of texture coordinates
 	virtual void 		enableGeneration(renderer::TextureCoord::type coord,renderer::TextureGenMode::type mode); //enables generation for coord described by TextureCoord with mode descripbed by TextureGenMode
 	virtual void		disableGeneration(renderer::TextureCoord::type coord);
@@ -129,10 +134,10 @@ public:
 
 	//Rendering commands (all using vbo as data source)
 	virtual void		drawPrimitive(renderer::Primitive::type primitives,unsigned first,unsigned count);//Render non-idexed primitive assembled as {primitves},starting from element {first} with count of elements (vertices)
-	virtual void		drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* indexBuffer);//Type is described by DataType
+	virtual void		drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* indexBuffer,ptrdiff_t offset);//Type is described by DataType
 
 	virtual void		drawPrimitive(renderer::Primitive::type primitives,unsigned first,unsigned count,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData);//Render non-idexed primitive assembled as {primitves},starting from element {first} with count of elements (vertices)
-	virtual void		drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* indexBuffer,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData);//Type is described by DataType
+	virtual void		drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* indexBuffer,ptrdiff_t offset,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData);//Type is described by DataType
 
 	//VBO (all said above is applicable to functions from this section
 	virtual VertexBufferObject*
@@ -186,7 +191,7 @@ private:
 	};
 
 	VertexFormat*		m_VF;
-	float				m_ViewPort[4];
+	unsigned			m_ViewPort[4];
 	EString				m_RendererName;
 	EString				m_RendererVendor;
 	int					m_MaxTextureSize;
@@ -194,6 +199,7 @@ private:
 	int					m_Max3DTextureSize;
 	int					m_NumDrawBuffers;
 	int					m_TextureUnits;
+	math::matrix4x4		m_Matricies[renderer::Matrix::LAST_MATRIX];
 };
 }
 }
