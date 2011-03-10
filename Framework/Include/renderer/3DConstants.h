@@ -797,52 +797,58 @@ enum type
 };
 }
 
-
+//! Vertex format declarations
+/*!
+ * This namespace contains two enums that provide values to be used in vertex format declaration
+ */
 namespace VertexFormat
 {
+	//! Usage flags. See the documentation for semantics for more details
 	enum USAGE
 	{
-		POSITION = 0,
-		NORMAL,
-		COLOR,
-		TEXT_COORD,
-		TEXT_COORD0 = TEXT_COORD,
-		TEXT_COORD1,
-		TANGENT = TEXT_COORD1,
-		TEXT_COORD2,
-		BINORMAL = TEXT_COORD2,
-		TEXT_COORD3,
-		TEXT_COORD4,
-		TEXT_COORD5,
-		TEXT_COORD6,
-		TEXT_COORD7,
-		TEXT_COORD8,
-		TEXT_COORD9,
-		TEXT_COORD10,
-		TEXT_COORD11,
-		TEXT_COORD12,
-		TEXT_COORD13,
-		TEXT_COORD14,
-		TEXT_COORD15,
-		TEXT_COORD16,
-		TEXT_COORD17,
-		TEXT_COORD18,
-		TEXT_COORD19,
-		TEXT_COORD20,
-		TEXT_COORD21,
-		TEXT_COORD22,
-		TEXT_COORD23,
-		TEXT_COORD24,
-		TEXT_COORD25,
-		TEXT_COORD26,
-		TEXT_COORD27,
-		TEXT_COORD28,
-		TEXT_COORD29,
-		TEXT_COORD30,
-		TEXT_COORD31,
-		UNUSED
+		POSITION = 0,            //!< POSITION
+		NORMAL,                  //!< NORMAL
+		TANGENT,   				 //!< TANGENT
+		BINORMAL,  				 //!< BINORMAL
+		POINT_SIZE,				 //!< Point size
+		COLOR,                   //!< COLOR
+		TEXT_COORD,              //!< TEXT_COORD
+		TEXT_COORD0 = TEXT_COORD,//!< TEXT_COORD0
+		TEXT_COORD1,             //!< TEXT_COORD1
+		TEXT_COORD2,             //!< TEXT_COORD2
+		TEXT_COORD3,             //!< TEXT_COORD3
+		TEXT_COORD4,             //!< TEXT_COORD4
+		TEXT_COORD5,             //!< TEXT_COORD5
+		TEXT_COORD6,             //!< TEXT_COORD6
+		TEXT_COORD7,             //!< TEXT_COORD7
+		TEXT_COORD8,             //!< TEXT_COORD8
+		TEXT_COORD9,             //!< TEXT_COORD9
+		TEXT_COORD10,            //!< TEXT_COORD10
+		TEXT_COORD11,            //!< TEXT_COORD11
+		TEXT_COORD12,            //!< TEXT_COORD12
+		TEXT_COORD13,            //!< TEXT_COORD13
+		TEXT_COORD14,            //!< TEXT_COORD14
+		TEXT_COORD15,            //!< TEXT_COORD15
+		TEXT_COORD16,            //!< TEXT_COORD16
+		TEXT_COORD17,            //!< TEXT_COORD17
+		TEXT_COORD18,            //!< TEXT_COORD18
+		TEXT_COORD19,            //!< TEXT_COORD19
+		TEXT_COORD20,            //!< TEXT_COORD20
+		TEXT_COORD21,            //!< TEXT_COORD21
+		TEXT_COORD22,            //!< TEXT_COORD22
+		TEXT_COORD23,            //!< TEXT_COORD23
+		TEXT_COORD24,            //!< TEXT_COORD24
+		TEXT_COORD25,            //!< TEXT_COORD25
+		TEXT_COORD26,            //!< TEXT_COORD26
+		TEXT_COORD27,            //!< TEXT_COORD27
+		TEXT_COORD28,            //!< TEXT_COORD28
+		TEXT_COORD29,            //!< TEXT_COORD29
+		TEXT_COORD30,            //!< TEXT_COORD30
+		TEXT_COORD31,            //!< TEXT_COORD31
+		UNUSED                   //!< UNUSED
 	};
 
+	//! Type flags
 	enum TYPE
 	{
 		FLOAT1 = 0,

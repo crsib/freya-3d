@@ -1,0 +1,11 @@
+# from http://www.cmake.org/Wiki/CMakeMacroGenerateProject
+MACRO ( GenerateProject ProjectDir ProjectSources )
+	SET ( DirSources "${ProjectSources}" )
+	FOREACH ( Source ${DirSources} )
+		STRING ( REGEX REPLACE "${ProjectDir}" "" RelativePath "${Source}" )
+		STRING ( REGEX REPLACE "[\\\\/][^\\\\/]*$" "" RelativePath "${RelativePath}" )
+		STRING ( REGEX REPLACE "^[\\\\/]" "" RelativePath "${RelativePath}" )
+		STRING ( REGEX REPLACE "/" "\\\\\\\\" RelativePath "${RelativePath}" )
+		SOURCE_GROUP ( "${RelativePath}" FILES ${Source} )
+	ENDFOREACH ( Source )
+ENDMACRO ( GenerateProject)

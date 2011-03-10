@@ -19,7 +19,7 @@ namespace sdl
 {
 SDLMouseButtons::SDLMouseButtons()
 {
-	m_Mouse = SDL_SelectMouse(-1);
+	//m_Mouse = SDL_SelectMouse(-1);
 
 }
 

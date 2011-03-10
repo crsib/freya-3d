@@ -21,7 +21,6 @@ extern "C"
 #include <algorithm>
 #include <vector>
 #include "core/memory/MemoryAllocator.h"
-#include <vector>
 #include "core/lua/LuaFunction.h"
 #include "core/EString.h"
 #include "core/multithreading/ThreadID.h"
@@ -92,6 +91,7 @@ private:
 				if(*(created[i].first) == thrd)
 					return created[i].second;
 			}
+			return NULL;
 		}
 
 		vect 	created;

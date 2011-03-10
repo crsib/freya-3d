@@ -51,17 +51,19 @@ LuaCore::LuaCore()
 	//core::__lua_internal::init_math(m_VirtualMachine);
 	//Setting default values
 	m_JITInstalled = m_JITStarted = 0;
+	lua_gc(m_VirtualMachine, LUA_GCSTOP, 0);
 }
 
 LuaCore::~LuaCore()
 {
+	lua_gc(m_VirtualMachine, LUA_GCCOLLECT, 0);
 	lua_close(m_VirtualMachine) ;
 }
 
 void LuaCore::runScript(const EString & script)
 {
 	lua_State* Lua = m_States[core::multithreading::getCurrentThreadID()];
-	if((luaL_loadstring(Lua, script.c_str()) || lua_pcall(Lua, 0, 0, 0)))
+	if((luaL_loadstring(Lua, script.c_str()) || lua_pcall(Lua, 0, LUA_MULTRET, 0)))
 	{
 		const char *err = lua_tostring(Lua, -1);
 		clog << "Lua internal error while loading script: " << err << endl;
@@ -235,6 +237,10 @@ void LuaCore::pushValue(const Variable & var)
 			break;
 		case Variable::MATRIX4X4:
 			tolua_pushusertype(Lua, v.m_Matrix4x4, (const char*)("math::matrix4x4"));
+			break;
+		case Variable::LUA_CFUNCTION:
+			std::cout << "Registering CFunction " << (void*) v.m_CFunc << std::endl;
+			lua_pushcfunction(Lua, v.m_CFunc);
 			break;
 	}
 }

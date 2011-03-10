@@ -8,10 +8,10 @@
 #ifndef ENGINESUBSYSTEM_H_
 #define ENGINESUBSYSTEM_H_
 
+#include <cstdlib>
 #include "internal.h"
 #include "core/memory/MemoryPools.h"
-#ifndef _FREYA_SHARED_PLUGIN
-#include <cstdlib>
+
 namespace core
 {
 namespace memory
@@ -20,7 +20,6 @@ namespace memory
 	EXPORT void  Free(void*,unsigned);
 }
 }
-#endif
 
 //!This class corrects memory management routines for any engine class except EngineCore and MemoryArena
 /*!

@@ -7,43 +7,46 @@ namespace VertexFormat
 {
 	enum USAGE
 	{
-		POSITION = 0,
-		NORMAL,
-		COLOR,
-		TEXT_COORD,
-		TEXT_COORD0 = TEXT_COORD,
-		TEXT_COORD1,
-		TEXT_COORD2,
-		TEXT_COORD3,
-		TEXT_COORD4,
-		TEXT_COORD5,
-		TEXT_COORD6,
-		TEXT_COORD7,
-		TEXT_COORD8,
-		TEXT_COORD9,
-		TEXT_COORD10,
-		TEXT_COORD11,
-		TEXT_COORD12,
-		TEXT_COORD13,
-		TEXT_COORD14,
-		TEXT_COORD15,
-		TEXT_COORD16,
-		TEXT_COORD17,
-		TEXT_COORD18,
-		TEXT_COORD19,
-		TEXT_COORD20,
-		TEXT_COORD21,
-		TEXT_COORD22,
-		TEXT_COORD23,
-		TEXT_COORD24,
-		TEXT_COORD25,
-		TEXT_COORD26,
-		TEXT_COORD27,
-		TEXT_COORD28,
-		TEXT_COORD29,
-		TEXT_COORD30,
-		TEXT_COORD31,
-		UNUSED
+		POSITION = 0,            //!< POSITION
+		NORMAL,                  //!< NORMAL
+		TANGENT,   				 //!< TANGENT
+		BINORMAL,  				 //!< BINORMAL
+		POINT_SIZE,				 //!< Point size
+		COLOR,                   //!< COLOR
+		TEXT_COORD,              //!< TEXT_COORD
+		TEXT_COORD0 = TEXT_COORD,//!< TEXT_COORD0
+		TEXT_COORD1,             //!< TEXT_COORD1
+		TEXT_COORD2,             //!< TEXT_COORD2
+		TEXT_COORD3,             //!< TEXT_COORD3
+		TEXT_COORD4,             //!< TEXT_COORD4
+		TEXT_COORD5,             //!< TEXT_COORD5
+		TEXT_COORD6,             //!< TEXT_COORD6
+		TEXT_COORD7,             //!< TEXT_COORD7
+		TEXT_COORD8,             //!< TEXT_COORD8
+		TEXT_COORD9,             //!< TEXT_COORD9
+		TEXT_COORD10,            //!< TEXT_COORD10
+		TEXT_COORD11,            //!< TEXT_COORD11
+		TEXT_COORD12,            //!< TEXT_COORD12
+		TEXT_COORD13,            //!< TEXT_COORD13
+		TEXT_COORD14,            //!< TEXT_COORD14
+		TEXT_COORD15,            //!< TEXT_COORD15
+		TEXT_COORD16,            //!< TEXT_COORD16
+		TEXT_COORD17,            //!< TEXT_COORD17
+		TEXT_COORD18,            //!< TEXT_COORD18
+		TEXT_COORD19,            //!< TEXT_COORD19
+		TEXT_COORD20,            //!< TEXT_COORD20
+		TEXT_COORD21,            //!< TEXT_COORD21
+		TEXT_COORD22,            //!< TEXT_COORD22
+		TEXT_COORD23,            //!< TEXT_COORD23
+		TEXT_COORD24,            //!< TEXT_COORD24
+		TEXT_COORD25,            //!< TEXT_COORD25
+		TEXT_COORD26,            //!< TEXT_COORD26
+		TEXT_COORD27,            //!< TEXT_COORD27
+		TEXT_COORD28,            //!< TEXT_COORD28
+		TEXT_COORD29,            //!< TEXT_COORD29
+		TEXT_COORD30,            //!< TEXT_COORD30
+		TEXT_COORD31,            //!< TEXT_COORD31
+		UNUSED                   //!< UNUSED
 	};
 
 	enum TYPE
@@ -115,8 +118,8 @@ unsigned format[]	= {
 //sid,usg,tp,off
 0, VertexFormat::POSITION, 	VertexFormat::FLOAT3, 0,
 0, VertexFormat::NORMAL,	 	VertexFormat::FLOAT3, 3*4*1,
-0, VertexFormat::TEXT_COORD1,	VertexFormat::FLOAT3, 3*4*2,
-0, VertexFormat::TEXT_COORD2,	VertexFormat::FLOAT3, 3*4*3,
+0, VertexFormat::TANGENT,	VertexFormat::FLOAT3, 3*4*2,
+0, VertexFormat::BINORMAL,	VertexFormat::FLOAT3, 3*4*3,
 0, VertexFormat::TEXT_COORD0,	VertexFormat::FLOAT2, 3*4*4,
 (unsigned) -1, VertexFormat::UNUSED , VertexFormat::DWORD,		0	
 };

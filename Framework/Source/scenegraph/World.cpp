@@ -1,7 +1,7 @@
 #include "scenegraph/World.h"
 
 #include <iostream>
-
+#include <algorithm>
 #include "math/math.hpp"
 
 namespace scenegraph

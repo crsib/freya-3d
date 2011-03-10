@@ -134,10 +134,10 @@ public:
 
 	//Rendering commands (all using vbo as data source)
 	virtual void		drawPrimitive(renderer::Primitive::type primitives,unsigned first,unsigned count);//Render non-idexed primitive assembled as {primitves},starting from element {first} with count of elements (vertices)
-	virtual void		drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* indexBuffer);//Type is described by DataType
+	virtual void		drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* indexBuffer,ptrdiff_t offset);//Type is described by DataType
 
 	virtual void		drawPrimitive(renderer::Primitive::type primitives,unsigned first,unsigned count,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData);//Render non-idexed primitive assembled as {primitves},starting from element {first} with count of elements (vertices)
-	virtual void		drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* indexBuffer,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData);//Type is described by DataType
+	virtual void		drawIndexedPrimitive(renderer::Primitive::type primitives,unsigned count,renderer::DataType::type type,VertexBufferObject* indexBuffer,ptrdiff_t offset,VertexElement* instanceDeclaration,unsigned numInstances,void* instanceData);//Type is described by DataType
 
 	//VBO (all said above is applicable to functions from this section
 	virtual VertexBufferObject*
