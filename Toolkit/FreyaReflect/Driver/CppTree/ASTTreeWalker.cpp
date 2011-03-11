@@ -328,6 +328,14 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 						(base_class.getAccessSpecifier() == AS_protected ? CppNode::ACCESS_TYPE_PROTECTED : CppNode::ACCESS_TYPE_PRIVATE );
 					static_cast<CppNodeClass*>(node)->addBaseClass(CppNodeClass::base_type_t(std::make_pair(resolveQualType(&base_class.getType()), access)));
 				}
+
+				for( CXXRecordDecl::base_class_iterator it = cxx_decl->vbases_begin(), end = cxx_decl->vbases_end(); it != end; ++it )
+				{
+					CXXBaseSpecifier& base_class = *it;
+					CppNode::ACCESS_TYPE access = base_class.getAccessSpecifier() == AS_public ? CppNode::ACCESS_TYPE_PUBLIC :
+						(base_class.getAccessSpecifier() == AS_protected ? CppNode::ACCESS_TYPE_PROTECTED : CppNode::ACCESS_TYPE_PRIVATE );
+					static_cast<CppNodeClass*>(node)->addBaseClass(CppNodeClass::base_type_t(std::make_pair(resolveQualType(&base_class.getType()), access)));
+				}
 			}
 		}
 		else
@@ -432,8 +440,15 @@ CppTypePtr ASTTreeWalker::resolveQualType( clang::QualType* type )
 				//This one is the most general case.
 				if(type_s->isMemberPointerType())
 				{
-				//	node = CppNodePtr( new CppNodeClassMemberPointer(parent) );
-					std::cout << "\nMember pointer!!!\n" <<std::endl;
+					//type_s->castAs<MemberPointerType>()->
+					//CppNodePtr node = CppNodePtr( new CppNodeClassMemberPointer(parent) );
+					//std::cout << "\nMember pointer!!!\n" << std::endl;
+					type_ptr->m_TypeHeader.is_unresolved_usertype = true;
+				}
+				else if(type_s->isFunctionType())
+				{
+					//std::cout << "Function typed!!!" << std::endl;
+					type_ptr->m_TypeHeader.is_unresolved_usertype = true;
 				}
 				else if(type_s->isRecordType() || type_s->isEnumeralType())
 				{
@@ -487,6 +502,10 @@ CppTypePtr ASTTreeWalker::resolveQualType( clang::QualType* type )
 		boost::erase_range(type_ptr->m_QualifiedName, boost::find_first(type_ptr->m_QualifiedName,std::string("enum ") ) );
 
 		tree_ptr->addType(type_ptr);
+
+		//std::clog << "Resolve qtype " << type->getAsString() << " -> " << type_ptr->getQualifiedName() << " ( " 
+		//	<< (type_ptr->m_ASTNode ? type_ptr->m_ASTNode->getScopedName() : (type_ptr->m_TypeHeader.is_user_type && !type_ptr->m_TypeHeader.is_builtin ? "unresolved" : "builtin")) 
+		//	<< " ) " << std::endl;
 	} // Type not found
 	return type_ptr;
 }
@@ -595,7 +614,7 @@ void ASTTreeWalker::visitFunction( clang::FunctionDecl* decl )
 	AccessSpecifier spec = decl->getAccess();
 
 	if(decl->getBuiltinID())
-		return; //Nope, there is definetly no interst in built ins
+		return; //Nope, there is definitely no interest in built ins
 	//Ok, this case is rather difficult. Lets start from the very basic check
 	CppNode* parent = node_stack.top();
 	if(parent->getNodeType() & CppNode::NODE_TYPE_SCOPE)

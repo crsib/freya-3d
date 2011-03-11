@@ -51,10 +51,12 @@ namespace a
 		void foo(float a, int b, int c);
 		ClassMemberTest& operator+= ( const ClassMemberTest& _o );
 		ClassMemberTest  operator + ( const ClassMemberTest& _o ) const; 
+		
+		operator float () const;
 	};
 	
 	typedef void (ClassMemberTest::* SomePtrToClassMethod)(void) ;
-
+	typedef void (* my_awesome_type_t)(int a, float b) ;
 	//typedef std::basic_string<int> string32;
 }
 

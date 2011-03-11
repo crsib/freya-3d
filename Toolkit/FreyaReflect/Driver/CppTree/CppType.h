@@ -33,7 +33,8 @@ public:
 
 			bool			is_volatile										: 1; // Bit 10
 			bool			is_volatile_pointer								: 1; // Bit 11
-			//unsigned        __reserved__                                    : (32 - 12);
+			bool			is_unresolved_usertype							: 1; // Bit 12
+			//unsigned        __reserved__                                    : (32 - 13);
 		};
 		unsigned		mask;
 	} cpp_type_header_t;
