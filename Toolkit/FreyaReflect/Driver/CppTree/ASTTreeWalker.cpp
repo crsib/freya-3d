@@ -204,8 +204,7 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 {
 	AccessSpecifier spec = decl->getAccess();
 
-	if(clang::ClassTemplateDecl::classof(decl))
-		return;
+
 
 	if(node_stack.top()->getNodeType() & CppNode::NODE_TYPE_SCOPE)
 	{
@@ -345,7 +344,13 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 		}
 
 		//Push class on top
-		if(decl->isDefinition())
+		if( decl->isDefinition()  
+			/*&& !(
+			clang::CXXRecordDecl::classof(decl) 
+			&& !clang::ClassTemplateSpecializationDecl::classof(decl)
+			&& !static_cast<CXXRecordDecl*>(decl)->getDescribedClassTemplate()
+			)*/
+		)
 		{
 			node_stack.push(node);
 			decl_stack.push(decl);
@@ -361,17 +366,34 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 
 CppTypePtr ASTTreeWalker::resolveQualType( clang::QualType* type )
 {
-	//Ok, we would just hope, that we will catch up,
-	//how the asString method works
-
+	const Type* type_s =  type->getTypePtr();
 	//Ok, check the map
-	CppTypePtr type_ptr = tree_ptr->getTypeBySignature(type->getAsString());
+	std::string qualified_name;
+	if(!TypeOfType::classof(type_s) && !TypeOfExprType::classof(type_s) && !BuiltinType::classof(type_s) && !DecltypeType::classof(type_s))
+		qualified_name = type->getAsString();
+	else
+	{
+		if(TypeOfType::classof(type_s))
+			qualified_name = static_cast<const TypeOfType*>(type_s)->desugar().getAsString();
+		else if(TypeOfExprType::classof(type_s))
+			qualified_name = static_cast<const TypeOfExprType*>(type_s)->desugar().getAsString();
+		else if(BuiltinType::classof(type_s))
+			qualified_name = static_cast<const BuiltinType*>(type_s)->desugar().getAsString();
+		else
+			qualified_name = static_cast<const DecltypeType*>(type_s)->desugar().getAsString();
+	}
+	
+
+	boost::erase_range(qualified_name, boost::find_first(qualified_name,std::string("class ") ) );
+	boost::erase_range(qualified_name, boost::find_first(qualified_name,std::string("struct ") ) );
+	boost::erase_range(qualified_name, boost::find_first(qualified_name,std::string("union ") ) );
+	boost::erase_range(qualified_name, boost::find_first(qualified_name,std::string("enum ") ) );
+	
+	CppTypePtr type_ptr = tree_ptr->getTypeBySignature(qualified_name);
 
 	if( !type_ptr )
 	{
 		type_ptr = CppTypePtr( new CppType() );
-
-		const Type* type_s =  type->getTypePtr();
 
 		if( type_s->isBuiltinType() || type_s->isVoidPointerType()) //void* is not really builtin. Yet no need to resove it further recursively
 		{
@@ -384,12 +406,12 @@ CppTypePtr ASTTreeWalker::resolveQualType( clang::QualType* type )
 			if(type_s->hasPointerRepresentation())
 			{
 				CppTypePtr base_type = resolveQualType(&type_s->getPointeeType());
-
+				assert(base_type.get());
 				//Try to get the Pointer/Reference from tree
-				CppNode* ptr = tree_ptr->findNodeBySignature(type->getLocalUnqualifiedType().getAsString());
+				CppNodePtr ptr = tree_ptr->findNodeBySignature(type->getLocalUnqualifiedType().getAsString());
 
 				if(ptr)
-					type_ptr->m_ASTNode = ptr;
+					type_ptr->m_ASTNode = ptr.get();
 				else 
 				{
 					if(node_stack.top()->getNodeType() & CppNode::NODE_TYPE_SCOPE)
@@ -400,24 +422,24 @@ CppTypePtr ASTTreeWalker::resolveQualType( clang::QualType* type )
 
 						std::string node_name = type->getAsString();
 
-						size_t pos = node_name.find_last_of(":");
-						if( pos != std::string::npos )
-							node_name.erase( 0, pos + 1 );
+						//size_t pos = node_name.find_last_of(":");
+						//if( pos != std::string::npos )
+						//	node_name.erase( 0, pos + 1 );
 
 						if(type_s->isReferenceType())
 						{
 							node = CppNodePtr( new CppNodeReference(parent) );
-							node->cast_to<CppNodeReference>()->setReferencedType(base_type.get());
+							node->cast_to<CppNodeReference>()->setReferencedType(base_type);
 							node->cast_to<CppNodeReference>()->setReferenceType(type_s->isLValueReferenceType() ? 
 								CppNodeReference::REFERENCE_TYPE_LVALUE : CppNodeReference::REFERENCE_TYPE_RVALUE);
 
 							type_ptr->m_TypeHeader.is_reference = true;
 							type_ptr->m_TypeHeader.is_constant_reference = type->isLocalConstQualified();
 						}
-						else
+						else if( type_s->isPointerType() )
 						{
 							node = CppNodePtr( new CppNodePointer(parent) );
-							node->cast_to<CppNodePointer>()->setPointeeType(base_type.get());
+							node->cast_to<CppNodePointer>()->setPointeeType(base_type);
 							node->cast_to<CppNodePointer>()->setDeclaredAsArray(type_s->isArrayType());
 
 							type_ptr->m_TypeHeader.is_pointer = true;
@@ -425,11 +447,20 @@ CppTypePtr ASTTreeWalker::resolveQualType( clang::QualType* type )
 							type_ptr->m_TypeHeader.is_array = type_s->isArrayType();
 							type_ptr->m_TypeHeader.is_volatile_pointer = type->isLocalVolatileQualified();
 						}
+						else
+						{
+							type_ptr->m_TypeHeader.is_unresolved_usertype = true;
+							type_ptr->m_ASTNode = NULL;
+						}
 
-						node->m_NodeName = node_name;
-						parent->addChild(node);
-
-						type_ptr->m_ASTNode = node.get();
+						if(node)
+						{
+							node->m_NodeName = node_name;
+							tree_ptr->getRootNode()->cast_to<CppNodeScope>()->addChild(node);
+							type_ptr->m_ASTNode = node.get();
+						}
+						//if(qualified_name.find("complex<double>") != std::string::npos)
+						//	std::cout << "Break" << std::endl;
 					}
 					else
 						throw std::exception("scope node is expected");
@@ -438,7 +469,22 @@ CppTypePtr ASTTreeWalker::resolveQualType( clang::QualType* type )
 			else
 			{
 				//This one is the most general case.
-				if(type_s->isMemberPointerType())
+				if( type_s->isTemplateTypeParmType() ||
+					 (
+					 type_s->isRecordType() && 
+					  (
+					   type_s->getAs<TagType>()->getDecl()->getKind() == Decl::ClassTemplate || 
+					   type_s->getAs<TagType>()->getDecl()->getKind() == Decl::ClassTemplatePartialSpecialization
+					   )
+					  )
+					)
+				{
+					type_ptr->m_TypeHeader.is_user_type = false;
+					type_ptr->m_TypeHeader.is_template_parameter = true;
+					type_ptr->m_ASTNode = NULL;
+					//std::clog << type->getAsString() << std::endl;
+				}
+				else if(type_s->isMemberPointerType())
 				{
 					//type_s->castAs<MemberPointerType>()->
 					//CppNodePtr node = CppNodePtr( new CppNodeClassMemberPointer(parent) );
@@ -476,37 +522,30 @@ CppTypePtr ASTTreeWalker::resolveQualType( clang::QualType* type )
 					type_ptr->m_TypeHeader.is_constant = type->isLocalConstQualified();
 					type_ptr->m_TypeHeader.is_volatile = type->isLocalVolatileQualified();
 				}
+				else
+				{
+					type_ptr->m_TypeHeader.is_unresolved_usertype = true;
+					type_ptr->m_ASTNode = NULL;
+				}
 			} // General case
 		} // Non built in type
 		//Generate name
 
-		if(!TypeOfType::classof(type_s) && !TypeOfExprType::classof(type_s) && !BuiltinType::classof(type_s) && !DecltypeType::classof(type_s))
-			type_ptr->m_QualifiedName = type->getAsString();
-		else
-		{
-			if(TypeOfType::classof(type_s))
-				type_ptr->m_QualifiedName = static_cast<const TypeOfType*>(type_s)->desugar().getAsString();
-			else if(TypeOfExprType::classof(type_s))
-				type_ptr->m_QualifiedName = static_cast<const TypeOfExprType*>(type_s)->desugar().getAsString();
-			else if(BuiltinType::classof(type_s))
-				type_ptr->m_QualifiedName = static_cast<const BuiltinType*>(type_s)->desugar().getAsString();
-			else
-				type_ptr->m_QualifiedName = static_cast<const DecltypeType*>(type_s)->desugar().getAsString();
-		}
+		type_ptr->m_QualifiedName = qualified_name;
+
 		type_ptr->m_TypeHeader.is_stl_type = (type_ptr->m_QualifiedName.find("std::") != std::string::npos);
 		type_ptr->m_TypeHeader.is_user_type = !(type_ptr->m_TypeHeader.is_builtin && type_ptr->m_TypeHeader.is_stl_type);
 
-		boost::erase_range(type_ptr->m_QualifiedName, boost::find_first(type_ptr->m_QualifiedName,std::string("class ") ) );
-		boost::erase_range(type_ptr->m_QualifiedName, boost::find_first(type_ptr->m_QualifiedName,std::string("struct ") ) );
-		boost::erase_range(type_ptr->m_QualifiedName, boost::find_first(type_ptr->m_QualifiedName,std::string("union ") ) );
-		boost::erase_range(type_ptr->m_QualifiedName, boost::find_first(type_ptr->m_QualifiedName,std::string("enum ") ) );
-
+		//CppTypePtr second_lookup
+		//if(tree_ptr->getTypeBySignature(type_ptr->m_QualifiedName));
 		tree_ptr->addType(type_ptr);
 
+		return type_ptr;
 		//std::clog << "Resolve qtype " << type->getAsString() << " -> " << type_ptr->getQualifiedName() << " ( " 
 		//	<< (type_ptr->m_ASTNode ? type_ptr->m_ASTNode->getScopedName() : (type_ptr->m_TypeHeader.is_user_type && !type_ptr->m_TypeHeader.is_builtin ? "unresolved" : "builtin")) 
 		//	<< " ) " << std::endl;
 	} // Type not found
+
 	return type_ptr;
 }
 
@@ -595,6 +634,11 @@ void ASTTreeWalker::visitTypedef( clang::TypedefDecl* decl )
 				node->setAccessType(CppNode::ACCESS_TYPE_PROTECTED);
 			else if(spec == AS_private)
 				node->setAccessType(CppNode::ACCESS_TYPE_PRIVATE);
+
+			//if( decl->getUnderlyingType().getAsString().find("integral_constant") != std::string::npos )
+			//{
+				//std::clog << "!!Rejected " << decl->getUnderlyingType().getAsString() << std::endl;
+			//}
 
 			node->setAliasType(resolveQualType(&decl->getUnderlyingType()));
 

@@ -1,7 +1,7 @@
 #ifndef _LIBCPP_LOCALE
 #define _LIBCPP_LOCALE
 
-#include <__config>
+#include <__config> 
 #include <__locale>
 #include <algorithm>
 #include <memory>

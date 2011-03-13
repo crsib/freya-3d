@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 #include "CppTree/CppType.h"
 
@@ -72,7 +73,7 @@ public:
 	virtual void	visit(CppNodeReference* n) {}
 };
 
-class CppNode
+class CppNode : public boost::enable_shared_from_this<CppNode>
 {
 	CppNode(const CppNode&);
 	CppNode& operator = (const CppNode&);
@@ -629,17 +630,17 @@ protected:
 class CppNodePointer : public CppNode
 {
 public:
-	CppNodePointer(CppNode* parent = NULL) : CppNode(parent, NODE_TYPE_POINTER,""), m_PointeeType(NULL), m_IsArray(false) {}
+	CppNodePointer(CppNode* parent = NULL) : CppNode(parent, NODE_TYPE_POINTER,""), m_PointeeType(CppTypePtr()), m_IsArray(false) {}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 	
-	void			setPointeeType(CppType* pointee) { m_PointeeType = pointee; }
-	CppType*		getPointeeType() { return m_PointeeType; }
-	const CppType*	getPointeeType() const { return m_PointeeType; }
+	void				setPointeeType(CppTypePtr pointee) { m_PointeeType = pointee; }
+	CppTypePtr			getPointeeType() { return m_PointeeType; }
+	const CppTypePtr	getPointeeType() const { return m_PointeeType; }
 
-	void			setDeclaredAsArray(bool a) { m_IsArray = a; }
-	bool			isDeclaredAsArray() const  { return m_IsArray; }
+	void				setDeclaredAsArray(bool a) { m_IsArray = a; }
+	bool				isDeclaredAsArray() const  { return m_IsArray; }
 protected:
-	CppType*		m_PointeeType;
+	CppTypePtr		m_PointeeType;
 	bool			m_IsArray;
 
 friend class ASTTreeWalker;
@@ -659,15 +660,15 @@ public:
 	
 
 	
-	void			setReferencedType(CppType* pointee) { m_ReferencedType = pointee; }
-	CppType*		getReferencedType() { return m_ReferencedType; }
-	const CppType*	getReferencedType() const { return m_ReferencedType; }
+	void			setReferencedType(CppTypePtr& pointee) { m_ReferencedType = pointee; }
+	CppTypePtr		getReferencedType() { return m_ReferencedType; }
+	const CppTypePtr	getReferencedType() const { return m_ReferencedType; }
 
 	void			setReferenceType(REFERENCE_TYPE type) { m_RefernceType = type; }
 	REFERENCE_TYPE	getReferenceType() const { return m_RefernceType; }
 
 protected:
-	CppType*		m_ReferencedType;
+	CppTypePtr		m_ReferencedType;
 	REFERENCE_TYPE  m_RefernceType;
 friend class ASTTreeWalker;
 };
