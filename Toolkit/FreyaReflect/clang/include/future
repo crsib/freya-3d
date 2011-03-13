@@ -551,7 +551,7 @@ public:
 
     _LIBCPP_INLINE_VISIBILITY
     bool __has_value() const
-        {return (__state_ & __constructed) || (__exception_ != nullptr);}
+        {return false; }
 
     _LIBCPP_INLINE_VISIBILITY
     void __set_future_attached() {__state_ |= __future_attached;}

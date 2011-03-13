@@ -12,6 +12,7 @@
 #include "CppTree/CppType.h"
 
 class CppNode;
+typedef boost::shared_ptr<CppNode> CppNodePtr;
 class CppTree;
 
 namespace clang
@@ -30,9 +31,14 @@ public:
 	CppTree();
 	~CppTree();
 
-	CppNode*		findNodeBySignature(const std::string& node) const;
+	CppNodePtr		findNodeBySignature(const std::string& node) const;
 	CppTypePtr		getTypeBySignature(const std::string& type)  { return m_TypeMap[type]; }
-	void			addType(CppTypePtr type) { m_TypeMap[type->getQualifiedName()] = type; }
+	void			addType(CppTypePtr type) 
+	{
+		type_map_t::iterator it = m_TypeMap.find(type->getQualifiedName());
+		if(it == m_TypeMap.end() || !it->second)
+			m_TypeMap[type->getQualifiedName()] = type; 
+	}
 
 	CppNode*		getRootNode() { return m_RootNode; }
 };

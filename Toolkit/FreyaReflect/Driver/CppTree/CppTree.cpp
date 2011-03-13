@@ -8,6 +8,8 @@
 CppTree::CppTree()
 {
 	m_RootNode = new CppNodeNamespace("", NULL); //Create root namespace
+	m_RootNode->setAccessType(CppNode::ACCESS_TYPE_PUBLIC);
+	m_RootNode->setNodeFlag(CppNode::NODE_FLAG_USED);
 }
 
 CppTree::~CppTree()
@@ -17,7 +19,7 @@ CppTree::~CppTree()
 
 
 
-CppNode* CppTree::findNodeBySignature( const std::string& _node ) const
+CppNodePtr CppTree::findNodeBySignature( const std::string& _node ) const
 {
 	std::string node(_node);
 
@@ -42,10 +44,10 @@ CppNode* CppTree::findNodeBySignature( const std::string& _node ) const
 			{
 				cur_node = static_cast<CppNodeScope*>(cur_node)->getChildByName(tok_list[i]).get();
 				if(!cur_node)
-					return NULL;
+					return CppNodePtr();
 			}
 			else
-				return NULL;
+				return CppNodePtr();
 		}//if(tok_list[i].length())
 	}//for(size_t i = 0; i < tok_list.size() - 1; ++i)
 	//Ok, now the behavior will be different for different scopes.
@@ -54,7 +56,7 @@ CppNode* CppTree::findNodeBySignature( const std::string& _node ) const
 
 	if(cur_node->getNodeType() & CppNode::NODE_TYPE_SCOPE)
 	{
-		CppNode* tmp = static_cast<CppNodeScope*>(cur_node)->getChildByName(tok_list.back()).get();
+		CppNodePtr tmp = static_cast<CppNodeScope*>(cur_node)->getChildByName(tok_list.back());
 		if(tmp)
 			return tmp;
 		else //if(tmp)
@@ -67,7 +69,7 @@ CppNode* CppTree::findNodeBySignature( const std::string& _node ) const
 				if((*it)->getNodeType() & CppNode::NODE_TYPE_FUNCTION)
 				{
 					if(search_name == (*it)->getNodeName() + static_cast<CppNodeFunction*>(it->get())->getProtoString())
-						return it->get();
+						return *it;
 				}
 			}
 		}//if(tmp)
@@ -83,7 +85,7 @@ CppNode* CppTree::findNodeBySignature( const std::string& _node ) const
 			end = static_cast<CppNodeClass*>(cur_node)->members_end();
 			it != end; ++it)
 				if ((*it)->getNodeName() == search_name)
-					return *it;
+					return (*it)->shared_from_this();
 
 			//Well, lets hope, that this is a class method
 		for(CppNodeClass::method_list_const_iterator_t 
@@ -91,8 +93,8 @@ CppNode* CppTree::findNodeBySignature( const std::string& _node ) const
 			end = static_cast<CppNodeClass*>(cur_node)->methods_end();
 			it != end; ++it)
 				if ((*it)->getNodeName() + (*it)->getProtoString() == search_name)
-					return *it;
+					return (*it)->shared_from_this();
 	} //if(cur_node->getNodeType() & CppNode::NODE_TYPE_CLASS)
 
-	return NULL;
+	return CppNodePtr();
 }

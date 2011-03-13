@@ -77,7 +77,7 @@ void	header_files_collector(std::vector<std::string>& path_list, const llvm::sys
 	{
 		for(auto it = paths.begin(), end = paths.end(); it != end; ++it)
 		{
-			if(it->isDirectory())
+			if( it->isDirectory() )
 				header_files_collector(path_list, *it);
 			else
 			{

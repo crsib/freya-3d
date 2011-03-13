@@ -6,9 +6,10 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <iostream>
+
 class CppTree;
 class CppNode;
-
 class ASTTreeWalker;
 
 class CppType
@@ -34,14 +35,16 @@ public:
 			bool			is_volatile										: 1; // Bit 10
 			bool			is_volatile_pointer								: 1; // Bit 11
 			bool			is_unresolved_usertype							: 1; // Bit 12
+
+			bool			is_template_parameter							: 1; // Bit 13
 			//unsigned        __reserved__                                    : (32 - 13);
 		};
 		unsigned		mask;
 	} cpp_type_header_t;
 private:
-	CppType() : m_ASTNode(NULL) { m_TypeHeader.mask = 0u; }
+	CppType() : m_ASTNode(NULL)  { m_TypeHeader.mask = 0u; }
 public:
-	virtual ~CppType() {}
+	virtual ~CppType() { }
 private:
 	//Make it not copyable
 	CppType(const CppType&);
@@ -64,10 +67,13 @@ public:
 	bool isConstantPointer() const { return m_TypeHeader.is_constant_pointer; }
 	bool isVolatilePointer() const { return m_TypeHeader.is_volatile_pointer; }
 	bool isBuiltin() const { return m_TypeHeader.is_builtin; }
+	bool isUnresolvedUserType() const { return m_TypeHeader.is_unresolved_usertype; }
+	bool isTemplateParameter() const { return m_TypeHeader.is_template_parameter; }
 
 	cpp_type_header_t   getTypeHeader() const { return m_TypeHeader; }
 
-	const CppNode*		getUserType() const { return m_ASTNode; }
+	CppNode*		getUserType() { return m_ASTNode; }
+	const CppNode*	getUserType() const { return m_ASTNode; }
 
 	std::string			getQualifiedName() const { return m_QualifiedName; }
 

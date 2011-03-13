@@ -12,6 +12,114 @@ extern llvm::cl::opt<bool>			UseMSVS;
 extern llvm::cl::opt<bool>			UseRTTI;
 extern llvm::cl::opt<bool>			UseCpp0x;
 
+///// Dirty hack
+class MyTextDiagnosticPrinter : public clang::TextDiagnosticPrinter
+{
+public:
+	MyTextDiagnosticPrinter(llvm::raw_ostream &os, const clang::DiagnosticOptions &diags, bool _OwnsOutputStream = false) : 
+	  clang::TextDiagnosticPrinter(os, diags,_OwnsOutputStream) {}
+
+	virtual void HandleDiagnostic(clang::Diagnostic::Level Level,const clang::DiagnosticInfo &Info)
+	{
+		if(Level >= clang::Diagnostic::Error)
+			clang::TextDiagnosticPrinter::HandleDiagnostic(Level,Info);
+	}
+};
+///// End of dirty hack
+
+namespace __internal
+{
+	unsigned user_supplied_nodes = 0;
+	unsigned used_nodes = 0;
+
+	//First pass marker
+	class FirstPassTraversal : public CppNodeVisitor
+	{
+	public:
+		FirstPassTraversal()
+		{
+			user_supplied_nodes = 0;
+			used_nodes = 0;
+		}
+		virtual void	visit(CppNodeScope* n) 
+		{
+			for(CppNodeScope::node_array_iterator_t it = n->begin(), end = n->end(); it != end; ++it )
+			{
+				CppNodePtr node = *it;
+				if(node->getAccessType() == CppNode::ACCESS_TYPE_PRIVATE)
+					continue;
+				CppNode::NODE_FLAG node_flag = node->getNodeFlag();
+				CppNode::NODE_FLAG parent_flag = node->getParent()->getNodeFlag();
+				// Check the node flag
+				if ( 
+					( node_flag   == CppNode::NODE_FLAG_USER_SUPPLIED ) || 
+					( node_flag   == CppNode::NODE_FLAG_USED ) 
+					)
+				{
+					user_supplied_nodes++;
+					node->acceptVisitor(*this); // Just pass to another visitor
+				}
+				else if( // Check parent node
+					( parent_flag == CppNode::NODE_FLAG_USER_SUPPLIED ) ||
+					( parent_flag == CppNode::NODE_FLAG_USED )
+					)
+				{
+					used_nodes++;
+					node->setNodeFlag(CppNode::NODE_FLAG_USED); // Mark as used
+					node->acceptVisitor(*this); // And parse down
+				}
+			}
+		}
+		
+		virtual void	visit(CppNodeNamespace* n) { visit(static_cast<CppNodeScope*>(n)); }
+		virtual	void	visit(CppNodeEnum* n) { visit(static_cast<CppNodeScope*>(n)); }
+		virtual	void	visit(CppNodeClass* n) { visit(static_cast<CppNodeScope*>(n)); }
+		virtual	void	visit(CppNodeClassTemplateSpecialization* n) { visit(static_cast<CppNodeScope*>(n)); }
+		virtual	void	visit(CppNodeAnonymousStruct* n) { visit(static_cast<CppNodeScope*>(n)); }
+		virtual	void	visit(CppNodeAnonymousUnion* n) { visit(static_cast<CppNodeScope*>(n)); }
+		virtual	void	visit(CppNodeUnion* n) { visit(static_cast<CppNodeScope*>(n)); }
+		virtual void	visit(CppNodePointer* n) 
+		{
+			if( n->getPointeeType()->getUserType() && !n->getPointeeType()->isBuiltin() )
+			{
+				if( n->getPointeeType()->getUserType()->getNodeFlag() > CppNode::NODE_FLAG_USED )
+				{
+					used_nodes++;
+					n->getPointeeType()->getUserType()->setNodeFlag(CppNode::NODE_FLAG_USED);
+					n->getPointeeType()->getUserType()->acceptVisitor(*this);
+				}
+			}
+		}
+		virtual void	visit(CppNodeReference* n) 
+		{
+			if( n->getReferencedType()->getUserType() && !n->getReferencedType()->isBuiltin())
+			{
+				if( n->getReferencedType()->getUserType()->getNodeFlag() > CppNode::NODE_FLAG_USED )
+				{
+					used_nodes++;
+					n->getReferencedType()->getUserType()->setNodeFlag(CppNode::NODE_FLAG_USED);
+					n->getReferencedType()->getUserType()->acceptVisitor(*this);
+				}
+			}
+		}
+
+		virtual void	visit(CppNodeTypedef* n)
+		{
+			if( n->getAliasType()->getUserType() && !n->getAliasType()->isBuiltin() )
+			{
+				if( n->getAliasType()->getUserType()->getNodeFlag() > CppNode::NODE_FLAG_USED )
+				{
+					used_nodes++;
+					n->getAliasType()->getUserType()->setNodeFlag(CppNode::NODE_FLAG_USED);
+					n->getAliasType()->getUserType()->acceptVisitor(*this);
+				}
+			}
+
+		}
+	};
+
+}
+
 CppTreePtr prepareASTTree( 
 	const std::string& include_path,
 	const std::vector<std::string>& header_paths, 
@@ -23,10 +131,11 @@ CppTreePtr prepareASTTree(
 	//CppTree
 	clang::DiagnosticOptions diagnosticOptions;
 	diagnosticOptions.IgnoreWarnings = true;
+	diagnosticOptions.ShowColors = true;
 	diagnosticOptions.ShowFixits = false;
 	//diagnosticOptions.
 	clang::TextDiagnosticPrinter *pTextDiagnosticPrinter =
-		new clang::TextDiagnosticPrinter(
+		new MyTextDiagnosticPrinter(
 		llvm::outs(),
 		diagnosticOptions);
 	llvm::IntrusiveRefCntPtr<clang::DiagnosticIDs> ids(new clang::DiagnosticIDs);
@@ -38,11 +147,12 @@ CppTreePtr prepareASTTree(
 	languageOptions.Bool = true;
 	languageOptions.CPlusPlus0x = UseCpp0x.getValue();
 	languageOptions.Exceptions = languageOptions.CPlusPlus;
-	languageOptions.C99 = UseC99.getValue();
+	languageOptions.C99 = UseC99.getValue() || languageOptions.CPlusPlus;
 	languageOptions.RTTI = languageOptions.CPlusPlus && UseRTTI.getValue();
 	languageOptions.GNUKeywords = 1;
 	//languageOptions.
 	//languageOptions.NoBuiltin = 1;
+	
 	clang::FileSystemOptions filesystemOpts;
 	clang::FileManager fileManager(filesystemOpts);
 	
@@ -131,7 +241,7 @@ CppTreePtr prepareASTTree(
 	}
 
 	if(!UseCpp0x)
-		os <<	"#define nullptr (0)\n"
+		os <<	"#define nullptr (int(0))\n"
 				"#define _LIBCPP_HAS_NO_UNICODE_CHARS\n";
 
 	os <<	"#ifndef NULL\n"
@@ -184,6 +294,10 @@ CppTreePtr prepareASTTree(
 	clang::ParseAST(preprocessor, &astConsumer, astContext); 
 
 	if(BeVerbose)
+		std::clog << "Finished parsing. Cleaning the tree up" << std::endl;
+	astConsumer.tree_ptr->getRootNode()->acceptVisitor(__internal::FirstPassTraversal());
+
+	if(BeVerbose)
 	{
 		std::clog << "Parsing complete in: " << (float)(clock() - start) / (float)CLOCKS_PER_SEC << std::endl; 
 		sourceManager.PrintStats();
@@ -191,6 +305,11 @@ CppTreePtr prepareASTTree(
 		headerSearch.PrintStats();
 		astContext.PrintStats();	
 	}
+	pTextDiagnosticPrinter->EndSourceFile();
+	//delete pTextDiagnosticPrinter;
 	tmp.eraseFromDisk();
+
+	//delete pTextDiagnosticPrinter;
+
 	return astConsumer.tree_ptr;
 }
