@@ -15,6 +15,8 @@
 
 #include "CppTree/ASTParser.h"
 
+#include "Output/XMLWriter.h"
+
 #include <memory>
 
 //================================= cl options =========================================================
@@ -27,11 +29,11 @@ llvm::cl::opt<bool>			RecursiveScan("R", llvm::cl::desc("Treat input as a direct
 //Generators flag
 llvm::cl::opt<bool>			EmitInterfaceImplemetationsToLua("lua-emit-impl-classes",
 	llvm::cl::desc("Generate Lua bindings for classes, that just implement the interface. Will produce larger output."));
-llvm::cl::opt<std::string>	UseCustomAllocModel("use-custom-alloc",
+/*llvm::cl::opt<std::string>	UseCustomAllocModel("use-custom-alloc",
 	llvm::cl::desc("Make the output classes to be ancestors of class, which overrides memory management operators. This base class must be reflected."),
 	llvm::cl::value_desc("qualified class name"));
 llvm::cl::opt<bool>			UseLuaJit("use-luajit",
-	llvm::cl::desc("Generate JIT controlling code. Requires LuaJIT 2.0 backend to work"));
+	llvm::cl::desc("Generate JIT controlling code. Requires LuaJIT 2.0 backend to work"));*/
 //Preprocessor flags
 llvm::cl::list<std::string> IncludeDirs("I",llvm::cl::desc("Global include directory"),llvm::cl::value_desc("directory"),llvm::cl::Prefix);
 llvm::cl::list<std::string> Definitions("D",llvm::cl::desc("Defines a preprocessor definition. Uses default GCC syntax"),llvm::cl::value_desc("directory"),llvm::cl::Prefix);
@@ -219,6 +221,11 @@ int main (int argc, char* argv[])
 		path.eraseFromDisk(true);
 
 		//Run generators here
+		if(XMLOutputFile.getValue() != "")
+		{
+			XMLWriter xml_writer(ast_tree->getRootNode(), XMLOutputFile.getValue());
+			ast_tree->getRootNode()->acceptVisitor(xml_writer);
+		}
 	}
 	catch (std::exception& e)
 	{
