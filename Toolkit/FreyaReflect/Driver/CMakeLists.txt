@@ -16,6 +16,11 @@ DRIVER_INCLUDES
 ./CppTree/CppType.h
 
 ####################
+# Output modules   #
+####################
+./Output/XMLWriter.h
+
+####################
 # Generated        #
 ####################
 #"${CMAKE_SOURCE_DIR}/Build/Generated/SVN_Revision.h"
@@ -32,6 +37,11 @@ DRIVER_SOURCES
 ./CppTree/CppType.cpp
 
 ####################
+# Output modules   #
+####################
+./Output/XMLWriter.cpp
+
+####################
 # main executable  #
 ####################
 ./driver.cpp  
@@ -44,7 +54,9 @@ include_directories( "./" )
 
 #SET_SOURCE_FILES_PROPERTIES("${CMAKE_SOURCE_DIR}/Build/Generates/SVN_Revision.h" PROPERTIES GENERATED YES)
 SET_SOURCE_FILES_PROPERTIES("${CMAKE_SOURCE_DIR}/Build/Generated/headers_package.cpp" PROPERTIES GENERATED YES )
-SOURCE_GROUP("Generated" FILES "${CMAKE_SOURCE_DIR}/Build/Generates/SVN_Revision.h")
+SOURCE_GROUP("Generated" FILES "${CMAKE_SOURCE_DIR}/Build/Generated/headers_package.cpp")
+
+SOURCE_GROUP("Output" FILES "./Output/XMLWriter.cpp" "./Output/XMLWriter.h")
 
 ######## Find Clang Frontend #################
 

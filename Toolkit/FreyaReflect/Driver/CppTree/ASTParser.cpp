@@ -52,16 +52,17 @@ namespace __internal
 				CppNode::NODE_FLAG parent_flag = node->getParent()->getNodeFlag();
 				// Check the node flag
 				if ( 
-					( node_flag   == CppNode::NODE_FLAG_USER_SUPPLIED ) || 
-					( node_flag   == CppNode::NODE_FLAG_USED ) 
+					( node_flag   == CppNode::NODE_FLAG_USER_SUPPLIED ) //|| 
+					//( node_flag   == CppNode::NODE_FLAG_USED ) 
 					)
 				{
 					user_supplied_nodes++;
 					node->acceptVisitor(*this); // Just pass to another visitor
 				}
 				else if( // Check parent node
-					( parent_flag == CppNode::NODE_FLAG_USER_SUPPLIED ) ||
-					( parent_flag == CppNode::NODE_FLAG_USED )
+					node->getParent()->getParent() &&
+					( parent_flag == CppNode::NODE_FLAG_USER_SUPPLIED ) //||
+					//( parent_flag == CppNode::NODE_FLAG_USED )
 					)
 				{
 					used_nodes++;
@@ -71,7 +72,7 @@ namespace __internal
 			}
 		}
 		
-		virtual void	visit(CppNodeNamespace* n) { visit(static_cast<CppNodeScope*>(n)); }
+		virtual void	visit(CppNodeNamespace* n) { if(n->getNodeFlag() != CppNode::NODE_FLAG_USER_SUPPLIED) n->setNodeFlag(CppNode::NODE_FLAG_USED); visit(static_cast<CppNodeScope*>(n)); }
 		virtual	void	visit(CppNodeEnum* n) { visit(static_cast<CppNodeScope*>(n)); }
 		virtual	void	visit(CppNodeClass* n) { visit(static_cast<CppNodeScope*>(n)); }
 		virtual	void	visit(CppNodeClassTemplateSpecialization* n) { visit(static_cast<CppNodeScope*>(n)); }

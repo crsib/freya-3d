@@ -9,7 +9,7 @@ CppTree::CppTree()
 {
 	m_RootNode = new CppNodeNamespace("", NULL); //Create root namespace
 	m_RootNode->setAccessType(CppNode::ACCESS_TYPE_PUBLIC);
-	m_RootNode->setNodeFlag(CppNode::NODE_FLAG_USED);
+	m_RootNode->setNodeFlag(CppNode::NODE_FLAG_USER_SUPPLIED);
 }
 
 CppTree::~CppTree()

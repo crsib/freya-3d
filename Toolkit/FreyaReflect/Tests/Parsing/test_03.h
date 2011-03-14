@@ -21,7 +21,10 @@ namespace a
 	typedef TmpPtr& TmpPtrRef;
 	
 	struct tmp2 {};
-	enum   tmp3 {};
+	enum   tmp3 {
+		VALUE = 10,
+		TEST  = 12
+	};
 	
 	typedef tmp3 EnumAlias;
 	typedef tmp2 StructAlias;
