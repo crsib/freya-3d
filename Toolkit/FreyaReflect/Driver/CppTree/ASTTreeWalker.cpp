@@ -116,7 +116,7 @@ void ASTTreeWalker::visitNamespaceDecl( clang::NamespaceDecl* decl )
 			//Register search map for improved type resolving
 			m_DirectSearchMap[decl] = node;
 			m_ReverseSearchMap[node] = decl;
-			std::clog << "Namespace: " << decl->getName().str() << " user_supplied " << (isDeclFromUserFile(decl->getLocation()) ? "true" : "false") << std::endl;
+			//std::clog << "Namespace: " << decl->getName().str() << " user_supplied " << (isDeclFromUserFile(decl->getLocation()) ? "true" : "false") << std::endl;
 		}
 		else if(found->getNodeType() & CppNode::NODE_TYPE_NAMESPACE)
 			node = static_cast<CppNodeNamespace*>(found.get());
@@ -209,7 +209,7 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 {
 	AccessSpecifier spec = decl->getAccess();
 
-
+	bool specialization_defined = false;
 
 	if(node_stack.top()->getNodeType() & CppNode::NODE_TYPE_SCOPE)
 	{
@@ -304,6 +304,7 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 				{
 					m_TemplateSpecializationLookup[m_TemplateSpecialization->getScopedName()] = m_TemplateSpecialization;
 					__managed_node = m_TemplateSpecialization;
+					specialization_defined = true;
 				}
 				else
 					__managed_node = m_TemplateSpecializationLookup[m_TemplateSpecialization->getScopedName()];
@@ -321,25 +322,37 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 		//	std::clog << "Class (union) " << node->getScopedName() << std::endl;
 
 			//Parse bases:
-			if( CXXRecordDecl::classof(decl) && decl->isDefinition() )
+			if( CXXRecordDecl::classof(decl) && (decl->isDefinition() || specialization_defined) )
 			{
 				CXXRecordDecl* cxx_decl = static_cast<CXXRecordDecl*>(decl);
-				
-				for( CXXRecordDecl::base_class_iterator it = cxx_decl->bases_begin(), end = cxx_decl->bases_end(); it != end; ++it )
+				if(!decl->isDefinition())
 				{
-					CXXBaseSpecifier& base_class = *it;
-					CppNode::ACCESS_TYPE access = base_class.getAccessSpecifier() == AS_public ? CppNode::ACCESS_TYPE_PUBLIC :
-						(base_class.getAccessSpecifier() == AS_protected ? CppNode::ACCESS_TYPE_PROTECTED : CppNode::ACCESS_TYPE_PRIVATE );
-					static_cast<CppNodeClass*>(node)->addBaseClass(CppNodeClass::base_type_t(std::make_pair(resolveQualType(&base_class.getType()), access)));
+					if(decl->getDefinition() && CXXRecordDecl::classof(decl->getDefinition()))
+						cxx_decl = static_cast<CXXRecordDecl*>(decl->getDefinition());
+					else
+						cxx_decl = NULL;
 				}
 
-				for( CXXRecordDecl::base_class_iterator it = cxx_decl->vbases_begin(), end = cxx_decl->vbases_end(); it != end; ++it )
+				if(cxx_decl)
 				{
-					CXXBaseSpecifier& base_class = *it;
-					CppNode::ACCESS_TYPE access = base_class.getAccessSpecifier() == AS_public ? CppNode::ACCESS_TYPE_PUBLIC :
-						(base_class.getAccessSpecifier() == AS_protected ? CppNode::ACCESS_TYPE_PROTECTED : CppNode::ACCESS_TYPE_PRIVATE );
-					static_cast<CppNodeClass*>(node)->addBaseClass(CppNodeClass::base_type_t(std::make_pair(resolveQualType(&base_class.getType()), access)));
+					for( CXXRecordDecl::base_class_iterator it = cxx_decl->bases_begin(), end = cxx_decl->bases_end(); it != end; ++it )
+					{
+						CXXBaseSpecifier& base_class = *it;
+						CppNode::ACCESS_TYPE access = base_class.getAccessSpecifier() == AS_public ? CppNode::ACCESS_TYPE_PUBLIC :
+							(base_class.getAccessSpecifier() == AS_protected ? CppNode::ACCESS_TYPE_PROTECTED : CppNode::ACCESS_TYPE_PRIVATE );
+						static_cast<CppNodeClass*>(node)->addBaseClass(CppNodeClass::base_type_t(std::make_pair(resolveQualType(&base_class.getType()), access)));
+					}
+
+					for( CXXRecordDecl::base_class_iterator it = cxx_decl->vbases_begin(), end = cxx_decl->vbases_end(); it != end; ++it )
+					{
+						CXXBaseSpecifier& base_class = *it;
+						CppNode::ACCESS_TYPE access = base_class.getAccessSpecifier() == AS_public ? CppNode::ACCESS_TYPE_PUBLIC :
+							(base_class.getAccessSpecifier() == AS_protected ? CppNode::ACCESS_TYPE_PROTECTED : CppNode::ACCESS_TYPE_PRIVATE );
+						static_cast<CppNodeClass*>(node)->addBaseClass(CppNodeClass::base_type_t(std::make_pair(resolveQualType(&base_class.getType()), access)));
+					}
 				}
+				else
+					specialization_defined = false;
 			}
 		}
 		else
@@ -349,17 +362,14 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 		}
 
 		//Push class on top
-		if( decl->isDefinition()  
-			/*&& !(
-			clang::CXXRecordDecl::classof(decl) 
-			&& !clang::ClassTemplateSpecializationDecl::classof(decl)
-			&& !static_cast<CXXRecordDecl*>(decl)->getDescribedClassTemplate()
-			)*/
-		)
+		if( decl->isDefinition()  || specialization_defined ) 
 		{
 			node_stack.push(node);
 			decl_stack.push(decl);
-			visitDeclContext(static_cast<DeclContext*>(decl));
+			if(decl->isDefinition())
+				visitDeclContext(static_cast<DeclContext*>(decl));
+			else
+				visitDeclContext(static_cast<DeclContext*>(decl->getDefinition()));
 			//Remove class from the stack
 			decl_stack.pop();
 			node_stack.pop();
@@ -599,7 +609,10 @@ void ASTTreeWalker::visitVarDecl( clang::DeclaratorDecl* decl )
 			if(isDeclFromUserFile(decl->getLocation()))
 				nodeptr->setNodeFlag(CppNode::NODE_FLAG_USER_SUPPLIED);
 			node = nodeptr->cast_to<CppNodeVariableDecl>();
-			parent->addChild(nodeptr);
+			if(!(parent->getNodeType() & CppNode::NODE_TYPE_CLASS))
+				parent->addChild(nodeptr);
+			else
+				static_cast<CppNodeClass*>(parent)->addMember(CppNodeClassMemberPtr(nodeptr, boost::detail::static_cast_tag()));
 			if(spec == AS_protected)
 				node->setAccessType(CppNode::ACCESS_TYPE_PROTECTED);
 			else if(spec == AS_private)
@@ -712,7 +725,7 @@ void ASTTreeWalker::visitFunction( clang::FunctionDecl* decl )
 
 		if( decl->isOverloadedOperator() )
 			func_node->setAsOverloadedOperator(true, decl->getOverloadedOperator() );
-		if( decl->getKind() != Decl::Function )
+		if( decl->getKind() != Decl::Function  )
 		{
 			CXXMethodDecl* mdecl = static_cast<CXXMethodDecl*>(decl);
 			CppNodeClassMethod* m = static_cast<CppNodeClassMethod*>(func_node.get());
@@ -727,7 +740,17 @@ void ASTTreeWalker::visitFunction( clang::FunctionDecl* decl )
 		}
 
 		if(!static_cast<CppNodeScope*>(parent)->getChildByName(func_node->getNodeName()))
-			static_cast<CppNodeScope*>(parent)->addChild(func_node);
+		{
+			if((decl->getKind() != Decl::Function) && (parent->getNodeType() & CppNode::NODE_TYPE_CLASS) )
+				static_cast<CppNodeClass*>(parent)->addMethod(CppNodeClassMethodPtr(func_node, boost::detail::static_cast_tag()));
+			else
+				static_cast<CppNodeScope*>(parent)->addChild(func_node);
+
+			if(spec == AS_protected)
+				func_node->setAccessType(CppNode::ACCESS_TYPE_PROTECTED);
+			else if(spec == AS_private)
+				func_node->setAccessType(CppNode::ACCESS_TYPE_PRIVATE);
+		}
 	}
 	else //if(node_stack.top()->getNodeType() & CppNode::NODE_TYPE_SCOPE)
 		throw std::exception("scope node is expected");

@@ -11,6 +11,7 @@ namespace
 		{
 			used_counter++;
 			node->getParent()->setNodeFlag(CppNode::NODE_FLAG_USED);
+			std::clog << "Marked as used: " << node->getParent()->getScopedName() << std::endl;
 			mark_down(node->getParent(),used_counter);
 		}
 	}
@@ -117,6 +118,18 @@ void TreeMarker::visit( CppNodeReference* n )
 	mark_type(n->getReferencedType(),*this);
 }
 
+void TreeMarker::visit( CppNodeClassTemplateSpecialization* n )
+{
+	for(CppNodeClassTemplateSpecialization::template_argument_list_iterator_t it = n->targs_begin(), end = n->targs_end(); it != end; ++it)
+	{
+		if((*it)->getType() == CppNodeClassTemplateSpecialization::TemplateArgument::CPP_TYPE)
+			mark_type((*it)->getCppNode(), *this);
+	}
+
+	visit(static_cast<CppNodeClass*>(n));
+}
+
+
 void TreeMarker::markNode( CppNode* n )
 {
 	if(n->getNodeFlag() == CppNode::NODE_FLAG_USER_SUPPLIED)
@@ -125,6 +138,7 @@ void TreeMarker::markNode( CppNode* n )
 	{
 		UsedNodes++;
 		n->setNodeFlag(CppNode::NODE_FLAG_USED);
+		std::clog << "Marked as used: " << n->getScopedName() << std::endl;
 		mark_down(n, UsedNodes);
 	}
 }

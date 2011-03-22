@@ -123,10 +123,11 @@ public:
 		NODE_FLAG_USER_SUPPLIED,
 		//This node is from external code and is used by user supplied code
 		NODE_FLAG_USED,
+		//This node is from deserialized AST code
+		NODE_FLAG_DESERIALIZED,
 		//This node is from external code and is not used by user supplied code
 		NODE_FLAG_EXTERNAL,
-		//This node is from deserialized AST code
-		NODE_FLAG_DESERIALIZED
+		
 	};
 
 	CppNode(CppNode* parent = NULL, unsigned type = NODE_TYPE_UNKNOWN, const std::string& name = "") 
@@ -145,7 +146,7 @@ public:
 	void				setAccessType(ACCESS_TYPE type) { m_AccessType = type; } 
 	ACCESS_TYPE			getAccessType() const { return m_AccessType; }
 
-	void				setNodeFlag(NODE_FLAG f) { m_NodeFlag = f; }
+	void				setNodeFlag(NODE_FLAG f) { if( m_NodeFlag == NODE_FLAG_EXTERNAL ) m_NodeFlag = f; }
 	NODE_FLAG			getNodeFlag() const		 { return m_NodeFlag; }
 	
 	bool				needsReflection() { return (m_NodeFlag == NODE_FLAG_USED || m_NodeFlag == NODE_FLAG_USER_SUPPLIED); }
@@ -284,6 +285,7 @@ public:
 	std::string						getProtoString() const; //Return string of form (void) or (const std::string const )
 
 	std::string						getNodeName() const;
+	std::string						getFunctionName() const { return m_NodeName; }
 protected:
 	argument_list_t					m_ArgumentList;
 	CppTypePtr						m_ReturnValue;
