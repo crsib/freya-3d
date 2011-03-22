@@ -119,6 +119,10 @@ void XMLWriter::visit( CppNodeClass* n )
 		for(CppNodeClass::base_type_list_iterator_t it = n->bases_begin(), end = n->bases_end(); it != end; ++it)
 		{
 			CppNodeClass::base_type_t& base = *it;
+			
+			if(base.second == CppNodeClass::ACCESS_TYPE_PRIVATE)
+				continue;
+
 			m_TypesCache.insert(base.first.get());
 			m_OutputStream << insertTabs() << "<base access=\"" << _access_str[base.second] << "\" type=\"" << makeValidXML(base.first->getQualifiedName()) << "\" />\n";
 		}

@@ -14,6 +14,7 @@ DRIVER_INCLUDES
 ./CppTree/CppNode.h
 ./CppTree/CppTree.h
 ./CppTree/CppType.h
+./CppTree/TreeMarker.h
 
 ####################
 # Output modules   #
@@ -35,6 +36,7 @@ DRIVER_SOURCES
 ./CppTree/CppNode.cpp
 ./CppTree/CppTree.cpp
 ./CppTree/CppType.cpp
+./CppTree/TreeMarker.cpp
 
 ####################
 # Output modules   #

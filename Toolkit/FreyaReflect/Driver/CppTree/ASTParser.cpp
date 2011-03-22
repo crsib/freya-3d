@@ -4,6 +4,7 @@
 #include <llvm/Support/Path.h>
 #include <clang/Basic/FileSystemOptions.h>
 #include <llvm/Support/raw_ostream.h>
+#include "CppTree/TreeMarker.h"
 #include <ctime>
 //Language flags
 extern llvm::cl::opt<bool>			UseC99;
@@ -26,100 +27,6 @@ public:
 	}
 };
 ///// End of dirty hack
-
-namespace __internal
-{
-	unsigned user_supplied_nodes = 0;
-	unsigned used_nodes = 0;
-
-	//First pass marker
-	class FirstPassTraversal : public CppNodeVisitor
-	{
-	public:
-		FirstPassTraversal()
-		{
-			user_supplied_nodes = 0;
-			used_nodes = 0;
-		}
-		virtual void	visit(CppNodeScope* n) 
-		{
-			for(CppNodeScope::node_array_iterator_t it = n->begin(), end = n->end(); it != end; ++it )
-			{
-				CppNodePtr node = *it;
-				if(node->getAccessType() == CppNode::ACCESS_TYPE_PRIVATE)
-					continue;
-				CppNode::NODE_FLAG node_flag = node->getNodeFlag();
-				CppNode::NODE_FLAG parent_flag = node->getParent()->getNodeFlag();
-				// Check the node flag
-				if ( 
-					( node_flag   == CppNode::NODE_FLAG_USER_SUPPLIED ) //|| 
-					//( node_flag   == CppNode::NODE_FLAG_USED ) 
-					)
-				{
-					user_supplied_nodes++;
-					node->acceptVisitor(*this); // Just pass to another visitor
-				}
-				else if( // Check parent node
-					node->getParent()->getParent() &&
-					( parent_flag == CppNode::NODE_FLAG_USER_SUPPLIED ) //||
-					//( parent_flag == CppNode::NODE_FLAG_USED )
-					)
-				{
-					used_nodes++;
-					node->setNodeFlag(CppNode::NODE_FLAG_USED); // Mark as used
-					node->acceptVisitor(*this); // And parse down
-				}
-			}
-		}
-		
-		virtual void	visit(CppNodeNamespace* n) { if(n->getNodeFlag() != CppNode::NODE_FLAG_USER_SUPPLIED) n->setNodeFlag(CppNode::NODE_FLAG_USED); visit(static_cast<CppNodeScope*>(n)); }
-		virtual	void	visit(CppNodeEnum* n) { visit(static_cast<CppNodeScope*>(n)); }
-		virtual	void	visit(CppNodeClass* n) { visit(static_cast<CppNodeScope*>(n)); }
-		virtual	void	visit(CppNodeClassTemplateSpecialization* n) { visit(static_cast<CppNodeScope*>(n)); }
-		virtual	void	visit(CppNodeAnonymousStruct* n) { visit(static_cast<CppNodeScope*>(n)); }
-		virtual	void	visit(CppNodeAnonymousUnion* n) { visit(static_cast<CppNodeScope*>(n)); }
-		virtual	void	visit(CppNodeUnion* n) { visit(static_cast<CppNodeScope*>(n)); }
-		virtual void	visit(CppNodePointer* n) 
-		{
-			if( n->getPointeeType()->getUserType() && !n->getPointeeType()->isBuiltin() )
-			{
-				if( n->getPointeeType()->getUserType()->getNodeFlag() > CppNode::NODE_FLAG_USED )
-				{
-					used_nodes++;
-					n->getPointeeType()->getUserType()->setNodeFlag(CppNode::NODE_FLAG_USED);
-					n->getPointeeType()->getUserType()->acceptVisitor(*this);
-				}
-			}
-		}
-		virtual void	visit(CppNodeReference* n) 
-		{
-			if( n->getReferencedType()->getUserType() && !n->getReferencedType()->isBuiltin())
-			{
-				if( n->getReferencedType()->getUserType()->getNodeFlag() > CppNode::NODE_FLAG_USED )
-				{
-					used_nodes++;
-					n->getReferencedType()->getUserType()->setNodeFlag(CppNode::NODE_FLAG_USED);
-					n->getReferencedType()->getUserType()->acceptVisitor(*this);
-				}
-			}
-		}
-
-		virtual void	visit(CppNodeTypedef* n)
-		{
-			if( n->getAliasType()->getUserType() && !n->getAliasType()->isBuiltin() )
-			{
-				if( n->getAliasType()->getUserType()->getNodeFlag() > CppNode::NODE_FLAG_USED )
-				{
-					used_nodes++;
-					n->getAliasType()->getUserType()->setNodeFlag(CppNode::NODE_FLAG_USED);
-					n->getAliasType()->getUserType()->acceptVisitor(*this);
-				}
-			}
-
-		}
-	};
-
-}
 
 CppTreePtr prepareASTTree( 
 	const std::string& include_path,
@@ -288,7 +195,15 @@ CppTreePtr prepareASTTree(
 	// clang::ASTConsumer astConsumer;
 	ASTTreeWalker astConsumer;
 	astConsumer.source_manager = &sourceManager;
-	astConsumer.locations_to_parse = boost::unordered_set<std::string>(header_paths.begin(), header_paths.end());
+	//astConsumer.locations_to_parse = boost::unordered_set<llvm::sys::Path>(header_paths.begin(), header_paths.end());
+
+	for(std::vector<std::string>::const_iterator it = header_paths.begin(); it != header_paths.end(); ++ it)
+	{
+		llvm::sys::Path path(*it);
+		path.makeAbsolute();
+		astConsumer.locations_to_parse.insert(path);
+	}
+
 
 	pTextDiagnosticPrinter->BeginSourceFile(languageOptions,&preprocessor);
 
@@ -296,11 +211,13 @@ CppTreePtr prepareASTTree(
 
 	if(BeVerbose)
 		std::clog << "Finished parsing. Cleaning the tree up" << std::endl;
-	astConsumer.tree_ptr->getRootNode()->acceptVisitor(__internal::FirstPassTraversal());
+	TreeMarker marker;
+	astConsumer.tree_ptr->getRootNode()->acceptVisitor(marker);
 
 	if(BeVerbose)
 	{
 		std::clog << "Parsing complete in: " << (float)(clock() - start) / (float)CLOCKS_PER_SEC << std::endl; 
+		std::clog << "User supplied node count: " << marker.UserSuppliedNodes << ", marked as used: " << marker.UsedNodes << std::endl;
 		sourceManager.PrintStats();
 		preprocessor.PrintStats();
 		headerSearch.PrintStats();
