@@ -42,7 +42,11 @@ bool ASTTreeWalker::isDeclFromUserFile( clang::SourceLocation loc )
 		return false;
 
 	std::string filename ( source_manager->getBufferName(loc) );
-	return (locations_to_parse.find(filename) != locations_to_parse.end());
+
+	llvm::sys::Path path(filename);
+	path.makeAbsolute();
+
+	return (locations_to_parse.find(path) != locations_to_parse.end());
 }
 
 
@@ -112,6 +116,7 @@ void ASTTreeWalker::visitNamespaceDecl( clang::NamespaceDecl* decl )
 			//Register search map for improved type resolving
 			m_DirectSearchMap[decl] = node;
 			m_ReverseSearchMap[node] = decl;
+			std::clog << "Namespace: " << decl->getName().str() << " user_supplied " << (isDeclFromUserFile(decl->getLocation()) ? "true" : "false") << std::endl;
 		}
 		else if(found->getNodeType() & CppNode::NODE_TYPE_NAMESPACE)
 			node = static_cast<CppNodeNamespace*>(found.get());

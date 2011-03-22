@@ -12,6 +12,7 @@
 
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Support/Host.h>
+#include <llvm/Support/Path.h>
 
 #include <clang/Frontend/DiagnosticOptions.h>
 #include <clang/Frontend/TextDiagnosticPrinter.h>
@@ -58,6 +59,18 @@ typedef boost::shared_ptr<CppNode> CppNodePtr;
 
 class CppType;
 
+namespace boost
+{
+	template<>
+	class hash<llvm::sys::Path>
+	{
+	public:
+		std::size_t operator()(llvm::sys::Path const& val) const
+		{
+			return hash<std::string>()(val.str());
+		}
+	};
+}
 
 extern llvm::cl::opt<bool>			BeVerbose;
 //This class is private by it nature. So I dont' see any reason for nice and encapsulated OO code here
@@ -78,7 +91,7 @@ public:
 
 	//Public properties
 	clang::SourceManager*					source_manager;
-	boost::unordered_set<std::string>		locations_to_parse;
+	boost::unordered_set<llvm::sys::Path>	locations_to_parse;
 
 	std::stack<CppNode*>					node_stack;
 	std::stack<clang::Decl*>				decl_stack;

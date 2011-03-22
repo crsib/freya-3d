@@ -357,6 +357,8 @@ protected:
 	CppTypePtr	m_AliasType;
 };
 
+typedef boost::shared_ptr<CppNodeClassMethod> CppNodeClassMethodPtr;
+typedef boost::shared_ptr<CppNodeClassMember> CppNodeClassMemberPtr;
 class CppNodeClass : public CppNodeScope
 {
 public:
@@ -369,11 +371,11 @@ public:
 	typedef base_type_list_t::iterator			base_type_list_iterator_t;
 	typedef base_type_list_t::const_iterator	base_type_list_const_iterator_t;
 
-	typedef std::vector<CppNodeClassMethod*>	method_list_t;
+	typedef std::vector< CppNodeClassMethodPtr >	method_list_t;
 	typedef method_list_t::iterator				method_list_iterator_t;
 	typedef method_list_t::const_iterator		method_list_const_iterator_t;
 
-	typedef std::vector<CppNodeClassMember*>	member_list_t;
+	typedef std::vector< CppNodeClassMemberPtr >	member_list_t;
 	typedef member_list_t::iterator				member_list_iterator_t;
 	typedef member_list_t::const_iterator		member_list_const_iterator_t;
 
@@ -396,7 +398,7 @@ public:
 	
 	size_t										methodsCount() const { return m_Metods.size(); }
 
-	void										addMethod(CppNodeClassMethod* m) { m_Metods.push_back(m); }
+	void										addMethod(CppNodeClassMethodPtr& m) { m_Metods.push_back(m); }
 
 
 	member_list_iterator_t						members_begin() { return m_Members.begin(); }
@@ -407,7 +409,7 @@ public:
 	
 	size_t										membersCount() const { return m_Members.size(); }
 
-	void										addMember(CppNodeClassMember* m) { m_Members.push_back(m); }
+	void										addMember(CppNodeClassMemberPtr& m) { m_Members.push_back(m); }
 
 protected:
 	base_type_list_t							m_BaseClasses;
@@ -601,12 +603,12 @@ public:
 	}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 
-	void		setConversionResultType(CppType* type) { m_ConvType = type; }
-	CppType*	getConversionResultType() { return m_ConvType; }	
-	const CppType* getConversionResultType() const { return m_ConvType; }
+	void		setConversionResultType(CppTypePtr type) { m_ConvType = type; }
+	//CppTypePtr&	getConversionResultType() { return m_ConvType; }	
+	const CppTypePtr& getConversionResultType() const { return m_ConvType; }
 
 protected:
-	CppType*	 m_ConvType;
+	CppTypePtr	 m_ConvType;
 };
 
 class CppNodeClassMemberPointer : public CppNode
@@ -619,12 +621,12 @@ public:
 	CppNode*		getClass() { return m_Class; }
 	const CppNode*	getClass() const { return m_Class; }
 
-	void			setPointeeType(CppType* c) { m_Type = c;}
-	CppType*		getPointeeType(){ return m_Type; }
-	const CppType*	getPointeeType() const { return m_Type; }
+	void			setPointeeType(CppTypePtr& c) { m_Type = c;}
+	CppTypePtr		getPointeeType(){ return m_Type; }
+	const CppTypePtr	getPointeeType() const { return m_Type; }
 protected:
 	CppNode*		m_Class;
-	CppType*		m_Type;
+	CppTypePtr		m_Type;
 };
 
 class CppNodePointer : public CppNode
@@ -633,9 +635,9 @@ public:
 	CppNodePointer(CppNode* parent = NULL) : CppNode(parent, NODE_TYPE_POINTER,""), m_PointeeType(CppTypePtr()), m_IsArray(false) {}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 	
-	void				setPointeeType(CppTypePtr pointee) { m_PointeeType = pointee; }
-	CppTypePtr			getPointeeType() { return m_PointeeType; }
-	const CppTypePtr	getPointeeType() const { return m_PointeeType; }
+	void				setPointeeType(CppTypePtr& pointee) { m_PointeeType = pointee; }
+	//CppTypePtr&			getPointeeType() { return m_PointeeType; }
+	const CppTypePtr&	getPointeeType() const { return m_PointeeType; }
 
 	void				setDeclaredAsArray(bool a) { m_IsArray = a; }
 	bool				isDeclaredAsArray() const  { return m_IsArray; }
@@ -661,8 +663,8 @@ public:
 
 	
 	void			setReferencedType(CppTypePtr& pointee) { m_ReferencedType = pointee; }
-	CppTypePtr		getReferencedType() { return m_ReferencedType; }
-	const CppTypePtr	getReferencedType() const { return m_ReferencedType; }
+	//CppTypePtr&		getReferencedType() { return m_ReferencedType; }
+	const CppTypePtr&	getReferencedType() const { return m_ReferencedType; }
 
 	void			setReferenceType(REFERENCE_TYPE type) { m_RefernceType = type; }
 	REFERENCE_TYPE	getReferenceType() const { return m_RefernceType; }
