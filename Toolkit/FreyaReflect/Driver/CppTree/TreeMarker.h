@@ -26,7 +26,7 @@ public:
 	virtual void	visit(CppNodeGlobalConstant* n) { visit(static_cast<CppNodeVariableDecl*>(n)); }
 	virtual	void	visit(CppNodeTypedef* n);
 	virtual	void	visit(CppNodeClass* n);
-	virtual	void	visit(CppNodeClassTemplateSpecialization* n) { visit(static_cast<CppNodeClass*>(n)); }
+	virtual	void	visit(CppNodeClassTemplateSpecialization* n);
 	virtual	void	visit(CppNodeAnonymousStruct* n) { visit(static_cast<CppNodeClass*>(n)); }
 	virtual	void	visit(CppNodeAnonymousUnion* n) { visit(static_cast<CppNodeUnion*>(n)); }
 	virtual	void	visit(CppNodeUnion* n);

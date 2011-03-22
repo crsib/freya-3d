@@ -1,12 +1,16 @@
 #ifndef TEST_03_H_
 #define TEST_03_H_
 
+#include <string>
+
 typedef int* pint;
 typedef int** ppint;
 typedef pint* pppint;
 
 namespace a
 {
+	std::string temp_string_with_no_purpose;
+	
 	class tmp
 	{
 	public:
@@ -60,7 +64,7 @@ namespace a
 	
 	typedef void (ClassMemberTest::* SomePtrToClassMethod)(void) ;
 	typedef void (* my_awesome_type_t)(int a, float b) ;
-	//typedef std::basic_string<int> string32;
+	typedef std::basic_string<int> string32;
 }
 
 typedef a::TmpPtr localTmpPtr;
