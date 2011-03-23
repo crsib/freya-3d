@@ -65,6 +65,12 @@ namespace a
 	typedef void (ClassMemberTest::* SomePtrToClassMethod)(void) ;
 	typedef void (* my_awesome_type_t)(int a, float b) ;
 	typedef std::basic_string<int> string32;
+	
+	class SomeStrangeClassUsing32bitString
+	{
+	public:
+		string32 	getClassWideName() {}
+	};
 }
 
 typedef a::TmpPtr localTmpPtr;
