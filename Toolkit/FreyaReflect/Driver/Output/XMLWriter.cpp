@@ -346,22 +346,39 @@ void XMLWriter::visit( CppNodeClassMember* n )
 
 void XMLWriter::visit( CppNodeConversionOperator* n )
 {
-
+	if( n->getConversionResultType() )
+	{
+		m_OutputStream << insertTabs() << "<conversion type=\"" << makeValidXML(n->getConversionResultType()->getQualifiedName()) << "\" />\n";
+		m_TypesCache.insert(n->getConversionResultType().get());
+	}
 }
 
 void XMLWriter::visit( CppNodeClassMemberPointer* n )
 {
-
+	if( n->getClass() && n->getPointeeType() )
+	{
+		m_TypesCache.insert(n->getPointeeType().get());
+		m_OutputStream << "<member_pointer ast_node=\"" << makeValidXML( n->getClass()->getScopedName() ) << "\" pointee_type=\"" << makeValidXML( n->getPointeeType()->getQualifiedName() ) << "\" />\n";
+	}
 }
 
 void XMLWriter::visit( CppNodePointer* n )
 {
-
+	if( n->getPointeeType() )
+	{
+		m_TypesCache.insert(n->getPointeeType().get());
+		m_OutputStream << "<pointer type=\"" << makeValidXML(n->getPointeeType()->getQualifiedName()) << "\" declared_as_array=\"" << static_cast<int>(n->isDeclaredAsArray()) << "\" />\n"; 
+	}
 }
 
 void XMLWriter::visit( CppNodeReference* n )
 {
-
+	if( n->getReferencedType() )
+	{
+		m_TypesCache.insert(n->getReferencedType().get());
+		m_OutputStream << "<reference type=\"" << makeValidXML(n->getReferencedType()->getQualifiedName()) << "\" lvalue=\"" 
+			<< static_cast<int>(n->getReferenceType() == CppNodeReference::REFERENCE_TYPE_LVALUE) << "\" />\n"; 
+	}
 }
 
 std::string XMLWriter::insertTabs()
