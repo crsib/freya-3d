@@ -255,6 +255,19 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 				//Read template types
 				ClassTemplateSpecializationDecl* tdecl = static_cast<ClassTemplateSpecializationDecl*>(decl);
 				const TemplateArgumentList& t_args = tdecl->getTemplateInstantiationArgs();
+				//We need to deduce the correct parent
+				clang::DeclContext* decl_context = decl->getDeclContext();
+				//This one is either NamespaceDecl, either RecordDecl context
+
+				CppNode* new_parent = NULL;
+
+				if(llvm::dyn_cast<NamespaceDecl>(decl_context))
+					new_parent = m_DirectSearchMap[static_cast<NamespaceDecl*>(decl_context)];
+				else if(llvm::dyn_cast<RecordDecl>(decl_context))
+					new_parent = m_DirectSearchMap[static_cast<RecordDecl*>(decl_context)];
+				if(new_parent && (new_parent->getNodeType() & CppNode::NODE_TYPE_SCOPE))
+					parent = static_cast<CppNodeScope*>(new_parent);
+
 				boost::shared_ptr<CppNodeClassTemplateSpecialization> m_TemplateSpecialization(new CppNodeClassTemplateSpecialization(decl->getName(),parent));
 				for(size_t ta_i = 0; ta_i < t_args.size(); ++ta_i)
 				{
@@ -304,13 +317,15 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 				{
 					m_TemplateSpecializationLookup[m_TemplateSpecialization->getScopedName()] = m_TemplateSpecialization;
 					__managed_node = m_TemplateSpecialization;
-					specialization_defined = true;
+					specialization_defined = false;
 				}
 				else
 					__managed_node = m_TemplateSpecializationLookup[m_TemplateSpecialization->getScopedName()];
 			} //end node deduction
 
 			node = __managed_node->cast_to<CppNodeScope>();
+
+			////Deduce correct namespace
 			parent->addChild(__managed_node);
 
 			m_DirectSearchMap[decl] = node;
@@ -327,10 +342,16 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 				CXXRecordDecl* cxx_decl = static_cast<CXXRecordDecl*>(decl);
 				if(!decl->isDefinition())
 				{
-					if(decl->getDefinition() && CXXRecordDecl::classof(decl->getDefinition()))
+				/*	if(decl->getDefinition() && CXXRecordDecl::classof(decl->getDefinition()))
 						cxx_decl = static_cast<CXXRecordDecl*>(decl->getDefinition());
 					else
-						cxx_decl = NULL;
+						cxx_decl = NULL;*/
+					ClassTemplateSpecializationDecl* tdecl = static_cast<ClassTemplateSpecializationDecl*>(decl);
+					cxx_decl = tdecl->getSpecializedTemplate()->getTemplatedDecl()->getDefinition();
+				/*	if(cxx_decl)
+						std::clog << "tdecl-> " << cxx_decl->getNameAsString() << std::endl;
+					else
+						std::clog << "tdecl not defined: " << decl->getNameAsString() << std::endl;*/
 				}
 
 				if(cxx_decl)
@@ -369,7 +390,7 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 			if(decl->isDefinition())
 				visitDeclContext(static_cast<DeclContext*>(decl));
 			else
-				visitDeclContext(static_cast<DeclContext*>(decl->getDefinition()));
+				visitDeclContext(static_cast<DeclContext*>(static_cast<ClassTemplateSpecializationDecl*>(decl)->getSpecializedTemplate()->getTemplatedDecl()->getDefinition()));
 			//Remove class from the stack
 			decl_stack.pop();
 			node_stack.pop();
@@ -403,6 +424,7 @@ CppTypePtr ASTTreeWalker::resolveQualType( clang::QualType* type )
 	boost::erase_range(qualified_name, boost::find_first(qualified_name,std::string("struct ") ) );
 	boost::erase_range(qualified_name, boost::find_first(qualified_name,std::string("union ") ) );
 	boost::erase_range(qualified_name, boost::find_first(qualified_name,std::string("enum ") ) );
+	boost::erase_range(qualified_name, boost::find_first(qualified_name,std::string("typename ") ) );
 	
 	CppTypePtr type_ptr = tree_ptr->getTypeBySignature(qualified_name);
 
