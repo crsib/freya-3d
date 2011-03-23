@@ -11,7 +11,6 @@ namespace
 		{
 			used_counter++;
 			node->getParent()->setNodeFlag(CppNode::NODE_FLAG_USED);
-			//std::clog << "Marked as used: " << node->getParent()->getScopedName() << std::endl;
 			mark_down(node->getParent(),used_counter);
 		}
 	}
@@ -25,7 +24,6 @@ namespace
 
 void TreeMarker::visit( CppNodeNamespace* n )
 {
-	//std::clog << "Visiting namespace: " << n->getNodeName() << std::endl;
 	for(CppNodeScope::node_array_iterator_t it = n->begin(), end = n->end(); it != end; ++it )
 	{
 		CppNodePtr node = *it;
@@ -138,7 +136,6 @@ void TreeMarker::markNode( CppNode* n )
 	{
 		UsedNodes++;
 		n->setNodeFlag(CppNode::NODE_FLAG_USED);
-		//std::clog << "Marked as used: " << n->getScopedName() << std::endl;
 		mark_down(n, UsedNodes);
 	}
 }
