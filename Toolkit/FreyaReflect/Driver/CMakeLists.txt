@@ -71,6 +71,10 @@ find_package ( BoostSTLPort REQUIRED )
 include_directories( ${Boost_INCLUDE_DIRS} )
 include(GenerateProject)
 
+#### LibXML2 #######
+find_package( LibXml2d REQUIRED )
+include_directories( ${LIBXML2_INCLUDE_DIR} )
+
 #GenerateProject( ./ ${DRIVER_INCLUDES} )
 #GenerateProject( ./ ${DRIVER_SOURCES} )
 
@@ -90,4 +94,4 @@ add_custom_command(OUTPUT "${CMAKE_SOURCE_DIR}/Build/Generated/headers_package.c
                     VERBATIM)
 ######## Freya reflect
 add_executable( freyareflect ${DRIVER_INCLUDES} ${DRIVER_SOURCES} )
-target_link_libraries( freyareflect ${GLOBAL_LINK_LIBRARIES} ${CLANGFRONTEND_LIBRARIES} zlib )
+target_link_libraries( freyareflect ${GLOBAL_LINK_LIBRARIES} ${CLANGFRONTEND_LIBRARIES} zlib ${LIBXML2_LIBRARIES} )
