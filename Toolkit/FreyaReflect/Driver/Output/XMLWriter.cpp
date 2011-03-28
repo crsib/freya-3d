@@ -237,7 +237,7 @@ void XMLWriter::visit( CppNodeClass* n )
 			if((*it)->getAccessType() != CppNode::ACCESS_TYPE_PRIVATE)
 				(*it)->acceptVisitor(*this);
 		m_CurrentDepth--;
-		m_OutputStream << insertTabs() << "</methods>";
+		m_OutputStream << insertTabs() << "</methods>\n";
 	}
 	//Read class members
 	if( n->members_begin() != n->members_end() )
@@ -358,7 +358,7 @@ void XMLWriter::visit( CppNodeClassMemberPointer* n )
 	if( n->getClass() && n->getPointeeType() )
 	{
 		m_TypesCache.insert(n->getPointeeType().get());
-		m_OutputStream << "<member_pointer ast_node=\"" << makeValidXML( n->getClass()->getScopedName() ) << "\" pointee_type=\"" << makeValidXML( n->getPointeeType()->getQualifiedName() ) << "\" />\n";
+		m_OutputStream << insertTabs() << "<member_pointer ast_node=\"" << makeValidXML( n->getClass()->getScopedName() ) << "\" pointee_type=\"" << makeValidXML( n->getPointeeType()->getQualifiedName() ) << "\" />\n";
 	}
 }
 
@@ -367,7 +367,7 @@ void XMLWriter::visit( CppNodePointer* n )
 	if( n->getPointeeType() )
 	{
 		m_TypesCache.insert(n->getPointeeType().get());
-		m_OutputStream << "<pointer type=\"" << makeValidXML(n->getPointeeType()->getQualifiedName()) << "\" declared_as_array=\"" << static_cast<int>(n->isDeclaredAsArray()) << "\" />\n"; 
+		m_OutputStream << insertTabs() << "<pointer type=\"" << makeValidXML(n->getPointeeType()->getQualifiedName()) << "\" declared_as_array=\"" << static_cast<int>(n->isDeclaredAsArray()) << "\" />\n"; 
 	}
 }
 
@@ -376,7 +376,7 @@ void XMLWriter::visit( CppNodeReference* n )
 	if( n->getReferencedType() )
 	{
 		m_TypesCache.insert(n->getReferencedType().get());
-		m_OutputStream << "<reference type=\"" << makeValidXML(n->getReferencedType()->getQualifiedName()) << "\" lvalue=\"" 
+		m_OutputStream << insertTabs() << "<reference type=\"" << makeValidXML(n->getReferencedType()->getQualifiedName()) << "\" lvalue=\"" 
 			<< static_cast<int>(n->getReferenceType() == CppNodeReference::REFERENCE_TYPE_LVALUE) << "\" />\n"; 
 	}
 }
