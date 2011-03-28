@@ -535,12 +535,12 @@ CEGUI::System*					EngineCore::getCEGUISystem()
 
 const char*						EngineCore::getRevisionString()
 {
-	return SVN_REVISION_STRING;
+	return "nonsvn";
 }
 
 int								EngineCore::getRevision()
 {
-	return SVN_REVISION_INT;
+	return 0;
 }
 
 }

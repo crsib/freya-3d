@@ -56,7 +56,7 @@ IF( NOT LUA_APP )
 ENDIF( NOT LUA_APP )
 
 #Global includes for all Freya Subprojects 
-INCLUDE_DIRECTORIES( Framework/Include ${INTERMIDIATE_DIRECTORY})
+INCLUDE_DIRECTORIES( FreyaCore/Include ${INTERMIDIATE_DIRECTORY})
 
 #IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   SET(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/Build/Install" CACHE PATH "Default install prefix" FORCE)
@@ -163,10 +163,10 @@ IF( FREYA_CORE_USE_BOOST )
 ENDIF()
 
 #Build math library
-ADD_SUBDIRECTORY ( Framework/Source/math )
+ADD_SUBDIRECTORY ( FreyaCore/Source/math )
 
-add_subdirectory( Framework/3party/zlib )
-add_subdirectory( Framework/3party/libpng )
+add_subdirectory( FreyaCore/3party/zlib )
+add_subdirectory( FreyaCore/3party/libpng )
 #Build plugins
 INCLUDE(  BuildPlugins )
 
@@ -185,7 +185,7 @@ GET_PROPERTY ( FREYA_CORE_LINK_LIBRARIES GLOBAL PROPERTY FREYA_CORE_LINK_LIBRARI
 MESSAGE ("FreyaCore additional dependencies: ${FREYA_CORE_LINK_LIBRARIES}")
 #INCLUDE( ${CMAKE_SOURCE_DIR}/Framework/3party/cegui/CMakeList.txt ) 
 
-ADD_SUBDIRECTORY ( Framework )
+ADD_SUBDIRECTORY ( FreyaCore )
 
 #Collect all shared plugins
 GET_PROPERTY ( SHARED_PLUGINS GLOBAL PROPERTY SHARED_PLUGINS_GLOBAL )
