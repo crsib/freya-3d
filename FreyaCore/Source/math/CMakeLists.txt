@@ -1,22 +1,22 @@
-INCLUDE_DIRECTORIES( Framework/Include/math )
+INCLUDE_DIRECTORIES( FreyaCore/Include/math )
 
 #
 SET ( MATH_SOURCES 
-${CMAKE_SOURCE_DIR}/Framework/Source/math/math.cpp 
+${CMAKE_SOURCE_DIR}/FreyaCore/Source/math/math.cpp 
 
 
-${CMAKE_SOURCE_DIR}/Framework/Include/math/constants.h
-${CMAKE_SOURCE_DIR}/Framework/Include/math/math_internal.h
-${CMAKE_SOURCE_DIR}/Framework/Include/math/frustum.hpp
-${CMAKE_SOURCE_DIR}/Framework/Include/math/math.hpp
-${CMAKE_SOURCE_DIR}/Framework/Include/math/matrix2x2.hpp
-${CMAKE_SOURCE_DIR}/Framework/Include/math/matrix3x3.hpp
-${CMAKE_SOURCE_DIR}/Framework/Include/math/matrix4x4.hpp
-${CMAKE_SOURCE_DIR}/Framework/Include/math/plane.hpp
-${CMAKE_SOURCE_DIR}/Framework/Include/math/quaternion.hpp
-${CMAKE_SOURCE_DIR}/Framework/Include/math/vector2d.hpp
-${CMAKE_SOURCE_DIR}/Framework/Include/math/vector3d.hpp
-${CMAKE_SOURCE_DIR}/Framework/Include/math/vector4d.hpp
+${CMAKE_SOURCE_DIR}/FreyaCore/Include/math/constants.h
+${CMAKE_SOURCE_DIR}/FreyaCore/Include/math/math_internal.h
+${CMAKE_SOURCE_DIR}/FreyaCore/Include/math/frustum.hpp
+${CMAKE_SOURCE_DIR}/FreyaCore/Include/math/math.hpp
+${CMAKE_SOURCE_DIR}/FreyaCore/Include/math/matrix2x2.hpp
+${CMAKE_SOURCE_DIR}/FreyaCore/Include/math/matrix3x3.hpp
+${CMAKE_SOURCE_DIR}/FreyaCore/Include/math/matrix4x4.hpp
+${CMAKE_SOURCE_DIR}/FreyaCore/Include/math/plane.hpp
+${CMAKE_SOURCE_DIR}/FreyaCore/Include/math/quaternion.hpp
+${CMAKE_SOURCE_DIR}/FreyaCore/Include/math/vector2d.hpp
+${CMAKE_SOURCE_DIR}/FreyaCore/Include/math/vector3d.hpp
+${CMAKE_SOURCE_DIR}/FreyaCore/Include/math/vector4d.hpp
 
 
 ${INTERMIDIATE_DIRECTORY}/math_lookup_tables.cpp

@@ -1,12 +1,12 @@
 MESSAGE("Generating build dependencies for FreyaCore")
-MESSAGE(STATUS "Building Framework using: ${CMAKE_BUILD_TYPE}")
+MESSAGE(STATUS "Building FreyaCore using: ${CMAKE_BUILD_TYPE}")
 SET(FREYA_CORE_SOURCES 
 #Application settings global include  
 Include/application-settings.h
 Include/camera/BasicCamera.h
 Include/camera/FlyCamera.h
 Include/camera/RotateCamera.h
-Include/config.h
+Include/freya_config.h
 Include/core/PluginCore.h
 Include/core/PluginLoader.h
 Include/core/drivermodel/Driver.h
@@ -235,13 +235,13 @@ INCLUDE_DIRECTORIES( 3party/cegui/include
 SET_SOURCE_FILES_PROPERTIES("${INTERMIDIATE_DIRECTORY}/StaticPluginsLoader.cpp" PROPERTIES GENERATED YES)
 SET_SOURCE_FILES_PROPERTIES("${INTERMIDIATE_DIRECTORY}/freya_lua_bind.cpp" PROPERTIES GENERATED YES)
 SET_SOURCE_FILES_PROPERTIES("${INTERMIDIATE_DIRECTORY}/SVN_Revision.h" PROPERTIES GENERATED YES)
-#EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/Framework/Include/core/lua/tolua++/tolua++.h" "${INTERMIDIATE_DIRECTORY}/tolua++.h")
+#EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/FreyaCore/Include/core/lua/tolua++/tolua++.h" "${INTERMIDIATE_DIRECTORY}/tolua++.h")
 
 #Generate file groups for visual studio here
 #Public includes
 IF(MSVC)
 	SOURCE_GROUP("Include"  FILES 	./Include/application-settings.h
-									./Include/config.h
+									./Include/freya_config.h
 									./Include/core.h
 									./Include/doxygen.h
 									./Include/freya.h
@@ -445,13 +445,13 @@ MESSAGE(STATUS "Generating bind file using ${TOLUA_APP}..." )
 
 
 ADD_CUSTOM_COMMAND(OUTPUT "${INTERMIDIATE_DIRECTORY}/freya_lua_bind.cpp"
-                    COMMAND ${TOLUA_APP} -n freya -L virtual_method_hooks.lua -L "${CMAKE_SOURCE_DIR}/Framework/3party/cegui/src/ScriptingModules/LuaScriptModule/package/exceptions.lua" -o "${INTERMIDIATE_DIRECTORY}/freya_lua_bind.cpp" luabind.lpkg
+                    COMMAND ${TOLUA_APP} -n freya -L virtual_method_hooks.lua -L "${CMAKE_SOURCE_DIR}/FreyaCore/3party/cegui/src/ScriptingModules/LuaScriptModule/package/exceptions.lua" -o "${INTERMIDIATE_DIRECTORY}/freya_lua_bind.cpp" luabind.lpkg
                     DEPENDS  ${TOLUA_PACKAGES}
-                    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/Framework/Source/core/lua/lua_packages
+                    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/FreyaCore/Source/core/lua/lua_packages
                     VERBATIM)
 
-#EXECUTE_PROCESS(COMMAND ${TOLUA_APP} -n freya -L virtual_method_hooks.lua -L lua_debug.lua -L "${CMAKE_SOURCE_DIR}/Framework/3party/cegui/src/ScriptingModules/LuaScriptModule/package/exceptions.lua" -o "${INTERMIDIATE_DIRECTORY}/freya_lua_bind.cpp" luabind.lpkg 
- #                           WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/Framework/Source/core/lua/lua_packages 
+#EXECUTE_PROCESS(COMMAND ${TOLUA_APP} -n freya -L virtual_method_hooks.lua -L lua_debug.lua -L "${CMAKE_SOURCE_DIR}/FreyaCore/3party/cegui/src/ScriptingModules/LuaScriptModule/package/exceptions.lua" -o "${INTERMIDIATE_DIRECTORY}/freya_lua_bind.cpp" luabind.lpkg 
+ #                           WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/FreyaCore/Source/core/lua/lua_packages 
   #                          OUTPUT_VARIABLE TOLUA_OUT ERROR_VARIABLE TOLUA_ERROR)
 MESSAGE(STATUS "Done\n\tOutput: ${TOLUA_OUT}\n\tErrors: ${TOLUA_ERROR}" )
 
@@ -494,16 +494,6 @@ IF ( LUA51_FOUND )
 		SET( FREYA_CORE_LINK_LIBRARIES ${FREYA_CORE_LINK_LIBRARIES} dl )
     ENDIF( UNIX AND NOT APPLE )
 ENDIF ( LUA51_FOUND )
-
-FIND_PACKAGE(Subversion)
-IF(Subversion_FOUND)
-    Subversion_WC_INFO(${PROJECT_SOURCE_DIR} Freya3D)
-    MESSAGE("Current revision is ${Freya3D_WC_REVISION}")
-    FILE(WRITE "${INTERMIDIATE_DIRECTORY}/SVN_Revision.h" "#ifndef __SVN_REVISION_H_\n#define __SVN_REVISION_H_\n\n#define SVN_REVISION_INT ${Freya3D_WC_REVISION}\n#define SVN_REVISION_STRING \"${Freya3D_WC_REVISION}\"\n\n#endif\n")
-ELSE()
-    MESSAGE("SVN binary not found")
-    FILE(WRITE "${INTERMIDIATE_DIRECTORY}/SVN_Revision.h" "#ifndef __SVN_REVISION_H_\n#define __SVN_REVISION_H_\n\n#define SVN_REVISION_INT 0\n#define SVN_REVISION_STRING \"unrevisioned\"\n\n#endif\n")
-ENDIF(Subversion_FOUND)
 
 #Find Freetype
 FIND_PACKAGE(Freetype REQUIRED)
