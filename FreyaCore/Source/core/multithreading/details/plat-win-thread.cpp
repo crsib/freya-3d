@@ -1,4 +1,4 @@
-#include "../thread.h"
+#include "core/multithreading/thread.h"
 
 namespace core {
 	namespace multithreading {

@@ -3,206 +3,127 @@
 #
 #
      
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+cmake_minimum_required ( VERSION 2.8 )
 
-PROJECT ( Freya3D ) 
+project ( Freya3D ) 
  
  
 #Setup enviroment
 
-SET ( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Build/Static )
-SET ( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Build/Bin )
-#IF( WIN32)
-SET ( CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/Build/Bin )
-SET ( CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/Build/Bin )
-SET ( CMAKE_LIBRARY_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_SOURCE_DIR}/Build/Bin )
-SET ( CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_SOURCE_DIR}/Build/Bin )
-#ENDIF()
-SET ( PLUGIN_OUTPUT_DIRECTORY 		 ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/Plugins )
-SET ( CMAKE_RUNTIME_OUTPUT_DIRECTORY 	 ${CMAKE_SOURCE_DIR}/Build/Bin )
-#IF( WIN32)
-SET ( CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/Build/Bin )
-SET ( CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/Build/Bin )
-SET ( CMAKE_RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_SOURCE_DIR}/Build/Bin )
-SET ( CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_SOURCE_DIR}/Build/Bin )
-#ENDIF()
-SET ( INTERMIDIATE_DIRECTORY		 ${CMAKE_SOURCE_DIR}/Build/Intermediate )	
-SET ( GENERATORS_DIRECTORY           ${CMAKE_SOURCE_DIR}/Generators )
-SET ( APP_DATA                       ${CMAKE_SOURCE_DIR}/Data )
-SET ( APP_STD_DATA                   ${CMAKE_SOURCE_DIR}/Data/STD )
+set ( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Build/Static )
+set ( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Build/Bin )
+#if( WIN32)
+set ( CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/Build/Bin )
+set ( CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/Build/Bin )
+set ( CMAKE_LIBRARY_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_SOURCE_DIR}/Build/Bin )
+set ( CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_SOURCE_DIR}/Build/Bin )
+#endif()
+set ( PLUGIN_OUTPUT_DIRECTORY 		 ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/Plugins )
+set ( CMAKE_RUNTIME_OUTPUT_DIRECTORY 	 ${CMAKE_SOURCE_DIR}/Build/Bin )
+#if( WIN32)
+set ( CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/Build/Bin )
+set ( CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/Build/Bin )
+set ( CMAKE_RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_SOURCE_DIR}/Build/Bin )
+set ( CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_SOURCE_DIR}/Build/Bin )
+#endif()
+set ( INTERMIDIATE_DIRECTORY		 ${CMAKE_SOURCE_DIR}/Build/Intermediate )	
+set ( GENERATORS_DIRECTORY           ${CMAKE_SOURCE_DIR}/Generators )
+set ( APP_DATA                       ${CMAKE_SOURCE_DIR}/Data )
+set ( APP_STD_DATA                   ${CMAKE_SOURCE_DIR}/Data/STD )
 
-IF(NOT EXISTS ${INTERMIDIATE_DIRECTORY}/)
+if(NOT EXISTS ${INTERMIDIATE_DIRECTORY}/)
 	FILE(MAKE_DIRECTORY ${INTERMIDIATE_DIRECTORY})
-ENDIF()
+endif()
 
 #Additional modules paths
-SET	( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/CMakeFind ${CMAKE_SOURCE_DIR}/CMakeIncludes )
-IF( APPLE )
-SET ( CMAKE_PROGRAM_PATH /opt/local/bin /opt/subversion/bin )
-ENDIF()
-
-#Search for stlport 
-FIND_PACKAGE(STLPort REQUIRED)
-MESSAGE ("STLPort: \n\tinclude: ${STLPORT_INCLUDE_DIR} \n\tlibs: ${STLPORT_LIBRARIES}" )
-#Set STL port include directories
-INCLUDE_DIRECTORIES( ${STLPORT_INCLUDE_DIR} )
-#Set stlport linkage
-SET(GLOBAL_LINK_LIBRARIES ${STLPORT_LIBRARIES})
-
-MESSAGE(STATUS "Searching lua")
-FIND_PROGRAM( LUA_APP NAMES lua lua51 lua5 lua5.1 PATH ${LUA_APP_PATH} )
-IF( NOT LUA_APP )
-    MESSAGE(FATAL_ERROR "Failed to find lua application. Please,set LUA_APP_PATH to path, where one of lua lua51 lua5 lua5.1 is located" )
-ENDIF( NOT LUA_APP )
+set	( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/CMakeFind ${CMAKE_SOURCE_DIR}/CMakeIncludes )
+if( APPLE )
+set ( CMAKE_PROGRAM_PATH /opt/local/bin )
+endif()
 
 #Global includes for all Freya Subprojects 
-INCLUDE_DIRECTORIES( FreyaCore/Include ${INTERMIDIATE_DIRECTORY})
+include_directories( FreyaSupport/Include FreyaMath/Include FreyaReflect/Include FreyaLua/Include FreyaCore/Include ${INTERMIDIATE_DIRECTORY})
 
-#IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  SET(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/Build/Install" CACHE PATH "Default install prefix" FORCE)
-#ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/Build/Install" CACHE PATH "Default install prefix" )
+set(FREYA_BUILD_SHARED true CACHE BOOL "Build shared version of Freya3D (possibly not supported on some platforms)" )
+set(FREYA_TARGET_PLATFORM "x86" CACHE STRING "Target platform (x86 only, currently)" )
+
+string(COMPARE EQUAL "${FREYA_TARGET_PLATFORM}" "x86" FREYA_TARGET_PLATFORM_X86)
+
+if( FREYA_TARGET_PLATFORM_X86 )
+	message( STATUS "Configuring for x86")
+endif()
 
 # Enable SSE2 usage
-IF( CMAKE_COMPILER_IS_GNUCC )
-    IF(CMAKE_CXX_FLAGS)
+if( CMAKE_COMPILER_IS_GNUCC AND FREYA_TARGET_PALTFORM_X86)
+    if(CMAKE_CXX_FLAGS)
         STRING(REGEX MATCH "-msse2 -mfpmath=sse"
                 SSE2_CXX_RES ${CMAKE_CXX_FLAGS})
-    ENDIF(CMAKE_CXX_FLAGS)
+    endif(CMAKE_CXX_FLAGS)
  	
-    IF(CMAKE_C_FLAGS)
+    if(CMAKE_C_FLAGS)
         STRING(REGEX MATCH "-msse2 -mfpmath=sse"
             SSE2_C_RES ${CMAKE_C_FLAGS})
-    ENDIF(CMAKE_C_FLAGS)
+    endif(CMAKE_C_FLAGS)
  	
-    IF(NOT SSE2_CXX_RES)
-        SET(TMP_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2 -mfpmath=sse")
-        SET(CMAKE_CXX_FLAGS ${TMP_CXX_FLAGS}
+    if(NOT SSE2_CXX_RES)
+        set(TMP_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2 -mfpmath=sse")
+        set(CMAKE_CXX_FLAGS ${TMP_CXX_FLAGS}
              CACHE STRING "Freya 3D defaults" FORCE )
-    ENDIF(NOT SSE2_CXX_RES)
+    endif(NOT SSE2_CXX_RES)
 
-    IF(NOT SSE2_C_RES)
-        SET(TMP_C_FLAGS "${CMAKE_C_FLAGS} -msse2 -mfpmath=sse")
-        SET(CMAKE_C_FLAGS ${TMP_C_FLAGS}
+    if(NOT SSE2_C_RES)
+        set(TMP_C_FLAGS "${CMAKE_C_FLAGS} -msse2 -mfpmath=sse")
+        set(CMAKE_C_FLAGS ${TMP_C_FLAGS}
                                  CACHE STRING "Freya 3D defaults" FORCE )
-    ENDIF(NOT SSE2_C_RES)
+    endif(NOT SSE2_C_RES)
     
-    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden ")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden ")
-	SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_STLP_DEBUG=1")
-ENDIF( CMAKE_COMPILER_IS_GNUCC )
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden ")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden ")
+endif( )
 
-IF(MSVC)
-    ADD_DEFINITIONS("-D_CRT_SECURE_NO_DEPRECATE")
-    ADD_DEFINITIONS("-D_CRT_SECURE_NO_WARNINGS")
-    ADD_DEFINITIONS("-D_CRT_NONSTDC_NO_DEPRECATE")
-    ADD_DEFINITIONS("-D_SECURE_SCL=0")
-    ADD_DEFINITIONS("-D_SCL_SECURE_NO_WARNINGS")
-    ADD_DEFINITIONS("-D_SCL_SECURE_NO_DEPRECATE")
-    ADD_DEFINITIONS("-D_HAS_ITERATOR_DEBUGGING=0")
-    ADD_DEFINITIONS(/arch:SSE2)
-	SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /D_STLP_DEBUG=1")
-ENDIF(MSVC)
+if(MSVC)
+    add_definitions("-D_CRT_SECURE_NO_DEPRECATE")
+    add_definitions("-D_CRT_SECURE_NO_WARNINGS")
+    add_definitions("-D_CRT_NONSTDC_NO_DEPRECATE")
+    add_definitions("-D_SECURE_SCL=0")
+    add_definitions("-D_SCL_SECURE_NO_WARNINGS")
+    add_definitions("-D_SCL_SECURE_NO_DEPRECATE")
+    add_definitions("-D_HAS_ITERATOR_DEBUGGING=0")
+    add_definitions(/arch:SSE2)
+endif(MSVC)
 # Search for libraries
 
-#Search for bullet physics library
-FIND_PACKAGE( Bullet REQUIRED )
-IF( BULLET_FOUND )
-    INCLUDE_DIRECTORIES(AFTER ${BULLET_INCLUDE_DIRS} )
-    ADD_DEFINITIONS("-DBT_USE_SSE")
-ELSE( )
-    MESSAGE(FATAL "Freya 3D engine is heavy dependent on Bullet!")
-ENDIF()
-
-
 # Link libraries to executables
-DEFINE_PROPERTY(GLOBAL PROPERTY RUNTIME_LINK_LIBRARIES_GLOBAL BRIEF_DOCS "Put libraries to link with executables here"  FULL_DOCS "Put libraries to link with executables here")
-
-SET ( RUNTIME_LINK_LIBRARIES )
-
-IF(APPLE)
-	FIND_LIBRARY(COREFOUNDATION CoreFoundation)
-	MESSAGE("Using CoreFoundation as ${COREFOUNDATION}")
-	SET(GLOBAL_LINK_LIBRARIES ${STLPORT_LIBRARIES} ${COREFOUNDATION})
-	FIND_LIBRARY(APP_SERVICES ApplicationServices)
-	MESSAGE("Using ApplicationServices as ${APP_SERVICES}")
-	SET(GLOBAL_LINK_LIBRARIES ${STLPORT_LIBRARIES} ${APP_SERVICES})
-ENDIF(APPLE)
+define_property(GLOBAL PROPERTY RUNTIME_LINK_LIBRARIES_GLOBAL BRIEF_DOCS "Put libraries to link with executables here"  FULL_DOCS "Put libraries to link with executables here")
+set ( RUNTIME_LINK_LIBRARIES )
 # Link libraries to FreyaCore in case of its static building
-DEFINE_PROPERTY(GLOBAL PROPERTY FREYA_CORE_LINK_LIBRARIES_GLOBAL BRIEF_DOCS "Put libraries to link with FreyaCore here"  FULL_DOCS "Put libraries to link with FreyaCore here")
-SET ( FREYA_CORE_LINK_LIBRARIES )
-# non standart libraries, that needed to be copied near to executable
-SET ( INSTALL_LIBRARIES )
+define_property(GLOBAL PROPERTY FREYA_LINK_LIBRARIES_GLOBAL BRIEF_DOCS "Put libraries to link with FreyaCore here"  FULL_DOCS "Put libraries to link with FreyaCore here")
+set ( FREYA_LINK_LIBRARIES )
 
-IF(APPLE)
-	ADD_DEFINITIONS( -D_FREYA_DEBUG_MEMORY -D_STLP_THREADS )
-ELSE(APPLE)
-	ADD_DEFINITIONS( -D_FREYA_DEBUG_MEMORY )
-ENDIF(APPLE)
+if( NOT FREYA_BUILD_SHARED )
+	message( STATUS "Configuring for static build" )
+	add_definitions( -D_STATIC_BUILD )
+endif()
 
-DEFINE_PROPERTY(GLOBAL PROPERTY SHARED_PLUGINS_GLOBAL BRIEF_DOCS "Put generated shared plugin list here"  FULL_DOCS "Put generated shared plugin list here")
-DEFINE_PROPERTY(GLOBAL PROPERTY FILESYSTEM_PLUGINS_GLOBAL BRIEF_DOCS "Put generated filesystem plugin list here"  FULL_DOCS "Put generated shared plugin list here")
-DEFINE_PROPERTY(GLOBAL PROPERTY RENDERER_PLUGINS_GLOBAL BRIEF_DOCS "Put generated renderer plugin list here"  FULL_DOCS "Put generated shared plugin list here")
-DEFINE_PROPERTY(GLOBAL PROPERTY RESOURCE_PLUGINS_GLOBAL BRIEF_DOCS "Put generated resource plugin list here"  FULL_DOCS "Put generated shared plugin list here")
-DEFINE_PROPERTY(GLOBAL PROPERTY WINDOWMANAGER_PLUGINS_GLOBAL BRIEF_DOCS "Put generated windowmanager plugin list here"  FULL_DOCS "Put generated shared plugin list here")
-DEFINE_PROPERTY(GLOBAL PROPERTY INPUT_PLUGINS_GLOBAL BRIEF_DOCS "Put generated input plugin list here"  FULL_DOCS "Put generated shared plugin list here")
+# Libraries
+# Support library
+add_subdirectory ( FreyaSupport ) 
+# Math library
+add_subdirectory ( FreyaMath )
+# Reflection library
+add_subdirectory ( FreyaReflect )
+# Lua support library 
+add_subdirectory ( FreyaLua )
+# Freya core
+add_subdirectory ( FreyaCore )
 
-MESSAGE("CXX flags: ${CMAKE_CXX_FLAGS}")
-#Build Plugins first
-
-#Disable boost autolink
-#ADD_DEFINITIONS( -DBOOST_ALL_NO_LIB )
-
-IF(NOT DEFINED FREYA_CORE_USE_BOOST)
-	SET ( FREYA_CORE_USE_BOOST YES )
-ENDIF(NOT DEFINED FREYA_CORE_USE_BOOST)
-
-IF( FREYA_CORE_USE_BOOST )
-	SET (Boost_USE_STATIC_LIBS NO)
-	FIND_PACKAGE ( BoostSTLPort 1.40 ) 
-	INCLUDE_DIRECTORIES ( ${Boost_INCLUDE_DIRS} )
-ENDIF()
-
-#Build math library
-ADD_SUBDIRECTORY ( FreyaCore/Source/math )
-
-add_subdirectory( FreyaCore/3party/zlib )
-add_subdirectory( FreyaCore/3party/libpng )
-#Build plugins
-INCLUDE(  BuildPlugins )
-
-#Build FreyaCore
-INCLUDE ( GenerateStaticPlugins )
-GenerateStaticPluginsBuild ()
-IF( NOT DEFINED FREYA_CORE_SHARED )
-	SET ( FREYA_CORE_SHARED YES )
-ENDIF( NOT DEFINED FREYA_CORE_SHARED )
-
-
-IF  ( FREYA_CORE_USE_BOOST )
-	ADD_DEFINITIONS( -DFREYA_USE_BOOST -DUSE_BOOST_THREADS -DUSE_BOOST_FILESYSTEM )
-ENDIF( FREYA_CORE_USE_BOOST )
-GET_PROPERTY ( FREYA_CORE_LINK_LIBRARIES GLOBAL PROPERTY FREYA_CORE_LINK_LIBRARIES_GLOBAL )
-MESSAGE ("FreyaCore additional dependencies: ${FREYA_CORE_LINK_LIBRARIES}")
-#INCLUDE( ${CMAKE_SOURCE_DIR}/Framework/3party/cegui/CMakeList.txt ) 
-
-ADD_SUBDIRECTORY ( FreyaCore )
-
-#Collect all shared plugins
-GET_PROPERTY ( SHARED_PLUGINS GLOBAL PROPERTY SHARED_PLUGINS_GLOBAL )
-MESSAGE( "Plugins found: ${SHARED_PLUGINS}" )
-#Build Freya test executables
-GET_PROPERTY ( RUNTIME_LINK_LIBRARIES GLOBAL PROPERTY RUNTIME_LINK_LIBRARIES_GLOBAL )
-MESSAGE ("Executables will be linked with: ${RUNTIME_LINK_LIBRARIES}")
-SET ( RUNTIME_LINK_LIBRARIES ${RUNTIME_LINK_LIBRARIES} FreyaMath_plugin )
 # Build tests
+add_subdirectory ( Tests )
 
-ADD_SUBDIRECTORY ( Tests )
-
-IF(NOT APPLE)
+if(NOT APPLE)
 #Copy std data directory
-MESSAGE (STATUS "Copying data directory... (Using ${CMAKE_COMMAND})")
-EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E copy_directory ${APP_DATA} ${CMAKE_SOURCE_DIR}/Build/Bin )
-EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E copy_directory ${APP_STD_DATA} ${CMAKE_SOURCE_DIR}/Build/Bin )
-ENDIF()
-
-ADD_SUBDIRECTORY ( Toolkit/Converters )
+message (STATUS "Copying data directory... (Using ${CMAKE_COMMAND})")
+execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory ${APP_DATA} ${CMAKE_SOURCE_DIR}/Build/Bin )
+execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory ${APP_STD_DATA} ${CMAKE_SOURCE_DIR}/Build/Bin )
+endif()

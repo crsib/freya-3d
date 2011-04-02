@@ -11,10 +11,10 @@
 /*
  *
  */
-#include "MemoryPools.h"
+#include "core/memory/MemoryPools.h"
 #include <cstdlib>
 #include <vector>
-#include "internal.h"
+#include "FreyaSupportInternal.h"
 
 namespace core
 {
@@ -22,18 +22,18 @@ namespace memory
 {
 
 
-extern EXPORT unsigned memory_allocated;
-extern EXPORT unsigned allocation_count;
-extern EXPORT unsigned deallocation_count;
-extern EXPORT unsigned alloc_dealloc_dif;
-extern EXPORT unsigned allocated_for_buffers;
+extern FREYA_SUPPORT_EXPORT unsigned memory_allocated;
+extern FREYA_SUPPORT_EXPORT unsigned allocation_count;
+extern FREYA_SUPPORT_EXPORT unsigned deallocation_count;
+extern FREYA_SUPPORT_EXPORT unsigned alloc_dealloc_dif;
+extern FREYA_SUPPORT_EXPORT unsigned allocated_for_buffers;
 
 namespace __internal
 {
 class MemoryPool;
 }
 
-class MemoryArena
+class FREYA_SUPPORT_EXPORT MemoryArena
 {
 public:
 	static MemoryArena*		instance();

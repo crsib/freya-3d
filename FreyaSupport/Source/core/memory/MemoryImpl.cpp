@@ -6,12 +6,11 @@
  *      Author: Dmitri crsib Vedenko
  */
 #include "core/memory/MemoryArena.h"
-#include "core/memory/MemoryException.h"
 #include "core/memory/MemoryPools.h"
 
-#include "core/multithreading/ThreadBlocks.h"
+//#include "core/multithreading/ThreadBlocks.h"
 
-#define YIELD() core::multithreading::yield()
+#define YIELD() ;
 #define NDEBUG
 #include <cassert>
 #include <iostream>
@@ -19,26 +18,33 @@
 #include <list>
 #include <vector>
 
-
-
-#ifndef _MSC_VER
+#pragma mark "Use atomics here"
 #include <stdint.h>
-#else
-typedef signed		__int64 			int64_t;
-typedef unsigned	__int64 			uint64_t;
-
-typedef signed		__int32 			int32_t;
-typedef unsigned	__int32 			uint32_t;
-
-typedef signed		__int16 			int16_t;
-typedef unsigned	__int16			 	uint16_t;
-
-typedef signed		__int8 			int8_t;
-typedef unsigned	__int8			 	uint8_t;
-
+#ifdef _MSC_VER
 #include <intrin.h>
 extern "C"
 __MACHINEI(unsigned char _interlockedbittestandset(long volatile *a, long b))
+#endif
+
+#ifdef _MSC_VER
+#	define test_and_set _interlockedbittestandset
+#else
+inline long SyncInterlockedExchange(volatile long *Dest, long Val)
+{
+#if defined(__GNUC__) && defined (__GNUC_MINOR__) && ((4 < __GNUC__) || (4 == __GNUC__ && 1 <= __GNUC_MINOR__))
+	return  __sync_lock_test_and_set(Dest, Val);
+#else
+	register int result;
+	__asm__ __volatile__("lock; xchg %0,%1"
+		: "=r" (result), "=m" (*Dest)
+		: "0" (Val), "m" (*Dest)
+		: "memory");
+	return result;
+#endif
+}
+#ifndef test_and_set
+#	define test_and_set core::multithreading::SyncInterlockedExchange
+#endif
 #endif
 
 namespace core
@@ -96,7 +102,7 @@ class MemoryBuffer
 {
 public:
 	inline
-	explicit MemoryBuffer(uint32_t size,uint32_t alignment,uint32_t pool) throw (MemoryException): m_First(NULL),m_Last(NULL),m_Size(size + alignment + sizeof(__MemoryHeader)),
+	explicit MemoryBuffer(uint32_t size,uint32_t alignment,uint32_t pool) throw (): m_First(NULL),m_Last(NULL),m_Size(size + alignment + sizeof(__MemoryHeader)),
 	m_Alignment(alignment),m_AllocCount(0), m_Allocated(0), m_ParentPool(pool),m_HeaderOffset(0),m_Mutex(0)
 	{
 		try
@@ -106,7 +112,8 @@ public:
 		catch(...)
 		{
 			m_Buffer = 0;
-			throw;
+#pragma mark ("Implement error reporting")
+			//throw;
 		}
 
 		allocated_for_buffers += m_Size;
@@ -137,7 +144,8 @@ public:
 		} // m_Buffer != NULL
 		else
 		{
-			throw MemoryException("Failed to allocate memory buffer");
+#pragma  mark ("Implement error reporting")
+			//throw MemoryException("Failed to allocate memory buffer");
 		}
 
 	}
