@@ -3,14 +3,14 @@
 #include <cctype>
 #include <cstdlib>
 #include <iostream>
-#include "internal.h"
+#include "FreyaSupportInternal.h"
 #include "core/memory/MemoryPools.h"
 namespace core
 {
 namespace memory
 {
-EXPORT void* Allocate(size_t,unsigned);
-EXPORT void  Free(void*,unsigned);
+FREYA_SUPPORT_EXPORT void* Allocate(size_t,unsigned);
+FREYA_SUPPORT_EXPORT void  Free(void*,unsigned);
 
 //!STL compatible memory allocator to use memory arena for allocation. For detailed information use C++ documentation
 template<typename T,unsigned pool = core::memory::STL_POOL>

@@ -3,8 +3,8 @@
  * E-Mail : sverchinsky[at]gmail[dot]com
  */
 
-#include "thread.h"
-#include "ThreadManager.h"
+#include "core/multithreading/thread.h"
+#include "core/multithreading/ThreadManager.h"
 
 namespace core {
 	namespace multithreading {
