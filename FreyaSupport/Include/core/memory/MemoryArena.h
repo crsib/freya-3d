@@ -1,19 +1,12 @@
-/*
- * MemoryArena.h
- *
- *  Created on: 16.03.2009
- *      Author: vedenko
- */
+// This file is a part of Freya 3D Engine
 
 #ifndef MEMORYARENA_H_
 #define MEMORYARENA_H_
 
-/*
- *
- */
-#include "core/memory/MemoryPools.h"
 #include <cstdlib>
 #include <vector>
+
+#include "core/memory/MemoryPools.h"
 #include "FreyaSupportInternal.h"
 
 namespace core
@@ -21,6 +14,22 @@ namespace core
 namespace memory
 {
 
+	//! Allocates memory from Freya 3D Engine memory management system
+	/*!
+	 * Allocate a memory block from MemoryArena
+	 * \param size is size of desired memory block in bytes
+	 * \param pool is memory pool to use for memory allocation
+	 * \return pointer to allocated memory block or NULL if an error has occurred
+	 */
+FREYA_SUPPORT_EXPORT void*	alloc(size_t size, unsigned pool = core::memory::GENERIC_POOL) throw();
+
+	//! Returns the memory block back to memory management system
+	/*!
+	 * Try to return the memory block back to MemoryArena
+	 * \param p is a pointer to a memory block to be freed
+	 * \param pool is a memory pool used to allocate the block
+	 */
+FREYA_SUPPORT_EXPORT void	dealloc(void* p, unsigned pool = core::memory::GENERIC_POOL) throw();	
 
 extern FREYA_SUPPORT_EXPORT unsigned memory_allocated;
 extern FREYA_SUPPORT_EXPORT unsigned allocation_count;
@@ -55,7 +64,6 @@ public:
 	 *	\param size is a desired memory block size in bytes
 	 *	\param pool is an ID of memory pool to do allocation in
 	 *	\return Pointer to a newly allocated memory block
-	 *	\throw  MemoryException on allocation failure
 	 */
 	void*		allocate(size_t size, unsigned pool = 0);
 

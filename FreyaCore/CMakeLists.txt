@@ -35,8 +35,6 @@ elseif( UNIX )
 
 endif()
 
-message("${FREYA_CORE_INCLUDES}")
-
 set( FREYA_CORE_SOURCES
 # core/multithreading
 	Source/core/multithreading/ThreadManager.cpp

@@ -5,6 +5,7 @@
  *  Created on: Nov 14, 2009
  *      Author: Dmitri crsib Vedenko
  */
+
 #include "core/memory/MemoryArena.h"
 #include "core/memory/MemoryPools.h"
 
@@ -70,8 +71,6 @@ const char*			pool_name_srings[] = {
 		"generic",
 		"class",
 		"lua",
-		"CEGUI",
-		"world",
 
 		"user"
 };
@@ -105,16 +104,7 @@ public:
 	explicit MemoryBuffer(uint32_t size,uint32_t alignment,uint32_t pool) throw (): m_First(NULL),m_Last(NULL),m_Size(size + alignment + sizeof(__MemoryHeader)),
 	m_Alignment(alignment),m_AllocCount(0), m_Allocated(0), m_ParentPool(pool),m_HeaderOffset(0),m_Mutex(0)
 	{
-		try
-		{
-			m_Buffer = new uint8_t[m_Size];
-		}
-		catch(...)
-		{
-			m_Buffer = 0;
-#pragma mark ("Implement error reporting")
-			//throw;
-		}
+		m_Buffer =  reinterpret_cast<uint8_t*>(malloc(m_Size));
 
 		allocated_for_buffers += m_Size;
 		if(m_Buffer)
@@ -151,21 +141,29 @@ public:
 	}
 	~MemoryBuffer()
 	{
+		if(m_Buffer == NULL)
+			return;
 		allocated_for_buffers -= m_Size;
-		delete [] m_Buffer;
+		free( m_Buffer );
 		m_Buffer = NULL;
 		std::clog << "Deallocated memory buffer:\n\tSize: " << m_Size / (1024.0*1024.0)
 																																																		<< " MB\n\tPool: " << (m_ParentPool < LAST_POOL ? pool_name_srings[m_ParentPool] : pool_name_srings[LAST_POOL]) << std::endl;
 	}
 
 	inline
-	bool 					empty()
+	bool					isOk() const
+	{
+		return m_Buffer != NULL;
+	}
+
+	inline
+	bool 					empty() const
 	{
 		return				(m_AllocCount == 0);
 	}
 
 	inline
-	bool					full()
+	bool					full() const
 	{
 		return				(m_Size == m_Allocated);
 	}
@@ -173,6 +171,8 @@ public:
 	inline uint8_t*
 	allocate(uint32_t size)
 	{
+		if(m_Buffer == NULL)
+			return NULL;
 		//Update the size
 		uint32_t al = size % m_Alignment;
 		if(al)
@@ -576,7 +576,7 @@ void rtAllocator::init()
 		bd[i].chunks = chunks;
 	}
 
-	// initialize the freelists for each heap
+	// initialize the free lists for each heap
 	for (int i = 0; i < bdCount; i++)
 	{
 		mFreeBlocks[i] = NULL;
@@ -628,9 +628,12 @@ public:
 	{
 		MemoryBuffer*	buf = new MemoryBuffer(preallocSize,alignment,poolId);
 		assert(buf);
-		m_Buffers.push_back(buf);
-		m_SmallBlockPool = new rtAllocator(this);
-		m_SmallBlockPool->init();
+		if(buf->isOk())
+		{
+			m_Buffers.push_back(buf);
+			m_SmallBlockPool = new rtAllocator(this);
+			m_SmallBlockPool->init();
+		}
 	}
 
 	~MemoryPool()
@@ -770,7 +773,7 @@ void* rtAllocator::alloc(long ls)
 
 			if (b->mNextFreeBlock != ALLOCJR_FULLBLOCK && b->isFull())
 			{
-				// Unlink from freelist
+				// Unlink from free list
 				if (b->mNextFreeBlock)
 				{
 					b->mNextFreeBlock->mPrevFreeBlock = b->mPrevFreeBlock;
@@ -982,13 +985,11 @@ MemoryArena::MemoryArena()
 	m_Pools.reserve(LAST_POOL);
 
 	m_Pools.push_back(new __internal::MemoryPool(DEFAULT_POOL,128,1));
-	m_Pools.push_back(new __internal::MemoryPool(STL_POOL,1*1024*1024,1));
-	m_Pools.push_back(new __internal::MemoryPool(MATH_POOL,1*1024*1024,16));
-	m_Pools.push_back(new __internal::MemoryPool(GENERIC_POOL,4*1024*1024,16));
-	m_Pools.push_back(new __internal::MemoryPool(CLASS_POOL,1*1024*1024,16));
-	m_Pools.push_back(new __internal::MemoryPool(LUA_POOL,4*1024*1024,16));
-	m_Pools.push_back(new __internal::MemoryPool(CEGUI_POOL,8192,16));
-	m_Pools.push_back(new __internal::MemoryPool(WORLD_POOL,4*1024*1024,16));
+	m_Pools.push_back(new __internal::MemoryPool(STL_POOL,1024*1024,1));
+	m_Pools.push_back(new __internal::MemoryPool(MATH_POOL,1024*4096,16));
+	m_Pools.push_back(new __internal::MemoryPool(GENERIC_POOL,1024*4024,16));
+	m_Pools.push_back(new __internal::MemoryPool(CLASS_POOL,1024*4096,16));
+	m_Pools.push_back(new __internal::MemoryPool(LUA_POOL,1024*1024,16));
 
 	std::clog << "Memory arena created " << std::endl;
 }
@@ -1021,6 +1022,17 @@ void		MemoryArena::free(void* p,unsigned pool)
 {
 	if(p)
 		m_Pools[pool]->free(p);
+}
+
+FREYA_SUPPORT_EXPORT void* alloc( size_t size, unsigned pool /*= GENERIC_POOL*/ ) throw()
+{
+	return MemoryArena::instance()->allocate(size,pool);
+}
+
+
+FREYA_SUPPORT_EXPORT void dealloc( void* p, unsigned pool /*= GENERIC_POOL*/ ) throw()
+{
+	MemoryArena::instance()->free(p,pool);
 }
 
 }//memory

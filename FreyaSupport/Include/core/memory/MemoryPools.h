@@ -1,9 +1,4 @@
-/*
- * MemoryPools.h
- *
- *  Created on: Oct 12, 2009
- *      Author: crsib
- */
+// This file is a part of Freya 3D Engine
 
 #ifndef MEMORYPOOLS_H_
 #define MEMORYPOOLS_H_
@@ -20,9 +15,6 @@ namespace memory
 		GENERIC_POOL,
 		CLASS_POOL,
 		LUA_POOL,
-		CEGUI_POOL,
-		WORLD_POOL,
-
 		LAST_POOL
 	};
 }
