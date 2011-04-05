@@ -155,6 +155,29 @@ namespace core
 			return substr(range(idx, m_BufferPtr.get_range().end()));
 		}
 
+		//! Search for a specific sub string
+		/*!
+		 * Search for a specific sub string in a string
+		 * \param substring is a sub string to search
+		 * \param from is the position to start the search from
+		 * \return range in intial string such as this->substr(range) == substring or an empty range, if substring was not found
+		 */
+		range			find(const string& substring, size_t from = 0) const
+		{
+			return m_BufferPtr.find(substring.m_BufferPtr, from);
+		}
+
+		//! Search for a specific sub string
+		/*!
+		 * Search for a specific sub string in a string
+		 * \param substring is a sub string to search
+		 * \param from is the position to start the search from
+		 * \return range in intial string such as this->substr(range) == substring or an empty range, if substring was not found
+		 */
+		range			find(const char* substring, size_t from = 0) const
+		{
+			return find(string(substring));
+		}
 		
 		//Memory management routines 
 		//! Overloaded new operator
@@ -174,7 +197,7 @@ namespace core
 			//Seed value is taken from Sergey Makeyevs reflection source code
 			uint32_t hash = 1315423911;
 			const uint8_t * char_ptr = str;
-			while (*char_ptr && (l <= max_l))
+			while (*char_ptr && (l < max_l))
 			{
 				uint8_t c = *char_ptr++;
 				hash ^= ((hash << 5) + c + (hash >> 2));
@@ -247,7 +270,7 @@ namespace core
 				FREYA_SUPPORT_ASSERT(use_count == 1, "source is not uniquely owned");
 				if(sz == 0)
 					return;
-				memcpy(data_ptr, source, sz);
+				memcpy(data_ptr + offset, source, sz);
 				hash = 0; //mark to rehash
 			}
 
@@ -353,7 +376,7 @@ namespace core
 				}
 			}
 
-			void			set_range(const range& _r) { if(r != r) {r = _r; hash_value = 0;} }
+			void			set_range(const range& _r) { if(r != _r) {r = _r; hash_value = 0;} }
 			const range&	get_range() const { return r; }
 
 			uint8_t	operator [] (size_t i) const 
@@ -374,9 +397,17 @@ namespace core
 					{
 						size_t tmp;
 						if(r.begin() == 0 && r.length() == buffer->hashed_length)
-							return (hash_value = hash());
+							return (hash_value = buffer->get_hash());
 						else if(hash_value == 0)
-							return (hash_value = calculate_hash(buffer->data_ptr + r.begin(), r.length(),tmp));
+						{
+							if(r.begin() == 0)
+							{
+								hash_value = buffer->get_hash();
+								if(r.length() == buffer->hashed_length)
+									return hash_value;
+							}
+							hash_value = calculate_hash(buffer->data_ptr + r.begin(), r.length(),tmp);
+						}
 					}
 				}
 				return hash_value;
@@ -410,7 +441,7 @@ namespace core
 
 			bool		equals(const data_buffer_ptr& rhs) const
 			{
-				if(buffer == rhs.buffer || (r.length() == 0 && rhs.r.length() == 0)) 
+				if((r == rhs.r && buffer == rhs.buffer) || (r.length() == 0 && rhs.r.length() == 0)) 
 					return true;
 
 				if(buffer == NULL || buffer->data_ptr == NULL || rhs.buffer == NULL || rhs.buffer->data_ptr == NULL)
@@ -419,19 +450,21 @@ namespace core
 				//if(buffer->data_ptr == rhs.buffer->data_ptr)
 				//	return true;
 				
-				if(r.length() == rhs.r.length() && hash() == rhs.hash())
+				if((r.length() == rhs.r.length()) && (hash() == rhs.hash()))
 					return (
 					strncmp(
 					reinterpret_cast<char*>(buffer->data_ptr + r.begin()),
 					reinterpret_cast<char*>(rhs.buffer->data_ptr + rhs.r.begin()),
 					r.length() < rhs.r.length() ? r.length() : rhs.r.length()) == 0);
+				else 
+					return false;
 			}
 
 			int	compare(const data_buffer_ptr& rhs) const //Acts as strcmp
 			{
-				if(buffer == rhs.buffer) 
+				if(buffer == rhs.buffer || (r.length() == 0 && rhs.r.length() == 0)) 
 					return 0;
-				else if((buffer == NULL || buffer->data_ptr == NULL) && (rhs.buffer && rhs.buffer->data_ptr)) //Lhs is empty
+				else if((buffer == NULL || buffer->data_ptr == NULL) && (rhs.buffer && rhs.buffer->data_ptr && rhs.r.length())) //Lhs is empty
 					return -1;
 				else if(buffer && buffer->data_ptr && rhs.buffer && rhs.buffer->data_ptr) //Neither are empty
 					return strncmp(
@@ -442,7 +475,37 @@ namespace core
 					return 1;
 
 			}
-			//void	resize()
+
+			range		find(const data_buffer_ptr& other, size_t starting_from) const //
+			{
+				if(other.r.length() > r.length() || other.r.length() == 0 || r.length() == 0)  //Substr is longer then search string
+					return range();
+				
+				if(other.r.length() == r.length()) //Strings are equal
+					return equals(other) ? r : range();
+
+				FREYA_SUPPORT_ASSERT(starting_from < r.length(), "Invalid search start position");
+				
+				const uint8_t* first1 = buffer->data_ptr + r.begin() + starting_from; 
+				const uint8_t* start_it = first1;
+				const uint8_t* last1  = buffer->data_ptr + r.end() - other.r.length() + 1;
+
+				const uint8_t* first2 = other.buffer->data_ptr + other.r.begin();
+				const uint8_t* last2  = other.buffer->data_ptr + other.r.end();
+
+				while(first1 != last1)
+				{
+					const uint8_t* it1 = first1, *it2 = first2;
+					while(*it1 == *it2)
+					{
+						++it1; ++it2;
+						if(it2 == last2)
+							return range(first1 - start_it, it1 - start_it);
+					}
+					++first1;
+				}
+				return range();
+			}
 		}; // data_buffer_ptr
 
 		data_buffer_ptr	m_BufferPtr;
