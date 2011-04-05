@@ -14,6 +14,8 @@ int main(int argc, char* argv[])
 		core::string	empty_string;
 		assert(empty_string.empty());
 		assert(empty_string == "");
+		assert(!(empty_string < ""));
+		assert(!(core::string("") < empty_string));
 		std::cout << "Allocated " << core::memory::memory_allocated << std::endl;
 		core::string	static_string("I'm the test string");
 		assert(static_string.length() == strlen("I'm the test string"));
@@ -35,18 +37,25 @@ int main(int argc, char* argv[])
 
 		string a1 = "Hello, ";
 		a1 += "world!";
-
+		std::cout << a1.c_str() << std::endl;
 		assert(a1 == "Hello, world!");
 		assert(a1.length() == strlen("Hello, world!"));
 		std::cout << "Allocated " << core::memory::memory_allocated << std::endl;
 
-		assert(a1.substr(7) == "world!");
+		assert(a1.substr(string::range(7,12)) == "world");
+		assert(a1.substr(string::range(7,12)) != "world!");
 		assert(a1.substr(7).hash() != a1.hash());
 
 		string russian_string = "Строка по русски!";
 
 		assert(russian_string == "Строка по русски!");
+		assert(russian_string.length() == 17);
 
+		string::range	r = a1.find("llo");
+		assert(a1.substr(r) == "llo");
+
+		r = russian_string.find("по");
+		assert(russian_string.substr(r) == "по");
 	}
 
 	std::cout << "allocs: " << core::memory::allocation_count << "\ndeallocs: " << core::memory::deallocation_count
