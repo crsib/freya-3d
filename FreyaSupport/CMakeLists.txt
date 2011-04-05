@@ -3,6 +3,11 @@ message ( STATUS " Generating build dependencies for FreyaSupport" )
 # includes
 set( FREYA_SUPPORT_INCLUDES 
 	Include/FreyaSupportInternal.h
+	Include/integer.h
+# core
+	Include/core/string.h
+	Include/core/Log.h
+	Include/core/Object.h
 # core/memory
 	Include/core/memory/MemoryAllocator.h
 	Include/core/memory/MemoryArena.h
@@ -10,9 +15,14 @@ set( FREYA_SUPPORT_INCLUDES
 )
 
 # include source groups
-source_group("" FILES ./Include/FreyaSupportInternal.h )
+source_group("Include" FILES ./Include/FreyaSupportInternal.h ./Include/integer.h)
+source_group("Include\\core" FILES 
+								./Include/core/string.h
+								./Include/core/Log.h
+								./Include/core/Object.h
+)
 
-source_group("memory" FILES 
+source_group("Include\\core\\memory" FILES 
 								./Include/core/memory/MemoryAllocator.h
 								./Include/core/memory/MemoryArena.h
 								./Include/core/memory/MemoryException.h
@@ -21,10 +31,19 @@ source_group("memory" FILES
 
 # sources
 set( FREYA_SUPPORT_SOURCES
+# core
+	Source/core/string.cpp
+	Source/core/Log.cpp
+# core/memory
 	Source/core/memory/MemoryImpl.cpp
 )
 # sources source groups			
-source_group("memory" FILES
+source_group("core" FILES 
+								./Source/core/string.cpp
+								./Source/core/Log.cpp
+)
+
+source_group("core\\memory" FILES
 								./Source/core/memory/MemoryImpl.cpp
 )
 

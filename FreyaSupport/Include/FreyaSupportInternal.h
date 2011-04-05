@@ -17,4 +17,11 @@
 #	endif
 #endif
 
+#ifndef NDEBUG
+#include <assert.h>
+#define FREYA_SUPPORT_ASSERT(x,msg) assert(x && msg)
+#else
+#define  FREYA_SUPPORT_ASSERT(x, msg) 
+#endif
+
 #endif
