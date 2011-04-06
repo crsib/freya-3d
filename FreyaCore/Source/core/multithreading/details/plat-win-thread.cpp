@@ -3,7 +3,7 @@
 namespace core {
 	namespace multithreading {
 
-			thread thread::InvalidThread = thread();
+			const thread thread::InvalidThread = thread();
 
 			bool thread::join() {
 				if((m_rights & Synchronization) && is_valid()) {
