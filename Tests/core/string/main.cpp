@@ -56,6 +56,28 @@ int main(int argc, char* argv[])
 
 		r = russian_string.find("по");
 		assert(russian_string.substr(r) == "по");
+
+		r = russian_string.find("");
+		assert(r.empty());
+		r = empty_string.find("");
+		assert(r.empty());
+		r = empty_string.find("test");
+		assert(r.empty());
+		r = a1.find("test");
+		assert(r.empty());
+
+
+		r = a1.find(a1.substr(7,12));
+		assert(r == string::range(7,12));
+
+		string rfind_test = "The sixth sick sheik's sixth sheep's sick.";
+		r = rfind_test.rfind("sixth",30);
+		assert(r.length() == 5);
+		assert(r.begin() > 20);
+		assert(rfind_test.substr(r) == "sixth");
+		r = rfind_test.rfind("sixth",r.begin());
+		assert(r.length() == 5);
+		assert(r.begin() == 4);
 	}
 
 	std::cout << "allocs: " << core::memory::allocation_count << "\ndeallocs: " << core::memory::deallocation_count

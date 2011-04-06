@@ -13,6 +13,8 @@ namespace core
 	class FREYA_SUPPORT_EXPORT string
 	{
 	public:
+		//! Not a valid position in string
+		static const size_t npos = -1;
 		//! This class represents a range within a string
 		/*! 
 		 * This class is kind of analogue of STL string iterator with the following exceptions, despite
@@ -43,8 +45,9 @@ namespace core
 
 			size_t begin() const { return m_Begin; }
 			size_t end() const { return m_End; }
-
+			//! Length of the range
 			size_t  length() const { return m_End - m_Begin; }
+			//! Check, if range is empty
 			bool	empty() const { return m_Begin == m_End; }
 		};
 
@@ -154,10 +157,15 @@ namespace core
 			FREYA_SUPPORT_ASSERT(idx < m_BufferPtr.get_range().end(), "Invalid idx");
 			return substr(range(idx, m_BufferPtr.get_range().end()));
 		}
+		//! Get a substring of string
+		string			substr(size_t s, size_t e) const
+		{
+			return substr(range(s,e));
+		}
 
-		//! Search for a specific sub string
+		//! Search for the first occurrence specific sub string
 		/*!
-		 * Search for a specific sub string in a string
+		 * Search for the first occurrence of specific sub string in a string in [from, end)
 		 * \param substring is a sub string to search
 		 * \param from is the position to start the search from
 		 * \return range in intial string such as this->substr(range) == substring or an empty range, if substring was not found
@@ -167,16 +175,40 @@ namespace core
 			return m_BufferPtr.find(substring.m_BufferPtr, from);
 		}
 
-		//! Search for a specific sub string
+		//! Search for the first occurrence specific sub string
 		/*!
-		 * Search for a specific sub string in a string
+		 * Search for the first occurrence of specific sub string in a string in [from, end)
 		 * \param substring is a sub string to search
 		 * \param from is the position to start the search from
 		 * \return range in intial string such as this->substr(range) == substring or an empty range, if substring was not found
 		 */
 		range			find(const char* substring, size_t from = 0) const
 		{
-			return find(string(substring));
+			return find(string(substring),from);
+		}
+
+		//! Search for the last occurrence of specific sub string
+		/*!
+		 * Search for the last occurrence of specific sub string in a string in [begin, from)
+		 * \param substring is a sub string to search
+		 * \param from is the position to start the search up to
+		 * \return range in intial string such as this->substr(range) == substring or an empty range, if substring was not found
+		 */
+		range			rfind(const string& substring, size_t from = npos) const
+		{
+			return m_BufferPtr.rfind(substring.m_BufferPtr, from == npos ? 0 : m_BufferPtr.get_range().length() - from - 1);
+		}
+
+		//! Search for the last occurrence of specific sub string
+		/*!
+		 * Search for the last occurrence of specific sub string in a string in [begin, from)
+		 * \param substring is a sub string to search
+		 * \param from is the position to start the search up to
+		 * \return range in intial string such as this->substr(range) == substring or an empty range, if substring was not found
+		 */
+		range			rfind(const char* substring, size_t from = npos) const
+		{
+			return rfind(string(substring),from);
 		}
 		
 		//Memory management routines 
@@ -411,7 +443,7 @@ namespace core
 					}
 				}
 				return hash_value;
-			}
+			} // uint32_t hash()
 
 			const char*		ptr() const
 			{
@@ -437,7 +469,7 @@ namespace core
 					}
 				}
 				return ptr();
-			}
+			} // const char* null_terminated string
 
 			bool		equals(const data_buffer_ptr& rhs) const
 			{
@@ -458,7 +490,7 @@ namespace core
 					r.length() < rhs.r.length() ? r.length() : rhs.r.length()) == 0);
 				else 
 					return false;
-			}
+			} //bool equals
 
 			int	compare(const data_buffer_ptr& rhs) const //Acts as strcmp
 			{
@@ -474,14 +506,14 @@ namespace core
 				else //Rhs is empty
 					return 1;
 
-			}
+			} // int compare
 
 			range		find(const data_buffer_ptr& other, size_t starting_from) const //
 			{
-				if(other.r.length() > r.length() || other.r.length() == 0 || r.length() == 0)  //Substr is longer then search string
+				if(other.r.length() > r.length() || other.r.length() == 0 || r.length() == 0)  //Substr is longer then search string or some of the ops are empty
 					return range();
 				
-				if(other.r.length() == r.length()) //Strings are equal
+				if(other.r.length() == r.length() && starting_from == 0) //Strings are equal
 					return equals(other) ? r : range();
 
 				FREYA_SUPPORT_ASSERT(starting_from < r.length(), "Invalid search start position");
@@ -505,7 +537,40 @@ namespace core
 					++first1;
 				}
 				return range();
-			}
+			} // range find()
+
+			range		rfind(const data_buffer_ptr& other, size_t starting_from) const //
+			{
+				if(other.r.length() > r.length() || other.r.length() == 0 || r.length() == 0)  //Substr is longer then search string or some of the ops are empty
+					return range();
+
+				if(other.r.length() == r.length() && starting_from == 0) //Strings are equal
+					return equals(other) ? r : range();
+
+				FREYA_SUPPORT_ASSERT(starting_from < r.length(), "Invalid search start position");
+
+				
+
+				const uint8_t* first1 = buffer->data_ptr + r.end() - starting_from - 1 - other.r.length(); 
+				//const uint8_t* start_it = first1;
+				const uint8_t* last1  = buffer->data_ptr + r.begin();
+
+				const uint8_t* first2 = other.buffer->data_ptr + other.r.begin();
+				const uint8_t* last2  = other.buffer->data_ptr + other.r.end();
+
+				while(first1 >= last1)
+				{
+					const uint8_t* it1 = first1, *it2 = first2;
+					while(*it1 == *it2)
+					{
+						++it1; ++it2;
+						if(it2 == last2)
+							return range(first1 - last1, it1 - last1);
+					}
+					--first1;
+				}
+				return range();
+			}// range rfind
 		}; // data_buffer_ptr
 
 		data_buffer_ptr	m_BufferPtr;
