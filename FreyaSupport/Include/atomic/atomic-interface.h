@@ -8,13 +8,14 @@
 #ifndef FREYA_ATOMIC_INTERFACE_H_
 #define FREYA_ATOMIC_INTERFACE_H_
 
-#include "memory_order.h"
+#include "FreyaSupportInternal.h"
+#include "atomic/memory_order.h"
 
 namespace atomic
 {
 	///
 	template<typename BuiltIn>
-	class atomic
+	class FREYA_SUPPORT_EXPORT atomic
 	{
 	public:
 
@@ -25,10 +26,10 @@ namespace atomic
 
 		///Implicit cast to boolean type.
 		/** load<MemoryOrderSequential> with cast to boolean. */
-		inline operator bool() const;
+		//inline operator bool() const;
 		/// Implicit cast to base type.
 		/** load<MemoryOrderSequential> with cast to base type. */
-		inline operator BuiltIn() const;
+		//inline operator BuiltIn() const;
 
 		///Compares two atomics for equality.
 		/** */

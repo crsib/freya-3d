@@ -5,6 +5,8 @@
 
 #include "core/memory/MemoryArena.h"
 
+#include "atomic/atomic.h"
+
 #include "integer.h"
 
 namespace core
@@ -318,7 +320,7 @@ namespace core
 			// Size of 0 means, that the buffer is not owned by the object
 			size_t		buffer_size;
 			// Use count of the buffer
-			size_t		use_count;
+			atomic::atomic<uint32_t> use_count;
 			// Hash value for the string
 			mutable uint32_t	hash; // Initialized to 0
 			// Hashed length
@@ -380,7 +382,7 @@ namespace core
 
 			data_buffer* clone_and_resize(const range& r)
 			{
-				FREYA_SUPPORT_ASSERT(buffer_size == 0 || use_count > 1, "Could not clone uniquely owned buffer");
+				FREYA_SUPPORT_ASSERT(buffer_size == 0 || use_count.load() > 1, "Could not clone uniquely owned buffer");
 				FREYA_SUPPORT_ASSERT(buffer_size <= r.begin(), "Invalid range");
 				FREYA_SUPPORT_ASSERT(r.length(), "Empty range");
 			
@@ -397,7 +399,6 @@ namespace core
 				if(r.begin() == 0 && buffer_size <= r.length())
 					new_buffer->hash = hash;
 
-#pragma mark "Make this thread safe"
 				--use_count;
 				return new_buffer;
 			}
@@ -423,7 +424,6 @@ namespace core
 			{
 				if(buffer)
 				{
-#pragma mark "Make this thread safe"
 					++buffer->use_count;
 				}
 			}
@@ -431,7 +431,6 @@ namespace core
 			{
 				if(buffer)
 				{
-#pragma mark "Make this thread safe"
 					--buffer->use_count;
 					if(buffer->use_count == 0)
 						delete buffer;
@@ -442,7 +441,6 @@ namespace core
 				hash_value = rhs.hash_value;
 				if(buffer)
 				{
-#pragma mark "Make this thread safe"
 					++buffer->use_count;
 				}
 				return *this;
@@ -452,7 +450,6 @@ namespace core
 			{
 				if(buffer)
 				{
-#pragma mark "Make this thread safe"
 					--buffer->use_count;
 					if(buffer->use_count == 0)
 						delete buffer;
@@ -461,7 +458,7 @@ namespace core
 
 			void	clone_and_resize(const range& _r) 
 			{
-				if(buffer && buffer->use_count > 1)
+				if(buffer && buffer->use_count.load() > 1)
 				{
 					if(r != _r)
 						hash_value = 0;
