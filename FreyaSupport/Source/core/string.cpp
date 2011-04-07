@@ -26,7 +26,11 @@ namespace core
 		utf8::utf8to32(m_BufferPtr.ptr(), m_BufferPtr.ptr() + m_BufferPtr.get_range().length(), utf32_str);
 
 		for(size_t i = 0; i < length; ++i)
+#if FREYA_USE_ICU
 			utf32_str[i] = u_toupper(utf32_str[i]);
+#else
+		{}
+#endif
 
 		string out(m_BufferPtr.get_range().length());
 
@@ -49,8 +53,11 @@ namespace core
 		utf8::utf8to32(m_BufferPtr.ptr(), m_BufferPtr.ptr() + m_BufferPtr.get_range().length(), utf32_str);
 
 		for(size_t i = 0; i < length; ++i)
+#if FREYA_USE_ICU
 			utf32_str[i] = u_tolower(utf32_str[i]);
-
+#else
+		{}
+#endif
 		string out(m_BufferPtr.get_range().length());
 
 		// It is safe to use const_cast here, despite it is ugly
@@ -60,4 +67,12 @@ namespace core
 		memory::dealloc(utf32_str);
 		return out;
 	}
+
+	core::string string::replace( const range& r, const string& str ) const
+	{
+		if(r.empty())
+			return *this;
+		return string();
+	}
+
 } // namespace core
