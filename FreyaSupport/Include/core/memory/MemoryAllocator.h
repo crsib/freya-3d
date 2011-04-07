@@ -9,8 +9,9 @@ namespace core
 {
 namespace memory
 {
-FREYA_SUPPORT_EXPORT void* Allocate(size_t,unsigned);
-FREYA_SUPPORT_EXPORT void  Free(void*,unsigned);
+
+FREYA_SUPPORT_EXPORT void*	alloc(size_t size, unsigned pool = core::memory::GENERIC_POOL) throw();
+FREYA_SUPPORT_EXPORT void	dealloc(void* p, unsigned pool = core::memory::GENERIC_POOL) throw();	
 
 //!STL compatible memory allocator to use memory arena for allocation. For detailed information use C++ documentation
 template<typename T,unsigned pool = core::memory::STL_POOL>
@@ -41,9 +42,9 @@ public:
 
 	static void  operator delete[](void* p);
 	//!Provided for STL compatibility
-	pointer allocate(size_type n,const void* hint = 0);
+	pointer alloc(size_type n,const void* hint = 0);
 	//!Provided for STL compatibility
-	void deallocate(pointer p,size_type n);
+	void dealloc(pointer p,size_type n);
 	//!Provided for STL compatibility
 	pointer address(reference r) const {return &r;}
 	//!Provided for STL compatibility
@@ -74,7 +75,7 @@ template<typename T,unsigned pool> bool operator!= (const MemoryAllocator<T,pool
 //!Provided for STL compatibility
 template<typename T,unsigned pool> void* MemoryAllocator<T,pool>::operator new(size_t sz)
 {
-	return Allocate(sz,pool);
+	return alloc(sz,pool);
 }
 //!Provided for STL compatibility
 template<typename T,unsigned pool> void*  MemoryAllocator<T,pool>::operator new(size_t sz,void* p)
@@ -84,27 +85,27 @@ template<typename T,unsigned pool> void*  MemoryAllocator<T,pool>::operator new(
 //!Provided for STL compatibility
 template<typename T,unsigned pool> void   MemoryAllocator<T,pool>::operator delete(void* p)
 {
-	Free(p,pool);
+	dealloc(p,pool);
 }
 //!Provided for STL compatibility
 template<typename T,unsigned pool> void*  MemoryAllocator<T,pool>::operator new[](size_t sz)
 {
-	return Allocate(sz,pool);
+	return alloc(sz,pool);
 }
 //!Provided for STL compatibility
 template<typename T,unsigned pool> void   MemoryAllocator<T,pool>::operator delete[](void* p)
 {
-	Free(p,pool);
+	dealloc(p,pool);
 }
 //!Provided for STL compatibility
-template<typename T,unsigned pool> T*  MemoryAllocator<T,pool>::allocate(size_t n,const void* hint)
+template<typename T,unsigned pool> T*  MemoryAllocator<T,pool>::alloc(size_t n,const void* hint)
 {
-	return static_cast<T*> (Allocate(n*sizeof(T),core::memory::STL_POOL));
+	return static_cast<T*> (alloc(n*sizeof(T),core::memory::STL_POOL));
 }
 //!Provided for STL compatibility
-template<typename T,unsigned pool> void  MemoryAllocator<T,pool>::deallocate(T* p,size_t n)
+template<typename T,unsigned pool> void  MemoryAllocator<T,pool>::dealloc(T* p,size_t n)
 {
-	Free(p,core::memory::STL_POOL);
+	dealloc(p,core::memory::STL_POOL);
 }
 
 //typedef MemoryAllocator <T,0> MemAllocator<T>;

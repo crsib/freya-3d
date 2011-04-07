@@ -31,6 +31,20 @@ FREYA_SUPPORT_EXPORT void*	alloc(size_t size, unsigned pool = core::memory::GENE
 	 */
 FREYA_SUPPORT_EXPORT void	dealloc(void* p, unsigned pool = core::memory::GENERIC_POOL) throw();	
 
+	//! Allocates memory from Freya 3D Engine memory management system
+	/*!
+	 * Allocate a memory block from MemoryArena
+	 * \tparam T block type
+	 * \param count is a number of blocs of type T
+	 * \param pool is memory pool to use for memory allocation
+	 * \return pointer to allocated memory block or NULL if an error has occurred
+	 */
+	template<typename T> T* 
+	alloc(size_t count, unsigned pool = core::memory::GENERIC_POOL) throw()
+	{
+		return reinterpret_cast<T*> (alloc(sizeof(T) * count, pool));
+	}
+
 extern FREYA_SUPPORT_EXPORT unsigned memory_allocated;
 extern FREYA_SUPPORT_EXPORT unsigned allocation_count;
 extern FREYA_SUPPORT_EXPORT unsigned deallocation_count;
