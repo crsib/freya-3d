@@ -4,9 +4,7 @@
 #define string_h__
 
 #include "core/memory/MemoryArena.h"
-
 #include "atomic/atomic.h"
-
 #include "integer.h"
 
 namespace core
@@ -148,15 +146,15 @@ namespace core
 		string			substr(const range& r) const
 		{
 			FREYA_SUPPORT_ASSERT(r.length() <= m_BufferPtr.get_range().length(),"Invalid range");
-			FREYA_SUPPORT_ASSERT(r.end() <= m_BufferPtr.get_range().end(), "Invalid range");
+
 			string out(*this);
-			out.m_BufferPtr.set_range(r);
+			out.m_BufferPtr.set_range(range(r.begin() + m_BufferPtr.get_range().begin(), r.end() + m_BufferPtr.get_range().begin()));
 			return out;
 		}
 		//! Get a substring of string starting from idx
 		string			substr(size_t idx) const 
 		{
-			FREYA_SUPPORT_ASSERT(idx < m_BufferPtr.get_range().end(), "Invalid idx");
+			FREYA_SUPPORT_ASSERT(idx < m_BufferPtr.get_range().end() - m_BufferPtr.get_range().begin(), "Invalid idx");
 			return substr(range(idx, m_BufferPtr.get_range().end()));
 		}
 		//! Get a substring of string
