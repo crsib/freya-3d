@@ -4,6 +4,10 @@ message ( STATUS " Generating build dependencies for FreyaSupport" )
 set( FREYA_SUPPORT_INCLUDES 
 	Include/FreyaSupportInternal.h
 	Include/integer.h
+# atomic
+	Include/atomic/atomic.h
+	Include/atomic/atomic-interface.h
+	Include/atomic/memory_order.h
 # core
 	Include/core/string.h
 	Include/core/Log.h
@@ -28,6 +32,17 @@ source_group("Include\\core\\memory" FILES
 								./Include/core/memory/MemoryException.h
 								./Include/core/memory/MemoryPools.h 
 )
+
+source_group("Include\\atomic" FILES 
+								Include/atomic/atomic.h
+								Include/atomic/atomic-interface.h
+								Include/atomic/memory_order.h
+)
+
+if( MSVC )
+	set( FREYA_SUPPORT_INCLUDES ${FREYA_SUPPORT_INCLUDES} Include/atomic/details/atomic-msvc.h )
+	source_group( "Include\\atomic\\details" FILES  Include/atomic/details/atomic-msvc.h )
+endif()
 
 # sources
 set( FREYA_SUPPORT_SOURCES

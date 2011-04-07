@@ -19,34 +19,8 @@
 #include <list>
 #include <vector>
 
-#pragma mark "Use atomics here"
-#include <stdint.h>
-#ifdef _MSC_VER
-#include <intrin.h>
-extern "C"
-__MACHINEI(unsigned char _interlockedbittestandset(long volatile *a, long b))
-#endif
-
-#ifdef _MSC_VER
-#	define test_and_set _interlockedbittestandset
-#else
-inline long SyncInterlockedExchange(volatile long *Dest, long Val)
-{
-#if defined(__GNUC__) && defined (__GNUC_MINOR__) && ((4 < __GNUC__) || (4 == __GNUC__ && 1 <= __GNUC_MINOR__))
-	return  __sync_lock_test_and_set(Dest, Val);
-#else
-	register int result;
-	__asm__ __volatile__("lock; xchg %0,%1"
-		: "=r" (result), "=m" (*Dest)
-		: "0" (Val), "m" (*Dest)
-		: "memory");
-	return result;
-#endif
-}
-#ifndef test_and_set
-#	define test_and_set core::multithreading::SyncInterlockedExchange
-#endif
-#endif
+#include "atomic/atomic.h"
+#include "integer.h"
 
 namespace core
 {
@@ -219,7 +193,7 @@ private:
 	{
 		if(block->magic == FREE_BLOCK_MARK)
 		{
-			while(test_and_set(&m_Mutex,1))
+			while(m_Mutex.bit_test_and_set(1))
 			{
 				YIELD();
 			}
@@ -291,7 +265,7 @@ private:
 	void					insertAndConnect(MemoryHeaderPtr block)
 	{
 		//Sync this section on mutex free basis
-		while(test_and_set(&m_Mutex,1))
+		while(m_Mutex.bit_test_and_set(1))
 		{
 			YIELD();
 		}
@@ -408,7 +382,7 @@ private:
 	uint32_t				m_Allocated;
 	uint32_t				m_ParentPool;
 	uint32_t				m_HeaderOffset;
-	volatile long			m_Mutex;
+	atomic::atomic<uint32_t>	m_Mutex;
 };
 
 /******************* Small block implementation *************************************************
@@ -444,7 +418,7 @@ private:
 	bool mInited;
 	block* mLastFoundBlock;
 	char mBDIndexLookup[1025];
-	volatile long	m_Lock;
+	atomic::atomic<uint32_t>	m_Lock;
 };
 
 typedef struct
@@ -664,7 +638,7 @@ public:
 	allocate(size_t sz)
 	{
 		void* p;
-		while(test_and_set(&m_Lock,1))
+		while(m_Lock.bit_test_and_set(1))
 		{
 			YIELD();
 		}
@@ -688,7 +662,7 @@ public:
 	}
 	void	generic_free(void* p)
 	{
-		while(test_and_set(&m_Lock,1))
+		while(m_Lock.bit_test_and_set(1))
 		{
 			YIELD();
 		}
@@ -720,7 +694,7 @@ private:
 	uint32_t					m_PoolId;
 	uint32_t					m_PreallocSize;
 	uint32_t					m_Alignment;
-	volatile long				m_Lock;
+	atomic::atomic<uint32_t>		m_Lock;
 	rtAllocator*				m_SmallBlockPool;
 };
 
@@ -734,7 +708,7 @@ rtAllocator::~rtAllocator()
 inline
 void* rtAllocator::alloc(long ls)
 {
-	while(test_and_set(&m_Lock,1))
+	while(m_Lock.bit_test_and_set(1))
 	{
 		YIELD();
 	}
@@ -796,7 +770,7 @@ void* rtAllocator::alloc(long ls)
 inline
 bool rtAllocator::free(void* p)
 {
-	while(test_and_set(&m_Lock,1))
+	while(m_Lock.bit_test_and_set(1))
 	{
 		YIELD();
 	}
