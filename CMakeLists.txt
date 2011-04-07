@@ -47,6 +47,7 @@ include_directories( FreyaSupport/Include FreyaMath/Include FreyaReflect/Include
 set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/Build/Install" CACHE PATH "Default install prefix" )
 set(FREYA_BUILD_SHARED true CACHE BOOL "Build shared version of Freya3D (possibly not supported on some platforms)" )
 set(FREYA_TARGET_PLATFORM "x86" CACHE STRING "Target platform (x86 only, currently)" )
+set(FREYA_USE_ICU	true CACHE BOOL "Use ICU for unicode support in Freya 3D Engine" )
 
 string(COMPARE EQUAL "${FREYA_TARGET_PLATFORM}" "x86" FREYA_TARGET_PLATFORM_X86)
 
@@ -104,6 +105,15 @@ set ( FREYA_LINK_LIBRARIES )
 if( NOT FREYA_BUILD_SHARED )
 	message( STATUS "Configuring for static build" )
 	add_definitions( -D_STATIC_BUILD )
+endif()
+
+if( FREYA_USE_ICU )
+	find_package( ICU REQUIRED )
+	if( NOT ICU_FOUND )
+		message( FATAL_ERROR "Error: failed to find ICU library!")
+	endif()
+	include_directories( ${ICU_INCLUDE_DIR} )
+	add_definitions( -DFREYA_USE_ICU=1 )
 endif()
 
 # Libraries
