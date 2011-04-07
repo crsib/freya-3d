@@ -10,6 +10,7 @@ int main(int argc, char* argv[])
 #ifdef _MSC_VER
 	SetConsoleOutputCP(65001); //Set utf-8 encoding
 #endif	
+	setlocale(LC_CTYPE, "ru_ru.utf-8");
 	{
 		core::string	empty_string;
 		assert(empty_string.empty());
@@ -78,6 +79,11 @@ int main(int argc, char* argv[])
 		r = rfind_test.rfind("sixth",r.begin());
 		assert(r.length() == 5);
 		assert(r.begin() == 4);
+
+		std::cout << rfind_test.to_upper().c_str() << std::endl;
+		std::cout << rfind_test.to_lower().c_str() << std::endl;
+
+		printf("%s %s\n", russian_string.c_str(), russian_string.to_upper().c_str());
 	}
 
 	std::cout << "allocs: " << core::memory::allocation_count << "\ndeallocs: " << core::memory::deallocation_count

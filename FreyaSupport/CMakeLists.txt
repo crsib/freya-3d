@@ -47,6 +47,9 @@ source_group("core\\memory" FILES
 								./Source/core/memory/MemoryImpl.cpp
 )
 
+# Add UTF8CPP library 
+include_directories( ../3party/utf8cpp )
+
 if( FREYA_BUILD_SHARED )
 	add_definitions( -D_FREYA_SUPPORT_SHARED_BUILD )
 	add_library( FreyaSupport SHARED ${FREYA_SUPPORT_INCLUDES} ${FREYA_SUPPORT_SOURCES} )

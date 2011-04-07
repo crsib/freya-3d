@@ -211,6 +211,11 @@ namespace core
 			return rfind(string(substring),from);
 		}
 		
+		//! Convert string to uppercase
+		string			to_upper() const;
+		//! Convert string to lowercase
+		string			to_lower() const;
+
 		//Memory management routines 
 		//! Overloaded new operator
 		static void* operator new(size_t sz) { return memory::alloc(sz,memory::CLASS_POOL); }
