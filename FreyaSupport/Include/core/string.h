@@ -10,6 +10,21 @@
 namespace core
 {
 	//! This class encapsulates futures, required for easy and efficient manipulation with string data
+	/*!
+	 * This class provides various methods, that are usefull with strings. 
+	 * The implementation of this class is targeting efficient memory management,
+	 * which leads to low footprint, almost free copy operators and rather expensive 
+	 * modification of strings, as most modifications lead to memory allocation and copying.
+	 * For this reason, most of string class methods (except operator = / operator +=) are 
+	 * constant and return the copy of the string.
+	 * Second design limitation is that string assumes, that it's data is represented in normalized
+	 * UTF-8 encoding. For this reason the iterator concept from STL was replaced with range concept, 
+	 * as one char could be expressed in up to 4 bytes. Also, for performance reasons, 
+	 * internal implementation does not check
+	 * UTF-8 correctness and assumes, that the string is normalized form (i.e. the shortest representation
+	 * for the character is preferred). For convenience, string provides UTF-32 iterator.
+	 */
+
 	class FREYA_SUPPORT_EXPORT string
 	{
 	public:
@@ -279,8 +294,16 @@ namespace core
 		}
 
 		//! Convert string to uppercase
+		/*!
+		 * Retrieve UPPER CASE version of the string. This methods has significant runtime overhead,
+		 * as it requires the string to be converted into UTF-32 for correct localization support
+		 */
 		string			to_upper() const;
 		//! Convert string to lowercase
+		/*!
+		 * Retrieve lower case version of the string. This methods has significant runtime overhead,
+		 * as it requires the string to be converted into UTF-32 for correct localization support
+		 */
 		string			to_lower() const;
 
 		//Memory management routines 

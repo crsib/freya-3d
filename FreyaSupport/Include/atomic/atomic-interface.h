@@ -11,6 +11,8 @@
 #include "FreyaSupportInternal.h"
 #include "atomic/memory_order.h"
 
+
+//! This namespace contains features, related to atomic operations with basic types
 namespace atomic
 {
 	///
