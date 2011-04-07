@@ -211,6 +211,73 @@ namespace core
 			return rfind(string(substring),from);
 		}
 		
+		//! Replace a range in the string
+		/*!
+		 * Replace a range in the string with given substring
+		 * \param r range to replace
+		 * \param str string to replace with
+		 * \return modified string
+		 */
+		string			replace(const range& r, const string& str) const;
+		
+		//! Replace a range in the string
+		/*!
+		 * Replace a range in the string with given substring
+		 * \param r range to replace
+		 * \param str string to replace with
+		 * \return modified string
+		 */
+		string			replace(const range& r, const char* str) const
+		{ return replace(r, string(str)); }
+
+		//! Search for a substring and replace it
+		/*! 
+		 * Search for a substring and replace it with a given substring
+		 * \param search_for is a substring to search for
+		 * \param replace_with is a substring to replace with
+		 * \return modified string
+		 */
+		string			replace(const string& search_for, const string& replace_with) const
+		{
+			return replace(find(search_for), replace_with);
+		}
+
+		//! Search for a substring and replace it
+		/*! 
+		 * Search for a substring and replace it with a given substring
+		 * \param search_for is a substring to search for
+		 * \param replace_with is a substring to replace with
+		 * \return modified string
+		 */
+		string			replace(const char* search_for, const char* replace_with) const
+		{
+			return replace(find(search_for), replace_with);
+		}
+
+		//! Search for a substring and replace it
+		/*! 
+		 * Search for a substring and replace it with a given substring
+		 * \param search_for is a substring to search for
+		 * \param replace_with is a substring to replace with
+		 * \return modified string
+		 */
+		string			replace(const string& search_for, const char* replace_with) const
+		{
+			return replace(find(search_for), replace_with);
+		}
+
+		//! Search for a substring and replace it
+		/*! 
+		 * Search for a substring and replace it with a given substring
+		 * \param search_for is a substring to search for
+		 * \param replace_with is a substring to replace with
+		 * \return modified string
+		 */
+		string			replace(const char* search_for, const string& replace_with) const
+		{
+			return replace(find(search_for), replace_with);
+		}
+
 		//! Convert string to uppercase
 		string			to_upper() const;
 		//! Convert string to lowercase
