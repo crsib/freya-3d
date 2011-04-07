@@ -26,6 +26,8 @@ namespace core {
 			struct thread_data;
         }
 
+		class ThreadManager;
+
         /// \brief Wrapper over thread management system provided by platform.
         /**  */
 		class thread {
@@ -42,8 +44,7 @@ namespace core {
 			};
 
 			/// Constant used to create invalid thread.
-			// TODO allocate
-			static thread InvalidThread;
+			static const thread InvalidThread;
 
             /// \brief Thread copy constructor. Access rights would be inherited.
 			inline thread(const thread& other);

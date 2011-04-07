@@ -30,7 +30,14 @@ namespace core {
 
 		thread::thread() : m_platform_data(NULL), m_rights(NoAccessRights) { }
 
-		thread::thread(const thread& other) : m_platform_data(other.m_platform_data), m_rights(other.m_rights) { }
+		thread::thread(const thread& other) : m_rights(other.m_rights) { 
+			if(other.get_access_rights() & PseudoThread) {
+				m_platform_data = new details::thread_data;
+				m_platform_data->m_handle = other.m_platform_data->m_handle;
+				m_platform_data->m_id = other.m_platform_data->m_id;
+			} else
+				m_platform_data = other.m_platform_data;
+		}
 
 		thread::~thread() {
 			if(m_rights & PseudoThread)
@@ -72,7 +79,7 @@ namespace core {
 		thread thread::self(void) {
 			thread self_thread;
 			self_thread.m_platform_data = new details::thread_data;
-			self_thread.m_platform_data->m_handle = GetCurrentThread(); //:TODO: may be there is a chance to left one system call?
+			self_thread.m_platform_data->m_handle = NULL;
 			self_thread.m_platform_data->m_id = GetCurrentThreadId();
 			self_thread.m_rights = PseudoThread; //Thread is not allowed to make self-join or self-kill.
 			return self_thread;

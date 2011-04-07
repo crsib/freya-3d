@@ -34,14 +34,17 @@ namespace core {
 			m_thread_stack = new thread* [m_capacity];
 			//Push the main thread first.
 			m_thread_stack[ThreadManager::MainThread] = new thread(thread::self());
-			m_top++;
+			++m_top;
+			for(unsigned i = 1; i < m_capacity; i++)
+				m_thread_stack[i] = NULL;
 		}
 
 		ThreadManager::~ThreadManager() {
-			for(unsigned i = m_top - 1; i >= 0 ; i --) {
+			for(int i = m_top - 1; i >=0 ; i--) {
 				//cleanup pointers to threads first.
 				thread::destroy(*(m_thread_stack[i]));
 				delete m_thread_stack[i];
+				m_thread_stack[i] = NULL;
 			}
 			delete[] m_thread_stack;
 		}
@@ -57,7 +60,7 @@ namespace core {
 		thread& ThreadManager::getThread(unsigned int which) {
 			if(which < m_top)
 				return *(m_thread_stack[which]);
-			return thread::InvalidThread;
+			return thread(thread::InvalidThread);
 		}
 
 	}// namespace multithreading
