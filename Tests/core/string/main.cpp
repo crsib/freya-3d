@@ -84,6 +84,8 @@ int main(int argc, char* argv[])
 		std::cout << rfind_test.to_lower().c_str() << std::endl;
 
 		printf("%s %s\n", russian_string.c_str(), russian_string.to_upper().c_str());
+
+		std::cout << rfind_test.replace("sixth", "seventh").c_str() << std::endl;
 	}
 
 	std::cout << "allocs: " << core::memory::allocation_count << "\ndeallocs: " << core::memory::deallocation_count

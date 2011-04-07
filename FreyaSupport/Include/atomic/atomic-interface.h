@@ -88,9 +88,9 @@ namespace atomic
 		inline unsigned bit_test_and_reset(const unsigned bit_num);
 
 	private:
-		/// Copy constructor is depricated(may be for a while).
+		/// Copy constructor is forbidden(may be for a while).
 		atomic(const atomic<BuiltIn>&);
-		/// Assignment operator is depricated.
+		/// Assignment operator is forbidden.
 		atomic<BuiltIn>& operator=(const atomic<BuiltIn>&);
 
 		BuiltIn m_variable;
