@@ -5,7 +5,7 @@
 #include <core/multithreading/ThreadManager.h>
 
 // variable used to thread-safe stdout access, initially locked
-atomic::atomic<int> stdout_sync(1);
+atomic::atomic<short> stdout_sync(1);
 // stdout_sync bit number used to synchronization
 static const int stdout_sync_bit = 0;
 
