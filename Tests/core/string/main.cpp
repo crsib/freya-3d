@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
 #ifdef _MSC_VER
 	SetConsoleOutputCP(65001); //Set utf-8 encoding
 #endif	
-	setlocale(LC_CTYPE, "ru_ru.utf-8");
+	//setlocale(LC_CTYPE, "ru_ru.utf-8");
 	{
 		core::string	empty_string;
 		assert(empty_string.empty());
