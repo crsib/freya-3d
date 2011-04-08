@@ -4,14 +4,27 @@
 #define string_h__
 
 #include "core/memory/MemoryArena.h"
-
 #include "atomic/atomic.h"
-
 #include "integer.h"
 
 namespace core
 {
 	//! This class encapsulates futures, required for easy and efficient manipulation with string data
+	/*!
+	 * This class provides various methods, that are usefull with strings. 
+	 * The implementation of this class is targeting efficient memory management,
+	 * which leads to low footprint, almost free copy operators and rather expensive 
+	 * modification of strings, as most modifications lead to memory allocation and copying.
+	 * For this reason, most of string class methods (except operator = / operator +=) are 
+	 * constant and return the copy of the string.
+	 * Second design limitation is that string assumes, that it's data is represented in normalized
+	 * UTF-8 encoding. For this reason the iterator concept from STL was replaced with range concept, 
+	 * as one char could be expressed in up to 4 bytes. Also, for performance reasons, 
+	 * internal implementation does not check
+	 * UTF-8 correctness and assumes, that the string is normalized form (i.e. the shortest representation
+	 * for the character is preferred). For convenience, string provides UTF-32 iterator.
+	 */
+
 	class FREYA_SUPPORT_EXPORT string
 	{
 	public:
@@ -148,15 +161,15 @@ namespace core
 		string			substr(const range& r) const
 		{
 			FREYA_SUPPORT_ASSERT(r.length() <= m_BufferPtr.get_range().length(),"Invalid range");
-			FREYA_SUPPORT_ASSERT(r.end() <= m_BufferPtr.get_range().end(), "Invalid range");
+
 			string out(*this);
-			out.m_BufferPtr.set_range(r);
+			out.m_BufferPtr.set_range(range(r.begin() + m_BufferPtr.get_range().begin(), r.end() + m_BufferPtr.get_range().begin()));
 			return out;
 		}
 		//! Get a substring of string starting from idx
 		string			substr(size_t idx) const 
 		{
-			FREYA_SUPPORT_ASSERT(idx < m_BufferPtr.get_range().end(), "Invalid idx");
+			FREYA_SUPPORT_ASSERT(idx < m_BufferPtr.get_range().end() - m_BufferPtr.get_range().begin(), "Invalid idx");
 			return substr(range(idx, m_BufferPtr.get_range().end()));
 		}
 		//! Get a substring of string
@@ -281,8 +294,16 @@ namespace core
 		}
 
 		//! Convert string to uppercase
+		/*!
+		 * Retrieve UPPER CASE version of the string. This methods has significant runtime overhead,
+		 * as it requires the string to be converted into UTF-32 for correct localization support
+		 */
 		string			to_upper() const;
 		//! Convert string to lowercase
+		/*!
+		 * Retrieve lower case version of the string. This methods has significant runtime overhead,
+		 * as it requires the string to be converted into UTF-32 for correct localization support
+		 */
 		string			to_lower() const;
 
 		//Memory management routines 
