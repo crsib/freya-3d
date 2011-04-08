@@ -15,16 +15,10 @@
 
 // Intrinsics available on all x86 based machines
 #pragma intrinsic(_ReadWriteBarrier)			// Prevents compiler load/store reorder.
-
 #pragma intrinsic(_interlockedbittestandset)	// bts instruction
-//#pragma intrinsic(_intrelockedbittestandreset)	// btr instruction
-
-//#pragma intrinsic(_InterlockedIncrement16)		// Atomic Word increment
 #pragma intrinsic(_InterlockedIncrement)		// Atomic Double word increment
-
-
-//#pragma intrinsic(_InterlockedDecrement16)		// Atomic Word decrement
 #pragma intrinsic(_InterlockedDecrement)		// Atomic Double word decrement
+#pragma intrinsic(_InterlockedExchange)			// Exchange for double word operands
 
 
 // Intrinsics available only on x64(Intel 64 or AMD 64) machines
@@ -33,6 +27,8 @@
 //	#pragma intrinsic(_InterlockedDecrement64)			// Atomic Quad word decrement
 	#pragma intrinsic(_interlockedbittestandset64)		// bts instruction for quad word operand
 	#pragma intrinsic(_interlockedbittestandreset64)	// btr instruction for quad word operand
+
+	#pragma intrinsic(_IntrelockedExchange64)			// Exchange for quad word operands
 #endif
 
 
@@ -40,6 +36,8 @@ namespace atomic
 {
 	namespace details 
 	{
+//-------------------------------------------------------------------------------------------------
+		
 		inline void fence(const MemoryOrder order);
 
 		template<typename BuiltIn, size_t Sz>
@@ -54,9 +52,12 @@ namespace atomic
 		template<typename BuiltIn, size_t Sz>
 		inline unsigned btr(BuiltIn* var, const unsigned bit_num);
 
+		template<typename BuiltIn, size_t Sz>
+		inline void exchange(volatile BuiltIn* addr, BuiltIn value);
+
 //-------------------------------------------------------------------------------------------------
 
-		void fence(const MemoryOrder order)
+		inline void fence(const MemoryOrder order)
 		{
 			switch(order)
 			{
@@ -69,18 +70,6 @@ namespace atomic
 
 //-------------------------------------------------------------------------------------------------
 
-/*		template<> inline //signed word
-		__int16 increment<__int16, 2>(volatile __int16* var)
-		{
-			return static_cast<__int16>(_InterlockedIncrement16(reinterpret_cast<volatile short*>(var)));
-		}*/
-
-/*		template<> inline // unsigned word
-		unsigned __int16 increment<unsigned __int16, 2>(volatile unsigned __int16* var)
-		{
-			return static_cast<unsigned __int16>(_InterlockedIncrement16(reinterpret_cast<volatile short*>(var)));
-		}*/
-
 		template<> inline // signed word
 		short increment<short, 2>(volatile short* var)
 		{
@@ -92,18 +81,6 @@ namespace atomic
 		{
 			return static_cast<unsigned short>(_InterlockedIncrement16(reinterpret_cast<volatile short*>(var)));
 		}
-
-/*		template<> inline // signed double word
-		__int32 increment<__int32, 4>(volatile __int32* var)
-		{
-			return static_cast<__int32>(_InterlockedIncrement(reinterpret_cast<volatile LONG*>(var)));
-		}*/
-
-/*		template<> inline // unsigned double word
-		unsigned __int32 increment<unsigned __int32, 4>(volatile unsigned __int32* var)
-		{
-			return static_cast<unsigned __int32>(_InterlockedIncrement(reinterpret_cast<volatile LONG*>(var)));
-		}*/
 
 		template<> inline // signed double word
 		int increment<int, 4>(volatile int* var)
@@ -143,44 +120,32 @@ namespace atomic
 			return static_cast<unsigned __int64>(_InterlockedIncrement64(reinterpret_cast<volatile __int64*>(var)));
 		}
 
-		template<> inline // signed quad word
-		long increment<long, 8>(volatile long* var)
-		{
-			return static_cast<long>(_InterlockedIncrement64(reinterpret_cast<volatile __int64*>(var)));
-		}
-
-		template<> inline // unsigned quad word
-		unsigned long increment<unsigned long, 8>(volatile unsigned long* var)
-		{
-			return static_cast<unsigned long>(_InterlockedIncrement64(reinterpret_cast<volatile __int64*>(var)));
-		}
-
 #endif
 
 //-------------------------------------------------------------------------------------------------
 
 		template<> inline
-		__int16 decrement<__int16, 2>(volatile __int16* var)
+		short decrement<short, 2>(volatile short* var)
 		{
-			return _InterlockedDecrement16(reinterpret_cast<volatile short*>(var));
+			return _InterlockedDecrement16(var);
 		}
 
 		template<> inline
-		unsigned __int16 decrement<unsigned __int16, 2>(volatile unsigned __int16* var)
+		unsigned short decrement<unsigned short, 2>(volatile unsigned short* var)
 		{
-			return _InterlockedDecrement16(reinterpret_cast<volatile short*>(var));
+			return static_cast<unsigned short>(_InterlockedDecrement16(reinterpret_cast<volatile short*>(var)));
 		}
 
 		template<> inline
 		int decrement<int, 4>(volatile int* var)
 		{
-			return _InterlockedDecrement(reinterpret_cast<volatile LONG*>(var));
+			return static_cast<int>(_InterlockedDecrement(reinterpret_cast<volatile LONG*>(var)));
 		}
 
 		template<> inline
 		unsigned decrement<unsigned, 4>(volatile unsigned* var)
 		{
-			return _InterlockedDecrement(reinterpret_cast<volatile LONG*>(var));
+			return static_cast<unsigned>(_InterlockedDecrement(reinterpret_cast<volatile LONG*>(var)));
 		}
 
 #if defined(_M_X64) || defined(_M_AMD64)
@@ -194,7 +159,7 @@ namespace atomic
 		template<> inline
 		unsigned __int64 decrement<unsigned __int64, 8>(volatile unsigned __int64* var)
 		{
-			return _InterlockedDecrement64(reinterpret_cast<volatile unsigned __int64*>(var));
+			return static_cast<unsigned __int64>(_InterlockedDecrement64(reinterpret_cast<volatile unsigned __int64*>(var)));
 		}
 
 #endif
@@ -207,6 +172,12 @@ namespace atomic
 			return _interlockedbittestandset(reinterpret_cast<LONG*>(var), bit_num);
 		}
 
+		template<> inline
+		unsigned bts<unsigned, 4>(unsigned* var, const unsigned bit_num)
+		{
+			return _interlockedbittestandset(reinterpret_cast<LONG*>(var), bit_num);
+		}
+
 //-------------------------------------------------------------------------------------------------
 
 		template<> inline
@@ -215,40 +186,31 @@ namespace atomic
 			return _interlockedbittestandreset(reinterpret_cast<LONG*>(var), bit_num);
 		}
 
-		//-------------------------------------------------------------------------------------------------
-
 		template<> inline
-			unsigned bts<unsigned, 4>(unsigned* var, const unsigned bit_num)
-		{
-			return _interlockedbittestandset(reinterpret_cast<LONG*>(var), bit_num);
-		}
-
-		//-------------------------------------------------------------------------------------------------
-
-		template<> inline
-			unsigned btr<unsigned, 4>(unsigned* var, const unsigned bit_num)
+		unsigned btr<unsigned, 4>(unsigned* var, const unsigned bit_num)
 		{
 			return _interlockedbittestandreset(reinterpret_cast<LONG*>(var), bit_num);
 		}
-	}
 
 //-------------------------------------------------------------------------------------------------
 
-	/*template<typename BuiltIn>
-	atomic<BuiltIn>::operator bool() const
-	{
-		bool ret = (m_variable != 0);
-		details::fence(MemoryOrderSequential); // update ret immediately
-		return ret;
-	}*/
+		template<> inline
+		void exchange<int, 4>(volatile int* var, int value)
+		{
+			_InterlockedExchange(reinterpret_cast<volatile LONG*>(var), static_cast<LONG>(value));
+		}
 
-	/*template<typename BuiltIn>
-	atomic<BuiltIn>::operator BuiltIn() const
-	{
-		BuiltIn ret = m_variable;
-		details::fence(MemoryOrderSequential);
-		return ret;
-	}*/
+#if defined(_M_X64) || defined(_M_AMD64)
+		template<> inline
+		void exchange(volatile __int64* var, __int64 value)
+		{
+			_InterlockedExchange64(var, value);
+		}
+#endif
+
+	}
+
+//-------------------------------------------------------------------------------------------------
 
 	template<typename BuiltIn>
 	BuiltIn atomic<BuiltIn>::operator++(void)
@@ -277,6 +239,7 @@ namespace atomic
 	template<typename BuiltIn>
 	BuiltIn atomic<BuiltIn>::load(const MemoryOrder order) const
 	{
+		
 		BuiltIn ret = *reinterpret_cast<volatile const BuiltIn*>(&m_variable); // depricate compiler optimizations
 		details::fence(order);
 		return ret;
@@ -285,8 +248,15 @@ namespace atomic
 	template<typename BuiltIn> 
 	void atomic<BuiltIn>::store(const BuiltIn& from, const MemoryOrder order)
 	{
-		m_variable = from;
-		details::fence(order);
+		//BuiltIn t = *reinterpret_cast<volatile const BuiltIn*>(&from);
+		switch(order)
+		{
+		case(MemoryOrderSequential) :
+			details::exchange<BuiltIn, sizeof(BuiltIn)>(&m_variable, from);
+			break;
+		default:
+			break;
+		};
 	}
 
 	template<typename BuiltIn>
