@@ -36,223 +36,184 @@ namespace atomic
 {
 	namespace details 
 	{
-//-------------------------------------------------------------------------------------------------
+		//-----------------------------------------------------------------------------------------
+
+		// Helper structure. You need to provide only type(first param).
+		template<typename Type, size_t Sz = sizeof(Type)>
+		struct intrinsics
+		{
+			inline static Type inc(volatile Type* memaddr);
+
+			inline static Type dec(volatile Type* memaddr);
+
+			inline static unsigned bts(volatile Type* memaddr, const unsigned shift);
+
+			inline static unsigned btr(volatile Type* memaddr, const unsigned shift);
+
+			inline static void exchange(volatile Type* memaddr, const Type value);
+		};
+
+		//-----------------------------------------------------------------------------------------
+
+		// implementation for word sized types
+		template<typename Type>
+		struct intrinsics<Type, 2>
+		{
+			// follows from compiler provided intrinsinc functions prototypes
+			typedef volatile short* dest_ptr_t;
+
+			inline static Type inc(volatile Type* memaddr)
+			{
+				return static_cast<Type>( _InterlockedIncrement16(reinterpret_cast<dest_ptr_t>(memaddr)) );
+			}
+
+			inline static Type dec(volatile Type* memaddr)
+			{
+				return static_cast<Type>( _InterlockedDecrement16(reinterpret_cast<dest_ptr_t>(memaddr)) );
+			}
+		};
+
+		//-----------------------------------------------------------------------------------------
+
+		// implementation for dword sized types
+		template<typename Type>
+		struct intrinsics<Type, 4>
+		{
+			// follows from compiler provided intrinsinc functions prototypes
+			typedef LONG			dest_t;
+			typedef volatile LONG*	dest_ptr_t;
+			
+			typedef LONG			source_t;
+			typedef LONG*			source_ptr_t;
+
+			inline static Type inc(volatile Type* memaddr)
+			{
+				return static_cast<Type>( _InterlockedIncrement(reinterpret_cast<dest_ptr_t>(memaddr)) );
+			}
+
+			inline static Type dec(volatile Type* memaddr)
+			{
+				return static_cast<Type>( _InterlockedDecrement(reinterpret_cast<dest_ptr_t>(memaddr)) );
+			}
+
+			inline static unsigned bts(volatile Type* memaddr, const unsigned bit)
+			{
+				return _interlockedbittestandset(reinterpret_cast<dest_ptr_t>(memaddr), static_cast<source_t>(bit));
+			}
+
+			inline static unsigned btr(volatile Type* memaddr, const unsigned bit)
+			{
+				return _interlockedbittestandreset(reinterpret_cast<dest_ptr_t>(memaddr), static_cast<source_t>(bit));
+			}
+
+			inline static void exchange(volatile Type* memaddr, const Type value)
+			{
+				_InterlockedExchange(reinterpret_cast<dest_ptr_t>(memaddr), static_cast<source_t>(value));
+			}
+		};
+
+		//-----------------------------------------------------------------------------------------
+
+#if defined(_M_X64) || defined(_M_AMD64)
 		
-		inline void fence(const MemoryOrder order);
+		// implementation for qword sized types
+		template<typename Type>
+		struct intrinsics<Type, 8>
+		{
+			// follows from compiler provided intrinsinc functions prototypes
+			typedef __int64				dest_t;
+			typedef volatile __int64*	dest_ptr_t;
+			
+			typedef __int64		source_t;
+			typedef __int64*	source_ptr_t;
 
-		template<typename BuiltIn, size_t Sz>
-		inline BuiltIn increment(volatile BuiltIn* address);
+			inline static Type inc(volatile Type* memaddr)
+			{
+				return static_cast<Type>( _InterlockedIncrement64(reinterpret_cast<dest_ptr_t>(memaddr)) );
+			}
 
-		template<typename BuiltIn, size_t Sz>
-		inline BuiltIn decrement(volatile BuiltIn* address);
+			inline static Type dec(volatile Type* memaddr)
+			{
+				return static_cast<Type>( _InterlockedDecrement64(reinterpret_cast<dest_ptr_t>(memaddr)) );
+			}
 
-		template<typename BuiltIn, size_t Sz>
-		inline unsigned bts(BuiltIn* var, const unsigned bit_num);
+			inline static unsigned bts(volatile Type* memaddr, const unsigned bit)
+			{
+				return _interlockedbittestandset64(reinterpret_cast<dest_ptr_t>(memaddr), static_cast<source_t>(bit));
+			}
 
-		template<typename BuiltIn, size_t Sz>
-		inline unsigned btr(BuiltIn* var, const unsigned bit_num);
+			inline static unsigned btr(volatile Type* memaddr, const unsigned bit)
+			{
+				return _interlockedbittestandreset(reinterpret_cast<dest_ptr_t>(memaddr), static_cast<source_t>(bit));
+			}
 
-		template<typename BuiltIn, size_t Sz>
-		inline void exchange(volatile BuiltIn* addr, BuiltIn value);
+			inline static void exchange(volatile Type* memaddr, const Type value)
+			{
+				_InterlockedExchange(reinterpret_cast<dest_ptr_t>(memaddr), static_cast<source_t>(value));
+			}
+		};
 
-//-------------------------------------------------------------------------------------------------
+		//-----------------------------------------------------------------------------------------
 
+#endif
+		// read-write memory barrier
 		inline void fence(const MemoryOrder order)
 		{
 			switch(order)
 			{
 				case(MemoryOrderSequential) :
-					MemoryBarrier();
+					MemoryBarrier(); // full fence
 					break;
-				default : ;
+				default : 
+					break;
 			}
 		}
 
-//-------------------------------------------------------------------------------------------------
-
-		template<> inline // signed word
-		short increment<short, 2>(volatile short* var)
-		{
-			return _InterlockedIncrement16(var);
-		}
-
-		template<> inline // unsigned word
-		unsigned short increment<unsigned short, 2>(volatile unsigned short* var)
-		{
-			return static_cast<unsigned short>(_InterlockedIncrement16(reinterpret_cast<volatile short*>(var)));
-		}
-
-		template<> inline // signed double word
-		int increment<int, 4>(volatile int* var)
-		{
-			return static_cast<int>(_InterlockedIncrement(reinterpret_cast<volatile LONG*>(var)));
-		}
-
-		template<> inline // unsigned double word
-		unsigned increment<unsigned, 4>(volatile unsigned* var)
-		{
-			return static_cast<unsigned>(_InterlockedIncrement(reinterpret_cast<volatile LONG*>(var)));
-		}
-
-		template<> inline // signed double word
-		long increment<long, 4>(volatile long* var)
-		{
-			return static_cast<long>(_InterlockedIncrement(reinterpret_cast<volatile LONG*>(var)));
-		}
-
-		template<> inline // unsigned double word
-		unsigned long increment<unsigned long, 4>(volatile unsigned long* var)
-		{
-			return static_cast<unsigned long>(_InterlockedIncrement(reinterpret_cast<volatile LONG*>(var)));
-		}
-
-#if defined(_M_X64) || defined(_M_AMD64)
-		
-		template<> inline // signed quad word
-		__int64 increment<__int64, 8>(volatile __int64* var)
-		{
-			return _InterlockedIncrement64(var);
-		}
-
-		template<> inline // unsigned quad word
-		unsigned __int64 increment<unsigned __int64, 8>(volatile unsigned __int64* var)
-		{
-			return static_cast<unsigned __int64>(_InterlockedIncrement64(reinterpret_cast<volatile __int64*>(var)));
-		}
-
-#endif
-
-//-------------------------------------------------------------------------------------------------
-
-		template<> inline
-		short decrement<short, 2>(volatile short* var)
-		{
-			return _InterlockedDecrement16(var);
-		}
-
-		template<> inline
-		unsigned short decrement<unsigned short, 2>(volatile unsigned short* var)
-		{
-			return static_cast<unsigned short>(_InterlockedDecrement16(reinterpret_cast<volatile short*>(var)));
-		}
-
-		template<> inline
-		int decrement<int, 4>(volatile int* var)
-		{
-			return static_cast<int>(_InterlockedDecrement(reinterpret_cast<volatile LONG*>(var)));
-		}
-
-		template<> inline
-		unsigned decrement<unsigned, 4>(volatile unsigned* var)
-		{
-			return static_cast<unsigned>(_InterlockedDecrement(reinterpret_cast<volatile LONG*>(var)));
-		}
-
-#if defined(_M_X64) || defined(_M_AMD64)
-
-		template<> inline
-		__int64 decrement<__int64, 8>(volatile __int64* var)
-		{
-			return _InterlockedDecrement64(var);
-		}
-
-		template<> inline
-		unsigned __int64 decrement<unsigned __int64, 8>(volatile unsigned __int64* var)
-		{
-			return static_cast<unsigned __int64>(_InterlockedDecrement64(reinterpret_cast<volatile unsigned __int64*>(var)));
-		}
-
-#endif
-
-//-------------------------------------------------------------------------------------------------
-
-		template<> inline
-		unsigned bts<int, 4>(int* var, const unsigned bit_num)
-		{
-			return _interlockedbittestandset(reinterpret_cast<LONG*>(var), bit_num);
-		}
-
-		template<> inline
-		unsigned bts<unsigned, 4>(unsigned* var, const unsigned bit_num)
-		{
-			return _interlockedbittestandset(reinterpret_cast<LONG*>(var), bit_num);
-		}
-
-//-------------------------------------------------------------------------------------------------
-
-		template<> inline
-		unsigned btr<int, 4>(int* var, const unsigned bit_num)
-		{
-			return _interlockedbittestandreset(reinterpret_cast<LONG*>(var), bit_num);
-		}
-
-		template<> inline
-		unsigned btr<unsigned, 4>(unsigned* var, const unsigned bit_num)
-		{
-			return _interlockedbittestandreset(reinterpret_cast<LONG*>(var), bit_num);
-		}
-
-//-------------------------------------------------------------------------------------------------
-
-		template<> inline
-		void exchange<int, 4>(volatile int* var, int value)
-		{
-			_InterlockedExchange(reinterpret_cast<volatile LONG*>(var), static_cast<LONG>(value));
-		}
-
-#if defined(_M_X64) || defined(_M_AMD64)
-		template<> inline
-		void exchange(volatile __int64* var, __int64 value)
-		{
-			_InterlockedExchange64(var, value);
-		}
-#endif
-
-	}
+	}//namespace details
 
 //-------------------------------------------------------------------------------------------------
 
 	template<typename BuiltIn>
 	BuiltIn atomic<BuiltIn>::operator++(void)
 	{
-		return details::increment<BuiltIn, sizeof(BuiltIn)>(&m_variable) - 1;
+		return details::intrinsics<BuiltIn>::inc(&m_variable) - 1;
 	}
 
 	template<typename BuiltIn>
 	BuiltIn atomic<BuiltIn>::operator++(int)
 	{
-		return details::increment<BuiltIn, sizeof(BuiltIn)>(&m_variable);
+		return details::intrinsics<BuiltIn>::inc(&m_variable);
 	}
 
 	template<typename BuiltIn>
 	BuiltIn atomic<BuiltIn>::operator--(void)
 	{
-		return 1 + details::decrement<BuiltIn, sizeof(BuiltIn)>(&m_variable);
+		return details::intrinsics<BuiltIn>::dec(&m_variable) + 1;
 	}
 
 	template<typename BuiltIn>
 	BuiltIn atomic<BuiltIn>::operator--(int)
 	{
-		return details::decrement<BuiltIn, sizeof(BuiltIn)>(&m_variable);
+		return details::intrinsics<BuiltIn>::dec(&m_variable);
 	}
 
 	template<typename BuiltIn>
 	BuiltIn atomic<BuiltIn>::load(const MemoryOrder order) const
 	{
-		
 		BuiltIn ret = *reinterpret_cast<volatile const BuiltIn*>(&m_variable); // depricate compiler optimizations
 		details::fence(order);
 		return ret;
 	}
 
 	template<typename BuiltIn> 
-	void atomic<BuiltIn>::store(const BuiltIn& from, const MemoryOrder order)
+	void atomic<BuiltIn>::store(const BuiltIn& source, const MemoryOrder order)
 	{
-		//BuiltIn t = *reinterpret_cast<volatile const BuiltIn*>(&from);
+		// make a local copy of the source variable to prevent data corumption
+		BuiltIn temp = *reinterpret_cast<volatile const BuiltIn*>(&source);
 		switch(order)
 		{
 		case(MemoryOrderSequential) :
-			details::exchange<BuiltIn, sizeof(BuiltIn)>(&m_variable, from);
+			details::intrinsics<BuiltIn>::exchange(&m_variable, temp);
 			break;
 		default:
 			break;
@@ -260,16 +221,17 @@ namespace atomic
 	}
 
 	template<typename BuiltIn>
-	unsigned atomic<BuiltIn>::bit_test_and_set(const unsigned bit_num)
+	unsigned atomic<BuiltIn>::bit_test_and_set(const unsigned bit)
 	{
-		return details::bts<BuiltIn, sizeof(BuiltIn)>(&m_variable, bit_num);
+		return details::intrinsics<BuiltIn>::bts(&m_variable, bit);
 	}
 
 	template<typename BuiltIn>
-	unsigned atomic<BuiltIn>::bit_test_and_reset(const unsigned bit_num)
+	unsigned atomic<BuiltIn>::bit_test_and_reset(const unsigned bit)
 	{
-		return details::btr<BuiltIn, sizeof(BuiltIn)>(&m_variable, bit_num);
+		return details::intrinsics<BuiltIn>::btr(&m_variable, bit);
 	}
-}
+
+}//namespace atomic
 
 #endif//FREYA_ATOMIC_MSVC_H_
