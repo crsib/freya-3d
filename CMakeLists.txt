@@ -92,6 +92,7 @@ if(MSVC)
     add_definitions("-D_SCL_SECURE_NO_DEPRECATE")
     add_definitions("-D_HAS_ITERATOR_DEBUGGING=0")
     add_definitions(/arch:SSE2)
+	add_definitions( /wd4251 ) # really stupid warning. Probably the most stupid I've ever seen...
 endif(MSVC)
 # Search for libraries
 

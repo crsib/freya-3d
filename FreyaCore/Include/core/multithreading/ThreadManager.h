@@ -10,14 +10,19 @@
 #ifndef FREYA_THREAD_MANAGER_H_
 #define FREYA_THREAD_MANAGER_H_
 
-namespace core {
-	namespace multithreading {
+#include "FreyaCoreInternal.h"
+
+namespace core 
+{
+	namespace multithreading 
+	{
 
 		//Predefinitions :
 		class thread;
 
         /// ThreadManager singleton class interface.
-		class ThreadManager {
+		class FREYA_CORE_EXPORT ThreadManager 
+		{
 		public:
 			static const unsigned MainThread = 0;	///< Id number of main thread.
 

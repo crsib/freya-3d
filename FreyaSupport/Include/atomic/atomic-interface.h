@@ -11,7 +11,7 @@
 #include "FreyaSupportInternal.h"
 #include "atomic/memory_order.h"
 
-/// \brief This namespace contains built-in based atomic template class implemenation.
+/// \brief This namespace contains built-in based atomic template class implementation.
 namespace atomic
 {
 	/// \brief This template class provides built-in based atomic data types, and the set of useful operations.
@@ -22,7 +22,7 @@ namespace atomic
 	 * \tparam BuiltIn Base type for atomic, provides information about it's size and interpretation rules.
 	 */
 	template<typename BuiltIn>
-	class FREYA_SUPPORT_EXPORT atomic
+	class atomic
 	{
 	public:
 

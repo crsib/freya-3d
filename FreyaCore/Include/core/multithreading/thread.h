@@ -8,6 +8,8 @@
 #ifndef FREYA_THREAD_H_
 #define FREYA_THREAD_H_
 
+#include "FreyaCoreInternal.h"
+
 /** \file thread.h This file contains platform independent thread class interface.
  *
  * The target platform, by default, will be chosen automatically. If it
@@ -16,9 +18,11 @@
  * and then define "PLATFORM_*_THREADS" with desired(WIN or POSIX)
  * platform instead of template symbol. */
 
-namespace core {
+namespace core 
+{
 	/// \brief Contains some useful tools for thread management.
-	namespace multithreading {
+	namespace multithreading 
+	{
 
 		/// \brief Contains platform specific code.
 		namespace details {
@@ -30,7 +34,7 @@ namespace core {
 
         /// \brief Wrapper over thread management system provided by platform.
         /**  */
-		class thread {
+		class FREYA_CORE_EXPORT thread {
 		public:
             /// Thread access rights control.
 			enum AccessRights {

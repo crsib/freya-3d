@@ -59,7 +59,7 @@ namespace atomic
 		template<typename Type>
 		struct intrinsics<Type, 2>
 		{
-			// follows from compiler provided intrinsinc functions prototypes
+			// follows from compiler provided intrinsic functions prototypes
 			typedef volatile short* dest_ptr_t;
 
 			typedef short source_t;
@@ -118,7 +118,7 @@ namespace atomic
 		template<typename Type>
 		struct intrinsics<Type, 4>
 		{
-			// follows from compiler provided intrinsinc functions prototypes
+			// follows from compiler provided intrinsic functions prototypes
 			typedef LONG			dest_t;
 			typedef volatile LONG*	dest_ptr_t;
 			
@@ -159,7 +159,7 @@ namespace atomic
 		template<typename Type>
 		struct intrinsics<Type, 8>
 		{
-			// follows from compiler provided intrinsinc functions prototypes
+			// follows from compiler provided intrinsic functions prototypes
 			typedef __int64				dest_t;
 			typedef volatile __int64*	dest_ptr_t;
 			
