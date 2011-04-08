@@ -46,9 +46,9 @@ namespace atomic
 
 			inline static Type dec(volatile Type* memaddr);
 
-			inline static unsigned bts(volatile Type* memaddr, const unsigned shift);
+			inline static unsigned bts(volatile Type* memaddr, const unsigned bit);
 
-			inline static unsigned btr(volatile Type* memaddr, const unsigned shift);
+			inline static unsigned btr(volatile Type* memaddr, const unsigned bit);
 
 			inline static void exchange(volatile Type* memaddr, const Type value);
 		};
@@ -62,6 +62,8 @@ namespace atomic
 			// follows from compiler provided intrinsinc functions prototypes
 			typedef volatile short* dest_ptr_t;
 
+			typedef short source_t;
+
 			inline static Type inc(volatile Type* memaddr)
 			{
 				return static_cast<Type>( _InterlockedIncrement16(reinterpret_cast<dest_ptr_t>(memaddr)) );
@@ -71,6 +73,43 @@ namespace atomic
 			{
 				return static_cast<Type>( _InterlockedDecrement16(reinterpret_cast<dest_ptr_t>(memaddr)) );
 			}
+
+#if defined(_M_IX86)
+
+			inline static unsigned bts(volatile Type* memaddr, const unsigned bit)
+			{
+				__asm 
+				{
+					xor			eax, eax				// clear eax
+					mov			ebx, bit
+					mov			ecx, memaddr
+					lock bts	word ptr [ecx], ebx
+					adc			eax, eax				// eax += CF
+				};//ret - eax
+			}
+
+			inline static unsigned btr(volatile Type* memaddr, const unsigned bit)
+			{
+				__asm
+				{
+					xor			eax, eax				// clear eax
+					mov			ebx, bit
+					mov			ecx, memaddr
+					lock btr	word ptr [ecx], ebx
+					adc			eax, eax				// eax += CF
+				};//ret - eax
+			}
+
+			inline static void exchange(volatile Type* memaddr, const Type value)
+			{
+				__asm
+				{
+					mov			bx,	value
+					mov			eax, memaddr
+					xchg		word ptr [eax], bx
+				};
+			}
+#endif// _M_IX86
 		};
 
 		//-----------------------------------------------------------------------------------------
@@ -155,7 +194,7 @@ namespace atomic
 
 		//-----------------------------------------------------------------------------------------
 
-#endif
+#endif// _M_X64 || _M_AMD64
 		// read-write memory barrier
 		inline void fence(const MemoryOrder order)
 		{
