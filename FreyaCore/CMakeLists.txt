@@ -1,6 +1,7 @@
 message ( STATUS " Generating build dependencies for FreyaCore" )
 
 set( FREYA_CORE_INCLUDES 
+	Include/FreyaCoreInternal.h
 	# core/multithreading
 	Include/core/multithreading/thread.h
 	Include/core/multithreading/ThreadManager.h
@@ -8,12 +9,14 @@ set( FREYA_CORE_INCLUDES
 	Include/core/multithreading/details/thread-details.h
 )
 
-source_group("multithreading" FILES
+source_group("Include" FILES Include/FreyaCoreInternal.h )
+
+source_group("Include\\multithreading" FILES
 												./Include/core/multithreading/thread.h
 												./Include/core/multithreading/ThreadManager.h
 )
 			
-source_group("multithreading\\details" FILES
+source_group("Include\\multithreading\\details" FILES
 												./Include/core/multithreading/details/autodetect.h
 												./Include/core/multithreading/details/thread-details.h
 )			
@@ -26,7 +29,7 @@ if( WIN32 )
 		Include/core/multithreading/details/plat-win-thread-data.h
 	)
 
-	source_group("multithreading\\details" FILES
+	source_group("Include\\multithreading\\details" FILES
 												./Include/core/multithreading/details/plat-win-thread.h
 												./Include/core/multithreading/details/plat-win-thread-data.h
 	)
