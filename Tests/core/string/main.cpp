@@ -1,3 +1,7 @@
+#ifdef NDEBUG
+#	undef NDEBUG
+#endif
+
 #include "core/string.h"
 #include <iostream>
 
@@ -10,7 +14,7 @@ int main(int argc, char* argv[])
 #ifdef _MSC_VER
 	SetConsoleOutputCP(65001); //Set utf-8 encoding
 #endif	
-	setlocale(LC_CTYPE, "ru_ru.utf-8");
+	//setlocale(LC_CTYPE, "ru_ru.utf-8");
 	{
 		core::string	empty_string;
 		assert(empty_string.empty());
@@ -84,6 +88,8 @@ int main(int argc, char* argv[])
 		std::cout << rfind_test.to_lower().c_str() << std::endl;
 
 		printf("%s %s\n", russian_string.c_str(), russian_string.to_upper().c_str());
+
+		std::cout << rfind_test.replace("sixth", "seventh").c_str() << std::endl;
 	}
 
 	std::cout << "allocs: " << core::memory::allocation_count << "\ndeallocs: " << core::memory::deallocation_count

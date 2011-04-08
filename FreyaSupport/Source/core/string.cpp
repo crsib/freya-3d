@@ -72,7 +72,28 @@ namespace core
 	{
 		if(r.empty())
 			return *this;
-		return string();
+		
+		FREYA_SUPPORT_ASSERT(r.length() <= m_BufferPtr.get_range().length(),"Invalid range");
+
+		range r_before ( 0,  r.begin() );
+		range r_after  ( r.end(), m_BufferPtr.get_range().length());
+
+		// Calculate amount of memory to use
+		size_t str_size = str.m_BufferPtr.get_range().length();
+
+		size_t bytes_used = r_before.length() + str_size + r_after.length();
+
+		string	out(bytes_used);
+
+		if(!r_before.empty())
+			out.m_BufferPtr.write_buffer(substr(r_before).m_BufferPtr.ptr(),0,r_before.length());
+
+		out.m_BufferPtr.write_buffer(str.m_BufferPtr.ptr(),r_before.length(), str_size);
+
+		if(!r_after.empty())
+			out.m_BufferPtr.write_buffer(substr(r_after).m_BufferPtr.ptr(), r_before.length() + str_size, r_after.length());
+
+		return out;
 	}
 
 } // namespace core
