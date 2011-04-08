@@ -11,6 +11,7 @@
 #include "FreyaSupportInternal.h"
 #include "atomic/memory_order.h"
 
+///
 namespace atomic
 {
 	///
@@ -23,13 +24,6 @@ namespace atomic
 		inline atomic() { }
 		///Initialize atomic with a specified value.
 		inline explicit atomic(const BuiltIn& init_val) : m_variable(init_val) { }
-
-		///Implicit cast to boolean type.
-		/** load<MemoryOrderSequential> with cast to boolean. */
-		//inline operator bool() const;
-		/// Implicit cast to base type.
-		/** load<MemoryOrderSequential> with cast to base type. */
-		//inline operator BuiltIn() const;
 
 		///Compares two atomics for equality.
 		/** */
@@ -77,24 +71,33 @@ namespace atomic
 		inline atomic<BuiltIn>& operator^=(const BuiltIn& rval);
 		*/
 
-		///Load value into memory.
+		///Load value from memory.
 		inline BuiltIn load(const MemoryOrder order = MemoryOrderSequential) const;
-		///Store value from memory.
+		///Store value into memory.
 		inline void store(const BuiltIn& from, const MemoryOrder order = MemoryOrderSequential);
 
-		///
+		/// Atomic bit test and set.
+		/** \param bit_num Bit number [0..sizeof(BuiltIn)*8](depends on base type size) to test
+		  * and set(to 1 if test have returned 0).
+		  * \return Result of the test, i.e. if specified bit was equal to 1(test was failed)
+		  * it will return 1.
+		  */
 		inline unsigned bit_test_and_set(const unsigned bit_num);
-		///
+		/// Atomic bit test and reset.
+		/** \param bit_num Bit number [0..sizeof(BuiltIn)*8](depends on base type size) to test
+		  * and reset(to 0 if test have returned 1).
+		  * \return Result of the test, i.e. if specified bit was equal to 0(test was failed)
+		  * it will return 0.
+		  */
 		inline unsigned bit_test_and_reset(const unsigned bit_num);
 
 	private:
-		/// Copy constructor is depricated(may be for a while).
+		/// Copy constructor is depricated.
 		atomic(const atomic<BuiltIn>&);
 		/// Assignment operator is depricated.
 		atomic<BuiltIn>& operator=(const atomic<BuiltIn>&);
 
 		BuiltIn m_variable;
-		//:TODO: replace with macro
 	};
 }
 
