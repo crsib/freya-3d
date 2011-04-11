@@ -1,4 +1,9 @@
-// This file is a part of Freya 3D Engine
+/* File		: core/Object.h
+ * Author	: Dmitry Vedenko
+ * E-Mail	: dmitry.vedenko@freya3d.org
+ *
+ * This file is a part of Freya3D Engine.
+ */
 
 #ifndef Object_h__
 #define Object_h__
