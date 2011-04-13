@@ -37,6 +37,8 @@ namespace containers
 			for(;first != last; ++first)
 				(*first).~T();
 		}
+
+		//Copying vector
 	}
 
 	template<typename T, template<class> class MAP, class LP, class SRP>
