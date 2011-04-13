@@ -15,7 +15,8 @@
 int main( int argc, char* argv[] )
 {
 	{
-		containers::vector<int> default_int_vector(1000);
+		containers::vector<int> default_int_vector(10);
+		assert( default_int_vector.capacity() == 16 );
 	}
 	
 

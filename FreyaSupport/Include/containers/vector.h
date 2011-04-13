@@ -19,7 +19,8 @@ namespace containers
 		class LockPolicy = policies::multithreading::NoLock,
 		class StorageResizePolicy = policies::storage::Exponential
 	>
-	class vector : private MemoryAllocationPolicy<T>, private LockPolicy, private StorageResizePolicy
+	class vector 
+		: private MemoryAllocationPolicy<T>, private LockPolicy, private StorageResizePolicy
 	{
 	public:
 		//! Destroy a vector
@@ -27,8 +28,13 @@ namespace containers
 		//! Constructs an empty vector
 		vector() : m_AllocatedCount(0),  m_Begin(NULL), m_End(NULL) {}
 		//! Construct an empty vector with reserved storage
-		vector(size_t reserve_count) : m_AllocatedCount(reserve_count), m_Begin(allocate(reserve_count)), m_End(m_Begin) {}
+		vector(size_t reserve_count) : m_AllocatedCount(get_vector_size(reserve_count, 0)), m_Begin(allocate(reserve_count)), m_End(m_Begin) {}
 
+
+		//! Get reserved space size
+		size_t	capacity() const { return m_AllocatedCount; }
+		//! Get reserved space size in bytes
+		size_t	storage_size() const { return m_AllocatedCount * sizeof(T); }
 	private:
 		size_t	m_AllocatedCount;
 		T*	   m_Begin;
