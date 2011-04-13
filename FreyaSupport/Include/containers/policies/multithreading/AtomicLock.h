@@ -8,6 +8,9 @@
 #ifndef Containers_Policies_AtomicLock_h__
 #define Containers_Policies_AtomicLock_h__
 
+#include "integer.h"
+#include "atomic/atomic.h"
+
 namespace containers
 {
 	namespace policies
@@ -17,9 +20,19 @@ namespace containers
 
 			class AtomicLock
 			{
+			public:
+				AtomicLock() : m_Lock(0) {}
+				void		lock() const throw() 
+				{
+					while( m_Lock.bit_test_and_set(0)) ;
+				}
 
-				static void		lock() throw() {}
-				static void		unlock() throw() {}
+				void		unlock() const throw() 
+				{
+					m_Lock.bit_test_and_reset(0);
+				}
+			private:
+				mutable atomic::atomic<size_t>	m_Lock;
 			};
 
 		}

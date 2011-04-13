@@ -17,8 +17,10 @@ namespace containers
 		namespace memory
 		{
 			//! Memory management policy, which uses new uint8_t[sizeof(T)*count] operator for memory allocation
+			template<typename T>
 			class New
 			{
+			public:
 				//! Allocate space for "count" objects
 				/*! 
 				 * Allocate sizeof(T)*count bytes of memory
@@ -26,14 +28,13 @@ namespace containers
 				 * \tparam T is a type
 				 * \return pointer to a newly allocated memory block
 				 */
-				template<typename T>
-				static void* allocate(size_t count) throw() { return reinterpret_cast<void*>(new(nothrow) uint8_t[sizeof(T)*count]); }
+				T* allocate(size_t count) throw() { return reinterpret_cast<T*>(new(nothrow) uint8_t[sizeof(T)*count]); }
 				//! Free previously allocate memory
 				/*!
 				 * Free the memory, allocated by calling New::allocate
 				 * \param p is a pointer, which was retrieved by the call to New::allocate
 				 */
-				static void* deallocate(void* p) throw() { delete [] reinterpret_cast<uint8_t*>(p);}
+				void deallocate(T* p) throw() { delete [] reinterpret_cast<uint8_t*>(p);}
 			};
 		}
 	}

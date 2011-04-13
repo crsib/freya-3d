@@ -8,5 +8,27 @@
 #ifndef Containers_Policies_NoLock_h__
 #define Containers_Policies_NoLock_h__
 
+namespace containers
+{
+	namespace policies
+	{
+		namespace multithreading
+		{
+
+			class NoLock
+			{
+			public:
+				void		lock() const throw() 
+				{
+				}
+
+				void		unlock() const throw() 
+				{
+				}
+			};
+
+		}
+	}
+}
 
 #endif // Containers_Policies_NoLock_h__
