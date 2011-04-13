@@ -10,7 +10,7 @@
 
 //#include "core/multithreading/ThreadBlocks.h"
 
-#define YIELD() ;
+
 #define NDEBUG
 #include <cassert>
 #include <iostream>
@@ -20,6 +20,8 @@
 
 #include "atomic/atomic.h"
 #include "integer.h"
+
+#define YIELD() PAUSE ;
 
 namespace core
 {

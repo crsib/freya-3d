@@ -24,7 +24,7 @@ namespace containers
 				AtomicLock() : m_Lock(0) {}
 				void		lock() const throw() 
 				{
-					while( m_Lock.bit_test_and_set(0)) ;
+					while( m_Lock.bit_test_and_set(0)) PAUSE ;
 				}
 
 				void		unlock() const throw() 
