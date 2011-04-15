@@ -62,6 +62,9 @@ source_group("core\\memory" FILES
 								./Source/core/memory/MemoryImpl.cpp
 )
 
+include ( Include/containers/VectorInc.cmake )
+include ( Include/containers/PoliciesInc.cmake )
+
 # Add UTF8CPP library 
 include_directories( ../3party/utf8cpp )
 

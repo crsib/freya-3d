@@ -48,6 +48,7 @@ set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/Build/Install" CACHE PATH "Default
 set(FREYA_BUILD_SHARED true CACHE BOOL "Build shared version of Freya3D (possibly not supported on some platforms)" )
 set(FREYA_TARGET_PLATFORM "x86" CACHE STRING "Target platform (x86 only, currently)" )
 set(FREYA_USE_ICU	true CACHE BOOL "Use ICU for unicode support in Freya 3D Engine" )
+set(FREYA_USE_EASTL_TYPE_TRAITS true CACHE BOOL "Use EASTL part for type traits" )
 
 string(COMPARE EQUAL "${FREYA_TARGET_PLATFORM}" "x86" FREYA_TARGET_PLATFORM_X86)
 
@@ -115,6 +116,15 @@ if( FREYA_USE_ICU )
 	endif()
 	include_directories( ${ICU_INCLUDE_DIR} )
 	add_definitions( -DFREYA_USE_ICU=1 )
+else()
+	message( FATAL_ERROR "Currently, ICU is a requirement" )
+endif()
+
+if( FREYA_USE_EASTL_TYPE_TRAITS )
+	include_directories ( 3party/EASTL )
+	add_definitions( -DFREYA_USE_EASTL_TYPE_TRAITS=1 )
+else()
+	message( FATAL_ERROR "Currently, EASTL type traits is a requirement" )
 endif()
 
 # Libraries
