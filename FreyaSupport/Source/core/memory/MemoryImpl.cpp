@@ -1,17 +1,13 @@
-/*
- * MemoryImpl.cpp
- *	This file is part of Freya 3D engine. For licensing information
- *  from LICENCE file 
- *  Created on: Nov 14, 2009
- *      Author: Dmitri crsib Vedenko
+/* File		: core/memory/MemoryImpl.h
+ * Author	: Dmitry Vedenko
+ * E-Mail	: dmitry.vedenko@freya3d.org
+ *
+ * This file is a part of Freya3D Engine.
  */
 
 #include "core/memory/MemoryArena.h"
 #include "core/memory/MemoryPools.h"
 
-//#include "core/multithreading/ThreadBlocks.h"
-
-#define YIELD() ;
 #define NDEBUG
 #include <cassert>
 #include <iostream>
@@ -21,6 +17,8 @@
 
 #include "atomic/atomic.h"
 #include "integer.h"
+
+#define YIELD() PAUSE ;
 
 namespace core
 {

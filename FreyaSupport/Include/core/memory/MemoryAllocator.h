@@ -1,3 +1,10 @@
+/* File		: core/memory/MemoryAllocator.h
+ * Author	: Dmitry Vedenko
+ * E-Mail	: dmitry.vedenko@freya3d.org
+ *
+ * This file is a part of Freya3D Engine.
+ */
+
 #ifndef CMEMALLOCATOR_H_
 #define CMEMALLOCATOR_H_
 #include <cctype>
