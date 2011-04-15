@@ -54,13 +54,13 @@ namespace core {
 			}
 		}//namespace thread_self
 
-		thread::thread( )
+		inline thread::thread( )
 		{
 			m_platform_data.m_handle	= NULL;
 			m_platform_data.m_id		= 0;
 		}
 
-		thread::~thread()
+		inline thread::~thread()
 		{
 			kill();
 		}
@@ -81,17 +81,17 @@ namespace core {
 			return NULL;
 		}
 
-		bool thread::is_active( ) const
+		inline bool thread::is_active( ) const
 		{
 			return (m_platform_data.m_handle != NULL);
 		}
 
-		unsigned thread::get_platform_id(void) const
+		inline unsigned thread::get_platform_id(void) const
 		{
 			return static_cast<unsigned>(m_platform_data.m_id);
 		}
 
-		bool thread::join( )
+		inline bool thread::join( )
 		{
 			bool signaled = static_cast<bool>( !WaitForSingleObject(m_platform_data.m_handle, INFINITE) );
 			if(signaled)
@@ -99,7 +99,7 @@ namespace core {
 			return signaled;
 		}
 
-		bool thread::join(const unsigned ms)
+		inline bool thread::join(const unsigned ms)
 		{
 			bool signaled = static_cast<bool>( !WaitForSingleObject(m_platform_data.m_handle, static_cast<DWORD>(ms)) );
 			if(signaled)
@@ -107,7 +107,7 @@ namespace core {
 			return signaled;
 		}
 
-		bool thread::kill()
+		inline bool thread::kill()
 		{
 			bool terminated = (TerminateThread(m_platform_data.m_handle, -1) != 0);
 			if(terminated)

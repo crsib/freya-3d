@@ -2,7 +2,6 @@
 
 #include <atomic/atomic.h>
 #include <core/multithreading/thread.h>
-#include <core/multithreading/ThreadManager.h>
 
 // variable used to thread-safe stdout access, initially locked
 atomic::atomic<short> stdout_sync(1);
