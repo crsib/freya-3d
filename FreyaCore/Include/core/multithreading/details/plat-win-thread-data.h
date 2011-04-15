@@ -1,11 +1,8 @@
-/* File	  : freya/core/multithreading/details/plat-win-thread-data.h
+/* File	  : multithreading/details/plat-win-thread-data.h
  * Author : V. Sverchinsky
- * E-Mail : sverchinsky[at]gmail[dot]com
+ * E-Mail : vitalii.sverchinsky[at]freya3d[dot]org
  *
  * This file is a part of Freya3D Engine.
- *
- * This file contains platform-specific thread data implementation.
- * WARNING : Do not use it directly from your code.
  */
 
 #ifndef PLATFORM_WIN_THREAD_DATA_H_
@@ -22,13 +19,7 @@ namespace core {
 				DWORD	m_id;
 			};
 
-			//TODO add synchronization
-			inline void sync_release_thread_data(thread_data* pdata) {
-				CloseHandle(pdata->m_handle);
-				pdata->m_handle = NULL;
-				pdata->m_id = 0;
-			}
-
+			typedef DWORD tls_index_t;
 		}
 	}
 }

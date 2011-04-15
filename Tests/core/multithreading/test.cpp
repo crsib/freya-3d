@@ -26,30 +26,36 @@ class ThreadRoutine {
 public:
 	// prints arg value passed, which is used to identify object/thread
 	ThreadRoutine(unsigned int arg) : m_data(arg) {
-		using core::multithreading::thread;
+		using namespace core::multithreading;
 
 		while(!try_lock_stdout()) // try to acquire stdout
-			thread::yield(); // switch to another thread on fail
-		std::cout << "Creating ThreadRoutine instance. arg: " << m_data << std::endl;
+			thread_self::yield(); // switch to another thread on fail
+		std::cout << "Creating ThreadRoutine instance..." << std::endl;
+		std::cout << "--> Arg: " << m_data << std::endl;
+		std::cout << "--> UID: " << thread_self::user_id << std::endl;
+		std::cout << "--> PID: " << thread_self::get_platform_id() << std::endl;
 		release_stdout();
 	}
 	// thread routine
 	void run() {
-		using core::multithreading::thread;
-		using core::multithreading::ThreadManager;
+		using namespace core::multithreading;
 
 		while(!try_lock_stdout())
-			thread::yield();
-		std::cout << "->From : " << thread::self().get_platform_id() << std::endl << "->Arg : " << m_data << std::endl;
+			thread_self::yield();
+		std::cout << "Thread routine..." << std::endl;
+		std::cout << "--> From instance " << m_data << std::endl;
+		std::cout << "--> UID: " << thread_self::user_id << std::endl;
+		std::cout << "--> PID: " << thread_self::get_platform_id << std::endl;
 		release_stdout();
 	}
 
 	// prints arg value passed
 	~ThreadRoutine() {
-		using core::multithreading::thread;
+		using namespace core::multithreading;
+
 		while(!try_lock_stdout());
-			thread::yield();
-		std::cout << "Destroying ThreadRoutine instance. arg: " << m_data << std::endl;
+			thread_self::yield();
+		std::cout << "Destroying ThreadRoutine instance " << m_data << "..." << std::endl;
 		release_stdout();
 	}
 
@@ -59,39 +65,35 @@ private:
 
 
 int main(void) {
-	using core::multithreading::ThreadManager;
-	using core::multithreading::thread;
+	using namespace core::multithreading;
 	
 	// unlock stdout, at this moment exists only one thread(main),
-	// but we use store to ensure that all thread created a below
+	// but we use store to ensure that all thread created below
 	// will see that stdout is free to write.
 	if(stdout_sync.load() != 0)
 		stdout_sync.store(0);
 
-	ThreadManager* thread_manager = ThreadManager::createInstance();
+	std::cout << "Main Thread UID : " << thread_self::user_id << std::endl;
 
-	// Create two threads. Runable objects should be allocated on heap.
-	// Then register new threads in thread manager, that should return
-	// unique thread id, which is used for fast access to thread instances. 
-	unsigned id_1 = thread_manager->registerNewThread(thread::create<ThreadRoutine, &ThreadRoutine::run>(*(new ThreadRoutine(1))));
-	unsigned id_2 = thread_manager->registerNewThread(thread::create<ThreadRoutine, &ThreadRoutine::run>(*(new ThreadRoutine(2))));
-
+	ThreadRoutine r1(1);
+	ThreadRoutine r2(2);
+	thread* t1 = thread::create<ThreadRoutine, &ThreadRoutine::run>(r1);
+	thread* t2 = thread::create<ThreadRoutine, &ThreadRoutine::run>(r2);
 	// Wait until first thread will be terminated.
-	if(thread_manager->getThread(id_1).join())
+	if(t1->join())
 	{
 		// second thread, may be, is running
 		while(!try_lock_stdout());
-			thread::yield();
-		std::cout << "Waiting done " << id_1 << std::endl;
+			thread_self::yield();
+		std::cout << "Thread " << t1->get_platform_id() << " joined." << std::endl;
 		release_stdout();
 	}
 
-	if(thread_manager->getThread(id_2).join())
+	if(t2->join())
 		// there is no need in synchronization
-		std::cout << "Waiting done " << id_2 << std::endl;
+		std::cout << "Thread " << t2->get_platform_id() << " joined." << std::endl;
 
-	// release all resources allocated by threads and ThreadManager;
-	ThreadManager::destroyInstance();
-
+	delete t1;
+	delete t2;
 	system("PAUSE");
 }

@@ -32,35 +32,30 @@ namespace atomic
 		inline explicit atomic(const BuiltIn& init_val) : m_variable(init_val) { }
 
 		/// \brief Compares two atomics for equality.
-		/** Load operations for both instances satisfy the sequential consistency model. */
 		inline bool operator==(const atomic<BuiltIn>& other) const
 		{ 
 			return load() == other.load();
 		}
 		/// \brief Compares this atomic and builtin for equality.
-		/** Load operation satisfies the sequential consistency memory model. */
 		inline bool operator==(const BuiltIn& other) const
 		{ 
 			return load() == other;
 		}
 		/// \brief Compares two atomics for inequality.
-		/** Load operations for both instances satisfy the sequential consistency model. */
 		inline bool operator!=(const atomic<BuiltIn>& other) const
 		{ 
 			return load() != other.load();
 		}
 		/// \brief Compares this atomic and builtin for inequality.
-		/** Load operation satisfies the sequential consistency memory model. */
 		inline bool operator!=(const BuiltIn& other) const 
 		{
 			return load() != other; 
 		}
 
-		/// \brief Assignment with cast from builtin.
-		/** Store operation satisfies the sequential consistency memory model. */
+		/// \brief Store(MemoryOrderSequential) with cast from builtin.
 		inline atomic<BuiltIn>& operator=(const BuiltIn& rval)
 		{
-			store(rval, MemoryOrderSequential);
+			store(rval);
 			return *this;
 		}
 
@@ -88,25 +83,26 @@ namespace atomic
 		/// \brief Load value from memory.
 		/** 
 		 * \param order Memory consistency model(see atomic::MemoryOrder).
-		 * \return Local copy of the variable. Result may vary depending on memory consistensy model used.
+		 * \return Local copy of the variable. Result may vary depending on memory order.
 		 */
 		inline BuiltIn load(const MemoryOrder order = MemoryOrderSequential) const;
 		/// \brief Store value into memory.
-		/** The value of variable would be updated immediately if default memory model was used.
+		/** The value of variable would be updated immediately if default memory order was used.
+		 * \param value Value to be stored.
 		 * \param order Memory consistency model(see atomic::MemoryOrder).
-		 * \return Local copy of the variable. Result may vary depending on memory consistensy model used.
+		 * \return Local copy of the variable. Result may vary depending on memory order.
 		 */
-		inline void store(const BuiltIn& source, const MemoryOrder order = MemoryOrderSequential);
+		inline void store(const BuiltIn value, const MemoryOrder order = MemoryOrderSequential);
 
 		/// \brief Atomic bit test and set.
-		/** \param bit Bit number [0..sizeof(BuiltIn)*8](depends on base type size) to test
+		/** \param bit Bit number [0..sizeof(BuiltIn)*8 - 1](depends on base type size) to test
 		  * and set(to 1 if test have returned 0).
 		  * \return Result of the test, i.e. if specified bit was equal to 1(test was failed)
 		  * it will return 1.
 		  */
 		inline unsigned bit_test_and_set(const unsigned bit);
 		/// \brief Atomic bit test and reset.
-		/** \param bit Bit number [0..sizeof(BuiltIn)*8](depends on base type size) to test
+		/** \param bit Bit number [0..sizeof(BuiltIn)*8 - 1](depends on base type size) to test
 		  * and reset(to 0 if test have returned 1).
 		  * \return Result of the test, i.e. if specified bit was equal to 0(test was failed)
 		  * it will return 0.
@@ -114,7 +110,7 @@ namespace atomic
 		inline unsigned bit_test_and_reset(const unsigned bit);
 
 	private:
-		/// Copy constructor is depricated.
+		/// Copy constructor is forbidden.
 		atomic(const atomic<BuiltIn>&);
 		/// Assignment operator is depricated.
 		atomic<BuiltIn>& operator=(const atomic<BuiltIn>&);
