@@ -1,5 +1,5 @@
-#include <atomic/atomic.h>
-#include <core/multithreading/thread-interface.h>
+#include "atomic/atomic.h"
+#include "core/multithreading/thread.h"
 
 namespace core
 {
