@@ -11,95 +11,108 @@
 #ifndef FREYA_PLATFORM_WIN_THREAD_H_
 #define FREYA_PLATFORM_WIN_THREAD_H_
 
-#include "plat-win-thread-data.h"
-#include "../thread.h"
-
-//:TODO: some checks looks unnecessary.
+#include <atomic/atomic.h>
+#include "core/multithreading/thread-interface.h"
 
 namespace core {
 	namespace multithreading {
 		
+		namespace details
+		{
+			__declspec( dllimport ) atomic::atomic<unsigned> __process_thread_counter;
+		}
+
+		namespace thread_self
+		{
+			__declspec( dllimport ) extern core::multithreading::thread_self::local_variable user_id;
+		}
+
 		//Platform thread routine. See WinAPI documentation for details.
         template<typename ObjT, void (ObjT::*Function)(void)>
 		DWORD WINAPI platform_win_thread_routine(LPVOID arg) {
+			thread_self::user_id = details::__process_thread_counter++;
 			ObjT* object = reinterpret_cast<ObjT*>(arg);
 			(object->*Function)();
-            delete object;
 			return 0;
 		}
 
-		thread::thread() : m_platform_data(NULL), m_rights(NoAccessRights) { }
+		namespace thread_self
+		{
+			inline unsigned get_platform_id()
+			{
+				return static_cast<unsigned>( GetCurrentThreadId() );
+			}
 
-		thread::thread(const thread& other) : m_rights(other.m_rights) { 
-			if(other.get_access_rights() & PseudoThread) {
-				m_platform_data = new details::thread_data;
-				m_platform_data->m_handle = other.m_platform_data->m_handle;
-				m_platform_data->m_id = other.m_platform_data->m_id;
-			} else
-				m_platform_data = other.m_platform_data;
+			inline void yield()
+			{
+				SwitchToThread();
+			}
+
+			inline void sleep(const unsigned ms)
+			{
+				Sleep( static_cast<DWORD>(ms) );
+			}
+		}//namespace thread_self
+
+		thread::thread( )
+		{
+			m_platform_data.m_handle	= NULL;
+			m_platform_data.m_id		= 0;
 		}
 
-		thread::~thread() {
-			if(m_rights & PseudoThread)
-				delete m_platform_data;
+		thread::~thread()
+		{
+			kill();
 		}
 
-		thread& thread::operator=(const thread& other) {
-			m_platform_data = other.m_platform_data;
-			m_rights		= other.m_rights;
-			return *this;
-		}
-
-		bool thread::operator ==(const thread& other) const {
-			bool eq = (this->get_platform_id() == other.get_platform_id());
-			return eq;
-		}
-
-		bool thread::operator !=(const thread& other) const {
-			bool neq = (this->get_platform_id() != other.get_platform_id());
-			return neq;
-		}
-
-		bool thread::is_valid(void) const {
-			return (m_platform_data != NULL) && (m_platform_data->m_handle != NULL);
-		}
-
-		unsigned int thread::get_platform_id(void) const {
-			return static_cast<unsigned int>(m_platform_data->m_id);
-		}
-
-		void thread::yield(void) {
-			SwitchToThread();
-		}
-
-		void thread::sleep(const unsigned ms) {
-			Sleep(static_cast<DWORD>(ms));
-		}
-
-		thread thread::self(void) {
-			thread self_thread;
-			self_thread.m_platform_data = new details::thread_data;
-			self_thread.m_platform_data->m_handle = NULL;
-			self_thread.m_platform_data->m_id = GetCurrentThreadId();
-			self_thread.m_rights = PseudoThread; //Thread is not allowed to make self-join or self-kill.
-			return self_thread;
-		}
-
-        template<typename ObjT, void (ObjT::*Function)(void)>
-		thread thread::create(ObjT& object) {
-			thread new_thread;
-			//Save in stack first...
+		template<typename T, void (T::*Func)(void)>
+		inline thread* thread::create(T& runable)
+		{
 			details::thread_data pdata = {NULL, 0};
 			pdata.m_handle = 
-                    CreateThread(NULL, 0, static_cast<LPTHREAD_START_ROUTINE>(&platform_win_thread_routine<ObjT, Function>), &object, 0, &(pdata.m_id));
-			if(pdata.m_handle) {
-				//then copy to thread object...
-				new_thread.m_platform_data = new details::thread_data;
-				new_thread.m_platform_data->m_handle = pdata.m_handle;
-				new_thread.m_platform_data->m_id = pdata.m_id;
-				new_thread.m_rights = AllAccessRights;
+				CreateThread(NULL, 0, static_cast<LPTHREAD_START_ROUTINE>(&platform_win_thread_routine<T, Func>), &runable, 0, &(pdata.m_id));
+			if(pdata.m_handle)
+			{
+				thread* r = new thread;
+				r->m_platform_data.m_handle = pdata.m_handle;
+				r->m_platform_data.m_id = pdata.m_id;
+				return r;
 			}
-			return new_thread;
+			return NULL;
+		}
+
+		bool thread::is_active( ) const
+		{
+			return (m_platform_data.m_handle != NULL);
+		}
+
+		unsigned thread::get_platform_id(void) const
+		{
+			return static_cast<unsigned>(m_platform_data.m_id);
+		}
+
+		bool thread::join( )
+		{
+			bool signaled = static_cast<bool>( !WaitForSingleObject(m_platform_data.m_handle, INFINITE) );
+			if(signaled)
+				m_platform_data.m_handle = NULL;
+			return signaled;
+		}
+
+		bool thread::join(const unsigned ms)
+		{
+			bool signaled = static_cast<bool>( !WaitForSingleObject(m_platform_data.m_handle, static_cast<DWORD>(ms)) );
+			if(signaled)
+				m_platform_data.m_handle = NULL;
+			return signaled;
+		}
+
+		bool thread::kill()
+		{
+			bool terminated = (TerminateThread(m_platform_data.m_handle, -1) != 0);
+			if(terminated)
+				m_platform_data.m_handle = NULL;
+			return terminated;
 		}
 
 	}//namespace multithreading

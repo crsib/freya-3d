@@ -14,7 +14,9 @@
 #include "atomic/atomic-interface.h"
 
 // Intrinsics available on all x86 based machines
-#pragma intrinsic(_ReadWriteBarrier)			// Prevents compiler load/store reorder.
+#pragma intrinsic(_ReadBarrier)					// Prevents compiler to reorder loads across the barrier.
+#pragma intrinsic(_WriteBarrier)				// Prevents compiler to reorder stores across the barrier.
+#pragma intrinsic(_ReadWriteBarrier)			// Prevents compiler to reorder loads/strores across barrier.
 #pragma intrinsic(_interlockedbittestandset)	// bts instruction
 #pragma intrinsic(_InterlockedIncrement)		// Atomic Double word increment
 #pragma intrinsic(_InterlockedDecrement)		// Atomic Double word decrement
@@ -100,7 +102,8 @@ namespace atomic
 				};//ret - eax
 			}
 
-			inline static void exchange(volatile Type* memaddr, const Type value)
+			// As _ReadWriteBarrier()
+			FORCEINLINE static void exchange(volatile Type* memaddr, const Type value)
 			{
 				__asm
 				{
@@ -215,46 +218,58 @@ namespace atomic
 	template<typename BuiltIn>
 	BuiltIn atomic<BuiltIn>::operator++(void)
 	{
-		return details::intrinsics<BuiltIn>::inc(&m_variable) - 1;
+		return details::intrinsics<BuiltIn>::inc(&m_variable);
 	}
 
 	template<typename BuiltIn>
 	BuiltIn atomic<BuiltIn>::operator++(int)
 	{
-		return details::intrinsics<BuiltIn>::inc(&m_variable);
+		return details::intrinsics<BuiltIn>::inc(&m_variable) - 1;
 	}
 
 	template<typename BuiltIn>
 	BuiltIn atomic<BuiltIn>::operator--(void)
 	{
-		return details::intrinsics<BuiltIn>::dec(&m_variable) + 1;
+		return details::intrinsics<BuiltIn>::dec(&m_variable);
 	}
 
 	template<typename BuiltIn>
 	BuiltIn atomic<BuiltIn>::operator--(int)
 	{
-		return details::intrinsics<BuiltIn>::dec(&m_variable);
+		return details::intrinsics<BuiltIn>::dec(&m_variable) + 1;
 	}
 
 	template<typename BuiltIn>
 	BuiltIn atomic<BuiltIn>::load(const MemoryOrder order) const
 	{
-		BuiltIn ret = *reinterpret_cast<volatile const BuiltIn*>(&m_variable); // depricate compiler optimizations
-		details::fence(order);
-		return ret;
-	}
-
-	template<typename BuiltIn> 
-	void atomic<BuiltIn>::store(const BuiltIn& source, const MemoryOrder order)
-	{
-		// make a local copy of the source variable to prevent data corumption
-		BuiltIn temp = *reinterpret_cast<volatile const BuiltIn*>(&source);
 		switch(order)
 		{
 		case(MemoryOrderSequential) :
-			details::intrinsics<BuiltIn>::exchange(&m_variable, temp);
+			{
+				// we must provide read-write barrier here.
+				_WriteBarrier();
+				return *reinterpret_cast<volatile const BuiltIn*>(&m_variable); // read from volatile has acquire(loads are not reordered) semantics.
+			} break;
+		case(MemoryOrderAcquire) :
+			//and only read barrier here
+			return *reinterpret_cast<volatile const BuiltIn*>(&m_variable);
+		};
+		// release or relaxed
+		return m_variable;
+	}
+
+	template<typename BuiltIn>
+	void atomic<BuiltIn>::store(const BuiltIn source, const MemoryOrder order)
+	{
+		switch(order)
+		{
+		case(MemoryOrderSequential) : 
+			details::intrinsics<BuiltIn>::exchange(&m_variable, source); // interlocked exchange operation provides read-write barrier.
+		case(MemoryOrderRelease) :
+			*static_cast<volatile BuiltIn*>(&m_variable) = source; // write to volatile has release semantics
 			break;
-		default:
+		default: // relaxed or acquire
+			m_variable = source;
 			break;
 		};
 	}
