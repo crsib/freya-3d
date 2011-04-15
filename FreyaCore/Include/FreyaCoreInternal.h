@@ -1,3 +1,10 @@
+/* File		: FreyaCoreInternal.h
+ * Author	: Dmitry Vedenko
+ * E-Mail	: dmitry.vedenko@freya3d.org
+ *
+ * This file is a part of Freya3D Engine.
+ */
+
 #ifndef __FREYA_CORE_INTERNAL_H__
 #define __FREYA_CORE_INTERNAL_H__
 
