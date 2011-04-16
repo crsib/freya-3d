@@ -19,8 +19,8 @@ namespace containers
 			public:
 				size_t		get_vector_size( size_t required_size, size_t current_size ) const
 				{
-					if( 2*required_size <= current_size )
-						return current_size / 2;
+					//if( 2*required_size <= current_size )
+					//	return current_size / 2;
 					if(current_size == 0)
 						current_size = 1;
 					while(required_size > current_size)

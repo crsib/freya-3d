@@ -8,7 +8,6 @@
 #include "core/memory/MemoryArena.h"
 #include "core/memory/MemoryPools.h"
 
-#define NDEBUG
 #include <cassert>
 #include <iostream>
 
