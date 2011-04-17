@@ -58,6 +58,8 @@ int main( int argc, char* argv[] )
 		default_int_vector.insert(default_int_vector.begin()+1, 2);//1,2,3
 		default_int_vector.insert(default_int_vector.end(), 4);//1,2,3,4
 
+		default_int_vector.insert(default_int_vector.begin() + 2, 10, 10);
+
 		for( vector<int>::iterator it = default_int_vector.begin(), end = default_int_vector.end(); it != end; ++it )
 			std::cout << *it << " ";
 		std::cout << std::endl;
