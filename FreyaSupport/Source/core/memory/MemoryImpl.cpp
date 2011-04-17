@@ -95,13 +95,7 @@ public:
 
 			m_First->prev  = m_First->next = NULL;
 			m_First->magic = FREE_BLOCK_MARK;
-			m_First->size  = m_Size - m_Allocated;
-
-			//Write log
-			std::clog << "Allocated memory buffer:\n\tSize: " << m_Size / (1024.0*1024.0)<< " MB\n\tAvailable: " << m_First->size / (1024.0*1024.0)
-																																																			<< " MB\n\tAlignment: " << m_Alignment
-																																																			<< " B\n\tPool: " << (pool < LAST_POOL ? pool_name_srings[pool] : pool_name_srings[LAST_POOL]) << std::endl;
-
+			m_First->size  = m_Size - m_Allocated;																																																
 		} // m_Buffer != NULL
 		else
 		{
@@ -117,8 +111,6 @@ public:
 		allocated_for_buffers -= m_Size;
 		free( m_Buffer );
 		m_Buffer = NULL;
-		std::clog << "Deallocated memory buffer:\n\tSize: " << m_Size / (1024.0*1024.0)
-																																																		<< " MB\n\tPool: " << (m_ParentPool < LAST_POOL ? pool_name_srings[m_ParentPool] : pool_name_srings[LAST_POOL]) << std::endl;
 	}
 
 	inline
@@ -228,7 +220,7 @@ private:
 					assert((reinterpret_cast<uint32_t>((reinterpret_cast<uint8_t*>(slice) + sizeof(__MemoryHeader))) % m_Alignment) == 0 );
 					slice->size = block->size - (sizeof(__MemoryHeader) + size + m_HeaderOffset);
 
-					assert((reinterpret_cast<uint8_t*>(slice) - (reinterpret_cast<uint8_t*>(block) + sizeof(__MemoryHeader))) >= size );
+					assert((reinterpret_cast<uint8_t*>(slice) - (reinterpret_cast<uint8_t*>(block) + sizeof(__MemoryHeader))) >= static_cast<ptrdiff_t>(size) );
 
 					block->size = size;
 					slice->next = block->next;
@@ -961,15 +953,12 @@ MemoryArena::MemoryArena()
 	m_Pools.push_back(new __internal::MemoryPool(GENERIC_POOL,1024*4024,16));
 	m_Pools.push_back(new __internal::MemoryPool(CLASS_POOL,1024*4096,16));
 	m_Pools.push_back(new __internal::MemoryPool(LUA_POOL,1024*1024,16));
-
-	std::clog << "Memory arena created " << std::endl;
 }
 
 MemoryArena::~MemoryArena()
 {
 	for(size_t i = m_Pools.size() ; i > 0; --i)
 		delete m_Pools[ i - 1 ];
-	std::clog << "Memory arena destroyed " << std::endl;
 }
 
 MemoryArena*	MemoryArena::instance()
