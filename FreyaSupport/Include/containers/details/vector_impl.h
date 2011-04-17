@@ -90,6 +90,24 @@ namespace containers
 				::new(--result) T(*(--last));
 			return result + dist;
 		}
+
+		template<typename T>
+		inline
+			T*	__vector_fill_helper( T* result, typename const_reference<T>::type obj, size_t n, eastl::true_type)
+		{
+			for(size_t i = 0; i < n; ++i, ++result)
+				*result = obj;
+			return result;
+		}
+
+		template<typename T>
+		inline 
+			T* __vector_fill_helper(T* result, typename const_reference<T>::type obj, size_t n, eastl::false_type)
+		{
+			for(size_t i = 0; i < n; ++i)
+				::new(result++) T(obj);
+			return result;
+		}
 	}
 
 	template<typename T, template<class> class MAP, class LP, class SRP>
@@ -172,8 +190,57 @@ namespace containers
 		>
 		void containers::vector<T, MemoryAllocationPolicy, LockPolicy, StorageResizePolicy>::insert( iterator position, size_t n, constant_refernce obj )
 	{
+		lock();
+		if(!m_Begin)
+		{
+			m_AllocatedCount = get_vector_size(n, 0);
+			m_Begin = allocate(m_AllocatedCount);
+			m_End = details::__vector_fill_helper(m_Begin, obj, n, eastl::has_trivial_copy<T>());
+		}
+		else if( (m_End - m_Begin) > (m_AllocatedCount - n) )
+		{
+			const size_t current_size = m_End - m_Begin;
+			const size_t new_size = get_vector_size(current_size + n, m_AllocatedCount);
+			T*	new_memory_ptr = allocate(new_size);
+			if(position <= m_Begin)
+			{
+				details::__vector_fill_helper(new_memory_ptr, obj, n, eastl::has_trivial_copy<T>());
+				m_End = details::__vector_copy_helper(m_Begin, m_End, new_memory_ptr + n, eastl::has_trivial_copy<T>());
+			}
+			else if(position >= m_End)
+			{
+				m_End = details::__vector_copy_helper(m_Begin, m_End, new_memory_ptr, eastl::has_trivial_copy<T>());
+				m_End = details::__vector_fill_helper(m_End, obj, n, eastl::has_trivial_copy<T>());
+			}
+			else //Worst case
+			{
+				T* mem = details::__vector_copy_helper(m_Begin, position, new_memory_ptr, eastl::has_trivial_copy<T>());
+				mem = details::__vector_fill_helper(mem, obj, n, eastl::has_trivial_copy<T>());
+				m_End = details::__vector_copy_helper(position, m_End, mem, eastl::has_trivial_copy<T>());
+			}
+			deallocate(m_Begin);
+			m_Begin = new_memory_ptr;
+		}
+		else
+		{
+			if(position <= m_Begin)
+			{
+				m_End = details::__vector_copy_backward_helper(m_Begin, m_End, m_Begin + n, eastl::has_trivial_copy<T>());
+				details::__vector_fill_helper(m_Begin, obj,n, eastl::has_trivial_copy<T>());
+			}
+			else if(position >= m_End)
+			{
+				m_End = details::__vector_fill_helper(m_End, obj,n, eastl::has_trivial_copy<T>());
+			}
+			else //Worst case
+			{
+				m_End = details::__vector_copy_backward_helper(position, m_End, position + n, eastl::has_trivial_copy<T>());
+				details::__vector_fill_helper(position, obj, n, eastl::has_trivial_copy<T>());
+			}
+		}
+		unlock();
+	} //void containers::vector<T, MemoryAllocationPolicy, LockPolicy, StorageResizePolicy>::insert( iterator position, size_t n, constant_refernce obj )
 
-	}
 
 	template
 		<
@@ -189,7 +256,7 @@ namespace containers
 		{
 			m_AllocatedCount = get_vector_size(1, 0);
 			m_Begin = allocate(m_AllocatedCount);
-			m_End = m_Begin;
+			m_End = details::__vector_copy_helper(m_Begin,obj,eastl::has_trivial_copy<T>());
 		}
 		else if( (m_End - m_Begin) == m_AllocatedCount )
 		{
@@ -234,7 +301,7 @@ namespace containers
 			}
 		}
 		unlock();
-	}
+	} // void containers::vector<T, MemoryAllocationPolicy, LockPolicy, StorageResizePolicy>::insert( iterator position, constant_refernce obj )
 
 	template
 		<
