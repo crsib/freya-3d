@@ -45,6 +45,7 @@ int main( int argc, char* argv[] )
 		float_vector.insert(float_vector.begin(), -1);
 		float_vector.insert(float_vector.begin() + 2, 666.0f);
 		float_vector.insert(float_vector.end(), 1000.f);
+		float_vector.insert(float_vector.begin() + 2, some_array, some_array + 3);
 		for(float_vector_t::const_iterator it = float_vector.begin(), end = float_vector.end(); it != end; ++it)
 			std::cout << *it << " ";
 		std::cout << std::endl;
