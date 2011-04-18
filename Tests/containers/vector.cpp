@@ -16,15 +16,18 @@ class TestClass
 {
 	unsigned m_Data;
 public:
-	TestClass() : m_Data (0) { std::cout << "TestClass::TestClass()" << std::endl; }
-	TestClass(unsigned data) : m_Data(data) {std::cout << "TestClass::TestClass(unsigned)" << std::endl;}
-	TestClass(const TestClass& other) : m_Data(other.m_Data) { std::cout << "TestClass::TestClass(const TestClass&)" << std::endl; }
-	~TestClass() { std::cout << "TestClass::~TestClass()" << std::endl; }
+	static unsigned instance_count;
+	TestClass() : m_Data (0) { std::cout << "TestClass::TestClass()" << std::endl; instance_count++; }
+	TestClass(unsigned data) : m_Data(data) {std::cout << "TestClass::TestClass(unsigned)" << std::endl; instance_count++;}
+	TestClass(const TestClass& other) : m_Data(other.m_Data) { std::cout << "TestClass::TestClass(const TestClass&)" << std::endl; instance_count++;}
+	~TestClass() { std::cout << "TestClass::~TestClass()" << std::endl; instance_count--;}
 	TestClass& operator = (const TestClass& rhs) { m_Data = rhs.m_Data; std::cout << "TestClass& operator = (const TestClass&)" << std::endl; return *this; }
 	
 	unsigned	getData() const { return m_Data; }
 	void		setData(unsigned data) { m_Data = data; }
 };
+
+unsigned TestClass::instance_count = 0;
 
 int main( int argc, char* argv[] )
 {
@@ -81,6 +84,10 @@ int main( int argc, char* argv[] )
 		for( vector<TestClass>::iterator it = test_class_container.begin(), end = test_class_container.end(); it != end; ++it )
 			std::cout << it->getData() << " ";
 		std::cout << std::endl;
+
+		test_class_container.clear();
+		std::cout << "Instance count " << TestClass::instance_count << std::endl;
+		//assert(TestClass::instance_count == 0);
 	}
 	
 
