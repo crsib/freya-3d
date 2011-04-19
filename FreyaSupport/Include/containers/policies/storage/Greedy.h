@@ -16,6 +16,12 @@ namespace containers
 	{
 		namespace storage
 		{
+			//! "Greedy" growth of storage size
+			/*! 
+			 * Returns required_size always, allowing to allocate the storage space not larger,
+			 * than needed
+			 */
+			//! \ingroup grpContainers_Policies_Storage
 			class Greedy
 			{
 			public:

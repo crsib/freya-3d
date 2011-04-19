@@ -13,20 +13,25 @@ namespace containers
 	//! Make a constant reference type
 	template<class T> 
 	struct	const_reference { typedef const T& type; };
+	//! Make a constant reference type
 	template<class  T>
 	struct const_reference<const T> { typedef const T& type;	};
+	//! Make a constant reference type
 	template<class  T>
 	struct const_reference<const T&> { typedef const T& type; };
+	//! Make a constant reference type
 	template<class  T>
 	struct const_reference<T&> { typedef const T& type; };
-	//! Make a constant pointer reference type
+	//! Make a constant pointer type
 	template<class T> 
 	struct	const_pointer { typedef const T* type; };
+	//! Make a constant pointer type
 	template<class  T>
 	struct const_pointer<const T> { typedef const T* type;	};
 	//!Make constant from a type
 	template<class T>
 	struct constant { typedef const T type; }; 
+	//!Make constant from a type
 	template<class T>
 	struct constant<const T> { typedef const T type; }; 
 }

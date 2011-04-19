@@ -13,6 +13,27 @@
 
 namespace containers
 {
+	//! Container, implementing dynamic array properties
+	/*!
+	 * vector is a container, which implements the semantics of dynamic array.
+	 * It has strictly linear in memory representation and constant time to access it's elements.
+	 * On the other hand, inserting/erasing ranges in the vector could lead to expensive
+	 * memory copying operations. Current implementation of vector is not an implementation of the C++ STL vector, despite it is very close to it
+	 * <BR> <BR>
+	 * The vector is controlled by the following policies:
+	 * - MemoryAllocationPolicy controls, what kind of memory management routines will be used to allocate storage space for the vector.
+	 *    vector supports all policies in \ref grpContainers_Policies_Memory
+	 * - LockPolicy controls the thread safety properties. Selected policy will control the thread safety of operations modifying vector storage space.
+	 *    Policy is not applied to access/modification of elements, contained inside the vector. All policies in \ref grpContainers_Policies_MultiThreading are supported
+	 * - StorageResizePolicy controls the behavior of vector storage space resizing. Please note, that policy only controls vector storage expansion. 
+	 *    vector storage will never shrink, unless reset is explicitly called. containers::policies::storage::Exponential, containers::policies::storage::FixedSize 
+	 *    and containers::policies::storage::Greedy policies are supported by the implementation
+	 * \tparam T denotes the type of the dynamic array created. Please note, that non pod types should provide both copy constructor and operator = in order to function correctly
+	 * \tparam MemoryAllocationPolicy controls the memory allocation policy. Default - is allocator, based on Freya internal memory management functions
+	 * \tparam LockPolicy controls the thread safety of the vector. Default is not thread safe vector
+	 * \tparam StorageResizePolicy controls the storage resize of the vector. Default provides the same behavior, as most of std::vector implementations
+	 */
+	//! \ingroup grpContainers
 	template
 	<
 		typename T,
@@ -36,8 +57,9 @@ namespace containers
 		typedef typename const_reference<T>::type constant_refernce;
 		//! Reverse iterator implementation
 		/*!
-		 * This a wrapper around an vector iterator, which allows reverse iteration through the container
+		 * This is a wrapper around an vector iterator, which allows reverse iteration through the container.
 		 * It emulates the normal iterator behavior (a pointer, in this case)
+		 * \tparam T denotes the internal type of the iterator
 		 */
 		template<typename T>
 		class reverse_iterator_impl
@@ -47,35 +69,48 @@ namespace containers
 			T*	m_Ptr;
 			reverse_iterator_impl () {}
 		public:
+			//! Create a reverse iterator starting at ptr
 			explicit reverse_iterator_impl(T* ptr) { m_Ptr = ptr; }
+			//! Copy constructor, provided for convenience
 			reverse_iterator_impl(const reverse_iterator_impl& other) : m_Ptr(other.m_Ptr) {}
-			//Requires implicit cast
+			//! Copy constructor, allowing to construct constant iterators from non constant ones
 			template<typename U>
 			reverse_iterator_impl(const reverse_iterator_impl<U>& other) : m_Ptr(other.m_Ptr) {}
+			//! Assignment operator, provided for convenience
 			reverse_iterator_impl& operator = (const reverse_iterator_impl& rhs) { m_Ptr = rhs.m_Ptr; return *this;}
-
+			//! Prefix increment operator
 			reverse_iterator_impl& operator ++ () { --m_Ptr; return *this; }
+			//! Postfix increment operator
 			reverse_iterator_impl  operator ++ (int) { return reverse_iterator_impl(m_Ptr--); }
-
+			//! Prefix decrement operator
 			reverse_iterator_impl& operator -- () { ++m_Ptr; return *this; }
+			//! Postfix decrement operator
 			reverse_iterator_impl  operator -- (int) { return reverse_iterator_impl(m_Ptr++); }
-
+			//! Addition operator, to provide random access semantics
 			reverse_iterator_impl  operator + (size_t offset) const { return reverse_iterator_impl(m_Ptr - offset); }
+			//! Subtraction operator, to provide random access semantics
 			reverse_iterator_impl  operator - (size_t offset) const { return reverse_iterator_impl(m_Ptr + offset); }
+			//! Subtraction operator for distance calculations
 			ptrdiff_t  operator - (reverse_iterator_impl const& offset) const { return reverse_iterator_impl(offset.m_Ptr - m_Ptr); }
-
+			//! Addition operator, to provide random access semantics
 			reverse_iterator_impl&  operator += (size_t offset) { return *this = reverse_iterator_impl(m_Ptr - offset); }
+			//! Subtraction operator, to provide random access semantics
 			reverse_iterator_impl&  operator -= (size_t offset) { return *this = reverse_iterator_impl(m_Ptr + offset); }
 
+			//! Retrieve the reference to the type
 			T&	operator * () { return *m_Ptr; }
+			//! Retrieve the const reference to the type
 			typename const_reference<T>::type
 				operator * () const { return *m_Ptr; }
+			//! Provide pointer semantics
 			T*	operator -> () { return m_Ptr; }
+			//! Provide const pointer semantics
 			typename const_pointer<T>::type
 				operator -> () const { return m_Ptr; }
-
+			//! Compare two iterators for equality
 			friend
 				inline bool operator == (const reverse_iterator_impl& lhs, const reverse_iterator_impl& rhs) { return lhs.m_Ptr == rhs.m_Ptr; }
+			//! Compare two iterators for inequality
 			friend
 				inline bool operator != (const reverse_iterator_impl& lhs, const reverse_iterator_impl& rhs) { return lhs.m_Ptr != rhs.m_Ptr; }
 
@@ -110,29 +145,29 @@ namespace containers
 			return *(m_Begin + idx);
 		}
 
-		//! 
+		//! Returns an iterator referring to the first element in the vector container
 		iterator		begin() { return m_Begin; }
-		//! 
+		//! Returns an iterator referring to the past-the-end element in the vector container
 		iterator		end() { return m_End; }
-		//!
+		//! Returns an iterator referring to the first element in the vector container (const version)
 		const_iterator	begin() const { return m_Begin; }
-		//!
+		//! Returns an iterator referring to the past-the-end element in the vector container (const version)
 		const_iterator  end() const { return m_End; }
-		//! 
+		//! Returns a reverse iterator referring to the last element in the vector container
 		reverse_iterator rbegin() { FREYA_SUPPORT_ASSERT(m_End,"Empty vector"); return reverse_iterator(m_End - 1); }
-		//!
+		//! Returns a reverse iterator referring to the before-the-first element in the vector container
 		reverse_iterator rend() { FREYA_SUPPORT_ASSERT(m_Begin,"Empty vector"); return reverse_iterator(m_Begin - 1);}
-		//! 
+		//! Returns a reverse iterator referring to the before-the-first element in the vector container (const version)
 		const_reverse_iterator rbegin() const { FREYA_SUPPORT_ASSERT(m_End,"Empty vector"); return const_reverse_iterator(m_End - 1); }
-		//!
+		//! Returns a reverse iterator referring to the before-the-first element in the vector container (const version)
 		const_reverse_iterator rend() const { FREYA_SUPPORT_ASSERT(m_Begin,"Empty vector"); return const_reverse_iterator(m_Begin - 1);}
-		//!
+		//! Return the reference to the first element
 		reference			   front() { FREYA_SUPPORT_ASSERT(m_Begin < m_End,"Empty vector"); return *m_Begin; }
-		//!
+		//! Return the reference to the last element
 		reference			   back()  { FREYA_SUPPORT_ASSERT(m_Begin < m_End,"Empty vector"); return *(m_End-1); }	
-		//!
+		//! Return constant reference to the first element
 		constant_refernce	   front() const { FREYA_SUPPORT_ASSERT(m_Begin < m_End,"Empty vector"); return *m_Begin; }
-		//!
+		//! Return constant reverence to the last element
 		constant_refernce	   back() const { FREYA_SUPPORT_ASSERT(m_Begin < m_End,"Empty vector"); return *(m_End-1); }	
 		//! Get reserved space size
 		size_t	capacity() const { return m_AllocatedCount; }
@@ -156,18 +191,20 @@ namespace containers
 		//! Insert range of items into the vector
 		void	insert(iterator	position, const_iterator first, const_iterator last);
 
-		//!
+		//! Erase an element at position
 		void	erase( iterator position );
-		//!
+		//! Erase [first,last) range of elements 
 		void	erase( iterator first, iterator last );
+
 		//! Reset the vector
 		/*!
 		 * Clean up the memory, used by the vector and delete all vector elements
 		 */
 		void	reset();
+
 		//! Clear the vector
-		/*
-		 * Destroy all objects within vector without deallocating memory
+		/*!
+		 * Destroy all objects within the vector without deallocating memory used
 		 */
 		void	clear();
 	private:

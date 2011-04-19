@@ -14,7 +14,8 @@ namespace containers
 	{
 		namespace multithreading
 		{
-
+			//! \brief Policy for the cases, when the container does not need to be thread safe
+			//! \ingroup grpContainers_Policies_MultiThreading
 			class NoLock
 			{
 			public:

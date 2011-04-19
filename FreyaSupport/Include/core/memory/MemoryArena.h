@@ -61,9 +61,11 @@ namespace __internal
 class MemoryPool;
 }
 
+//! \ brief Core memory management routine
 class FREYA_SUPPORT_EXPORT MemoryArena
 {
 public:
+	//! \brief Retrieve the current instance of memory arena
 	static MemoryArena*		instance();
 	MemoryArena();
 	virtual ~MemoryArena();
