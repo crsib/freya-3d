@@ -68,19 +68,22 @@ int main( int argc, char* argv[] )
 			std::cout << *it << " ";
 		std::cout << std::endl;
 
-		containers::vector<TestClass> test_class_container;
+		containers::vector<TestClass> test_class_container(20);
 
 		std::cout << "Push" << std::endl;
 		test_class_container.push_back(TestClass());
 		test_class_container.back().setData(1);
 		std::cout << "Pop" << std::endl;
 		test_class_container.pop_back();
+		std::cout << "Instance count " << TestClass::instance_count << std::endl;
 
 		test_class_container.insert(test_class_container.begin(), TestClass(3)); //3
 		test_class_container.insert(test_class_container.begin(), TestClass(1)); //1,3
 		test_class_container.insert(test_class_container.begin()+1, TestClass(2));//1,2,3
 		test_class_container.insert(test_class_container.end(), TestClass(4));//1,2,3,4
-
+		//1,1,2,3,4,2,3,4
+		test_class_container.insert(test_class_container.begin() + 1, test_class_container.begin(), test_class_container.end());
+		test_class_container.erase(test_class_container.begin() + 2, test_class_container.begin() + 4);
 		for( vector<TestClass>::iterator it = test_class_container.begin(), end = test_class_container.end(); it != end; ++it )
 			std::cout << it->getData() << " ";
 		std::cout << std::endl;
