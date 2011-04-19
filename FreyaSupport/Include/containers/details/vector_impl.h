@@ -107,7 +107,7 @@ namespace containers
 
 		template<typename T>
 		inline
-			T*	__vector_impl_copy_backward_helper(T* first, T* last, T* result, eastl::true_type)
+			T*	__vector_impl_copy_unitialized_backward_helper(T* first, T* last, T* result, eastl::true_type)
 		{
 			::memmove(result, first, (last - first) * sizeof(T));
 			return result + (last - first);
@@ -115,7 +115,7 @@ namespace containers
 
 		template<typename T>
 		inline 
-			T* __vector_impl_copy_backward_helper(T* first, T* last, T* result, eastl::false_type)
+			T* __vector_impl_copy_unitialized_backward_helper(T* first, T* last, T* result, eastl::false_type)
 		{
 			const size_t dist = last - first;
 			result += dist;
@@ -197,15 +197,16 @@ namespace containers
 		if(last > m_End)
 			last = m_End;
 
-		// Call destructors
-		details::__vector_impl_destructor_helper(first,last,eastl::has_trivial_destructor<T>());
-
 		// Move the rest
+		T* ptr;
 		if(last < m_End)
-		{
-			size_t count = first - last;
+			ptr = details::__vector_impl_copy_helper(last, m_End, first, east::has_trivial_assign<T>());
+		else
+			ptr = first;
+		
+		details::__vector_impl_destructor_helper(ptr, m_End, eastl::has_trivial_destructor<T>());
 
-		}
+		m_End = ptr;
 
 		unlock();
 	} // void containers::vector<T, MemoryAllocationPolicy, LockPolicy, StorageResizePolicy>::erase( iterator first, iterator last )
@@ -271,7 +272,7 @@ namespace containers
 		{
 			if(position <= m_Begin)
 			{
-				m_End = details::__vector_impl_copy_backward_helper(m_Begin, m_End, m_Begin + elem_count, eastl::has_trivial_copy<T>());
+				m_End = details::__vector_impl_copy_unitialized_backward_helper(m_Begin, m_End, m_Begin + elem_count, eastl::has_trivial_copy<T>());
 				details::__vector_impl_copy_unintialized_helper( first, last, m_Begin, eastl::has_trivial_copy<T>());
 			}
 			else if(position >= m_End)
@@ -280,7 +281,7 @@ namespace containers
 			}
 			else
 			{
-				m_End = details::__vector_impl_copy_backward_helper(position, m_End, position + elem_count, eastl::has_trivial_copy<T>());
+				m_End = details::__vector_impl_copy_unitialized_backward_helper(position, m_End, position + elem_count, eastl::has_trivial_copy<T>());
 				details::__vector_impl_copy_unintialized_helper( first, last, position, eastl::has_trivial_copy<T>());
 			}
 		}
@@ -331,7 +332,7 @@ namespace containers
 		{
 			if(position <= m_Begin)
 			{
-				m_End = details::__vector_impl_copy_backward_helper(m_Begin, m_End, m_Begin + n, eastl::has_trivial_copy<T>());
+				m_End = details::__vector_impl_copy_unitialized_backward_helper(m_Begin, m_End, m_Begin + n, eastl::has_trivial_copy<T>());
 				details::__vector_impl_fill_helper(m_Begin, obj,n, eastl::has_trivial_copy<T>());
 			}
 			else if(position >= m_End)
@@ -340,7 +341,7 @@ namespace containers
 			}
 			else //Worst case
 			{
-				m_End = details::__vector_impl_copy_backward_helper(position, m_End, position + n, eastl::has_trivial_copy<T>());
+				m_End = details::__vector_impl_copy_unitialized_backward_helper(position, m_End, position + n, eastl::has_trivial_copy<T>());
 				details::__vector_impl_fill_helper(position, obj, n, eastl::has_trivial_copy<T>());
 			}
 		}
@@ -393,7 +394,7 @@ namespace containers
 		{
 			if(position <= m_Begin)
 			{
-				m_End = details::__vector_impl_copy_backward_helper(m_Begin, m_End, m_Begin + 1, eastl::has_trivial_copy<T>());
+				m_End = details::__vector_impl_copy_unitialized_backward_helper(m_Begin, m_End, m_Begin + 1, eastl::has_trivial_copy<T>());
 				details::__vector_impl_copy_unintialized_helper(m_Begin, obj, eastl::has_trivial_copy<T>());
 			}
 			else if(position >= m_End)
@@ -402,7 +403,7 @@ namespace containers
 			}
 			else //Worst case
 			{
-				m_End = details::__vector_impl_copy_backward_helper(position, m_End, position + 1, eastl::has_trivial_copy<T>());
+				m_End = details::__vector_impl_copy_unitialized_backward_helper(position, m_End, position + 1, eastl::has_trivial_copy<T>());
 				details::__vector_impl_copy_unintialized_helper(position, obj, eastl::has_trivial_copy<T>());
 			}
 		}
