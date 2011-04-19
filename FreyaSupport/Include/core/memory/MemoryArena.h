@@ -9,10 +9,14 @@
 #define MEMORYARENA_H_
 
 #include <cstdlib>
-#include <vector>
 
 #include "core/memory/MemoryPools.h"
 #include "FreyaSupportInternal.h"
+
+#include "containers/vector.h"
+#include "containers/policies/memory/Malloc.h"
+#include "containers/policies/multithreading/AtomicLock.h"
+#include "containers/policies/storage/Greedy.h"
 
 namespace core
 {
@@ -97,8 +101,12 @@ public:
 	 */
 	void		free(void* p,unsigned pool = 0);
 private:
-	std::vector<__internal::MemoryPool*>		m_Pools;
-
+	//std::vector<__internal::MemoryPool*>		m_Pools;
+	typedef containers::vector<__internal::MemoryPool*, 
+		containers::policies::memory::Malloc, 
+		containers::policies::multithreading::AtomicLock,
+		containers::policies::storage::Greedy> pool_vector_t;
+	pool_vector_t	m_Pools;
 };
 
 } //Namespace memory

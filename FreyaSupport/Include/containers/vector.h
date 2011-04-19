@@ -5,14 +5,24 @@
  * This file is a part of Freya3D Engine.
  */
 
-#ifndef vector_h__
-#define vector_h__
+#ifndef Containers_vector_h__
+#define Containers_vector_h__
 
-#include "containers/policies/Policies.h"
 #include "containers/type_utils.h"
+#include "FreyaSupportInternal.h"
 
 namespace containers
 {
+	namespace policies
+	{
+		namespace memory
+		{ template<typename T> class FreyaAllocator; }
+		namespace multithreading
+		{ class NoLock; }
+		namespace storage
+		{ class Exponential; }
+	}
+
 	//! Container, implementing dynamic array properties
 	/*!
 	 * vector is a container, which implements the semantics of dynamic array.
@@ -207,6 +217,9 @@ namespace containers
 		 * Destroy all objects within the vector without deallocating memory used
 		 */
 		void	clear();
+
+		//! Reserve the storage space in vector
+		void	reserve(size_t count); 
 	private:
 		size_t	m_AllocatedCount;
 		T*	   m_Begin;
@@ -219,7 +232,7 @@ namespace containers
 	};
 }
 
-#ifndef vector_impl_h__
+#ifndef Containers_vector_impl_h__
 #include "containers/details/vector_impl.h"
 #endif
 

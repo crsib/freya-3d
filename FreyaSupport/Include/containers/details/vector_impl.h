@@ -4,12 +4,12 @@
  *
  * This file is a part of Freya3D Engine.
  */
-#ifndef vector_impl_h__
-#define vector_impl_h__
+#ifndef Containers_vector_impl_h__
+#define Containers_vector_impl_h__
 
-#include "containers/policies/Policies.h"
+#include "integer.h"
 
-#ifndef vector_h__
+#ifndef Containers_vector_h__
 #	include "containers/vector.h"
 #endif //vector_h_
 
@@ -450,6 +450,43 @@ namespace containers
 		m_End = details::__vector_impl_copy_unintialized_helper(m_End, obj, eastl::has_trivial_copy<T>());
 
 		unlock();
+	}
+
+	template
+	<
+		typename T,
+		template<class> class MemoryAllocationPolicy,
+		class LockPolicy,
+		class StorageResizePolicy
+	>
+	void vector<T, MemoryAllocationPolicy, LockPolicy, StorageResizePolicy>::reserve( size_t count )
+	{
+		if(m_Begin == NULL) //Trivial case
+		{
+			m_AllocatedCount = get_vector_size(count, 0);
+			m_Begin = m_End = allocate(m_AllocatedCount);
+		}
+		else if( count > m_AllocatedCount )
+		{
+			if(m_Begin == m_End)
+			{
+				m_AllocatedCount = get_vector_size(count, 0);
+				m_End = allocate(m_AllocatedCount);
+				deallocate(m_Begin);
+				m_Begin = m_End;
+			}
+			else
+			{
+				const size_t current_size = m_End - m_Begin;
+				const size_t new_size = get_vector_size(count,m_AllocatedCount);
+				T* memptr = allocate(new_size);
+
+				m_End = details::__vector_impl_copy_unintialized_helper(m_Begin, m_End, memptr,eastl::has_trivial_copy<T>());
+				details::__vector_impl_destructor_helper(m_Begin, m_Begin + current_size, eastl::has_trivial_destructor<T>());
+				m_AllocatedCount = count;
+				m_Begin = memptr;
+			}
+		}
 	}
 }
 
