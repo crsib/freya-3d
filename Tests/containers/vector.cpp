@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include "containers/vector.h"
+#include "containers/policies/Policies.h"
 
 class TestClass
 {
@@ -90,6 +91,7 @@ int main( int argc, char* argv[] )
 
 		test_class_container.clear();
 		std::cout << "Instance count " << TestClass::instance_count << std::endl;
+		assert(TestClass::instance_count == 0);
 		//assert(TestClass::instance_count == 0);
 	}
 	

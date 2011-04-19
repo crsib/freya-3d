@@ -27,7 +27,7 @@ namespace containers
 			public:
 				size_t		get_vector_size( size_t required_size, size_t current_size ) const
 				{
-					return required_size; //Well, thats a hack ;)
+					return required_size > current_size ? required_size : current_size;
 				}
 			};
 		}
