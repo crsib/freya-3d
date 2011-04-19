@@ -16,6 +16,12 @@ namespace containers
 	{
 		namespace storage
 		{
+			//! Fixed-size growth of storage space
+			/*! 
+			 * Returns n * sz, where n is the smallest to satisfy the following inequality required_size <= current_size <= sz * n
+			 * \tparam sz is a size parameter
+			 */
+			//! \ingroup grpContainers_Policies_Storage
 			template<size_t sz>
 			class FixedSize
 			{

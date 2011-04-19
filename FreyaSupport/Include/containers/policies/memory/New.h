@@ -16,7 +16,8 @@ namespace containers
 	{
 		namespace memory
 		{
-			//! Memory management policy, which uses new uint8_t[sizeof(T)*count] operator for memory allocation
+			//! \brief Memory management policy, which uses new uint8_t[sizeof(T)*count] operator for memory allocation
+			//! \ingroup grpContainers_Policies_Memory
 			template<typename T>
 			class New
 			{

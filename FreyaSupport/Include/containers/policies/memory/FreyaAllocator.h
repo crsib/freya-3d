@@ -17,7 +17,8 @@ namespace containers
 	{
 		namespace memory
 		{
-			//! Memory management policy, which uses Freya MemoryArena for memory allocation
+			//! \brief Memory management policy, which uses Freya MemoryArena for memory allocation
+			//! \ingroup grpContainers_Policies_Memory
 			template<typename T>
 			class FreyaAllocator
 			{
