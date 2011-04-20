@@ -63,6 +63,7 @@ source_group("core\\memory" FILES
 )
 
 include ( Include/containers/VectorInc.cmake )
+include ( Include/containers/Unordered.cmake )
 include ( Include/containers/PoliciesInc.cmake )
 
 set( FREYA_SUPPORT_INCLUDES ${FREYA_SUPPORT_INCLUDES} Include/containers/type_utils.h )
