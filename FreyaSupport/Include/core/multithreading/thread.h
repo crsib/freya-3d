@@ -1,4 +1,4 @@
-/* File   : freya/core/multithreading/thread.h
+/* File   : core/multithreading/thread.h
  * Author : V. Sverchinsky
  * E-Mail : sverchinsky[at]gmail[dot]com
  *

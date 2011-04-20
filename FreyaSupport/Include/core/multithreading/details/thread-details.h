@@ -1,4 +1,4 @@
-/* File	  : multithreading/details/thread-details.h
+/* File	  : core/multithreading/details/thread-details.h
  * Author : V. Sverchinsky
  * E-Mail : vitalii.sverchinsky[at]freya3d[dot]org
  *
