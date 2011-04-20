@@ -16,6 +16,13 @@ set( FREYA_SUPPORT_INCLUDES
 	Include/core/memory/MemoryAllocator.h
 	Include/core/memory/MemoryArena.h
 	Include/core/memory/MemoryPools.h
+# core/multithreading
+	Include/core/multithreading/thread.h
+	Include/core/multithreading/thread-interface.h
+	Include/core/multithreading/thread_local.h
+	Include/core/multithreading/thread_local-interface.h
+	Include/core/multithreading/details/thread-data.h
+	Include/core/multithreading/details/thread-details.h
 )
 
 # include source groups
@@ -39,9 +46,41 @@ source_group("Include\\atomic" FILES
 								Include/atomic/memory_order.h
 )
 
+source_group("Include\\core\\multithreading" FILES
+								./Include/core/multithreading/thread.h
+								./Include/core/multithreading/thread-interface.h
+								./Include/core/multithreading/thread_local.h
+								./Include/core/multithreading/thread_local-interface.h
+)
+source_group("Include\\core\\multithreading\\details" FILES
+								./Include/core/multithreading/details/thread-data.h
+								./Include/core/multithreading/details/thread-details.h
+)
+
 if( MSVC )
-	set( FREYA_SUPPORT_INCLUDES ${FREYA_SUPPORT_INCLUDES} Include/atomic/details/atomic-msvc.h )
-	source_group( "Include\\atomic\\details" FILES  Include/atomic/details/atomic-msvc.h )
+	set( FREYA_SUPPORT_INCLUDES ${FREYA_SUPPORT_INCLUDES} 
+									Include/atomic/details/atomic-msvc.h 
+	)
+	source_group("Include\\atomic\\details" FILES
+									Include/atomic/details/atomic-msvc.h
+	)
+endif()
+
+if( WIN32 )
+	if( MSVC OR MINGW )
+		add_definitions(-DPLATFORM_WIN_THREADS)
+		set( FREYA_SUPPORT_INCLUDES ${FREYA_SUPPORT_INCLUDES}
+									Include/core/multithreading/details/plat-win-thread-data.h
+									Include/core/multithreading/details/plat-win-thread.h
+									Include/core/multithreading/details/plat-win-tls.h
+		)
+		source_group("Include\\core\\multithreading\\details" FILES
+						Include/core/multithreading/details/plat-win-thread-data.h
+						Include/core/multithreading/details/plat-win-thread.h
+						Include/core/multithreading/details/plat-win-tls.h
+		)
+	endif( MSVC OR MINGW )
+elseif( UNIX OR APPLE )
 endif()
 
 # sources
@@ -51,6 +90,8 @@ set( FREYA_SUPPORT_SOURCES
 	Source/core/Log.cpp
 # core/memory
 	Source/core/memory/MemoryImpl.cpp
+# core/multithreading
+	Source/core/multithreading/thread.cpp
 )
 # sources source groups			
 source_group("core" FILES 
@@ -60,6 +101,10 @@ source_group("core" FILES
 
 source_group("core\\memory" FILES
 								./Source/core/memory/MemoryImpl.cpp
+)
+
+source_group("core\\multithreading" FILES
+								./Source/core/multithreading/thread.cpp
 )
 
 include ( Include/containers/VectorInc.cmake )

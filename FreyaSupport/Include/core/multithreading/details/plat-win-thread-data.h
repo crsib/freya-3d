@@ -20,6 +20,7 @@ namespace core {
 			};
 
 			typedef DWORD tls_index_t;
+			typedef DWORD freya_thread_id_t;
 		}
 	}
 }

@@ -1,36 +1,30 @@
-/* File	  : freya/core/multithreading/details/plat-win-thread.h
+/* File	  : core/multithreading/details/plat-win-thread.h
  * Author : V. Sverchinsky
  * E-Mail : sverchinsky[at]gmail[dot]com
  *
  * This file is a part of Freya3D Engine.
- *
- * This file contains thread implementation for Win platform.
- * WARNING : Do not use it directly from your code.
  */
 
 #ifndef FREYA_PLATFORM_WIN_THREAD_H_
 #define FREYA_PLATFORM_WIN_THREAD_H_
 
-#include <atomic/atomic.h>
+#include "atomic/atomic.h"
 #include "core/multithreading/thread-interface.h"
+#include "core/multithreading/details/plat-win-tls.h"
 
 namespace core {
 	namespace multithreading {
 		
 		namespace details
 		{
-			__declspec( dllimport ) atomic::atomic<unsigned> __process_thread_counter;
-		}
-
-		namespace thread_self
-		{
-			__declspec( dllimport ) extern core::multithreading::thread_self::local_variable user_id;
+			FREYA_SUPPORT_EXPORT extern atomic::atomic<unsigned> __process_thread_counter;
+			FREYA_SUPPORT_EXPORT extern core::multithreading::thread_local<details::freya_thread_id_t> freya_id;
 		}
 
 		//Platform thread routine. See WinAPI documentation for details.
         template<typename ObjT, void (ObjT::*Function)(void)>
 		DWORD WINAPI platform_win_thread_routine(LPVOID arg) {
-			thread_self::user_id = details::__process_thread_counter++;
+			details::freya_id = details::__process_thread_counter++;
 			ObjT* object = reinterpret_cast<ObjT*>(arg);
 			(object->*Function)();
 			return 0;
@@ -38,11 +32,6 @@ namespace core {
 
 		namespace thread_self
 		{
-			inline unsigned get_platform_id()
-			{
-				return static_cast<unsigned>( GetCurrentThreadId() );
-			}
-
 			inline void yield()
 			{
 				SwitchToThread();
@@ -51,6 +40,11 @@ namespace core {
 			inline void sleep(const unsigned ms)
 			{
 				Sleep( static_cast<DWORD>(ms) );
+			}
+
+			inline unsigned get_freya_id()
+			{
+				return static_cast<unsigned>(details::freya_id);
 			}
 		}//namespace thread_self
 
@@ -95,7 +89,10 @@ namespace core {
 		{
 			bool signaled = static_cast<bool>( !WaitForSingleObject(m_platform_data.m_handle, INFINITE) );
 			if(signaled)
+			{
+				CloseHandle(m_platform_data.m_handle);
 				m_platform_data.m_handle = NULL;
+			}
 			return signaled;
 		}
 
@@ -103,7 +100,10 @@ namespace core {
 		{
 			bool signaled = static_cast<bool>( !WaitForSingleObject(m_platform_data.m_handle, static_cast<DWORD>(ms)) );
 			if(signaled)
+			{
+				CloseHandle(m_platform_data.m_handle);
 				m_platform_data.m_handle = NULL;
+			}
 			return signaled;
 		}
 
@@ -111,7 +111,10 @@ namespace core {
 		{
 			bool terminated = (TerminateThread(m_platform_data.m_handle, -1) != 0);
 			if(terminated)
+			{
+				CloseHandle(m_platform_data.m_handle);
 				m_platform_data.m_handle = NULL;
+			}
 			return terminated;
 		}
 

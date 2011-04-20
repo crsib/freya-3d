@@ -31,8 +31,7 @@ public:
 			thread_self::yield(); // switch to another thread on fail
 		std::cout << "Creating ThreadRoutine instance..." << std::endl;
 		std::cout << "--> Arg: " << m_data << std::endl;
-		std::cout << "--> UID: " << thread_self::user_id << std::endl;
-		std::cout << "--> PID: " << thread_self::get_platform_id() << std::endl;
+		std::cout << "--> UID: " << thread_self::get_freya_id() << std::endl;
 		release_stdout();
 	}
 	// thread routine
@@ -43,8 +42,7 @@ public:
 			thread_self::yield();
 		std::cout << "Thread routine..." << std::endl;
 		std::cout << "--> From instance " << m_data << std::endl;
-		std::cout << "--> UID: " << thread_self::user_id << std::endl;
-		std::cout << "--> PID: " << thread_self::get_platform_id << std::endl;
+		std::cout << "--> UID: " << thread_self::get_freya_id() << std::endl;
 		release_stdout();
 	}
 
@@ -72,7 +70,7 @@ int main(void) {
 	if(stdout_sync.load() != 0)
 		stdout_sync.store(0);
 
-	std::cout << "Main Thread UID : " << thread_self::user_id << std::endl;
+	std::cout << "Main Thread UID : " << thread_self::get_freya_id() << std::endl;
 
 	ThreadRoutine r1(1);
 	ThreadRoutine r2(2);
