@@ -11,4 +11,13 @@
 #include "integer.h"
 #include "FreyaSupportInternal.h"
 
+namespace containers
+{
+	namespace details
+	{
+
+	}
+}
+
+
 #endif // hashtable_h__

@@ -6,3 +6,11 @@
  */
 
 #include "containers/details/hashtable.h"
+
+namespace containers
+{
+	namespace details
+	{
+
+	}
+}
