@@ -12,5 +12,5 @@ namespace containers
 	namespace details
 	{
 
-	}
-}
+	} // namespace details
+} // namespace containers
