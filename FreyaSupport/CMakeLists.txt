@@ -85,3 +85,5 @@ if( FREYA_BUILD_SHARED )
 else()
 	add_library( FreyaSupport STATIC ${FREYA_SUPPORT_INCLUDES} ${FREYA_SUPPORT_SOURCES} )
 endif()
+
+set_target_properties ( FreyaSupport PROPERTIES FOLDER "Core Libraries" )

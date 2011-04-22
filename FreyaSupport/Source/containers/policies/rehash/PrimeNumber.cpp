@@ -59,7 +59,7 @@ namespace containers
 				4294967291u
 			};
 
-			inline uint32_t not_least_prime( int target )
+			inline uint32_t not_least_prime( uint32_t target )
 			{
 				static const uint32_t num_primes = sizeof( prime_numbers ) / sizeof ( uint32_t );
 
