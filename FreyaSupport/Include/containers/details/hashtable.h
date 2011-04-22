@@ -302,9 +302,11 @@ namespace containers
 		void HashTable<Key, Value, Hash, Compare, ExtractKey, MemoryAllocationPolicy, ThreadSafetyPolicy, RehashPolicy>::reset()
 		{
 			clear();
+			m_LockPolicy.lock();
 			m_BucketAllocator.deallocate(m_Buckets);
 			m_NumBuckets = 0;
 			m_Buckets = NULL;
+			m_LockPolicy.unlock();
 		} // reset
 
 
@@ -321,6 +323,7 @@ namespace containers
 			>
 		void HashTable<Key, Value, Hash, Compare, ExtractKey, MemoryAllocationPolicy, ThreadSafetyPolicy, RehashPolicy>::clear()
 		{
+			m_LockPolicy.lock();
 			for( size_t i = 0; i < m_NumBuckets; ++i )
 			{
 				if(m_Buckets[i])
@@ -338,6 +341,7 @@ namespace containers
 				}
 			}
 			m_NumElements = 0;
+			m_LockPolicy.unlock();
 		} // clear
 
 
@@ -557,7 +561,35 @@ namespace containers
 			>
 		void HashTable<Key, Value, Hash, Compare, ExtractKey, MemoryAllocationPolicy, ThreadSafetyPolicy, RehashPolicy>::erase( const iterator& it )
 		{
+			if( m_NumElements && it != end() )
+			{
+				m_LockPolicy.lock();
+				const uint32_t bucket_idx = m_Hasher( *m_ExtractKey( *it )) % m_NumBuckets;
 
+				HashNode* node = m_Buckets[bucket_idx];
+				HashNode* prev = NULL;
+
+				while( node )
+				{
+					if( node == it.m_Node )
+					{
+						if( prev )
+							prev->next = node->next;
+						else
+							m_Buckets[bucket_idx] = node->next;
+
+						destroy_node_data(node);
+						m_NodeAllocator.deallocate(node);
+
+						m_NumElements--;
+						break;
+					}
+					prev = node;
+					node = node->next;
+				}
+				
+				m_LockPolicy.unlock();
+			}
 		} // erase
 
 		template
@@ -573,7 +605,37 @@ namespace containers
 			>
 		void HashTable<Key, Value, Hash, Compare, ExtractKey, MemoryAllocationPolicy, ThreadSafetyPolicy, RehashPolicy>::erase( const iterator& first, const iterator& last )
 		{
+			m_LockPolicy.lock();
+			for( iterator it = first; it != last; ++it )
+			{
+				if( m_NumElements && it != end() )
+				{
+					const uint32_t bucket_idx = m_Hasher( *m_ExtractKey( *it )) % m_NumBuckets;
 
+					HashNode* node = m_Buckets[bucket_idx];
+					HashNode* prev = NULL;
+
+					while( node )
+					{
+						if( node == it.m_Node )
+						{
+							if( prev )
+								prev->next = node->next;
+							else
+								m_Buckets[bucket_idx] = node->next;
+
+							destroy_node_data(node);
+							m_NodeAllocator.deallocate(node);
+
+							m_NumElements--;
+							break;
+						}
+						prev = node;
+						node = node->next;
+					}
+				}
+			}
+			m_LockPolicy.unlock();
 		} // erase range
 
 	} // namespace details

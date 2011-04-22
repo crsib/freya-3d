@@ -60,6 +60,27 @@ int main()
 			std::cout << it->first.c_str() <<" = " << it->second << std::endl;
 
 		assert(test_string_table.find_first("temp") == test_string_table.end());
+
+		test_string_table.erase( iter.first );
+
+		iter = test_string_table.find("foo");
+
+		for( test_string_table_t::iterator it = iter.first; it != iter.second; ++it )
+			std::cout << it->first.c_str() <<" = " << it->second << std::endl;
+
+
+		test_string_table.insert(pair<const core::string, unsigned>(core::string("godzilla"), 0u));
+		test_string_table.insert(pair<const core::string, unsigned>(core::string("godzilla"), 0u));
+		test_string_table.insert(pair<const core::string, unsigned>(core::string("godzilla"), 0u));
+		test_string_table.insert(pair<const core::string, unsigned>(core::string("godzilla"), 0u));
+
+		std::cout << "Load factor " << (float) test_string_table.get_elements_count() / test_string_table.get_buckets_count()<< " elems " <<  test_string_table.get_elements_count() << " bucks " << test_string_table.get_buckets_count() << std::endl;
+
+		iter = test_string_table.find("godzilla");
+
+		test_string_table.erase(iter.first, iter.second);
+
+		assert( test_string_table.find_first("godzilla") == test_string_table.end() );
 	}
 
 	std::cout << "allocs: " << core::memory::allocation_count << "\ndeallocs: " << core::memory::deallocation_count
