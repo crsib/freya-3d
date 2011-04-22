@@ -4,8 +4,8 @@ Include/containers/details/hashtable.h
 
 source_group( "Include\\containers\\details" FILES Include/containers/details/hashtable.h )
 
-set( FREYA_SUPPORT_SOURCES ${FREYA_SUPPORT_SOURCES}
-Source/containers/hashtable.cpp
-)
+#set( FREYA_SUPPORT_SOURCES ${FREYA_SUPPORT_SOURCES}
+#Source/containers/hashtable.cpp
+#)
 
-source_group( "containers" FILES Source/containers/hashtable.cpp )
+#source_group( "containers" FILES Source/containers/hashtable.cpp )

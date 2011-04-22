@@ -10,6 +10,7 @@
 
 #include "containers/type_utils.h"
 #include "FreyaSupportInternal.h"
+#include "containers/iterator.h"
 
 namespace containers
 {
@@ -79,6 +80,8 @@ namespace containers
 			T*	m_Ptr;
 			reverse_iterator_impl () {}
 		public:
+			typedef T type;
+			typedef random_access_iterator_tag iterator_type;
 			//! Create a reverse iterator starting at ptr
 			explicit reverse_iterator_impl(T* ptr) { m_Ptr = ptr; }
 			//! Copy constructor, provided for convenience

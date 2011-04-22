@@ -69,8 +69,9 @@ include ( Include/containers/PoliciesInc.cmake )
 set( FREYA_SUPPORT_INCLUDES ${FREYA_SUPPORT_INCLUDES} 
 Include/containers/type_utils.h 
 Include/containers/utils.h
+Include/containers/iterator.h
 )
-source_group( "Include\\containers" FILES Include/containers/type_utils.h Include/containers/utils.h)
+source_group( "Include\\containers" FILES Include/containers/type_utils.h Include/containers/utils.h Include/containers/iterator.h)
 
 # Add UTF8CPP library 
 include_directories( ../3party/utf8cpp )
