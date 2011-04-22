@@ -682,6 +682,18 @@ namespace containers
 	};
 
 	template<> 
+	struct hash<const core::string&> 
+	{ 
+		uint32_t operator () (const core::string& s) const { return s.hash(); } 
+	};
+
+	template<> 
+	struct hash<core::string&> 
+	{ 
+		uint32_t operator () (const core::string& s) const { return s.hash(); } 
+	};
+
+	template<> 
 	struct hash<const core::string> 
 	{ 
 		uint32_t operator () (const core::string& s) const { return s.hash(); } 
