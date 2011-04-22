@@ -390,7 +390,37 @@ namespace containers
 		typename HashTable<Key, Value, Hash, Compare, ExtractKey, MemoryAllocationPolicy, ThreadSafetyPolicy, RehashPolicy>::iterator_range
 		HashTable<Key, Value, Hash, Compare, ExtractKey, MemoryAllocationPolicy, ThreadSafetyPolicy, RehashPolicy>::find( key_const_reference_type key )
 		{
+			// Get da bucket number
+			const uint32_t bucket_idx = m_Hasher( key ) % m_NumBuckets;
 
+			
+			if( m_Buckets[bucket_idx] )
+			{
+				HashNode* node = m_Buckets[bucket_idx];
+				
+				while( node )
+				{
+					if( m_Compare( *m_ExtractKey( node->value ), key ) )
+					{
+						iterator first ( this, bucket_idx, node );
+
+						while ( node->next )
+						{
+							node = node->next;
+
+							if( !m_Compare( *m_ExtractKey( node->value ), key ) )
+								return iterator_range( first, iterator ( this, bucket_idx, node ) );
+						}
+
+						iterator last ( this, bucket_idx, node );
+
+						return iterator_range(first, ++last);
+					}
+					node = node->next;
+				}
+			}
+
+			return iterator_range(end(), end());
 		} // find 
 
 
@@ -408,7 +438,37 @@ namespace containers
 		typename HashTable<Key, Value, Hash, Compare, ExtractKey, MemoryAllocationPolicy, ThreadSafetyPolicy, RehashPolicy>::const_iterator_range 
 		HashTable<Key, Value, Hash, Compare, ExtractKey, MemoryAllocationPolicy, ThreadSafetyPolicy, RehashPolicy>::find( key_const_reference_type key ) const
 		{
+			// Get da bucket number
+			const uint32_t bucket_idx = m_Hasher( key ) % m_NumBuckets;
 
+
+			if( m_Buckets[bucket_idx] )
+			{
+				HashNode* node = m_Buckets[bucket_idx];
+
+				while( node )
+				{
+					if( m_Compare( *m_ExtractKey( node->value ), key ) )
+					{
+						const_iterator first ( this, bucket_idx, node );
+
+						while ( node->next )
+						{
+							node = node->next;
+
+							if( !m_Compare( *m_ExtractKey( node->value ), key ) )
+								return const_iterator_range( first, iterator ( this, bucket_idx, node ) );
+						}
+
+						const_iterator last ( this, bucket_idx, node );
+
+						return const_iterator_range(first, ++last);
+					}
+					node = node->next;
+				}
+			}
+
+			return const_iterator_range(end(), end());
 		} // Find const
 
 
