@@ -25,7 +25,7 @@ int main()
 	
 	{
 		typedef details::HashTable<const core::string, pair<const core::string, unsigned>,
-		hash<const std::string> , equal<const std::string> , pair_extractor< pair<const core::string, unsigned> >, 
+		hash<const core::string> , equal<const core::string> , pair_extractor< pair<const core::string, unsigned> >, 
 		policies::memory::FreyaAllocator,  policies::multithreading::AtomicLock, policies::rehash::PrimeNumber > test_string_table_t;
 
 		test_string_table_t test_string_table (0.75);
@@ -33,6 +33,24 @@ int main()
 		assert( test_string_table.begin() == test_string_table.end());
 
 		test_string_table_t::const_iterator const_it = test_string_table.begin();
+
+		typedef pair<const core::string, unsigned> table_elem;
+		table_elem p(core::string("test"), 0u);
+		test_string_table.insert(p);
+	
+
+		assert( test_string_table.begin()->first == "test" );
+
+		test_string_table.insert(pair<const core::string, unsigned>(core::string("foo"), 0u));
+		test_string_table.insert(pair<const core::string, unsigned>(core::string("bar"), 0u));
+		test_string_table.insert(pair<const core::string, unsigned>(core::string("desk"), 0u));
+		test_string_table.insert(pair<const core::string, unsigned>(core::string("godzilla"), 0u));
+		test_string_table.insert(pair<const core::string, unsigned>(core::string("somewhatlongerstringtest"), 5u));
+		test_string_table.insert(pair<const core::string, unsigned>(core::string("foo"), 5u));
+
+		assert( test_string_table.get_elements_count() == 7 );
+		
+		std::cout << "Load factor " << (float) test_string_table.get_elements_count() / test_string_table.get_buckets_count()<< " elems " <<  test_string_table.get_elements_count() << " bucks " << test_string_table.get_buckets_count() << std::endl;
 	}
 
 	std::cout << "allocs: " << core::memory::allocation_count << "\ndeallocs: " << core::memory::deallocation_count

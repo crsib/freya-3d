@@ -25,7 +25,7 @@ namespace containers
 				mutable size_t		m_NextRehashSize; //This parameter is lazy evaluated in get_bucket_count
 			public:
 				explicit PrimeNumber(float load_factor)  
-					: m_LoadFactor(load_factor) , m_NextRehashSize( static_cast<uint32_t>( floorf( m_LoadFactor * 11 ) ) ) {}
+					: m_LoadFactor(load_factor) , m_NextRehashSize( 0 ) {}
 				bool	rehash_needed(size_t elem_count, size_t bucket_count) const 
 				{
 					if(elem_count <= m_NextRehashSize)

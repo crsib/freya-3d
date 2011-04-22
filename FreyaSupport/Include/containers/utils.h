@@ -20,7 +20,7 @@ namespace containers
 		typedef SecondType	second_type;
 
 		first_type			first;
-		first_type			second;
+		second_type			second;
 
 		pair( typename const_reference<FirstType>::type f,  typename const_reference<SecondType>::type s ) : first(f), second(s) {}
 		pair( const pair& other) : first ( other.first ), second (other.second) {}
@@ -32,7 +32,7 @@ namespace containers
 
 	//!
 	template<typename F, typename S>
-	pair<F,S>		make_pair( typename const_reference<F>::type f,  typename const_reference<S>::type s )
+	pair<F,S>		make_pair( F f,  S s )
 	{
 		return pair<F,S>(f,s);
 	}
