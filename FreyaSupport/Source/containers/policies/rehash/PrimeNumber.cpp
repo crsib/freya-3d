@@ -81,7 +81,7 @@ namespace containers
 						d = d2;
 				}
 
-				return *(first + 1);
+				return *(first);
 			}
 
 			uint32_t PrimeNumber::get_bucket_count( size_t elem, size_t bucket_count ) const
