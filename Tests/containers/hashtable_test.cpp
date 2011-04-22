@@ -52,14 +52,14 @@ int main()
 		
 		std::cout << "Load factor " << (float) test_string_table.get_elements_count() / test_string_table.get_buckets_count()<< " elems " <<  test_string_table.get_elements_count() << " bucks " << test_string_table.get_buckets_count() << std::endl;
 		
-		assert(test_string_table.find("desk").first != test_string_table.end());
+		assert(test_string_table.find_first("desk") != test_string_table.end());
 
 		test_string_table_t::iterator_range iter = test_string_table.find("foo");
 
 		for( test_string_table_t::iterator it = iter.first; it != iter.second; ++it )
 			std::cout << it->first.c_str() <<" = " << it->second << std::endl;
 
-		assert(test_string_table.find("temp").first == test_string_table.end());
+		assert(test_string_table.find_first("temp") == test_string_table.end());
 	}
 
 	std::cout << "allocs: " << core::memory::allocation_count << "\ndeallocs: " << core::memory::deallocation_count
