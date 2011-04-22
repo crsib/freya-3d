@@ -34,6 +34,21 @@ namespace containers
 	//!Make constant from a type
 	template<class T>
 	struct constant<const T> { typedef const T type; }; 
+	//!Drop constant qualifier
+	template<class T>
+	struct drop_const { typedef T type; };
+	//!Drop constant qualifier
+	template<class T>
+	struct drop_const<const T> { typedef T type; };
+
+	//! Select one of two types
+	template<typename T1, typename T2, bool s> struct select_type;
+	//! Select one of two types
+	template<typename T1, typename T2>
+	struct select_type<T1,T2,true> { typedef T1 type; };
+	//! Select one of two types
+	template<typename T1, typename T2>
+	struct select_type<T1,T2,false> { typedef T2 type; };
 }
 
 #endif // type_utils_h__
