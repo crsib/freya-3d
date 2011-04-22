@@ -160,6 +160,13 @@ namespace containers
 
 			iterator_range	find(key_const_reference_type key); //Find the first element in sequence
 			const_iterator_range find(key_const_reference_type key) const; //Find the first element in sequence
+
+			iterator		find_first(key_const_reference_type key);
+			const_iterator	find_first(key_const_reference_type key) const;
+
+			void	erase(const iterator& it );  
+			void	erase(const iterator& first, const iterator& last);
+			
 			
 			ThreadSafetyPolicy& lock_policy() { return m_LockPolicy; }
 
@@ -347,6 +354,7 @@ namespace containers
 			>
 		void HashTable<Key, Value, Hash, Compare, ExtractKey, MemoryAllocationPolicy, ThreadSafetyPolicy, RehashPolicy>::insert( value_const_reference v )
 		{
+			m_LockPolicy.lock();
 			if( rehash_needed( m_NumElements + 1, m_NumBuckets ) )
 				rehash( get_bucket_count( m_NumElements + 1, m_NumBuckets ) );
 
@@ -355,6 +363,7 @@ namespace containers
 			set_value(node, v);
 			insert_hash_node(node, m_Buckets, m_NumBuckets);
 			m_NumElements++;
+			m_LockPolicy.unlock();
 		} // Insert 
 
 
@@ -441,7 +450,6 @@ namespace containers
 			// Get da bucket number
 			const uint32_t bucket_idx = m_Hasher( key ) % m_NumBuckets;
 
-
 			if( m_Buckets[bucket_idx] )
 			{
 				HashNode* node = m_Buckets[bucket_idx];
@@ -472,7 +480,103 @@ namespace containers
 		} // Find const
 
 
-} // namespace details
+		template
+			<
+			typename Key,
+			typename Value, 
+		class Hash,
+		class Compare,
+		class ExtractKey,
+			template<class> class MemoryAllocationPolicy,
+		class ThreadSafetyPolicy,
+		class RehashPolicy
+			>
+		typename HashTable<Key, Value, Hash, Compare, ExtractKey, MemoryAllocationPolicy, ThreadSafetyPolicy, RehashPolicy>::iterator 
+		HashTable<Key, Value, Hash, Compare, ExtractKey, MemoryAllocationPolicy, ThreadSafetyPolicy, RehashPolicy>::find_first( key_const_reference_type key )
+		{
+			const uint32_t bucket_idx = m_Hasher( key ) % m_NumBuckets;
+
+			if( m_Buckets[bucket_idx] )
+			{
+				HashNode* node = m_Buckets[bucket_idx];
+
+				while( node )
+				{
+					if( m_Compare( *m_ExtractKey( node->value ), key ) )
+					{
+						return iterator( this, bucket_idx, node );
+					}
+					node = node->next;
+				}
+			}
+			return end();
+		} // Find first of
+
+		template
+			<
+			typename Key,
+			typename Value, 
+		class Hash,
+		class Compare,
+		class ExtractKey,
+			template<class> class MemoryAllocationPolicy,
+		class ThreadSafetyPolicy,
+		class RehashPolicy
+			>
+		typename HashTable<Key, Value, Hash, Compare, ExtractKey, MemoryAllocationPolicy, ThreadSafetyPolicy, RehashPolicy>::const_iterator 
+		HashTable<Key, Value, Hash, Compare, ExtractKey, MemoryAllocationPolicy, ThreadSafetyPolicy, RehashPolicy>::find_first( key_const_reference_type key ) const
+		{
+			const uint32_t bucket_idx = m_Hasher( key ) % m_NumBuckets;
+
+			if( m_Buckets[bucket_idx] )
+			{
+				HashNode* node = m_Buckets[bucket_idx];
+
+				while( node )
+				{
+					if( m_Compare( *m_ExtractKey( node->value ), key ) )
+					{
+						return const_iterator( this, bucket_idx, node );
+					}
+					node = node->next;
+				}
+			}
+			return end();
+		} // find_first  const
+
+		template
+			<
+			typename Key,
+			typename Value, 
+		class Hash,
+		class Compare,
+		class ExtractKey,
+			template<class> class MemoryAllocationPolicy,
+		class ThreadSafetyPolicy,
+		class RehashPolicy
+			>
+		void HashTable<Key, Value, Hash, Compare, ExtractKey, MemoryAllocationPolicy, ThreadSafetyPolicy, RehashPolicy>::erase( const iterator& it )
+		{
+
+		} // erase
+
+		template
+			<
+			typename Key,
+			typename Value, 
+		class Hash,
+		class Compare,
+		class ExtractKey,
+			template<class> class MemoryAllocationPolicy,
+		class ThreadSafetyPolicy,
+		class RehashPolicy
+			>
+		void HashTable<Key, Value, Hash, Compare, ExtractKey, MemoryAllocationPolicy, ThreadSafetyPolicy, RehashPolicy>::erase( const iterator& first, const iterator& last )
+		{
+
+		} // erase range
+
+	} // namespace details
 } // namespace containers
 
 
