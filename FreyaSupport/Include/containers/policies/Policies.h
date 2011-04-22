@@ -19,6 +19,8 @@
 #include "containers/policies/storage/FixedSize.h"
 #include "containers/policies/storage/Greedy.h"
 
+#include "containers/policies/rehash/PrimeNumber.h"
+
 //! \defgroup grpContainers Freya 3D Engines generic containers
 
 //! \brief This namespace contains interfaces to Freya 3D Engines generic containers
