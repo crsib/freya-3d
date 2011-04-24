@@ -671,7 +671,7 @@ namespace core
 		data_buffer_ptr	m_BufferPtr;
 	};
 } // namespace core
-
+//!\cond
 namespace containers
 {
 	template<typename T> struct hash;
@@ -711,5 +711,5 @@ namespace containers
 		uint32_t operator () (const char* s) const { return core::string(s).hash(); } 
 	};
 } //Namespace container
-
+//!\endcond
 #endif // string_h__

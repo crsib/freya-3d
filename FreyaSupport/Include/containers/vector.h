@@ -24,7 +24,7 @@ namespace containers
 		{ class Exponential; }
 	}
 
-	//! Container, implementing dynamic array properties
+	//! Container, implementing dynamic array semantics
 	/*!
 	 * vector is a container, which implements the semantics of dynamic array.
 	 * It has strictly linear in memory representation and constant time to access it's elements.
@@ -32,7 +32,7 @@ namespace containers
 	 * memory copying operations. Current implementation of vector is not an implementation of the C++ STL vector, despite it is very close to it
 	 * <BR> <BR>
 	 * The vector is controlled by the following policies:
-	 * - MemoryAllocationPolicy controls, what kind of memory management routines will be used to allocate storage space for the vector.
+	 * - MemoryAllocationPolicy controls, which kind of memory management routines will be used to allocate storage space for the vector.
 	 *    vector supports all policies in \ref grpContainers_Policies_Memory
 	 * - LockPolicy controls the thread safety properties. Selected policy will control the thread safety of operations modifying vector storage space.
 	 *    Policy is not applied to access/modification of elements, contained inside the vector. All policies in \ref grpContainers_Policies_MultiThreading are supported
@@ -40,7 +40,7 @@ namespace containers
 	 *    vector storage will never shrink, unless reset is explicitly called. containers::policies::storage::Exponential, containers::policies::storage::FixedSize 
 	 *    and containers::policies::storage::Greedy policies are supported by the implementation
 	 * \tparam T denotes the type of the dynamic array created. Please note, that non pod types should provide both copy constructor and operator = in order to function correctly
-	 * \tparam MemoryAllocationPolicy controls the memory allocation policy. Default - is allocator, based on Freya internal memory management functions
+	 * \tparam MemoryAllocationPolicy controls the memory allocation policy. Default is the allocator, based on Freya internal memory management functions
 	 * \tparam LockPolicy controls the thread safety of the vector. Default is not thread safe vector
 	 * \tparam StorageResizePolicy controls the storage resize of the vector. Default provides the same behavior, as most of std::vector implementations
 	 */
