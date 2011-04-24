@@ -81,6 +81,8 @@ int main()
 		test_string_table.erase(iter.first, iter.second);
 
 		assert( test_string_table.find_first("godzilla") == test_string_table.end() );
+
+		test_string_table.reset();
 	}
 
 	std::cout << "allocs: " << core::memory::allocation_count << "\ndeallocs: " << core::memory::deallocation_count
