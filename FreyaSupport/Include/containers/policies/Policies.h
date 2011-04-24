@@ -54,6 +54,13 @@ namespace containers
 		//! \brief Storage expansion policies interfaces
 		//! \ingroup grpContainers_Policies_Storage
 		namespace storage {}
+
+		//! \defgroup grpContainers_Policies_Rehash Re-hash policies
+		//! \ingroup grpContainers_Policies
+
+		//! \brief Re-hash policies interfaces
+		//! \ingroup grpContainers_Policies_Rehash
+		namespace rehash {}
 	}
 }
 

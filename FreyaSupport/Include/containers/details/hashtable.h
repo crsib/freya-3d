@@ -19,6 +19,7 @@ namespace containers
 {
 	namespace details
 	{
+		//!\cond
 		template
 		<
 			typename Key,
@@ -312,6 +313,7 @@ namespace containers
 			m_BucketAllocator.deallocate(m_Buckets);
 			m_NumBuckets = 0;
 			m_Buckets = NULL;
+			m_Hasher.reset();
 			m_LockPolicy.unlock();
 		} // reset
 
@@ -655,7 +657,7 @@ namespace containers
 			}
 			m_LockPolicy.unlock();
 		} // erase range
-
+		//!\endcond
 	} // namespace details
 } // namespace containers
 

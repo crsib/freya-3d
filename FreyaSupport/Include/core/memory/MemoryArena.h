@@ -65,7 +65,7 @@ namespace __internal
 class MemoryPool;
 }
 
-//! \ brief Core memory management routine
+//! \brief Core memory management routine
 class FREYA_SUPPORT_EXPORT MemoryArena
 {
 public:
