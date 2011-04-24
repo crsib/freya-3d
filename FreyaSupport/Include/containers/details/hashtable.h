@@ -313,7 +313,7 @@ namespace containers
 			m_BucketAllocator.deallocate(m_Buckets);
 			m_NumBuckets = 0;
 			m_Buckets = NULL;
-			m_Hasher.reset();
+			RehashPolicy::reset();
 			m_LockPolicy.unlock();
 		} // reset
 
