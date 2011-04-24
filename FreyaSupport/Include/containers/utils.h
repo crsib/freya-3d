@@ -41,7 +41,7 @@ namespace containers
 	template<typename T>
 	struct equal
 	{
-		bool operator () (typename const_reference<T>::type lhs, typename const_reference<T>::type rhs)
+		bool operator ()  (typename const_reference<T>::type lhs, typename const_reference<T>::type rhs) const
 		{
 			return lhs == rhs;
 		}
@@ -57,50 +57,50 @@ namespace containers
 	template <typename T> struct hash<T*> // Note that we use the pointer as-is and don't divide by sizeof(T*). This is because the table is of a prime size and this division doesn't benefit distribution.
 	{ uint32_t operator()(T* p) const { return uint32_t(uintptr_t(p)); } };
 
-	template <> struct hash<bool>
-	{ uint32_t operator()(bool val) const { return static_cast<uint32_t>(val); } };
+	template <> struct hash<const bool>
+	{ uint32_t operator()(const bool val) const { return static_cast<const uint32_t>(val); } };
 
-	template <> struct hash<char>
-	{ uint32_t operator()(char val) const { return static_cast<uint32_t>(val); } };
+	template <> struct hash<const char>
+	{ uint32_t operator()(const char val) const { return static_cast<const uint32_t>(val); } };
 
-	template <> struct hash<signed char>
-	{ uint32_t operator()(signed char val) const { return static_cast<uint32_t>(val); } };
+	template <> struct hash<const signed char>
+	{ uint32_t operator()(const signed char val) const { return static_cast<const uint32_t>(val); } };
 
-	template <> struct hash<unsigned char>
-	{ uint32_t operator()(unsigned char val) const { return static_cast<uint32_t>(val); } };
+	template <> struct hash<const unsigned char>
+	{ uint32_t operator()(const unsigned char val) const { return static_cast<const uint32_t>(val); } };
 
-	template <> struct hash<signed short>
-	{ uint32_t operator()(short val) const { return static_cast<uint32_t>(val); } };
+	template <> struct hash<const signed short>
+	{ uint32_t operator()(const short val) const { return static_cast<const uint32_t>(val); } };
 
-	template <> struct hash<unsigned short>
-	{ uint32_t operator()(unsigned short val) const { return static_cast<uint32_t>(val); } };
+	template <> struct hash<const unsigned short>
+	{ uint32_t operator()(const unsigned short val) const { return static_cast<const uint32_t>(val); } };
 
-	template <> struct hash<signed int>
-	{ uint32_t operator()(signed int val) const { return static_cast<uint32_t>(val); } };
+	template <> struct hash<const signed int>
+	{ uint32_t operator()(const signed int val) const { return static_cast<const uint32_t>(val); } };
 
-	template <> struct hash<unsigned int>
-	{ uint32_t operator()(unsigned int val) const { return static_cast<uint32_t>(val); } };
+	template <> struct hash<const unsigned int>
+	{ uint32_t operator()(const unsigned int val) const { return static_cast<const uint32_t>(val); } };
 
-	template <> struct hash<signed long>
-	{ uint32_t operator()(signed long val) const { return static_cast<uint32_t>(val); } };
+	template <> struct hash<const signed long>
+	{ uint32_t operator()(const signed long val) const { return static_cast<const uint32_t>(val); } };
 
-	template <> struct hash<unsigned long>
-	{ uint32_t operator()(unsigned long val) const { return static_cast<uint32_t>(val); } };
+	template <> struct hash<const unsigned long>
+	{ uint32_t operator()(const unsigned long val) const { return static_cast<const uint32_t>(val); } };
 
-	template <> struct hash<signed long long>
-	{ uint32_t operator()(signed long long val) const { return static_cast<uint32_t>(val); } };
+	template <> struct hash<const signed long long>
+	{ uint32_t operator()(const signed long long val) const { return static_cast<const uint32_t>(val); } };
 
-	template <> struct hash<unsigned long long>
-	{ uint32_t operator()(unsigned long long val) const { return static_cast<uint32_t>(val); } };
+	template <> struct hash<const unsigned long long>
+	{ uint32_t operator()(const unsigned long long val) const { return static_cast<const uint32_t>(val); } };
 
-	template <> struct hash<float>
-	{ uint32_t operator()(float val) const { return static_cast<uint32_t>(val); } };
+	template <> struct hash<const float>
+	{ uint32_t operator()(const float val) const { return static_cast<const uint32_t>(val); } };
 
-	template <> struct hash<double>
-	{ uint32_t operator()(double val) const { return static_cast<uint32_t>(val); } };
+	template <> struct hash<const double>
+	{ uint32_t operator()(const double val) const { return static_cast<const uint32_t>(val); } };
 
-	template <> struct hash<long double>
-	{ uint32_t operator()(long double val) const { return static_cast<uint32_t>(val); } };
+	template <> struct hash<const long double>
+	{ uint32_t operator()(const long double val) const { return static_cast<const uint32_t>(val); } };
 
 } // namespace containers
 

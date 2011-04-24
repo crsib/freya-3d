@@ -9,6 +9,9 @@
 
 #include "core/memory/MemoryArena.h"
 
+#include "containers/hash_set.h"
+#include "containers/policies/Policies.h"
+
 int main(int argc, char* argv[])
 {
 	{
