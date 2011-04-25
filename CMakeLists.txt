@@ -138,7 +138,7 @@ add_subdirectory ( FreyaReflect )
 # Lua support library 
 add_subdirectory ( FreyaLua )
 # Freya core
-add_subdirectory ( FreyaCore )
+# add_subdirectory ( FreyaCore )
 
 # Build tests
 add_subdirectory ( Tests )

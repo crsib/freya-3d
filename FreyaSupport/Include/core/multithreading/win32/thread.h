@@ -1,36 +1,33 @@
-/* File	  : freya/core/multithreading/details/plat-win-thread.h
+/* File	  : core/multithreading/win32/thread.h
  * Author : V. Sverchinsky
  * E-Mail : sverchinsky[at]gmail[dot]com
  *
  * This file is a part of Freya3D Engine.
- *
- * This file contains thread implementation for Win platform.
- * WARNING : Do not use it directly from your code.
  */
 
 #ifndef FREYA_PLATFORM_WIN_THREAD_H_
 #define FREYA_PLATFORM_WIN_THREAD_H_
 
-#include <atomic/atomic.h>
-#include "core/multithreading/thread-interface.h"
+#include "atomic/atomic.h"
+#include "core/multithreading/thread_local.h"
+
+#include "core/multithreading/details/platform.h"
+#include "core/multithreading/thread.h"
+
 
 namespace core {
 	namespace multithreading {
 		
 		namespace details
 		{
-			__declspec( dllimport ) atomic::atomic<unsigned> __process_thread_counter;
-		}
-
-		namespace thread_self
-		{
-			__declspec( dllimport ) extern core::multithreading::thread_self::local_variable user_id;
-		}
+			FREYA_SUPPORT_EXPORT extern atomic::atomic<unsigned> __process_thread_counter;
+			FREYA_SUPPORT_EXPORT extern core::multithreading::thread_local<unsigned> freya_id;
+		}//namespace details
 
 		//Platform thread routine. See WinAPI documentation for details.
         template<typename ObjT, void (ObjT::*Function)(void)>
 		DWORD WINAPI platform_win_thread_routine(LPVOID arg) {
-			thread_self::user_id = details::__process_thread_counter++;
+			details::freya_id = details::__process_thread_counter++;
 			ObjT* object = reinterpret_cast<ObjT*>(arg);
 			(object->*Function)();
 			return 0;
@@ -38,26 +35,25 @@ namespace core {
 
 		namespace thread_self
 		{
-			inline unsigned get_platform_id()
+			inline bool yield()
 			{
-				return static_cast<unsigned>( GetCurrentThreadId() );
-			}
-
-			inline void yield()
-			{
-				SwitchToThread();
+				return (SwitchToThread() != 0);
 			}
 
 			inline void sleep(const unsigned ms)
 			{
 				Sleep( static_cast<DWORD>(ms) );
 			}
+
+			inline unsigned get_freya_id()
+			{
+				return static_cast<unsigned>(details::freya_id);
+			}
 		}//namespace thread_self
 
-		inline thread::thread( )
+		inline thread::thread()
+			: thread_rep()
 		{
-			m_platform_data.m_handle	= NULL;
-			m_platform_data.m_id		= 0;
 		}
 
 		inline thread::~thread()
@@ -68,14 +64,14 @@ namespace core {
 		template<typename T, void (T::*Func)(void)>
 		inline thread* thread::create(T& runable)
 		{
-			details::thread_data pdata = {NULL, 0};
+			details::thread_rep pdata(NULL, 0);
 			pdata.m_handle = 
 				CreateThread(NULL, 0, static_cast<LPTHREAD_START_ROUTINE>(&platform_win_thread_routine<T, Func>), &runable, 0, &(pdata.m_id));
 			if(pdata.m_handle)
 			{
 				thread* r = new thread;
-				r->m_platform_data.m_handle = pdata.m_handle;
-				r->m_platform_data.m_id = pdata.m_id;
+				r->m_handle = pdata.m_handle;
+				r->m_id = pdata.m_id;
 				return r;
 			}
 			return NULL;
@@ -83,35 +79,44 @@ namespace core {
 
 		inline bool thread::is_active( ) const
 		{
-			return (m_platform_data.m_handle != NULL);
+			return (thread_rep::m_handle != NULL);
 		}
 
 		inline unsigned thread::get_platform_id(void) const
 		{
-			return static_cast<unsigned>(m_platform_data.m_id);
+			return static_cast<unsigned>(thread_rep::m_id);
 		}
 
 		inline bool thread::join( )
 		{
-			bool signaled = static_cast<bool>( !WaitForSingleObject(m_platform_data.m_handle, INFINITE) );
+			bool signaled = (WaitForSingleObject(thread_rep::m_handle, INFINITE) == 0 );
 			if(signaled)
-				m_platform_data.m_handle = NULL;
+			{
+				CloseHandle(thread_rep::m_handle);
+				thread_rep::m_handle = NULL;
+			}
 			return signaled;
 		}
 
 		inline bool thread::join(const unsigned ms)
 		{
-			bool signaled = static_cast<bool>( !WaitForSingleObject(m_platform_data.m_handle, static_cast<DWORD>(ms)) );
+			bool signaled = (WaitForSingleObject(thread_rep::m_handle, static_cast<DWORD>(ms)) == 0 );
 			if(signaled)
-				m_platform_data.m_handle = NULL;
+			{
+				CloseHandle(thread_rep::m_handle);
+				thread_rep::m_handle = NULL;
+			}
 			return signaled;
 		}
 
 		inline bool thread::kill()
 		{
-			bool terminated = (TerminateThread(m_platform_data.m_handle, -1) != 0);
+			bool terminated = (TerminateThread(thread_rep::m_handle, -1) != 0);
 			if(terminated)
-				m_platform_data.m_handle = NULL;
+			{
+				CloseHandle(thread_rep::m_handle);
+				thread_rep::m_handle = NULL;
+			}
 			return terminated;
 		}
 

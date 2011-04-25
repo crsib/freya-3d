@@ -14,6 +14,7 @@
 #include "atomic/atomic-interface.h"
 
 // Intrinsics available on all x86 based machines
+//#pragma intrinsic(MemoryBarrier)				// cpu mem bar
 #pragma intrinsic(_ReadBarrier)					// Prevents compiler to reorder loads across the barrier.
 #pragma intrinsic(_WriteBarrier)				// Prevents compiler to reorder stores across the barrier.
 #pragma intrinsic(_ReadWriteBarrier)			// Prevents compiler to reorder loads/strores across barrier.
