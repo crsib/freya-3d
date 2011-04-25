@@ -66,6 +66,10 @@ find_package( ClangFrontend REQUIRED )
 include_directories( ${CLANGFRONTEND_INCLUDE_DIR} )
 message ( STATUS "ClangFrontend: \n\tinclude: ${CLANGFRONTEND_INCLUDE_DIR} \n\tlibs: ${CLANGFRONTEND_LIBRARIES}" )
 
+if( UNIX )
+	set( CLANGFRONTEND_LIBRARIES ${CLANGFRONTEND_LIBRARIES} pthread dl )
+endif()
+
 ######## Create exec and link ################
 find_package ( Boost REQUIRED )
 include_directories( ${Boost_INCLUDE_DIRS} )
@@ -80,7 +84,7 @@ include_directories( ${LIBXML2_INCLUDE_DIR} )
 
 ######## Header builder ######################
 # Build zlib
-add_subdirectory( "${CMAKE_SOURCE_DIR}/../../3party/zlib" ${CMAKE_SOURCE_DIR}/Build/Static)
+add_subdirectory( "${CMAKE_SOURCE_DIR}/../../3party/zlib" ${CMAKE_BINARY_DIR}/zlib)
 include_directories( "${CMAKE_SOURCE_DIR}/../../3party/zlib" )
 message ( STATUS "Configuring header packaging tool" )
 add_executable( build_headers HeaderBuilder/main.cpp )

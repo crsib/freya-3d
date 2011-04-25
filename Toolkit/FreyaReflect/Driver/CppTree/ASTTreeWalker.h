@@ -73,7 +73,7 @@ namespace boost
 }
 
 extern llvm::cl::opt<bool>			BeVerbose;
-//This class is private by it nature. So I dont' see any reason for nice and encapsulated OO code here
+//This class is private by its nature. So I dont' see any reason for nice and encapsulated OO code here
 class ASTTreeWalker : public clang::ASTConsumer
 {
 public:
@@ -91,7 +91,8 @@ public:
 
 	//Public properties
 	clang::SourceManager*					source_manager;
-	boost::unordered_set<llvm::sys::Path>	locations_to_parse;
+	typedef boost::unordered_set<llvm::sys::Path> location_container_t;
+	location_container_t            			locations_to_parse;
 
 	std::stack<CppNode*>					node_stack;
 	std::stack<clang::Decl*>				decl_stack;
