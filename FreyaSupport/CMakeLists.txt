@@ -18,11 +18,13 @@ set( FREYA_SUPPORT_INCLUDES
 	Include/core/memory/MemoryPools.h
 # core/multithreading
 	Include/core/multithreading/thread.h
-	Include/core/multithreading/thread-interface.h
 	Include/core/multithreading/thread_local.h
-	Include/core/multithreading/thread_local-interface.h
-	Include/core/multithreading/details/thread-data.h
-	Include/core/multithreading/details/thread-details.h
+	Include/core/multithreading/mutex.h
+	
+	Include/core/multithreading/details/platform.h
+	Include/core/multithreading/details/thread.h
+	Include/core/multithreading/details/thread_local.h
+	Include/core/multithreading/details/mutex.h
 )
 
 # include source groups
@@ -48,13 +50,14 @@ source_group("Include\\atomic" FILES
 
 source_group("Include\\core\\multithreading" FILES
 								./Include/core/multithreading/thread.h
-								./Include/core/multithreading/thread-interface.h
 								./Include/core/multithreading/thread_local.h
-								./Include/core/multithreading/thread_local-interface.h
+								./Include/core/multithreading/mutex.h
 )
 source_group("Include\\core\\multithreading\\details" FILES
-								./Include/core/multithreading/details/thread-data.h
-								./Include/core/multithreading/details/thread-details.h
+								./Include/core/multithreading/details/platform.h
+								./Include/core/multithreading/details/thread.h
+								./Include/core/multithreading/details/thread_local.h
+								./Include/core/multithreading/details/mutex.h
 )
 
 if( MSVC )
@@ -70,14 +73,14 @@ if( WIN32 )
 	if( MSVC OR MINGW )
 		add_definitions(-DPLATFORM_WIN_THREADS)
 		set( FREYA_SUPPORT_INCLUDES ${FREYA_SUPPORT_INCLUDES}
-									Include/core/multithreading/details/plat-win-thread-data.h
-									Include/core/multithreading/details/plat-win-thread.h
-									Include/core/multithreading/details/plat-win-tls.h
+									Include/core/multithreading/win32/thread.h
+									Include/core/multithreading/win32/thread_local.h
+									Include/core/multithreading/win32/mutex.h
 		)
-		source_group("Include\\core\\multithreading\\details" FILES
-						Include/core/multithreading/details/plat-win-thread-data.h
-						Include/core/multithreading/details/plat-win-thread.h
-						Include/core/multithreading/details/plat-win-tls.h
+		source_group("Include\\core\\multithreading\\win32" FILES
+						Include/core/multithreading/win32/thread.h
+						Include/core/multithreading/win32/thread_local.h
+						Include/core/multithreading/win32/mutex.h
 		)
 	endif( MSVC OR MINGW )
 elseif( UNIX OR APPLE )
