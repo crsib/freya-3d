@@ -9,7 +9,7 @@
 #define Containers_Policies_AtomicLock_h__
 
 #include "integer.h"
-#include "atomic/atomic.h"
+#include "core/multithreading/thread.h"
 
 namespace containers
 {

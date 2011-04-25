@@ -20,7 +20,7 @@ namespace core
 				static simple_runable* create_instance()
 				{
 					if(!m_instance)
-						return new simple_runable;
+						return m_instance = new simple_runable;
 					return NULL;
 				}
 
