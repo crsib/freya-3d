@@ -2,6 +2,7 @@
 #include <llvm/Support/CommandLine.h>
 #include <CppTree/ASTTreeWalker.h>
 #include <llvm/Support/Path.h>
+#include <llvm/Support/FileSystem.h>
 #include <clang/Basic/FileSystemOptions.h>
 #include <llvm/Support/raw_ostream.h>
 #include "CppTree/TreeMarker.h"
@@ -199,8 +200,13 @@ CppTreePtr prepareASTTree(
 
 	for(std::vector<std::string>::const_iterator it = header_paths.begin(); it != header_paths.end(); ++ it)
 	{
-		llvm::sys::Path path(*it);
-		path.makeAbsolute();
+		//llvm::sys::Path path(*it);
+		llvm::SmallVectorImpl<char> _path(it->length() + 1);
+		_path.insert(_path.begin(), it->begin(), it->end());
+		//path.makeAbsolute();
+		llvm::sys::fs::make_absolute(_path);
+		llvm::sys::Path path(&_path[0],_path.size());
+		//std::clog << path.str() << std::endl;
 		astConsumer.locations_to_parse.insert(path);
 	}
 
