@@ -27,12 +27,6 @@
 	#endif
 #elif defined(_MSC_VER) // Supported arch x86-64.
 	#include "atomic/details/atomic-msvc.h"
-	#ifndef PAUSE
-		//#pragma intrinsic(YieldProcessor)
-		#define PAUSE YieldProcessor()
-	#else
-		#error macro redefinition.
-	#endif
 #endif
 
 

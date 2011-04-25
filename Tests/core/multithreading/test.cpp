@@ -72,7 +72,8 @@ namespace core
 				clock_t start = clock();
 				thread_self::sleep(time_to_sleep);
 				clock_t end = clock();
-				const long time_diff = static_cast<long>(start) - static_cast<long>(end);
+				const long time_diff = static_cast<long>(end) - static_cast<long>(start);
+				std::cout << time_diff;
 				if( (time_diff * 1000) >= (static_cast<long>(time_to_sleep) * CLOCKS_PER_SEC) )
 				{
 					std::cout << "passed.\n";
@@ -104,7 +105,13 @@ namespace core
 					std::cout << " failed(unable to create thread).\n";
 					return false;
 				}
-				while(!thread_self::yield());
+				const int check_times = 10;
+				int checks = 0;
+				while((!sr->is_ok()) && checks < check_times )
+				{
+					while(!thread_self::yield());
+					checks++;
+				}
 				if(!sr->is_ok())
 				{
 					std::cout << "failed.\n";
@@ -180,17 +187,35 @@ int main(void)
 
 	std::cout<<"Running multithreading test... ";
 	if(!tests::thread_self_sleep())
+	{
+		system("PAUSE");
 		return 0;
+	}
 	if(!tests::thread_self_get_freya_id())
+	{
+		system("PAUSE");
 		return 0;
+	}
 	if(!tests::thread_create())
+	{
+		system("PAUSE");
 		return 0;
+	}
 	if(!tests::thread_is_active())
+	{
+		system("PAUSE");
 		return 0;
+	}
 	if(!tests::thread_timed_join())
+	{
+		system("PAUSE");
 		return 0;
+	}
 	if(!tests::thread_join())
+	{
+		system("PAUSE");
 		return 0;
+	}
 }
 
 /*#include <iostream>
