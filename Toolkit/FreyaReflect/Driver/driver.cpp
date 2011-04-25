@@ -19,6 +19,16 @@
 
 #include <memory>
 
+
+class driver_exception : public std::exception
+{
+	const char * m_ExceptionMsg; 
+public:
+	driver_exception(const char* exception) throw() : m_ExceptionMsg ( m_ExceptionMsg ) {}
+  	virtual const char* what() const throw() { return m_ExceptionMsg; }
+
+};
+
 //================================= cl options =========================================================
 //Output flags
 llvm::cl::opt<std::string>	ReflectionOutputFile("refl-output",llvm::cl::desc("Specify output filename for reflection file. Use stdout to redirect output to standard output"), llvm::cl::value_desc("filename"));
@@ -77,7 +87,7 @@ void	header_files_collector(std::vector<std::string>& path_list, const llvm::sys
 	std::string err;
 	if(!current_dir.getDirectoryContents(paths,&err))
 	{
-		for(auto it = paths.begin(), end = paths.end(); it != end; ++it)
+		for(std::set<llvm::sys::Path>::iterator it = paths.begin(), end = paths.end(); it != end; ++it)
 		{
 			if( it->isDirectory() )
 				header_files_collector(path_list, *it);
@@ -115,7 +125,7 @@ llvm::sys::Path	write_down_temp_rutime()
 	if (ret != Z_OK)
 	{
 		//delete buffer;
-		throw std::exception("zlib inflateInit failed");
+		throw driver_exception("zlib inflateInit failed");
 	}
 
 	strm.avail_in = compressed_size;
@@ -129,7 +139,7 @@ llvm::sys::Path	write_down_temp_rutime()
 	if(ret != Z_STREAM_END)
 	{
 		//delete buffer;
-		throw std::exception("Failed to decompress headers");
+		throw driver_exception("Failed to decompress headers");
 	}
 
 	inflateEnd(&strm);
@@ -168,7 +178,7 @@ llvm::sys::Path	write_down_temp_rutime()
 		
 		FILE* output_file = fopen((path.str() + "/" + filename).c_str(), "wb");
 		if(!output_file)
-			throw std::exception("Failed to create a file");
+			throw driver_exception("Failed to create a file");
 		fwrite(buffer + offset,1,file_size,output_file);
 		fclose(output_file);
 
@@ -208,7 +218,7 @@ int main (int argc, char* argv[])
 	}//if(RecursiveScan.getValue())
 	else
 	{
-		for(auto it = InputFilenames.begin(), end = InputFilenames.end(); it != end; ++it)
+		for(std::vector<std::string>::iterator it = InputFilenames.begin(), end = InputFilenames.end(); it != end; ++it)
 			file_list.push_back(*it);
 	} //Just populate the list
 	//Write down headers

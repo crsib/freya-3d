@@ -4,11 +4,22 @@
 #include "CppTree/CppType.h"
 #include "CppTree/CppTree.h"
 
-#include "clang/ast/DeclTemplate.h"
+#include "clang/AST/DeclTemplate.h"
 
 #include <boost/algorithm/string.hpp>
 
+#include <llvm/Support/FileSystem.h>
+
 using namespace clang;
+
+class treewalk_exception : public std::exception
+{
+	const char * m_ExceptionMsg; 
+public:
+	treewalk_exception(const char* exception) throw() : m_ExceptionMsg ( m_ExceptionMsg ) {}
+  	virtual const char* what() const throw() { return m_ExceptionMsg; }
+
+};
 
 ASTTreeWalker::ASTTreeWalker() : clang::ASTConsumer(), tree_ptr(new CppTree) 
 { 
@@ -43,10 +54,18 @@ bool ASTTreeWalker::isDeclFromUserFile( clang::SourceLocation loc )
 
 	std::string filename ( source_manager->getBufferName(loc) );
 
-	llvm::sys::Path path(filename);
-	path.makeAbsolute();
+	llvm::Twine twine_repr( filename );
 
-	return (locations_to_parse.find(path) != locations_to_parse.end());
+        bool t = false;
+//TODO: Find a better way to implement me
+	for( location_container_t::iterator it = locations_to_parse.begin(); it != locations_to_parse.end(); ++it )
+	{
+		llvm::sys::fs::equivalent(twine_repr,llvm::Twine(it->str()), t);
+		if(t)
+			return true;
+	}
+
+	return false;
 }
 
 
@@ -121,7 +140,7 @@ void ASTTreeWalker::visitNamespaceDecl( clang::NamespaceDecl* decl )
 		else if(found->getNodeType() & CppNode::NODE_TYPE_NAMESPACE)
 			node = static_cast<CppNodeNamespace*>(found.get());
 		else
-			throw std::exception("node with the same name of different type found");
+			throw treewalk_exception("node with the same name of different type found");
 
 		node_stack.push(node);
 		decl_stack.push(decl);
@@ -131,7 +150,7 @@ void ASTTreeWalker::visitNamespaceDecl( clang::NamespaceDecl* decl )
 		node_stack.pop();
 	}
 	else
-		throw std::exception("namespace node is expected");
+		throw treewalk_exception("namespace node is expected");
 }
 
 void ASTTreeWalker::visitDeclContext( clang::DeclContext* decl )
@@ -202,7 +221,7 @@ void ASTTreeWalker::visitEnum( clang::EnumDecl* decl )
 		}
 	}
 	else
-		throw std::exception("scope node is expected");
+		throw treewalk_exception("scope node is expected");
 }
 
 void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
@@ -277,7 +296,7 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 					
 					switch(arg_kind)
 					{
-					case TemplateArgument::ArgKind::Type:
+					case TemplateArgument::Type:
 					{
 						CppTypePtr	qual_type = resolveQualType(&arg.getAsType());
 						assert(qual_type);
@@ -287,11 +306,11 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 						m_TemplateSpecialization->addTemplateArgument(a_ptr);
 					}
 						break;
-					case TemplateArgument::ArgKind::Integral:
+					case TemplateArgument::Integral:
 						m_TemplateSpecialization->addTemplateArgument(CppNodeClassTemplateSpecialization::TemplateArgumentPtr(
 							new CppNodeClassTemplateSpecialization::TemplateArgument(*arg.getAsIntegral()->getRawData())));
 						break;
-					case TemplateArgument::ArgKind::Template:
+					case TemplateArgument::Template:
 						m_TemplateSpecialization->addTemplateArgument(CppNodeClassTemplateSpecialization::TemplateArgumentPtr(
 							new CppNodeClassTemplateSpecialization::TemplateArgument(arg.getAsTemplate().getAsTemplateDecl()->getName())));
 						break;
@@ -307,7 +326,7 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 								"EXPRESSION",
 								"PACK"
 							};
-							throw std::exception( (std::string("Unresolved parameter type: ") + __names[arg_kind]).c_str() );
+							throw treewalk_exception( (std::string("Unresolved parameter type: ") + __names[arg_kind]).c_str() );
 						}
 					}
 				} // Loop through template arguments
@@ -397,7 +416,7 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 		}
 	}
 	else
-		throw std::exception("scope node is expected");
+		throw treewalk_exception("scope node is expected");
 }
 
 CppTypePtr ASTTreeWalker::resolveQualType( clang::QualType* type )
@@ -500,7 +519,7 @@ CppTypePtr ASTTreeWalker::resolveQualType( clang::QualType* type )
 						//	std::cout << "Break" << std::endl;
 					}
 					else
-						throw std::exception("scope node is expected");
+						throw treewalk_exception("scope node is expected");
 				}
 			} // Pointer type
 			else
@@ -552,7 +571,7 @@ CppTypePtr ASTTreeWalker::resolveQualType( clang::QualType* type )
 						{
 							std::clog << "[ERROR]: Decl not found: " << type_s->getAs<TagType>()->getDecl()->getNameAsString() << std::endl;
 							std::clog << "[ERROR]: Stack top: " << node_stack.top()->getNodeName() << std::endl; 
-							throw std::exception((std::string("Underlying type failed to resolve: ") + type->getAsString()).c_str());
+							throw treewalk_exception((std::string("Underlying type failed to resolve: ") + type->getAsString()).c_str());
 						}
 					}
 
@@ -650,7 +669,7 @@ void ASTTreeWalker::visitVarDecl( clang::DeclaratorDecl* decl )
 		}
 	}
 	else
-		throw std::exception("scope node is expected");
+		throw treewalk_exception("scope node is expected");
 }
 
 void ASTTreeWalker::visitTypedef( clang::TypedefDecl* decl )
@@ -690,7 +709,7 @@ void ASTTreeWalker::visitTypedef( clang::TypedefDecl* decl )
 		}
 	}
 	else
-		throw std::exception("scope node is expected");
+		throw treewalk_exception("scope node is expected");
 }
 
 void ASTTreeWalker::visitFunction( clang::FunctionDecl* decl )
@@ -732,7 +751,7 @@ void ASTTreeWalker::visitFunction( clang::FunctionDecl* decl )
 		}
 
 		//Set the return value
-		QualType& ret_qtype = decl->getType()->getAs<FunctionType>()->getResultType();
+		QualType ret_qtype = decl->getType()->getAs<FunctionType>()->getResultType();
 		if( !ret_qtype->isVoidType() )
 			func_node->setReturnValue( resolveQualType( &ret_qtype ) );
 
@@ -775,5 +794,5 @@ void ASTTreeWalker::visitFunction( clang::FunctionDecl* decl )
 		}
 	}
 	else //if(node_stack.top()->getNodeType() & CppNode::NODE_TYPE_SCOPE)
-		throw std::exception("scope node is expected");
+		throw treewalk_exception("scope node is expected");
 }
