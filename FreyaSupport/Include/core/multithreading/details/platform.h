@@ -13,8 +13,10 @@
 	#error Thread platform section mismatch: only one symbol should be defined.
 #endif
 
-#if defined(PLATFORM_POSIX_THREADS)
-	#error core::multithreading library for posix platform is not implemented yet.
+#ifdef PLATFORM_WIN_THREADS
+#	include <Windows.h>
+#elif defined(PLATFORM_POSIX_THREADS)
+#	error core::multithreading library for posix platform is not implemented yet.
 #endif
 
 #include "FreyaSupportInternal.h"
@@ -27,7 +29,6 @@ namespace core
 		{
 //-----------------------------------------------------------------------------
 #if defined(PLATFORM_WIN_THREADS)
-#include <Windows.h>
 
 			struct FREYA_SUPPORT_EXPORT thread_rep
 			{
