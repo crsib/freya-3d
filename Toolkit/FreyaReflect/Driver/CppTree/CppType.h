@@ -1,7 +1,7 @@
 #ifndef CppType_h__
 #define CppType_h__
 
-#include <clang/ast/Type.h>
+#include <clang/AST/Type.h>
 #include <string>
 
 #include <boost/shared_ptr.hpp>
