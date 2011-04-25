@@ -19,6 +19,8 @@
 #include "containers/policies/storage/FixedSize.h"
 #include "containers/policies/storage/Greedy.h"
 
+#include "containers/policies/rehash/PrimeNumber.h"
+
 //! \defgroup grpContainers Freya 3D Engines generic containers
 
 //! \brief This namespace contains interfaces to Freya 3D Engines generic containers
@@ -52,6 +54,13 @@ namespace containers
 		//! \brief Storage expansion policies interfaces
 		//! \ingroup grpContainers_Policies_Storage
 		namespace storage {}
+
+		//! \defgroup grpContainers_Policies_Rehash Re-hash policies
+		//! \ingroup grpContainers_Policies
+
+		//! \brief Re-hash policies interfaces
+		//! \ingroup grpContainers_Policies_Rehash
+		namespace rehash {}
 	}
 }
 

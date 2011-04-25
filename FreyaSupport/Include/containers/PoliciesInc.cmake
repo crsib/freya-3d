@@ -10,6 +10,8 @@ Include/containers/policies/storage/Exponential.h
 Include/containers/policies/storage/FixedSize.h
 Include/containers/policies/storage/Greedy.h
 
+Include/containers/policies/rehash/PrimeNumber.h
+
 Include/containers/policies/Policies.h
 )
 
@@ -31,3 +33,12 @@ source_group( "Include\\containers\\policies\\storage" FILES
 				Include/containers/policies/storage/FixedSize.h
 				Include/containers/policies/storage/Greedy.h
 			)
+			
+source_group( "Include\\containers\\policies" FILES Include/containers/policies/Policies.h )
+source_group( "Include\\containers\\policies\\rehash" FILES Include/containers/policies/rehash/PrimeNumber.h )
+
+set( FREYA_SUPPORT_SOURCES ${FREYA_SUPPORT_SOURCES} 
+Source/containers/policies/rehash/PrimeNumber.cpp
+)
+
+source_group( "containers" FILES Source/containers/policies/rehash/PrimeNumber.cpp )

@@ -671,5 +671,45 @@ namespace core
 		data_buffer_ptr	m_BufferPtr;
 	};
 } // namespace core
+//!\cond
+namespace containers
+{
+	template<typename T> struct hash;
+	template<> 
+	struct hash<core::string> 
+	{ 
+		uint32_t operator () (const core::string& s) const { return s.hash(); } 
+	};
 
+	template<> 
+	struct hash<const core::string&> 
+	{ 
+		uint32_t operator () (const core::string& s) const { return s.hash(); } 
+	};
+
+	template<> 
+	struct hash<core::string&> 
+	{ 
+		uint32_t operator () (const core::string& s) const { return s.hash(); } 
+	};
+
+	template<> 
+	struct hash<const core::string> 
+	{ 
+		uint32_t operator () (const core::string& s) const { return s.hash(); } 
+	};
+
+	template<> 
+	struct hash<const char* > 
+	{ 
+		uint32_t operator () (const char* s) const { return core::string(s).hash(); } 
+	};
+
+	template<> 
+	struct hash<char* > 
+	{ 
+		uint32_t operator () (const char* s) const { return core::string(s).hash(); } 
+	};
+} //Namespace container
+//!\endcond
 #endif // string_h__

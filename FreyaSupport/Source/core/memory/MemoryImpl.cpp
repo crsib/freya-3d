@@ -8,11 +8,7 @@
 #include "core/memory/MemoryArena.h"
 #include "core/memory/MemoryPools.h"
 
-#include <cassert>
-#include <iostream>
-
-#include <list>
-#include <vector>
+#include "containers/policies/storage/FixedSize.h"
 
 #include "atomic/atomic.h"
 #include "integer.h"
@@ -602,7 +598,7 @@ public:
 	~MemoryPool()
 	{
 		delete m_SmallBlockPool;
-		for(std::vector<MemoryBuffer*>::iterator it = m_Buffers.begin(); it != m_Buffers.end(); ++it)
+		for(buffer_vector_t::iterator it = m_Buffers.begin(); it != m_Buffers.end(); ++it)
 		{
 			delete (*it);
 		}
@@ -678,7 +674,12 @@ public:
 		m_Lock = 0;
 	}
 private:
-	std::vector<MemoryBuffer*>	m_Buffers;
+	typedef containers::vector<MemoryBuffer*,
+		containers::policies::memory::Malloc,
+		containers::policies::multithreading::AtomicLock,
+		containers::policies::storage::FixedSize<4>
+	>	buffer_vector_t;
+	buffer_vector_t m_Buffers;
 
 	uint32_t					m_PoolId;
 	uint32_t					m_PreallocSize;
