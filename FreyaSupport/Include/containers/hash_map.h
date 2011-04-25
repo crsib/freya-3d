@@ -70,7 +70,7 @@ namespace containers
 		typedef pair<typename constant<Key>::type, T>     value_type;
 		//! Type of hasher
 		typedef Hash                                      hasher_type;
-		//! Type of equlity predicate
+		//! Type of equality predicate
 		typedef Equal									  compare_type;
 	private:
 		hash_map(const hash_map& );
@@ -125,7 +125,7 @@ namespace containers
 		 * Check, if the container does not already contain the key and insert an element.
 		 * If key already exists, do nothing.
 		 * \return iterator to the newly inserted or to the already contained element in first, true in second
-		 *          if the insertion has actually ocurred, false otherwise
+		 *          if the insertion has actually occurred, false otherwise
 		 */
 		pair<iterator, bool> insert( typename const_reference<value_type>::type value )
 		{
@@ -164,7 +164,7 @@ namespace containers
 	 * assumes, that associative containers more often are used to insert/lookup for elements and erase operation is 
 	 * rare. In order, to restore the hash_multimap to initial state, please use reset() method.
 	 * <BR><BR>
-	 * The hash_map is controlled by the following policies:
+	 * The hash_multimap is controlled by the following policies:
 	 * - MemoryAllocationPolicy controls, which kind of memory management routines will be used to allocate storage space for the hash_map.
 	 *    vector supports all policies in \ref grpContainers_Policies_Memory
 	 * - LockPolicy controls the thread safety properties. Selected policy will control the thread safety of operations modifying hash_map storage space.
@@ -274,6 +274,9 @@ namespace containers
 		//! Erase range of elements
 		void	erase( const iterator& first, const iterator& last )
 		{ m_Implementation.erase(first,last); }
+		//! Erase range of elements
+		void	erase( const iterator_range& range ) 
+		{ m_Implementation.erase(range); }
 	}; // class hash_multimap
 
 

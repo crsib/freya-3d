@@ -170,6 +170,10 @@ namespace containers
 
 			void	erase(const iterator& it );  
 			void	erase(const iterator& first, const iterator& last);
+			void	erase(const iterator_range& range)
+			{
+				erase(range.first, range.second);
+			}
 			
 			
 			ThreadSafetyPolicy& lock_policy() { return m_LockPolicy; }
@@ -194,11 +198,11 @@ namespace containers
 
 			static void set_value(HashNode* node, typename const_reference<Value>::type val, eastl::true_type) 
 			{
-				memcpy( &node->value, &val, sizeof(Value));
+				memcpy( reinterpret_cast<void*>(const_cast<typename drop_const<Value>::type*>(&node->value)), &val, sizeof(Value));
 			}
 			static void set_value(HashNode* node, typename const_reference<Value>::type val, eastl::false_type) 
 			{
-				new(&node->value) Value(val);
+				::new(reinterpret_cast<void*>(const_cast<typename drop_const<Value>::type*>(&node->value))) Value(val);
 			}
 			static void set_value(HashNode* node, typename const_reference<Value>::type val) { set_value(node, val, eastl::has_trivial_copy<Value>()); }
 
