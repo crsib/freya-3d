@@ -10,6 +10,12 @@
 
 #if defined(PLATFORM_WIN_THREADS)
 	#include "../win32/thread.h"
+	#ifndef PAUSE
+		//#pragma intrinsic(YieldProcessor)
+		#define PAUSE YieldProcessor()
+	#else
+		#error macro redefinition.
+	#endif
 #elif defined(PLATFOR_POSIX_THREADS)
 #endif//PLATFORM_WIN_THREADS
 
