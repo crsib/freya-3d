@@ -111,10 +111,15 @@ source_group("core\\multithreading" FILES
 )
 
 include ( Include/containers/VectorInc.cmake )
+include ( Include/containers/Unordered.cmake )
 include ( Include/containers/PoliciesInc.cmake )
 
-set( FREYA_SUPPORT_INCLUDES ${FREYA_SUPPORT_INCLUDES} Include/containers/type_utils.h )
-source_group( "Include\\containers" FILES Include/containers/type_utils.h )
+set( FREYA_SUPPORT_INCLUDES ${FREYA_SUPPORT_INCLUDES} 
+Include/containers/type_utils.h 
+Include/containers/utils.h
+Include/containers/iterator.h
+)
+source_group( "Include\\containers" FILES Include/containers/type_utils.h Include/containers/utils.h Include/containers/iterator.h)
 
 # Add UTF8CPP library 
 include_directories( ../3party/utf8cpp )
@@ -128,3 +133,5 @@ if( FREYA_BUILD_SHARED )
 else()
 	add_library( FreyaSupport STATIC ${FREYA_SUPPORT_INCLUDES} ${FREYA_SUPPORT_SOURCES} )
 endif()
+
+set_target_properties ( FreyaSupport PROPERTIES FOLDER "Core Libraries" )

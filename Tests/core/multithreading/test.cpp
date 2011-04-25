@@ -1,6 +1,6 @@
 #include <iostream>
 #include <time.h>
-#include <atomic/atomic.h>
+//#include <atomic/atomic.h>
 #include <core/multithreading/thread.h>
 
 using namespace core::multithreading;

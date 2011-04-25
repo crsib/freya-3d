@@ -94,6 +94,7 @@ if(MSVC)
     add_definitions("-D_HAS_ITERATOR_DEBUGGING=0")
     add_definitions(/arch:SSE2)
 	add_definitions( /wd4251 ) # really stupid warning. Probably the most stupid I've ever seen...
+	set_property( GLOBAL PROPERTY USE_FOLDERS On )
 endif(MSVC)
 # Search for libraries
 
@@ -137,7 +138,7 @@ add_subdirectory ( FreyaReflect )
 # Lua support library 
 add_subdirectory ( FreyaLua )
 # Freya core
-add_subdirectory ( FreyaCore )
+# add_subdirectory ( FreyaCore )
 
 # Build tests
 add_subdirectory ( Tests )

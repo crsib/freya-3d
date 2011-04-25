@@ -17,4 +17,6 @@ else()
 #	add_library( FreyaCore STATIC ${FREYA_CORE_INCLUDES} ${FREYA_CORE_SOURCES} )
 endif()
 
+set_target_properties( FreyaCore PROPERTIES FOLDER "Core Libraries" )
+
 #SET_PROPERTY( GLOBAL PROPERTY RUNTIME_LINK_LIBRARIES_GLOBAL ${RUNTIME_LINK_LIBRARIES} FreyaCore)
