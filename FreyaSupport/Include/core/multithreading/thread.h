@@ -19,29 +19,29 @@ namespace core
 		/// \brief This namespace contains functions to control the thread of execution.
 		namespace thread_self
 		{
-			/// \brief Yields cpu time to another thread.
+			/// \brief Yields CPU time to another thread.
 			inline bool yield();
 
 			/// \brief Makes thread of execution to sleep for a specified time.
 			/** \param ms Time to sleep in milliseconds. */
 			inline void sleep(const unsigned ms);
 
-			/// \brief Retrieve freya specific thread id.
-			/** Returned value is lies in [0..n] interval, where 'n' is a total thread
+			/// \brief Retrieve Freya specific thread id.
+			/** Returned value lies in [0..n] interval, where 'n' is a total thread
 			  * number that had been created. Zero value corresponds to the main
 			  * thread. NB: The id value does not reflect the order in which thread
-			  * was created, but uniqueness is guaranted.
+			  * was created, but uniqueness is guaranteed.
 			  * \return Unsigned integral value. */
 			inline unsigned get_freya_id();
 		}//namespace thread_self
 
         /// \brief Wrapper over platform provided thread management functions.
-        /** In oreder to enlight implementation, thread instances could not
+        /** In order to enlighten implementation, thread instances could not
 		  * copied or assigned by value.*/
 		class FREYA_SUPPORT_EXPORT thread : private details::thread_rep {
 		public:
 			/// \brief Static function that creates new thread.
-			/** \tparam T Runable object type.
+			/** \tparam T Runnable object type.
 			  * \tparam Func Function name that should be called as a thread routine.
 			  * \param runable reference to the instance of type T.
 			  * \return Pointer to the new thread. In case of error function will return NULL.
