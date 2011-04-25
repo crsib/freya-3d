@@ -4,6 +4,15 @@
 
 #include <boost/algorithm/string.hpp>
 
+class xmlwriter_exception : public std::exception
+{
+	const char * m_ExceptionMsg; 
+public:
+	xmlwriter_exception(const char* exception) throw() : m_ExceptionMsg ( m_ExceptionMsg ) {}
+  	virtual const char* what() const throw() { return m_ExceptionMsg; }
+
+};
+
 namespace
 {
 
@@ -389,10 +398,10 @@ std::string XMLWriter::insertTabs()
 }
 
 XMLWriter::XMLWriter( CppNode* tree_top, const std::string& _path )
-	: m_CurrentDepth(2), m_TreeTop(tree_top), m_OutputStream( _path, std::ios_base::out )
+	: m_CurrentDepth(2), m_TreeTop(tree_top), m_OutputStream( _path.c_str(), std::ios_base::out )
 {
 	if(m_OutputStream.bad())
-		throw std::exception("Failed to open output stream for writing");
+		throw xmlwriter_exception("Failed to open output stream for writing");
 
 	m_OutputStream << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n<cpptree>\n\t<astnodes>\n";
 }

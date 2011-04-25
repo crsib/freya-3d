@@ -400,7 +400,7 @@ public:
 	
 	size_t										methodsCount() const { return m_Metods.size(); }
 
-	void										addMethod(CppNodeClassMethodPtr& m) { m_Metods.push_back(m); }
+	void										addMethod(const CppNodeClassMethodPtr& m) { m_Metods.push_back(m); }
 
 
 	member_list_iterator_t						members_begin() { return m_Members.begin(); }
@@ -411,7 +411,7 @@ public:
 	
 	size_t										membersCount() const { return m_Members.size(); }
 
-	void										addMember(CppNodeClassMemberPtr& m) { m_Members.push_back(m); }
+	void										addMember(const CppNodeClassMemberPtr& m) { m_Members.push_back(m); }
 
 protected:
 	base_type_list_t							m_BaseClasses;
