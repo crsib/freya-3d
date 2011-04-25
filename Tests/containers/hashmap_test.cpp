@@ -51,6 +51,21 @@ int main(int argc, char* argv[])
 
 		int_lookup.erase(10); 
 		assert( int_lookup.find(10) == int_lookup.end() );
+
+		typedef hash_multimap<string,string> multistring_lookup_t;
+
+		multistring_lookup_t multi_lookup;
+		multi_lookup.insert(multistring_lookup_t::value_type("test", "foo"));
+		multi_lookup.insert(multistring_lookup_t::value_type("test", "bar"));
+		multi_lookup.insert(multistring_lookup_t::value_type("test", "moo"));
+
+		multistring_lookup_t::iterator_range range = multi_lookup.find("test");
+
+		for( multistring_lookup_t::iterator it = range.first; it != range.second; ++it)
+			std::cout << it->first.c_str() << " -> " << it->second.c_str() << std::endl;
+
+		multi_lookup.erase( range.first, range.second );
+		assert(multi_lookup.empty());
 	}
 
 	std::cout << "allocs: " << core::memory::allocation_count << "\ndeallocs: " << core::memory::deallocation_count
