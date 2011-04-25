@@ -128,6 +128,13 @@ else()
 	message( FATAL_ERROR "Currently, EASTL type traits is a requirement" )
 endif()
 
+# Determine threading platform
+if( WIN32 )
+	add_definitions(-DPLATFORM_WIN_THREADS)
+elseif( UNIX )
+	add_definitions(-DPLATFORM_POSIX_THREADS)
+endif()
+
 # Libraries
 # Support library
 add_subdirectory ( FreyaSupport ) 

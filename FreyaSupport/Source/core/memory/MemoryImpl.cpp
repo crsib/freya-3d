@@ -10,10 +10,10 @@
 
 #include "containers/policies/storage/FixedSize.h"
 
-#include "atomic/atomic.h"
+#include "core/multithreading/thread.h"
 #include "integer.h"
 
-#define YIELD() PAUSE ;
+#define YIELD() core::multithreading::thread_self::yield() ;
 
 namespace core
 {
