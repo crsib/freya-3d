@@ -54,6 +54,10 @@ namespace core
 			
 			struct FREYA_SUPPORT_EXPORT mutex_rep
 			{
+				__forceinline mutex_rep(HANDLE handle = NULL)
+					: m_mutex_handle(handle)
+				{
+				}
 				HANDLE m_mutex_handle;
 			};
 //-----------------------------------------------------------------------------

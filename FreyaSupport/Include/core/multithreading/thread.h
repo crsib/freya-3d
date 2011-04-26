@@ -20,6 +20,8 @@ namespace core
 		namespace thread_self
 		{
 			/// \brief Yields CPU time to another thread.
+			/** \return Boolean value. True on success. False does not mean an error,
+			  * but execution of the calling thread will be continued. */
 			inline bool yield();
 
 			/// \brief Makes thread of execution to sleep for a specified time.
