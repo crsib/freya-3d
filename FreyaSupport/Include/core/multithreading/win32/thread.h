@@ -20,17 +20,19 @@ namespace core {
 		
 		namespace details
 		{
+			///\cond
 			FREYA_SUPPORT_EXPORT extern atomic::atomic<unsigned> __process_thread_counter;
 			FREYA_SUPPORT_EXPORT extern core::multithreading::thread_local<unsigned> freya_id;
-		}//namespace details
-
-		//Platform thread routine. See WinAPI documentation for details.
-        template<typename ObjT, void (ObjT::*Function)(void)>
-		DWORD WINAPI platform_win_thread_routine(LPVOID arg) {
-			details::freya_id = details::__process_thread_counter++;
-			ObjT* object = reinterpret_cast<ObjT*>(arg);
-			(object->*Function)();
-			return 0;
+		
+			//Platform thread routine. See WinAPI documentation for details.
+			template<typename ObjT, void (ObjT::*Function)(void)>
+			DWORD WINAPI platform_win_thread_routine(LPVOID arg) {
+				details::freya_id = details::__process_thread_counter++;
+				ObjT* object = reinterpret_cast<ObjT*>(arg);
+				(object->*Function)();
+				return 0;
+			}
+			///\endcond
 		}
 
 		inline thread::thread()
@@ -48,7 +50,7 @@ namespace core {
 		{
 			details::thread_rep pdata(NULL, 0);
 			pdata.m_handle = 
-				CreateThread(NULL, 0, static_cast<LPTHREAD_START_ROUTINE>(&platform_win_thread_routine<T, Func>), &runable, 0, &(pdata.m_id));
+				CreateThread(NULL, 0, static_cast<LPTHREAD_START_ROUTINE>(&details::platform_win_thread_routine<T, Func>), &runable, 0, &(pdata.m_id));
 			if(pdata.m_handle)
 			{
 				thread* r = new thread;
