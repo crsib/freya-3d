@@ -20,11 +20,15 @@ set( FREYA_SUPPORT_INCLUDES
 	Include/core/multithreading/thread.h
 	Include/core/multithreading/thread_local.h
 	Include/core/multithreading/mutex.h
+	Include/core/multithreading/condition_variable.h
+	Include/core/multithreading/thread_self.h
 	
 	Include/core/multithreading/details/platform.h
 	Include/core/multithreading/details/thread.h
 	Include/core/multithreading/details/thread_local.h
 	Include/core/multithreading/details/mutex.h
+	Include/core/multithreading/details/condition_variable.h
+	Include/core/multithreading/details/thread_self.h
 )
 
 # include source groups
@@ -52,12 +56,16 @@ source_group("Include\\core\\multithreading" FILES
 								./Include/core/multithreading/thread.h
 								./Include/core/multithreading/thread_local.h
 								./Include/core/multithreading/mutex.h
+								./Include/core/multithreading/condition_variable.h
+								./Include/core/multithreading/thread_self.h
 )
 source_group("Include\\core\\multithreading\\details" FILES
 								./Include/core/multithreading/details/platform.h
 								./Include/core/multithreading/details/thread.h
 								./Include/core/multithreading/details/thread_local.h
 								./Include/core/multithreading/details/mutex.h
+								./Include/core/multithreading/details/condition_variable.h
+								./Include/core/multithreading/details/thread_self.h
 )
 
 if( MSVC )
@@ -76,11 +84,15 @@ if( WIN32 )
 									Include/core/multithreading/win32/thread.h
 									Include/core/multithreading/win32/thread_local.h
 									Include/core/multithreading/win32/mutex.h
+									Include/core/multithreading/win32/condition_variable.h
+									Include/core/multithreading/win32/thread_self.h
 		)
 		source_group("Include\\core\\multithreading\\win32" FILES
 						Include/core/multithreading/win32/thread.h
 						Include/core/multithreading/win32/thread_local.h
 						Include/core/multithreading/win32/mutex.h
+						Include/core/multithreading/win32/condition_variable.h
+						Include/core/multithreading/win32/thread_self.h
 		)
 	endif( MSVC OR MINGW )
 elseif( UNIX OR APPLE )
