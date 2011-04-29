@@ -29,7 +29,7 @@ namespace core
 	{
 		namespace details
 		{
-
+			///\cond
 			struct FREYA_SUPPORT_EXPORT thread_rep
 			{
 				__forceinline thread_rep(HANDLE handle = NULL, DWORD id = 0)
@@ -40,10 +40,11 @@ namespace core
 				DWORD	m_id;
 			};
 
+			// There is no need to export this structure, because of thread_local is a template class
 			struct thread_local_rep
 			{
-				typedef LPVOID tls_data_t;
-				typedef DWORD  tls_index_t;
+				typedef LPVOID tls_data_t;//type of tls cell
+				typedef DWORD  tls_index_t;//type of index of tls cell
 
 				__forceinline thread_local_rep(DWORD index)
 					: m_tls_index(index)
@@ -56,7 +57,7 @@ namespace core
 			struct FREYA_SUPPORT_EXPORT mutex_rep
 			{
 				CRITICAL_SECTION	m_critical_section;
-				volatile bool		m_locked;
+				volatile bool		m_locked;// used to prevent recursive lock
 
 				/* Important: use this function AFTER the thread had owned mutex.
 				 * It will return the underlying CRITICAL_SECTION into "normal, 
@@ -80,7 +81,7 @@ namespace core
 			{
 				CONDITION_VARIABLE m_cond_var;
 			};
-
+			///\endcond
 		}//namespace details
 	}//namespace multithreading
 }//namespace core
