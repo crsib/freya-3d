@@ -16,19 +16,19 @@
 #ifdef PLATFORM_WIN_THREADS
 #	include <Windows.h>
 #elif defined(PLATFORM_POSIX_THREADS)
-#	error core::multithreading library for posix platform is not implemented yet.
+	#error core::multithreading library for posix platform is not implemented yet.
+	#include <pthread.h>
 #endif
 
 #include "FreyaSupportInternal.h"
 
+#if defined(PLATFORM_WIN_THREADS)
 namespace core
 {
 	namespace multithreading
 	{
 		namespace details
 		{
-//-----------------------------------------------------------------------------
-#if defined(PLATFORM_WIN_THREADS)
 
 			struct FREYA_SUPPORT_EXPORT thread_rep
 			{
@@ -43,28 +43,48 @@ namespace core
 			struct thread_local_rep
 			{
 				typedef LPVOID tls_data_t;
+				typedef DWORD  tls_index_t;
 
 				__forceinline thread_local_rep(DWORD index)
 					: m_tls_index(index)
 				{
 				}
 
-				DWORD m_tls_index;
+				tls_index_t m_tls_index;
 			};
 			
 			struct FREYA_SUPPORT_EXPORT mutex_rep
 			{
-				__forceinline mutex_rep(HANDLE handle = NULL)
-					: m_mutex_handle(handle)
+				CRITICAL_SECTION	m_critical_section;
+				volatile bool		m_locked;
+
+				/* Important: use this function AFTER the thread had owned mutex.
+				 * It will return the underlying CRITICAL_SECTION into "normal, 
+				 * first time locked" state, to provide behaviour more like 
+				 * non-recursive mutex. */
+				__forceinline bool twice_lock_protect()
 				{
+					if(m_locked == false)// locked by the current thread first time
+						m_locked = true;
+					else// mutex is locked twice by the current thread
+					{
+						//this does not unlock the mutex. thread still own it.
+						LeaveCriticalSection(&(mutex_rep::m_critical_section));
+						return false;
+					}
+					return true;
 				}
-				HANDLE m_mutex_handle;
 			};
-//-----------------------------------------------------------------------------
-#elif defined(PLATFORM_POSIX_THREADS)
-#endif
+
+			struct FREYA_SUPPORT_EXPORT condition_variable_rep
+			{
+				CONDITION_VARIABLE m_cond_var;
+			};
+
 		}//namespace details
 	}//namespace multithreading
 }//namespace core
+#elif defined(PLATFORM_POSIX_THREADS)
+#endif
 
 #endif//FREYA_THREADS_PLATFORM_H_

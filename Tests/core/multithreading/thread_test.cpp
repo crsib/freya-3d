@@ -1,5 +1,6 @@
 #include <iostream>
 #include <time.h>
+#include <core/multithreading/thread_self.h>
 #include <core/multithreading/thread.h>
 
 using namespace core::multithreading;
@@ -52,6 +53,7 @@ namespace core
 				{
 					m_thread_run_check = false;
 				}
+
 			private:
 				simple_runable() 
 					: m_thread_run_check(false)
@@ -179,6 +181,7 @@ namespace core
 		}//namespace tests
 	}//namespace multithreading
 }//namespace core
+
 
 int main(void)
 {

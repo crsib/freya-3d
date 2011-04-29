@@ -5,15 +5,15 @@
  * This file is a part of Freya3D Engine.
  */
 
-#ifndef FREYA_PLATFORM_WIN_THREAD_H_
-#define FREYA_PLATFORM_WIN_THREAD_H_
-
-#include "atomic/atomic.h"
-#include "core/multithreading/thread_local.h"
+#ifndef FREYA_MULTITHREADING_WIN32_THREAD_H_
+#define FREYA_MULTITHREADING_WIN32_THREAD_H_
 
 #include "core/multithreading/details/platform.h"
-#include "core/multithreading/thread.h"
+#include "core/multithreading/details/thread.h"
 
+// both interface and implementation are required
+#include "atomic/atomic.h"
+#include "core/multithreading/thread_local.h"
 
 namespace core {
 	namespace multithreading {
@@ -32,24 +32,6 @@ namespace core {
 			(object->*Function)();
 			return 0;
 		}
-
-		namespace thread_self
-		{
-			inline bool yield()
-			{
-				return (SwitchToThread() != 0);
-			}
-
-			inline void sleep(const unsigned ms)
-			{
-				Sleep( static_cast<DWORD>(ms) );
-			}
-
-			inline unsigned get_freya_id()
-			{
-				return static_cast<unsigned>(details::freya_id);
-			}
-		}//namespace thread_self
 
 		inline thread::thread()
 			: thread_rep()
@@ -123,4 +105,4 @@ namespace core {
 	}//namespace multithreading
 }//namespace core
 
-#endif//FREYA_PLATFORM_WIN_THREAD_H_
+#endif//FREYA_MULTITHREADING_WIN32_THREAD_H_
