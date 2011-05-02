@@ -1,4 +1,4 @@
-/* File		: testd: hashtable_test.cpp
+/* File		: tests: hashtable_test.cpp
  * Author	: Dmitry Vedenko
  * E-Mail	: dmitry.vedenko@freya3d.org
  *
