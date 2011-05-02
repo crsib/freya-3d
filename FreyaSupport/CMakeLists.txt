@@ -12,6 +12,8 @@ set( FREYA_SUPPORT_INCLUDES
 	Include/core/string.h
 	Include/core/Log.h
 	Include/core/Object.h
+	Include/core/RefCounted.h
+	Include/core/smart_ptr.h
 # core/memory
 	Include/core/memory/MemoryAllocator.h
 	Include/core/memory/MemoryArena.h
@@ -33,6 +35,8 @@ source_group("Include\\core" FILES
 								./Include/core/string.h
 								./Include/core/Log.h
 								./Include/core/Object.h
+								./Include/core/RefCounted.h
+								./Include/core/smart_ptr.h
 )
 
 source_group("Include\\core\\memory" FILES 
@@ -113,6 +117,7 @@ source_group("core\\multithreading" FILES
 include ( Include/containers/VectorInc.cmake )
 include ( Include/containers/Unordered.cmake )
 include ( Include/containers/PoliciesInc.cmake )
+include ( Include/core/policies/SmartPtrPolicies.cmake )
 
 set( FREYA_SUPPORT_INCLUDES ${FREYA_SUPPORT_INCLUDES} 
 Include/containers/type_utils.h 
