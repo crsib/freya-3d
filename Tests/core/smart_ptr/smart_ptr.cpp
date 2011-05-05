@@ -15,7 +15,8 @@
 int main(int argc, char* argv[])
 {
 	{
-
+		using namespace core;
+		shared_ptr<int> test;
 	}
 
 	std::cout << "allocs: " << core::memory::allocation_count << "\ndeallocs: " << core::memory::deallocation_count
