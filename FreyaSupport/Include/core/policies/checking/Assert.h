@@ -8,5 +8,30 @@
 #ifndef SmartPtr_Assert_h__
 #define SmartPtr_Assert_h__
 
+#include "FreyaSupportInternal.h"
+
+namespace core
+{
+	namespace policies
+	{
+		namespace checking
+		{
+			template<class P>
+			class Assert
+			{
+			public:
+				Assert() {}
+				Assert(const Assert& ) {}
+				template<class U>
+				Assert(const Assert<U>&) {}
+
+				static void	check(P val)
+				{
+					assert(val); (void) val;
+				}
+			};
+		}
+	}
+}
 
 #endif // Assert_h__

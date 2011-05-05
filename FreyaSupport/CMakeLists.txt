@@ -12,7 +12,7 @@ set( FREYA_SUPPORT_INCLUDES
 	Include/core/string.h
 	Include/core/Log.h
 	Include/core/Object.h
-	Include/core/RefCounted.h
+	Include/core/RefCountedBase.h
 	Include/core/smart_ptr.h
 # core/memory
 	Include/core/memory/MemoryAllocator.h
@@ -35,7 +35,7 @@ source_group("Include\\core" FILES
 								./Include/core/string.h
 								./Include/core/Log.h
 								./Include/core/Object.h
-								./Include/core/RefCounted.h
+								./Include/core/RefCountedBase.h
 								./Include/core/smart_ptr.h
 )
 

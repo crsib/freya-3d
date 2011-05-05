@@ -8,5 +8,36 @@
 #ifndef SmartPtr_Scoped_h__
 #define SmartPtr_Scoped_h__
 
+namespace core
+{
+	namespace policies
+	{
+		namespace ownership
+		{
+			template<class P>
+			class Scoped
+			{
+			public:
+				Scoped() {}
+				Scoped(const Scoped& ) {}
+				template<class U>
+				Scoped(const Scoped<U>&) {}
+
+				enum { DestructiveCopy = true };
+
+				void swap(const Scoped&) {}
+			protected:
+				P clone(P& v)
+				{
+					P temp(v);
+					v = NULL;
+					return temp;
+				}
+
+				bool release(const P& ){ return true;}
+			};
+		}
+	}
+}
 
 #endif // Scoped_h__
