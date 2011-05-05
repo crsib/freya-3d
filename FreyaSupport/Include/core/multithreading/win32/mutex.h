@@ -12,7 +12,7 @@
 #include "core/multithreading/details/mutex.h"
 
 #include "core/multithreading/thread_self.h"
-#include <time.h>
+#include "date_time/system_clock.h"
 
 namespace core
 {
@@ -20,7 +20,6 @@ namespace core
 	{
 		inline mutex::mutex()
 		{
-			mutex_rep::m_locked = false;
 			InitializeCriticalSection(&(mutex_rep::m_critical_section));
 		}
 
@@ -29,24 +28,22 @@ namespace core
 			DeleteCriticalSection(&(mutex_rep::m_critical_section));
 		}
 
-		inline bool mutex::lock()
+		inline void mutex::lock()
 		{
 			EnterCriticalSection(&(mutex_rep::m_critical_section));
-			return mutex_rep::twice_lock_protect();
+			mutex_rep::twice_lock_protect();
 		}
 
-		inline bool mutex::lock(const unsigned timeout)
+		inline bool mutex::lock(const date_time::system_clock::duration_t timeout)
 		{
-			static const long ms_per_sec = 1000;
-			const clock_t start = clock();
 			//if the thread had locked this mutex before, first try will be successful.
 			while(TryEnterCriticalSection(&(mutex_rep::m_critical_section)) == FALSE)
 			{
-				unsigned tries = 1;
-				signed long time_elapsed = ((clock() - start) * ms_per_sec) / CLOCKS_PER_SEC;
-				if(time_elapsed > static_cast<signed long>(timeout) )
-					return false;//timeout
-				thread_self::sleep(tries++);//increase sleep time lineary
+				date_time::system_clock start;
+				if((date_time::system_clock::current() - start) <= timeout)
+					PAUSE;
+				else
+					return false;
 			}
 			return mutex_rep::twice_lock_protect();
 		}
@@ -60,7 +57,6 @@ namespace core
 
 		inline void mutex::release()
 		{
-			mutex_rep::m_locked = false;
 			LeaveCriticalSection(&(mutex_rep::m_critical_section));
 		}
 

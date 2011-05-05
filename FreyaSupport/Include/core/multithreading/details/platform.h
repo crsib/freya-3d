@@ -57,23 +57,22 @@ namespace core
 			struct FREYA_SUPPORT_EXPORT mutex_rep
 			{
 				CRITICAL_SECTION	m_critical_section;
-				volatile bool		m_locked;// used to prevent recursive lock
 
 				/* Important: use this function AFTER the thread had owned mutex.
+				 * Using this function before lock will lead to UB.
 				 * It will return the underlying CRITICAL_SECTION into "normal, 
 				 * first time locked" state, to provide behaviour more like 
 				 * non-recursive mutex. */
 				__forceinline bool twice_lock_protect()
 				{
-					if(m_locked == false)// locked by the current thread first time
-						m_locked = true;
-					else// mutex is locked twice by the current thread
+					if(m_critical_section.RecursionCount == 1)
+						return true;
+					else// mutex is locked twice by the current thread, or was not locked at all(UB)...
 					{
 						//this does not unlock the mutex. thread still own it.
 						LeaveCriticalSection(&(mutex_rep::m_critical_section));
 						return false;
 					}
-					return true;
 				}
 			};
 

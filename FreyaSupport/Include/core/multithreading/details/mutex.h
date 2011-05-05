@@ -11,17 +11,21 @@
 #include "FreyaSupportInternal.h"
 #include "core/multithreading/details/platform.h"
 
+#include "date_time/details/system_clock.h" // interface only
+
 namespace core
 {
 	namespace multithreading
 	{
 		/// \brief This class provides basic operations on mutex objects.
 		/** Mutex instances are not copiable. Mutex can not be locked
-		 * recursievly by the owner thread. */
+		 * recursievly by the owner thread. Class have "Lockable" compatible interface. */
 		class FREYA_SUPPORT_EXPORT mutex : private details::mutex_rep
 		{
 		public:
-			/// \brief Creates mutex object. Use mutex::is_valid() to check that object was properly created.
+			typedef mutex lockable_type_t;
+
+			/// \brief Creates mutex object.
 			inline mutex();
 
 			/// \brief Destroy mutex object.
@@ -30,10 +34,8 @@ namespace core
 			/// \brief Locks the mutex.
 			/** If the mutex object was locked by some other thread before, execution
 			 * of calling thread will be stoped until mutex object will be released.
-			 * \return Boolean value. Positive value if mutex was locked, false in
-			 * case of error(i.e. attempt to lock mutex twice).
 			 */
-			inline bool lock();
+			inline void lock();
 
 			///brief Locks the mutex (timed version).
 			/** If the mutex object was locked by some other thread before, execution
@@ -43,7 +45,7 @@ namespace core
 			 * \return Boolean value. Positive if mutex was locked, negative if waiting
 			 * time have been elapsed, or error was occurred.
 			 */
-			inline bool lock(const unsigned timeout);
+			inline bool lock(const date_time::system_clock::duration_t timeout);
 			
 			/// \brief Tries to lock the mutex object.
 			/** If the mutex object was locked by some other thread before, calling
