@@ -5,10 +5,10 @@
  * This file is a part of Freya3D Engine.
  */
 
-#ifndef FREYA_PLATFORM_WIN_TLS
-#define FREYA_PLATFORM_WIN_TLS
+#ifndef FREYA_MULTITHREADING_WIN32_THREAD_LOCAL_H_
+#define FREYA_MULTITHREADING_WIN32_THREAD_LOCAL_H_
 
-#include "core/multithreading/thread_local.h"
+#include "core/multithreading/details/thread_local.h"
 
 namespace core
 {
@@ -16,15 +16,11 @@ namespace core
 	{
 		namespace details
 		{
-			template<bool Cmp>
-			class size_constraints
-			{
-			public:
-				inline size_constraints();
-			};
+			template<bool>
+			inline void size_constraints();
 
 			template<>
-			inline size_constraints<true>::size_constraints()
+			inline void size_constraints<true>()
 			{
 			}
 		}
@@ -33,14 +29,14 @@ namespace core
 		inline thread_local<Type>::thread_local()
 			: thread_local_rep(TlsAlloc())
 		{
-			details::size_constraints<(sizeof(Type) <= sizeof(thread_local_rep::tls_data_t))> compiletime_check;
+			details::size_constraints<(sizeof(Type) <= sizeof(thread_local_rep::tls_data_t))>();
 		}
 
 		template<typename Type>
 		inline thread_local<Type>::thread_local(const Type& rval)
 			: thread_local_rep(TlsAlloc())
 		{
-			details::size_constraints<(sizeof(Type) <= sizeof(thread_local_rep::tls_data_t))> compiletime_check;
+			details::size_constraints<(sizeof(Type) <= sizeof(thread_local_rep::tls_data_t))>();
 			TlsSetValue(thread_local_rep::m_tls_index, reinterpret_cast<LPVOID>(rval));
 		}
 
@@ -75,7 +71,7 @@ namespace core
 		{
 			return reinterpret_cast<Type>(TlsGetValue(thread_local_rep::m_tls_index));
 		}
-	}
-}
+	}//namespace multithreading
+}//namespace core
 
-#endif//FREYA_PLATFORM_WIN_TLS
+#endif//FREYA_MULTITHREADING_WIN32_THREAD_LOCAL_H_

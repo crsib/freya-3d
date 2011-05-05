@@ -5,51 +5,35 @@
  * This file is a part of Freya3D Engine.
  */
 
-#ifndef FREYA_PLATFORM_WIN_THREAD_H_
-#define FREYA_PLATFORM_WIN_THREAD_H_
-
-#include "atomic/atomic.h"
-#include "core/multithreading/thread_local.h"
+#ifndef FREYA_MULTITHREADING_WIN32_THREAD_H_
+#define FREYA_MULTITHREADING_WIN32_THREAD_H_
 
 #include "core/multithreading/details/platform.h"
-#include "core/multithreading/thread.h"
+#include "core/multithreading/details/thread.h"
 
+// both interface and implementation are required
+#include "atomic/atomic.h"
+#include "core/multithreading/thread_local.h"
 
 namespace core {
 	namespace multithreading {
 		
 		namespace details
 		{
+			///\cond
 			FREYA_SUPPORT_EXPORT extern atomic::atomic<unsigned> __process_thread_counter;
 			FREYA_SUPPORT_EXPORT extern core::multithreading::thread_local<unsigned> freya_id;
-		}//namespace details
-
-		//Platform thread routine. See WinAPI documentation for details.
-        template<typename ObjT, void (ObjT::*Function)(void)>
-		DWORD WINAPI platform_win_thread_routine(LPVOID arg) {
-			details::freya_id = details::__process_thread_counter++;
-			ObjT* object = reinterpret_cast<ObjT*>(arg);
-			(object->*Function)();
-			return 0;
+		
+			//Platform thread routine. See WinAPI documentation for details.
+			template<typename ObjT, void (ObjT::*Function)(void)>
+			DWORD WINAPI platform_win_thread_routine(LPVOID arg) {
+				details::freya_id = details::__process_thread_counter++;
+				ObjT* object = reinterpret_cast<ObjT*>(arg);
+				(object->*Function)();
+				return 0;
+			}
+			///\endcond
 		}
-
-		namespace thread_self
-		{
-			inline bool yield()
-			{
-				return (SwitchToThread() != 0);
-			}
-
-			inline void sleep(const unsigned ms)
-			{
-				Sleep( static_cast<DWORD>(ms) );
-			}
-
-			inline unsigned get_freya_id()
-			{
-				return static_cast<unsigned>(details::freya_id);
-			}
-		}//namespace thread_self
 
 		inline thread::thread()
 			: thread_rep()
@@ -66,7 +50,7 @@ namespace core {
 		{
 			details::thread_rep pdata(NULL, 0);
 			pdata.m_handle = 
-				CreateThread(NULL, 0, static_cast<LPTHREAD_START_ROUTINE>(&platform_win_thread_routine<T, Func>), &runable, 0, &(pdata.m_id));
+				CreateThread(NULL, 0, static_cast<LPTHREAD_START_ROUTINE>(&details::platform_win_thread_routine<T, Func>), &runable, 0, &(pdata.m_id));
 			if(pdata.m_handle)
 			{
 				thread* r = new thread;
@@ -123,4 +107,4 @@ namespace core {
 	}//namespace multithreading
 }//namespace core
 
-#endif//FREYA_PLATFORM_WIN_THREAD_H_
+#endif//FREYA_MULTITHREADING_WIN32_THREAD_H_

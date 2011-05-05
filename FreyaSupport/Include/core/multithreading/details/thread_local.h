@@ -5,12 +5,54 @@
  * This file is a part of Freya3D Engine.
  */
 
-#ifndef FREYA_THREAD_LOCAL_DETAILS_H_
-#define FREYA_THREAD_LOCAL_DETAILS_H_
+#ifndef FREYA_MULTITHREADING_DETAILS_THREAD_LOCAL_H_
+#define FREYA_MULTITHREADING_DETAILS_THREAD_LOCAL_H_
 
-#if defined(PLATFORM_WIN_THREADS)
-	#include "../win32/thread_local.h"
-#elif defined(PLATFORM_POSIX_THREADS)
-#endif
+#include "core/multithreading/details/platform.h"
 
-#endif//_THREAD_LOCAL_DETAILS_H_
+namespace core
+{
+	namespace multithreading
+	{
+		/// \brief Template class used to place data locally to the thread.
+		/** Types which size exceeds size of pointer on the current platform,
+		  * could not be used as base types. Also instances of base type
+		  * must be copyable.
+		  * \tparam Type Base type.*/
+		template<typename Type>
+		class thread_local : private details::thread_local_rep
+		{
+			/// \brief Copying is forbidden.
+			thread_local(const thread_local<Type>&);
+			/// \brief Copying is forbidden.
+			thread_local<Type>& operator=(const thread_local<Type>&);
+		public:
+			/// \brief Default constructor.
+			inline thread_local();
+			
+			/// \brief Create instance, initialize with provided value.
+			/** \param rval Instance of base type.*/
+			inline thread_local(const Type& rval);
+			
+			/// \brief Default destructor.
+			inline ~thread_local();
+
+			/// \brief Assignment operator.
+			/** \param rval Instance of base type which should be used as source.
+			  * \return Self.*/
+			inline thread_local<Type>& operator=(const Type& rval);
+
+			/// \brief Implicit cast to base type.
+			inline operator Type() const;
+
+			/// \brief Same as assignment operator.
+			inline thread_local<Type>& set(const Type& rval);
+
+			/// \brief Same as implicit cast to base type.
+			inline Type get() const;
+		};
+
+	}//namespace multithreading
+}//namespace core
+
+#endif//FREYA_MULTITHREADING_DETAILS_THREAD_LOCAL_H_

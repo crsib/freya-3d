@@ -1,6 +1,8 @@
 #include "atomic/atomic.h"
 #include "core/multithreading/thread_local.h"
 #include "core/multithreading/thread.h"
+#include "core/multithreading/mutex.h"
+#include "core/multithreading/condition_variable.h"
 
 namespace core
 {
