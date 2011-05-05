@@ -8,6 +8,8 @@
 #ifndef FREYA_MULTITHREADING_DETAILS_THREAD_SELF_H_
 #define FREYA_MULTITHREADING_DETAILS_THREAD_SELF_H_
 
+#include "date_time/details/system_clock.h" //interface only
+
 namespace core
 {
 	namespace multithreading
@@ -22,7 +24,7 @@ namespace core
 
 			/// \brief Makes thread of execution to sleep for a specified time.
 			/** \param ms Time to sleep in milliseconds. */
-			inline void sleep(const unsigned ms);
+			inline void sleep(const date_time::system_clock::duration_t ms);
 
 			/// \brief Retrieve Freya specific thread id.
 			/** Returned value lies in [0..n] interval, where 'n' is a total thread

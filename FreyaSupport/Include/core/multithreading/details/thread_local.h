@@ -15,7 +15,9 @@ namespace core
 	namespace multithreading
 	{
 		/// \brief Template class used to place data locally to the thread.
-		/** 
+		/** Types which size exceeds size of pointer on the current platform,
+		  * could not be used as base types. Also instances of base type
+		  * must be copyable.
 		  * \tparam Type Base type.*/
 		template<typename Type>
 		class thread_local : private details::thread_local_rep
@@ -28,24 +30,25 @@ namespace core
 			/// \brief Default constructor.
 			inline thread_local();
 			
-			/// \brief
-			/**
-			 * \param rval */
+			/// \brief Create instance, initialize with provided value.
+			/** \param rval Instance of base type.*/
 			inline thread_local(const Type& rval);
 			
 			/// \brief Default destructor.
 			inline ~thread_local();
 
 			/// \brief Assignment operator.
+			/** \param rval Instance of base type which should be used as source.
+			  * \return Self.*/
 			inline thread_local<Type>& operator=(const Type& rval);
 
 			/// \brief Implicit cast to base type.
 			inline operator Type() const;
 
-			/// \brief
+			/// \brief Same as assignment operator.
 			inline thread_local<Type>& set(const Type& rval);
 
-			/// \brief 
+			/// \brief Same as implicit cast to base type.
 			inline Type get() const;
 		};
 

@@ -23,10 +23,11 @@ namespace core
 		class FREYA_SUPPORT_EXPORT condition_variable : private details::condition_variable_rep
 		{
 		public:
-			/// \brief Default constructor. Initializes class instance.
+			/// \brief Default constructor. Initializes class instance. 
 			inline condition_variable();
 			
 			/// \breif Default destructor.
+			/** If some threads is locked on this variable, they would NOT be notified, so it will lead to UB.*/
 			inline ~condition_variable();
 
 			/// \brief Makes thread sleep until one of the broadcast() or signal() events will happen.

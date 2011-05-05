@@ -3,33 +3,69 @@
 #include <core/multithreading/thread.h>
 #include <core/multithreading/mutex.h>
 #include <core/multithreading/condition_variable.h>
+#include <core/multithreading/synchronize.h>
+
+class cond_sync
+{
+	core::multithreading::mutex					*m_mutex;
+	core::multithreading::condition_variable	*m_cond_var;
+
+public:
+	cond_sync()
+		: m_mutex(NULL), m_cond_var(NULL)
+	{
+		m_mutex = new core::multithreading::mutex;
+		m_cond_var = new core::multithreading::condition_variable;
+	}
+
+	inline void lock()
+	{
+		m_mutex->lock();
+	}
+
+	inline void release()
+	{
+		m_mutex->release();
+	}
+
+	inline void wait()
+	{
+		m_cond_var->wait(m_mutex);
+	}
+
+	inline void signal()
+	{
+		m_cond_var->signal();
+	}
+
+	inline void broadcast()
+	{
+		m_cond_var->broadcast();
+	}
+
+	~cond_sync()
+	{
+		if(m_mutex)
+			delete m_mutex;
+		if(m_cond_var)
+			delete m_cond_var;
+	}
+};
 
 template<typename Type>
 class Buffer
 {
-	core::multithreading::mutex *m_mutex;
-	core::multithreading::condition_variable *m_condition;
-
 	Type m_value;
 	bool m_full;
 
 	Buffer(const Buffer&);
-	Buffer& operator =(const Buffer&);
+	Buffer& operator =(const Buffer<Type>&);
 public:
 	typedef Type elem_type_t;
 
 	Buffer()
-		: m_mutex(NULL), m_condition(NULL), m_full(false)
+		: m_full(false)
 	{
-		m_mutex = new core::multithreading::mutex;
-		m_condition = new core::multithreading::condition_variable;
-	}
-	~Buffer()
-	{
-		if(m_mutex)
-			delete m_mutex;
-		if(m_condition)
-			delete m_condition;
 	}
 	
 	Buffer<Type>& push(const Type& value)
@@ -38,6 +74,7 @@ public:
 		m_full = true;
 		return *this;
 	}
+
 	Type pop()
 	{
 		m_full = false;
@@ -47,15 +84,6 @@ public:
 	bool isFull() const
 	{
 		return m_full;
-	}
-
-	core::multithreading::mutex* mutex()
-	{
-		return m_mutex;
-	}
-	core::multithreading::condition_variable* condition()
-	{
-		return m_condition;
 	}
 };
 
@@ -68,11 +96,13 @@ public:
 	static const int QueueSize = 20;
 
 private:
-	Buffer<int> m_buffer;
+	buffer_t  m_buffer;
 
 	Producer(const Producer&);
 	Producer& operator=(const Producer&);
 public:
+	cond_sync CondSync;
+
 
 	Producer()
 		: m_buffer()
@@ -81,23 +111,22 @@ public:
 	
 	void produce()
 	{
-		core::multithreading::mutex *const mtx = m_buffer.mutex();
-		core::multithreading::condition_variable *const cv = m_buffer.condition();
 		for(int i = 0; i < QueueSize; i++)
-		{
-			mtx->lock();
-			while(m_buffer.isFull())
-				cv->wait(mtx);
-			m_buffer.push(i);
-			cv->broadcast();
-			mtx->release();
-		}
+			synchronize(&CondSync) 
+			{
+				while(m_buffer.isFull())
+					CondSync.wait();
+				m_buffer.push(i);
+				CondSync.broadcast();
+			}
 	}
 
 	buffer_ptr_t buffer()
 	{
 		return &m_buffer;
 	}
+
+
 private:
 };
 
@@ -115,20 +144,17 @@ public:
 	}
 	void consume()
 	{
-		core::multithreading::mutex *const mtx = m_producer->buffer()->mutex();
-		core::multithreading::condition_variable *const cv = m_producer->buffer()->condition();
+		cond_sync* cs = &m_producer->CondSync;
 		Producer::buffer_ptr_t buffer = m_producer->buffer();
 		
-		mtx->lock();
 		for(int i = 0; i < Producer::QueueSize; i++)
-		{
-			mtx->lock();
-			while(!buffer->isFull())
-				cv->wait(mtx);
-			std::cout << (buffer->pop()) << " ";
-			cv->signal();
-			mtx->release();
-		}
+			synchronize(cs)
+			{
+				while(!buffer->isFull())
+					cs->wait();
+				std::cout << (buffer->pop()) << " ";
+				cs->signal();
+			}
 	}
 };
 

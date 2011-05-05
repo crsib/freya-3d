@@ -29,9 +29,9 @@ namespace core
 				return (SwitchToThread() != 0);
 			}
 
-			inline void sleep(const unsigned ms)
+			inline void sleep(const date_time::system_clock::duration_t ms)
 			{
-				Sleep( static_cast<DWORD>(ms) );
+				Sleep( ms );
 			}
 
 			inline unsigned get_freya_id()
