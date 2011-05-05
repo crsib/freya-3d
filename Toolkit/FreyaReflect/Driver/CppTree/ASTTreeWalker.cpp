@@ -4,7 +4,7 @@
 #include "CppTree/CppType.h"
 #include "CppTree/CppTree.h"
 
-#include "clang/AST/DeclTemplate.h"
+#include <clang/AST/DeclTemplate.h>
 
 #include <boost/algorithm/string.hpp>
 
@@ -298,7 +298,8 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 					{
 					case TemplateArgument::Type:
 					{
-						CppTypePtr	qual_type = resolveQualType(&arg.getAsType());
+						clang::QualType type = arg.getAsType();
+						CppTypePtr	qual_type = resolveQualType(&type);
 						assert(qual_type);
 						
 						CppNodeClassTemplateSpecialization::TemplateArgumentPtr a_ptr(new CppNodeClassTemplateSpecialization::TemplateArgument(qual_type));
@@ -378,17 +379,19 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 					for( CXXRecordDecl::base_class_iterator it = cxx_decl->bases_begin(), end = cxx_decl->bases_end(); it != end; ++it )
 					{
 						CXXBaseSpecifier& base_class = *it;
+						clang::QualType base_type = base_class.getType();
 						CppNode::ACCESS_TYPE access = base_class.getAccessSpecifier() == AS_public ? CppNode::ACCESS_TYPE_PUBLIC :
 							(base_class.getAccessSpecifier() == AS_protected ? CppNode::ACCESS_TYPE_PROTECTED : CppNode::ACCESS_TYPE_PRIVATE );
-						static_cast<CppNodeClass*>(node)->addBaseClass(CppNodeClass::base_type_t(std::make_pair(resolveQualType(&base_class.getType()), access)));
+						static_cast<CppNodeClass*>(node)->addBaseClass(CppNodeClass::base_type_t(std::make_pair(resolveQualType(&base_type), access)));
 					}
 
 					for( CXXRecordDecl::base_class_iterator it = cxx_decl->vbases_begin(), end = cxx_decl->vbases_end(); it != end; ++it )
 					{
 						CXXBaseSpecifier& base_class = *it;
+						clang::QualType base_type = base_class.getType();
 						CppNode::ACCESS_TYPE access = base_class.getAccessSpecifier() == AS_public ? CppNode::ACCESS_TYPE_PUBLIC :
 							(base_class.getAccessSpecifier() == AS_protected ? CppNode::ACCESS_TYPE_PROTECTED : CppNode::ACCESS_TYPE_PRIVATE );
-						static_cast<CppNodeClass*>(node)->addBaseClass(CppNodeClass::base_type_t(std::make_pair(resolveQualType(&base_class.getType()), access)));
+						static_cast<CppNodeClass*>(node)->addBaseClass(CppNodeClass::base_type_t(std::make_pair(resolveQualType(&base_type), access)));
 					}
 				}
 				else
@@ -461,7 +464,8 @@ CppTypePtr ASTTreeWalker::resolveQualType( clang::QualType* type )
 			//Search the AST
 			if(type_s->hasPointerRepresentation())
 			{
-				CppTypePtr base_type = resolveQualType(&type_s->getPointeeType());
+				clang::QualType pointee_type = type_s->getPointeeType();
+				CppTypePtr base_type = resolveQualType(&pointee_type);
 				assert(base_type.get());
 				//Try to get the Pointer/Reference from tree
 				CppNodePtr ptr = tree_ptr->findNodeBySignature(type->getLocalUnqualifiedType().getAsString());
@@ -659,7 +663,8 @@ void ASTTreeWalker::visitVarDecl( clang::DeclaratorDecl* decl )
 			else if(spec == AS_private)
 				node->setAccessType(CppNode::ACCESS_TYPE_PRIVATE);
 
-			node->setType(resolveQualType(&decl->getType()));
+			clang::QualType	decl_type = decl->getType();
+			node->setType(resolveQualType(&decl_type));
 
 			//std::clog << "var " << node->getScopedName() << " -> " << node->getCppType()->getQualifiedName() << std::endl;
 
@@ -698,8 +703,8 @@ void ASTTreeWalker::visitTypedef( clang::TypedefDecl* decl )
 			//{
 				//std::clog << "!!Rejected " << decl->getUnderlyingType().getAsString() << std::endl;
 			//}
-
-			node->setAliasType(resolveQualType(&decl->getUnderlyingType()));
+			clang::QualType	underl_type = decl->getUnderlyingType();
+			node->setAliasType(resolveQualType(&underl_type));
 
 			//std::clog << "typedef " << node->getScopedName() << " -> " << node->getAliasType()->getQualifiedName() << std::endl;
 
@@ -760,8 +765,10 @@ void ASTTreeWalker::visitFunction( clang::FunctionDecl* decl )
 		{
 			ParmVarDecl* parm = *it;
 
+			clang::QualType parm_type = parm->getType();
+
 			func_node->addArgument(CppNodeFunctionProto::argument_ptr_t ( 
-				new CppNodeFunctionProto::argument_t(resolveQualType(&parm->getType()), parm->hasDefaultArg())));
+				new CppNodeFunctionProto::argument_t(resolveQualType(&parm_type), parm->hasDefaultArg())));
 		}
 
 		if( decl->isOverloadedOperator() )

@@ -5,34 +5,14 @@
  * This file is a part of Freya3D Engine.
  */
 
-#ifndef FREYA_MUTEX_H_
-#define FREYA_MUTEX_H_
-
-#include "FreyaSupportInternal.h"
-#include "core/multithreading/details/platform.h"
-
-namespace core
-{
-	namespace multithreading
-	{
-		class FREYA_SUPPORT_EXPORT mutex : public details::mutex_rep
-		{
-		public:
-			inline mutex();
-			inline ~mutex();
-
-			inline bool lock();
-			inline bool lock(const unsigned ms);
-			inline bool try_lock();
-			inline void release();
-
-		private:
-			mutex(const mutex&);
-			mutex& operator=(const mutex&);
-		};
-	}//namespace multithreading
-}//namespace core
+#ifndef FREYA_MULTITHREADING_MUTEX_H_
+#define FREYA_MULTITHREADING_MUTEX_H_
 
 #include "core/multithreading/details/mutex.h"
 
-#endif//FREYA_MUTEX_H_
+#if defined(PLATFORM_WIN_THREADS)
+	#include "core/multithreading/win32/mutex.h"
+#elif defined(PLATFORM_POSIX_THREADS)
+#endif
+
+#endif//FREYA_MULTITHREADING_MUTEX_H_

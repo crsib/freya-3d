@@ -16,20 +16,20 @@
 #ifdef PLATFORM_WIN_THREADS
 #	include <Windows.h>
 #elif defined(PLATFORM_POSIX_THREADS)
-#	error core::multithreading library for posix platform is not implemented yet.
+	#error core::multithreading library for posix platform is not implemented yet.
+	#include <pthread.h>
 #endif
 
 #include "FreyaSupportInternal.h"
 
+#if defined(PLATFORM_WIN_THREADS)
 namespace core
 {
 	namespace multithreading
 	{
 		namespace details
 		{
-//-----------------------------------------------------------------------------
-#if defined(PLATFORM_WIN_THREADS)
-
+			///\cond
 			struct FREYA_SUPPORT_EXPORT thread_rep
 			{
 				__forceinline thread_rep(HANDLE handle = NULL, DWORD id = 0)
@@ -40,27 +40,51 @@ namespace core
 				DWORD	m_id;
 			};
 
+			// There is no need to export this structure, because of thread_local is a template class
 			struct thread_local_rep
 			{
-				typedef LPVOID tls_data_t;
+				typedef LPVOID tls_data_t;//type of tls cell
+				typedef DWORD  tls_index_t;//type of index of tls cell
 
 				__forceinline thread_local_rep(DWORD index)
 					: m_tls_index(index)
 				{
 				}
 
-				DWORD m_tls_index;
+				tls_index_t m_tls_index;
 			};
 			
 			struct FREYA_SUPPORT_EXPORT mutex_rep
 			{
-				HANDLE m_mutex_handle;
+				CRITICAL_SECTION	m_critical_section;
+
+				/* Important: use this function AFTER the thread had owned mutex.
+				 * Using this function before lock will lead to UB.
+				 * It will return the underlying CRITICAL_SECTION into "normal, 
+				 * first time locked" state, to provide behaviour more like 
+				 * non-recursive mutex. */
+				__forceinline bool twice_lock_protect()
+				{
+					if(m_critical_section.RecursionCount == 1)
+						return true;
+					else// mutex is locked twice by the current thread, or was not locked at all(UB)...
+					{
+						//this does not unlock the mutex. thread still own it.
+						LeaveCriticalSection(&(mutex_rep::m_critical_section));
+						return false;
+					}
+				}
 			};
-//-----------------------------------------------------------------------------
-#elif defined(PLATFORM_POSIX_THREADS)
-#endif
+
+			struct FREYA_SUPPORT_EXPORT condition_variable_rep
+			{
+				CONDITION_VARIABLE m_cond_var;
+			};
+			///\endcond
 		}//namespace details
 	}//namespace multithreading
 }//namespace core
+#elif defined(PLATFORM_POSIX_THREADS)
+#endif
 
 #endif//FREYA_THREADS_PLATFORM_H_

@@ -198,14 +198,16 @@ CppTreePtr prepareASTTree(
 	astConsumer.source_manager = &sourceManager;
 	//astConsumer.locations_to_parse = boost::unordered_set<llvm::sys::Path>(header_paths.begin(), header_paths.end());
 
-	for(std::vector<std::string>::const_iterator it = header_paths.begin(); it != header_paths.end(); ++ it)
+	for(std::vector<std::string>::const_iterator it = header_paths.begin(); it != header_paths.end(); ++it)
 	{
 		//llvm::sys::Path path(*it);
-		llvm::SmallVectorImpl<char> _path(it->length() + 1);
-		_path.insert(_path.begin(), it->begin(), it->end());
+		std::vector<std::string>::const_iterator tmp = it;
+		//llvm::SmallVectorImpl<char> _path(it->length() + 1);
+		//_path.insert(_path.begin(), it->begin(), it->end());
 		//path.makeAbsolute();
-		llvm::sys::fs::make_absolute(_path);
-		llvm::sys::Path path(&_path[0],_path.size());
+		//llvm::sys::fs::make_absolute(_path);
+		//llvm::sys::Path path(&_path[0],_path.size());
+		llvm::sys::Path path(*it);
 		//std::clog << path.str() << std::endl;
 		astConsumer.locations_to_parse.insert(path);
 	}
