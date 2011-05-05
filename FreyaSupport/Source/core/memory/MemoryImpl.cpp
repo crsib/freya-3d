@@ -998,3 +998,7 @@ FREYA_SUPPORT_EXPORT void dealloc( void* p, unsigned pool /*= GENERIC_POOL*/ ) t
 
 }//memory
 }//core
+
+// This will precompile standart object definition to silence the linker of Visual Studio
+#include "core/Object.h"
+#include "core/RefCountedBase.h"

@@ -16,9 +16,9 @@ namespace core
 	template
 	<
 		typename T,
-		template<class> class StoragePolicy,
-		template<class> class OwnershipPolicy,
-		template<class> class CheckingPolicy
+		template<class> class OwnershipPolicy = policies::ownership::RefCounted,
+		template<class> class StoragePolicy = policies::storage::Default,
+		template<class> class CheckingPolicy = policies::checking::Assert
 	>
 	class smart_ptr :
 		public StoragePolicy<T>,
@@ -47,12 +47,12 @@ namespace core
 		typedef typename storage_policy_t::base_type_t              base_type_t;
 		typedef typename storage_policy_t::pointer_type_t           pointer_type_t;
 		typedef typename storage_policy_t::const_pointer_type_t		const_pointer_type_t;
-		typedef typename storage_policy_t::reference_type_t				reference_type_t;
-		typedef typename storage_policy_t::const_reference_type_t		const_reference_type_t;
+		typedef typename storage_policy_t::reference_type_t			reference_type_t;
+		typedef typename storage_policy_t::const_reference_type_t	const_reference_type_t;
 
-		typedef typename containers::select_type<smart_ptr,const smart_ptr,ownership_policy_t::DestructiveCopy> copy_arg_t;
+		typedef typename containers::select_type<smart_ptr,const smart_ptr,ownership_policy_t::DestructiveCopy>::type copy_arg_t;
 
-		typedef void (never_matched::*implicit_cast_t)();
+		typedef void (never_matched::*unspecified_boolean_t)();
 
 		smart_ptr() {}
 
@@ -70,9 +70,9 @@ namespace core
 			template<class> class OP,
 			template<class> class CP
 		>
-		smart_ptr( const smart_ptr<U, SP, OP, CP>& rhs) :  : storage_policy_t(rhs), ownership_policy_t(rhs), checking_policy_t(rhs)
+		smart_ptr( const smart_ptr<U, SP, OP, CP>& rhs) : storage_policy_t(rhs), ownership_policy_t(rhs), checking_policy_t(rhs)
 		{
-			getRef = clone(rhs.getRef());
+			getRef() = clone(rhs.getRef());
 		}
 
 		template
@@ -82,9 +82,9 @@ namespace core
 			template<class> class OP,
 			template<class> class CP
 		>
-		smart_ptr( smart_ptr<U, SP, OP, CP>& rhs) :  : storage_policy_t(rhs), ownership_policy_t(rhs), checking_policy_t(rhs)
+		smart_ptr( smart_ptr<U, SP, OP, CP>& rhs) :  storage_policy_t(rhs), ownership_policy_t(rhs), checking_policy_t(rhs)
 		{
-			getRef = clone(rhs.getRef());
+			getRef() = clone(rhs.getRef());
 		}
 
 		void	swap(smart_ptr& rhs)
@@ -133,13 +133,39 @@ namespace core
 		{
 			if(release(getRef()))
 				destroy();
+			getRef() = default();
 		}
 
 		~smart_ptr() { reset(); }
-	};
 
-	template<typename T>
-	class shared_ptr : smart_ptr<T, policies::storage::Default, policies::ownership::RefCounted, policies::checking::Assert> {};
+		pointer_type_t	operator -> () { check(getRef()); return get(); }
+		const_pointer_type_t operator -> () const { check(getRef());  return get(); }
+
+		reference_type_t operator * () { check(getRef()); return *get(); }
+		const_reference_type_t operator * () const { check(getRef()); return *get(); }
+
+		bool	operator! () const { return get() == default(); }
+
+		template
+		<
+			typename U,
+			template<class> class SP,
+			template<class> class OP,
+			template<class> class CP
+		>
+		bool	operator == (const smart_ptr<U,SP,OP,CP>& rhs) const { return get() == rhs.get(); }
+
+		template
+		<
+			typename U,
+			template<class> class SP,
+			template<class> class OP,
+			template<class> class CP
+		>
+		bool	operator != (const smart_ptr<U,SP,OP,CP>& rhs) const { return get() != rhs.get(); }
+
+		operator unspecified_boolean_t () const { return !get() ? NULL : &never_matched::foo; }
+	};
 }
 
 #endif // smart_ptr_h__

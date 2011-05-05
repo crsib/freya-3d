@@ -25,7 +25,9 @@ namespace core
 				template<class U>
 				Assert(const Assert<U>&) {}
 
-				static void	check(P val)
+				void	swap(Assert&) {}
+			protected:
+				void	check(P val)
 				{
 					assert(val); (void) val;
 				}
