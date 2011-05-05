@@ -32,11 +32,11 @@ namespace core
 				template<class U>
 				RefCounted(const RefCounted<U>& rhs) : m_RefCount(rhs.m_RefCount) {}
 
-				void	swap(const RefCounted& rhs)
+				void	swap(RefCounted& rhs)
 				{
 					atomic::atomic<uint32_t>* temp = rhs.m_RefCount;
 					rhs.m_RefCount = m_RefCount;
-					m_RefCount = rhs.m_RefCount;
+					m_RefCount = temp;
 				}
 
 			protected:

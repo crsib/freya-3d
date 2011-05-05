@@ -16,20 +16,20 @@ namespace core
 {
 	namespace memory
 	{
-		FREYA_SUPPORT_EXPORT void*	alloc(size_t size, unsigned pool = core::memory::GENERIC_POOL) throw();
-		FREYA_SUPPORT_EXPORT void	dealloc(void* p, unsigned pool = core::memory::GENERIC_POOL) throw();
+		FREYA_SUPPORT_EXPORT void*	alloc(size_t size, unsigned pool) throw();
+		FREYA_SUPPORT_EXPORT void	dealloc(void* p, unsigned pool) throw();
 	} // namespace memory
 } // namespace core
 
 namespace core
 {
 	//! This class is a base class for all Freya 3D Engine classes, that should be allocated in the CLASS_POOL
-	class Object
+	class FREYA_SUPPORT_EXPORT Object
 	{
 	public:
 		virtual ~Object() {}
 	
-		static void* operator new(size_t sz) { return memory::alloc(sz,memory::CLASS_POOL); }
+		static void* operator new(size_t sz) { return memory::alloc(sz,core::memory::CLASS_POOL); }
 		static void* operator new [] (size_t sz) { return memory::alloc(sz,memory::CLASS_POOL); }
 
 		static void	 operator delete(void* p) { memory::dealloc(p, memory::CLASS_POOL); }

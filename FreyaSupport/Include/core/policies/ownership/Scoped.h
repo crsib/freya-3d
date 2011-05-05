@@ -25,7 +25,9 @@ namespace core
 
 				enum { DestructiveCopy = true };
 
-				void swap(const Scoped&) {}
+				void swap(Scoped&) 
+				{}
+
 			protected:
 				P clone(P& v)
 				{

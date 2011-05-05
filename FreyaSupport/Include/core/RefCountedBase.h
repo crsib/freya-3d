@@ -34,8 +34,8 @@ namespace core
 	private:
 		counter_type_t                 m_RefCount;
 
-		RefCountedBase(const RefCounted& ) {}
-		RefCountedBase& operator = (const RefCounted& ) {}
+		RefCountedBase(const RefCountedBase& );
+		RefCountedBase& operator = (const RefCountedBase& );
 	};
 }
 

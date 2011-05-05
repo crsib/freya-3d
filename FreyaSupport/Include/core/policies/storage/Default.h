@@ -38,16 +38,17 @@ namespace core
 				//! Overloaded version of copy constructor to support storing pointers, which are implicitly castable to stored type
 				template<typename U>
 				Default(const Default<U>&) : m_Pointee(NULL) {}
+				Default(const pointer_type_t& ptr) : m_Pointee(ptr) {}
 				//! Retrieve stored pointer
-				pointer_type_t get() { return m_Pointee };
+				pointer_type_t get() { return m_Pointee; };
 				//! Retrieve constant version of stored pointer
 				const_pointer_type_t get() const { return m_Pointee; }
 				//! Swap storages
-				void	swap(const Default& rhs)
+				void	swap(Default& rhs)
 				{
 					pointer_type_t temp = rhs.m_Pointee;
 					rhs.m_Pointee = m_Pointee;
-					m_Pointee = rhs.m_Pointee;
+					m_Pointee = temp;
 				}
 			protected:
 				pointer_type_t&	getRef() { return m_Pointee; }
@@ -56,7 +57,7 @@ namespace core
 				void	destroy()
 				{ delete m_Pointee;	}
 				//! Default value for the pointer
-				pointer_type_t default()
+				pointer_type_t default() const
 				{ return NULL; }
 			private:
 				pointer_type_t m_Pointee;
