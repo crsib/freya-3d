@@ -17,6 +17,7 @@ namespace core
 		namespace storage
 		{
 			//! \brief Array storage policy using NULL as default value and operator delete[] for destruction 
+			//! \ingroup SmartPointers_Policies_Storage
 			template<typename T>
 			class Array
 			{
@@ -35,7 +36,7 @@ namespace core
 				Array() : m_Pointee(default()) {}
 				//! Fake copy constructor. Data is initialized by ownership policy
 				Array(const Array& ) : m_Pointee(NULL) {}
-				//! Overloaded version of copy constructor to support storing pointers, which are implicitly castable to stored type
+				//! Overloaded version of copy constructor to support storing the pointers, which are implicitly castable to stored type
 				template<typename U>
 				Array(const Array<U>&) : m_Pointee(NULL) {}
 				Array(const pointer_type_t& ptr) : m_Pointee(ptr) {}
@@ -51,7 +52,9 @@ namespace core
 					m_Pointee = temp;
 				}
 			protected:
+				//! Get reference to the stored pointer
 				pointer_type_t&	getRef() { return m_Pointee; }
+				//! Get constant reference to the stored pointer
 				const pointer_type_t& getRef() const { return m_Pointee; }
 				//! Destroy an object
 				void	destroy()

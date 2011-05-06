@@ -14,29 +14,35 @@ namespace core
 	{
 		namespace ownership
 		{
+			//! \brief Policy, implementing the ownership following destructive copy semantics 
+			//! \ingroup SmartPointers_Policies_Ownership
 			template<class P>
 			class Scoped
 			{
 			public:
+				//! Default constructor
 				Scoped() {}
+				//! Copy constructor
 				Scoped(const Scoped& ) {}
+				//! Copy constructor
 				template<class U>
 				Scoped(const Scoped<U>&) {}
-
-				enum { DestructiveCopy = true };
-
+				//! Swap policies
 				void swap(Scoped&) 
 				{}
 
 			protected:
+				//! Take the ownership over the pointer and release previous pointers ownership
 				P clone(P& v)
 				{
 					P temp(v);
 					v = NULL;
 					return temp;
 				}
-
+				//! Release the ownership of the object an let the storage policy to destroy it
 				bool release(const P& ){ return true;}
+				//! This policy follows destructive copy semantics
+				enum { DestructiveCopy = true };
 			};
 		}
 	}

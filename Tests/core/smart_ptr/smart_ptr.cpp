@@ -61,6 +61,12 @@ int main(int argc, char* argv[])
 		assert(!obj_ptr);
 		obj_ptr = basic_test;
 		assert(obj_ptr);
+
+		smart_ptr<const int> const_int_ptr;
+		int_ptr = smart_ptr<int>(new int);
+		const_int_ptr = int_ptr;
+
+		assert( const_int_ptr == int_ptr );
 	}
 
 	std::cout << "allocs: " << core::memory::allocation_count << "\ndeallocs: " << core::memory::deallocation_count
