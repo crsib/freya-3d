@@ -16,20 +16,26 @@ namespace core
 	{
 		namespace checking
 		{
+			//! \brief Dereference error checking policy based on assert macro
+			//! \ingroup SmartPointers_Policies_Checking
 			template<class P>
 			class Assert
 			{
 			public:
+				//! Default constructor
 				Assert() {}
+				//! Copy constructor
 				Assert(const Assert& ) {}
+				//! Copy constructor accepting implicitly castable to base types
 				template<class U>
 				Assert(const Assert<U>&) {}
-
+				//! Swap policies
 				void	swap(Assert&) {}
 			protected:
+				//! Check the pointer correctness
 				void	check(P val)
 				{
-					assert(val); (void) val;
+					FREYA_SUPPORT_EXPORT(val,"NULL pointer dereferencing"); (void) val;
 				}
 			};
 		}

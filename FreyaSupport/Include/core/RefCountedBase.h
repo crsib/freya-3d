@@ -14,21 +14,32 @@
 
 namespace core
 {
+	//! This class is a default base to be used by refcounted objects
+	/*!
+	 * This class follows the interface, required by core::policies::ownership::Intrusive and implements base
+	 * features, required by classes with intrusive reference counting.
+	 * This class uses atomical operations to ensure, that the counter has the same value accross the all threads.
+	 * Still, release() method is probably not completely threadsafe
+	 * \sa core::policies::ownership::Intrusive, core::policies::ownership::RefCounted
+	 */
 	class FREYA_SUPPORT_EXPORT RefCountedBase : virtual public Object
 	{
 	public:
+		//! Virtual destructor to ensure, that inherited class is correctly deleted 
 		virtual ~RefCountedBase() {}
+		//! Default constructor
 		RefCountedBase() : m_RefCount(1) {}
-		
+		//! Type of the reference counter
 		typedef atomic::atomic<uint32_t> counter_type_t;
-
+		//! Increase ownership level
 		void	retain() { ++m_RefCount; }
+		//! Decrease ownership level and destroy the object if needed
 		void	release() 
 		{
 			if(!--m_RefCount)
 				delete this;
 		}
-
+		//! Retrieve the current ownership level
 		const counter_type_t&	getRetainCount() const { return m_RefCount; }
 
 	private:

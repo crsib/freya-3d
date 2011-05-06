@@ -18,7 +18,14 @@ namespace core
 	{
 		namespace ownership
 		{
-			//! Policy, defining non intrusive reference counted ownnership
+			//! Policy, implementing non intrusive reference counted owner ship
+			/*!
+			 * This policy implements non intrusive reference counting. 
+			 * This policy is thread safe in the sense, that the value of the counter 
+			 * will always be the same accross all threads. Still, release method is not 
+			 * completely thread safe
+			 * \ingroup SmartPointers_Policies_Ownership
+			 */
 			template<class P>
 			class RefCounted
 			{
@@ -26,12 +33,18 @@ namespace core
 				friend class RefCounted;
 
 			public:
+				//! Default constructor
+				/*!
+				 * Create a reference counter in core::memory::STL_POOL and initialize it to 1
+				 */
 				RefCounted() : m_RefCount( new( core::memory::alloc(sizeof(atomic::atomic<uint32_t>),core::memory::STL_POOL)) atomic::atomic<uint32_t> ) 
 				{ *m_RefCount = 1; }
+				//! Copy constructor
 				RefCounted(const RefCounted& rhs) : m_RefCount(rhs.m_RefCount) {}
+				//! Copy constructor
 				template<class U>
 				RefCounted(const RefCounted<U>& rhs) : m_RefCount(rhs.m_RefCount) {}
-
+				//! Swap policies
 				void	swap(RefCounted& rhs)
 				{
 					atomic::atomic<uint32_t>* temp = rhs.m_RefCount;
@@ -40,13 +53,13 @@ namespace core
 				}
 
 			protected:
-
+				//! Increase ownership level
 				P       clone(const P& val)
 				{
 					++*m_RefCount;
 					return val;
 				}
-
+				//! Decrease ownership level
 				bool    release(const P&)
 				{
 					if(!--*m_RefCount)
@@ -57,7 +70,7 @@ namespace core
 					}
 					return false;
 				}
-				
+				//! This policy does not follow destructive copy semantics
 				enum { DestructiveCopy = false };
 			private:
 				atomic::atomic<uint32_t>*	m_RefCount;
