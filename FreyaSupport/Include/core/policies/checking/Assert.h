@@ -35,7 +35,7 @@ namespace core
 				//! Check the pointer correctness
 				void	check(P val)
 				{
-					FREYA_SUPPORT_EXPORT(val,"NULL pointer dereferencing"); (void) val;
+					FREYA_SUPPORT_ASSERT(val,"NULL pointer dereferencing"); (void) val;
 				}
 			};
 		}
