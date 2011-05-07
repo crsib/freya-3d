@@ -23,7 +23,7 @@ namespace core
 		{
 			/// \cond
 			atomic::atomic<int> m_lock;
-			static const unsigned lock_bit;
+			static const unsigned lock_bit = 0;
 			/// \endcond
 		public:
 			/// \brief Default constructor. Spinlock will be initialized in non-locked state.
@@ -41,7 +41,7 @@ namespace core
 					// we should try to avoid frequent system bus lock.
 					while(m_lock.load() != 0)
 						PAUSE;
-					if(m_lock.bit_test_and_set(lock_bit))
+					if(m_lock.bit_test_and_set(lock_bit) == 0)
 						return;
 				}
 			}
@@ -68,7 +68,7 @@ namespace core
 			  * \return Boolean value. True if spinlock was locked, false if not.*/
 			inline bool try_lock()
 			{
-				return m_lock.bit_test_and_set(lock_bit);
+				return static_cast<bool>(m_lock.bit_test_and_set(lock_bit)); //MSVC is soo stupid
 			}
 			/// \brief Releases spinlock.
 			inline void release()
@@ -79,6 +79,6 @@ namespace core
 	}//namespace multithreading
 }//namespace core
 
-#include "core/multithreading/details/spinlock.h"
+//#include "core/multithreading/details/spinlock.h"
 
 #endif//FREYA_MULTITHREADING_SPINLOCK_H_

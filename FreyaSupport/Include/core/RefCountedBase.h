@@ -22,7 +22,7 @@ namespace core
 	 * Still, release() method is probably not completely threadsafe
 	 * \sa core::policies::ownership::Intrusive, core::policies::ownership::RefCounted
 	 */
-	class FREYA_SUPPORT_EXPORT RefCountedBase : virtual public Object
+	class FREYA_SUPPORT_EXPORT RefCountedBase
 	{
 	public:
 		//! Virtual destructor to ensure, that inherited class is correctly deleted 

@@ -32,6 +32,8 @@ namespace core
 		static void* operator new(size_t sz) { return memory::alloc(sz,core::memory::CLASS_POOL); }
 		static void* operator new [] (size_t sz) { return memory::alloc(sz,memory::CLASS_POOL); }
 
+		static void* operator new(size_t, void* p ) { return p; }
+
 		static void	 operator delete(void* p) { memory::dealloc(p, memory::CLASS_POOL); }
 		static void  operator delete[] (void* p) { memory::dealloc(p, memory::CLASS_POOL); }
 	};

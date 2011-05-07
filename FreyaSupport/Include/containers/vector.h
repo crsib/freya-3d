@@ -72,15 +72,15 @@ namespace containers
 		 * It emulates the normal iterator behavior (a pointer, in this case)
 		 * \tparam T denotes the internal type of the iterator
 		 */
-		template<typename T>
+		template<typename I>
 		class reverse_iterator_impl
 		{
 			template<typename U> 
 			friend class reverse_iterator_impl;
-			T*	m_Ptr;
+			I*	m_Ptr;
 			reverse_iterator_impl () {}
 		public:
-			typedef T type;
+			typedef I type;
 			typedef random_access_iterator_tag iterator_type;
 			//! Create a reverse iterator starting at ptr
 			explicit reverse_iterator_impl(T* ptr) { m_Ptr = ptr; }
@@ -111,14 +111,14 @@ namespace containers
 			reverse_iterator_impl&  operator -= (size_t offset) { return *this = reverse_iterator_impl(m_Ptr + offset); }
 
 			//! Retrieve the reference to the type
-			T&	operator * () { return *m_Ptr; }
+			I&	operator * () { return *m_Ptr; }
 			//! Retrieve the const reference to the type
-			typename const_reference<T>::type
+			typename const_reference<I>::type
 				operator * () const { return *m_Ptr; }
 			//! Provide pointer semantics
-			T*	operator -> () { return m_Ptr; }
+			I*	operator -> () { return m_Ptr; }
 			//! Provide const pointer semantics
-			typename const_pointer<T>::type
+			typename const_pointer<I>::type
 				operator -> () const { return m_Ptr; }
 			//! Compare two iterators for equality
 			friend

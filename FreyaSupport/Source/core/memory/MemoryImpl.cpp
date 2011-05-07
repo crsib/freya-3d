@@ -13,6 +13,8 @@
 #include "core/multithreading/thread.h"
 #include "integer.h"
 
+#include "core/Log.h"
+
 #define YIELD() core::multithreading::thread_self::yield() ;
 
 namespace core
@@ -954,12 +956,15 @@ MemoryArena::MemoryArena()
 	m_Pools.push_back(new __internal::MemoryPool(GENERIC_POOL,1024*4024,16));
 	m_Pools.push_back(new __internal::MemoryPool(CLASS_POOL,1024*4096,16));
 	m_Pools.push_back(new __internal::MemoryPool(LUA_POOL,1024*1024,16));
+
+	//InfoLog("Memory management system started");
 }
 
 MemoryArena::~MemoryArena()
 {
 	for(size_t i = m_Pools.size() ; i > 0; --i)
 		delete m_Pools[ i - 1 ];
+	//DebugLog("Allocs: %u, deallocs: %u, total leaked: %u", allocation_count, deallocation_count, memory_allocated);
 }
 
 MemoryArena*	MemoryArena::instance()

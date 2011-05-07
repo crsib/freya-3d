@@ -13,8 +13,7 @@
 #include "core/multithreading/thread.h"
 #include "core/multithreading/mutex.h"
 #include "core/multithreading/condition_variable.h"
-#include "core/multithreading/atomic_lock.h"
-#include "core/multithreading/auto_lock.h"
+#include "core/multithreading/spinlock.h"
 #include "core/multithreading/synchronize.h"
 
 #endif//FREYA_MULTITHREADING_MULTITHREADING_H_
