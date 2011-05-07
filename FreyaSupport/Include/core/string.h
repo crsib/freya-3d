@@ -12,6 +12,8 @@
 #include "atomic/atomic.h"
 #include "integer.h"
 
+#include <stdarg.h>
+
 namespace core
 {
 	//! This class encapsulates futures, required for easy and efficient manipulation with string data
@@ -76,6 +78,7 @@ namespace core
 		 * Constructs an empty string
 		 */
 		string() {}
+		
 		//! Destructor
 		~string() {}
 		//! Copy constructor
@@ -87,6 +90,10 @@ namespace core
 			FREYA_SUPPORT_ASSERT(r.end() <= m_BufferPtr.get_range().end(),"Invalid range");
 			m_BufferPtr.set_range(r);
 		}
+		//! Construct a string from format. Accepts the same format as printf do
+		static string withFormat( const char* format, ... ); 
+		//! Construct a string with a format and arglist
+		static string withVAList( const char* format, ::va_list arglist );
 		//! Construct from a C-string
 		string(const char* c_str) : m_BufferPtr(data_buffer_ptr(c_str)) {}
 		//! Construct from a C-string with a given hash value
@@ -148,8 +155,8 @@ namespace core
 		//! Concatenate two strings
 		string			operator + (const string& rhs) const
 		{
-			size_t lhs_len = m_BufferPtr.get_range().length(), rhs_len = rhs.m_BufferPtr.get_range().length();
-			string res( lhs_len + rhs_len);
+			size_t lhs_len = m_BufferPtr.get_required_storage(), rhs_len = rhs.m_BufferPtr.get_required_storage();
+			string res( lhs_len + rhs_len );
 			res.m_BufferPtr.write_buffer(m_BufferPtr.ptr(),0,lhs_len);
 			res.m_BufferPtr.write_buffer(rhs.m_BufferPtr.ptr(),lhs_len,rhs_len);
 			return res;
@@ -311,6 +318,8 @@ namespace core
 		 */
 		string			to_lower() const;
 
+		//! Get the smallest amount of storage required, to store string data
+		size_t			least_storage_size() const { return m_BufferPtr.get_required_storage(); }
 		//Memory management routines 
 		//! Overloaded new operator
 		static void* operator new(size_t sz) { return memory::alloc(sz,memory::CLASS_POOL); }
@@ -565,6 +574,14 @@ namespace core
 				}
 				return ptr();
 			} // const char* null_terminated string
+
+			size_t		get_required_storage() const
+			{
+				size_t sz = r.end() - r.begin();
+				if(r.end() && buffer->data_ptr[r.end() - 1] == 0)
+					--sz;
+				return sz;
+			}
 
 			bool		equals(const data_buffer_ptr& rhs) const
 			{

@@ -49,6 +49,7 @@ set(FREYA_BUILD_SHARED true CACHE BOOL "Build shared version of Freya3D (possibl
 set(FREYA_TARGET_PLATFORM "x86" CACHE STRING "Target platform (x86 only, currently)" )
 set(FREYA_USE_ICU	true CACHE BOOL "Use ICU for unicode support in Freya 3D Engine" )
 set(FREYA_USE_EASTL_TYPE_TRAITS true CACHE BOOL "Use EASTL part for type traits" )
+set(FREYA_USE_STRFTIME true CACHE BOOL "Use strftime from C standard library")
 
 string(COMPARE EQUAL "${FREYA_TARGET_PLATFORM}" "x86" FREYA_TARGET_PLATFORM_X86)
 
@@ -119,6 +120,12 @@ if( FREYA_USE_ICU )
 	add_definitions( -DFREYA_USE_ICU=1 )
 else()
 	message( FATAL_ERROR "Currently, ICU is a requirement" )
+endif()
+
+if(FREYA_USE_STRFTIME)
+	add_definitions( -DFREYA_USE_STRFTIME=1 )
+else()
+	message( FATAL_ERROR "There is currntly no other implementation" )
 endif()
 
 if( FREYA_USE_EASTL_TYPE_TRAITS )

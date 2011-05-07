@@ -11,6 +11,7 @@
 #include "core/memory/MemoryArena.h"
 #include "atomic/atomic.h"
 #include "FreyaSupportInternal.h"
+#include <new>
 
 namespace core
 {
@@ -31,13 +32,12 @@ namespace core
 			{
 				template<class U>
 				friend class RefCounted;
-
 			public:
 				//! Default constructor
 				/*!
 				 * Create a reference counter in core::memory::STL_POOL and initialize it to 1
 				 */
-				RefCounted() : m_RefCount( new( core::memory::alloc(sizeof(atomic::atomic<uint32_t>),core::memory::STL_POOL)) atomic::atomic<uint32_t> ) 
+				RefCounted() : m_RefCount( new( core::memory::alloc(sizeof(atomic::atomic<uint32_t>),core::memory::STL_POOL) ) atomic::atomic<uint32_t> ) 
 				{ *m_RefCount = 1; }
 				//! Copy constructor
 				RefCounted(const RefCounted& rhs) : m_RefCount(rhs.m_RefCount) {}

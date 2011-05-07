@@ -12,6 +12,9 @@
 #include <unicode/stringpiece.h>
 #include <unicode/utf8.h>
 #include <unicode/uchar.h>
+#include <unicode/umsg.h>
+#include <unicode/uloc.h>
+#include <unicode/ustring.h>
 #endif
 
 #include <utf8.h>
@@ -99,5 +102,34 @@ namespace core
 
 		return out;
 	}
+
+	string string::withFormat( const char* _format, ... )
+	{
+		va_list _list;
+		va_start(_list, _format);
+		string out = withVAList(_format,_list);
+		va_end(_list);
+
+		return out;
+	}
+
+	core::string string::withVAList( const char* format, ::va_list arglist )
+	{
+		va_list copy;
+#ifdef _MSC_VER
+		copy = arglist;
+#else
+		va_copy(copy, arglist);
+#endif
+		size_t bytes = vsnprintf(NULL, 0, format, copy);
+		char* output = memory::alloc<char>(bytes + 1);
+		vsnprintf(output, bytes + 1, format, arglist);
+		string out;
+		out += output;
+		memory::dealloc(output);
+		return out;
+	}
+
+
 
 } // namespace core

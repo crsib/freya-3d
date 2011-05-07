@@ -8,7 +8,7 @@
 #ifndef FREYA_MULTITHREADING_SYNCHRONIZE_H_
 #define FREYA_MULTITHREADING_SYNCHRONIZE_H_
 
-/** /def synchronize(lockabele) This macros provides Java-syntax-style synchronization mechanism.
+/** /def synchronize(lockable) This macros provides Java-syntax-style synchronization mechanism.
   * Any instance which class have "Lockable" compatible interface could be used as /a lockable.
   * /a lockable should be a pointer.
   * Locks /a lockable on the brackets entry, and releases it on terminate bracket.

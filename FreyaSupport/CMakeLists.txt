@@ -19,6 +19,8 @@ set( FREYA_SUPPORT_INCLUDES
 	Include/date_time/TimeUnit.h
 	Include/date_time/details/system_clock.h
 	Include/date_time/details/platform.h
+	Include/date_time/date_time_string.h
+	Include/date_time/details/date_time_string.h
 # core/memory
 	Include/core/memory/MemoryAllocator.h
 	Include/core/memory/MemoryArena.h
@@ -67,11 +69,13 @@ source_group("Include\\atomic" FILES
 source_group("Include\\date_time" FILES
 								./Include/date_time/TimeUnit.h
 								./Include/date_time/system_clock.h
+								./Include/date_time/date_time_string.h
 )
 
 source_group("Include\\date_time\\details" FILES
 								./Include/date_time/details/platform.h
 								./Include/date_time/details/system_clock.h
+								./Include/date_time/details/date_time_string.h
 )
 
 source_group("Include\\core\\multithreading" FILES
@@ -134,6 +138,11 @@ if( WIN32 )
 		
 	endif( MSVC OR MINGW )
 elseif( UNIX OR APPLE )
+endif()
+
+if(FREYA_USE_STRFTIME)
+	set( FREYA_SUPPORT_INCLUDES ${FREYA_SUPPORT_INCLUDES} Include/date_time/libc/date_time_string.h )
+	source_group( "Include\\date_time\\libc" FILES Include/date_time/libc/date_time_string.h )
 endif()
 
 # sources

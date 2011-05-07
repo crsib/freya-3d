@@ -60,8 +60,10 @@ int main(int argc, char* argv[])
 
 		string russian_string = "Строка по русски!";
 
-		assert(russian_string == "Строка по русски!");
-		assert(russian_string.length() == 17);
+		russian_string += string(" ") + russian_string;
+
+		assert(russian_string == "Строка по русски! Строка по русски!");
+		assert(russian_string.length() == 35);
 
 		string::range	r = a1.find("llo");
 		assert(a1.substr(r) == "llo");
@@ -97,6 +99,10 @@ int main(int argc, char* argv[])
 		printf("%s %s\n", russian_string.c_str(), russian_string.to_upper().c_str());
 
 		std::cout << rfind_test.replace("sixth", "seventh").c_str() << std::endl;
+
+		string formatted = string::withFormat("I have %i apples in (странная вставка) the %i jars",30,3);
+
+		printf("%s\n", formatted.c_str());
 	}
 
 	std::cout << "allocs: " << core::memory::allocation_count << "\ndeallocs: " << core::memory::deallocation_count
