@@ -62,6 +62,9 @@ namespace core
 					m_Storage += str; 
 				return *this; 
 			}
+
+			LogStream& 	getRef() { return *this; } //Strange GCC behaviour without it
+
 		private:
 			Log*		m_Parent;
 			uint32_t*	m_RefCounter;
@@ -127,9 +130,9 @@ namespace core
 #	define __freya_func__ __FUNCTION__
 #endif
 
-#define	InfoLog(...) core::Log::getInstance().getStream(core::Log::Info, __FILE__, __LINE__, __freya_func__, __VA_ARGS__)
-#define	DebugLog(...) core::Log::getInstance().getStream(core::Log::Debug, __FILE__, __LINE__, __freya_func__, __VA_ARGS__)
-#define	ErrorLog(...) core::Log::getInstance().getStream(core::Log::Error, __FILE__, __LINE__, __freya_func__, __VA_ARGS__)
-#define	CriticalLog(...) core::Log::getInstance().getStream(core::Log::Critical, __FILE__, __LINE__, __freya_func__, __VA_ARGS__)
+#define	InfoLog(...) core::Log::getInstance().getStream(core::Log::Info, __FILE__, __LINE__, __freya_func__, ##__VA_ARGS__).getRef()
+#define	DebugLog(...) core::Log::getInstance().getStream(core::Log::Debug, __FILE__, __LINE__, __freya_func__, ##__VA_ARGS__).getRef()
+#define	ErrorLog(...) core::Log::getInstance().getStream(core::Log::Error, __FILE__, __LINE__, __freya_func__, ##__VA_ARGS__).getRef()
+#define	CriticalLog(...) core::Log::getInstance().getStream(core::Log::Critical, __FILE__, __LINE__, __freya_func__, ##__VA_ARGS__).getRef()
 
 #endif // Core_Log_h__
