@@ -10,6 +10,7 @@
 
 #include "core/multithreading/details/platform.h"
 #include "core/multithreading/details/thread.h"
+#include "date_time/details/system_clock.h"
 
 // both interface and implementation are required
 #include "atomic/atomic.h"
@@ -82,7 +83,7 @@ namespace core {
 			return signaled;
 		}
 
-		inline bool thread::join(const unsigned ms)
+		inline bool thread::join(const date_time::system_clock::duration_t ms)
 		{
 			bool signaled = (WaitForSingleObject(thread_rep::m_handle, static_cast<DWORD>(ms)) == 0 );
 			if(signaled)
@@ -93,7 +94,7 @@ namespace core {
 			return signaled;
 		}
 
-		inline bool thread::kill()
+		inline void thread::kill()
 		{
 			bool terminated = (TerminateThread(thread_rep::m_handle, -1) != 0);
 			if(terminated)
@@ -101,7 +102,6 @@ namespace core {
 				CloseHandle(thread_rep::m_handle);
 				thread_rep::m_handle = NULL;
 			}
-			return terminated;
 		}
 
 	}//namespace multithreading
