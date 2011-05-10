@@ -94,7 +94,7 @@ namespace atomic
     inline unsigned atomic<BuiltIn>::bit_test_and_set(const unsigned bit)
     {
         const BuiltIn mask = 0x1 << bit;
-        return (unsigned) ((__sync_lock_test_and_set(&m_variable, mask) & mask) == 0);
+        return (unsigned) ((__sync_lock_test_and_set(&m_variable, mask) & mask) == mask);
     }
     
     template<typename BuiltIn>

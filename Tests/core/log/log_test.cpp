@@ -55,7 +55,8 @@ int main(int argc, char* argv[])
 		ErrorLog("Error");
 		CriticalLog("Critical").append(" error test").append(" of append") << " using operator << " << 10;
 
-		ErrorLog("") << 10.0f;
+		//core::Log::LogStream log = ErrorLog("");
+		ErrorLog() << 10.0f;
 	}
 
 	core::Log::getInstance().flush();
