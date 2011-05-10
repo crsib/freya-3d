@@ -12,6 +12,7 @@
 #include "FreyaSupportInternal.h"
 
 #include <cmath>
+#include <stddef.h>
 
 namespace containers
 {
