@@ -10,6 +10,7 @@
 
 #include "FreyaSupportInternal.h"
 #include "core/multithreading/details/platform.h"
+#include "date_time/details/system_clock.h"
 
 namespace core 
 {
@@ -35,17 +36,15 @@ namespace core
 			inline ~thread();
 
 			/// \brief Wait for the thread termination.
-			/** \return Boolean value. True on success.*/
 			inline bool join();
 
 			/// \brief Wait for the thread termination for a specified time.
 			/** \param timeout Time to wait in milliseconds.
 			  * \return Boolean value. True on success.*/
-			inline bool join(const unsigned timeout);
+			inline bool join(const date_time::system_clock::duration_t timeout);
 
 			/// \brief Force the thread termination.
-			/** \return Boolean value. True on success. */
-			inline bool kill();
+			inline void kill();
 
 			/// \brief Retrieve thread state.
 			/** \return Boolean value. True if the thread is running. */
