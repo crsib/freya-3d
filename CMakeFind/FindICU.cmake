@@ -16,10 +16,7 @@ find_path( ICU_INCLUDE_DIR NAMES unicode/utypes.h  DOC "Include directory for th
 find_library( ICU_LIBRARY_COMMON NAMES icuuc DOC "Libraries to link against for the common parts of ICU" PATHS $ENV{LD_LIBRARY_PATH} $ENV{LIBRARY_PATH} $ENV{LIB}
   /usr/lib /usr/local/lib /opt/local/lib)
   
-  find_library( ICU_LIBRARY_IN NAMES icuin DOC "Libraries to link against for the common parts of ICU" PATHS $ENV{LD_LIBRARY_PATH} $ENV{LIBRARY_PATH} $ENV{LIB}
-  /usr/lib /usr/local/lib /opt/local/lib)
-
-  set(ICU_LIBRARIES ${ICU_LIBRARY_COMMON} ${ICU_LIBRARY_IN} )
+set(ICU_LIBRARIES ${ICU_LIBRARY_COMMON}  )
   
 if( ICU_INCLUDE_DIR AND ICU_LIBRARIES)
 	set(ICU_FOUND 1)

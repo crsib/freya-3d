@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
 
 		InfoLog("AppStarted");
 
-		ErrorLog("Stariting threads");
+		ErrorLog("Starting threads");
 
 		{
 			Runnable _1,_2,_3,_4;
@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
 		ErrorLog("Error");
 		CriticalLog("Critical").append(" error test").append(" of append") << " using operator << " << 10;
 
-		ErrorLog() << 10.0f;
+		ErrorLog("") << 10.0f;
 	}
 
 	core::Log::getInstance().flush();
