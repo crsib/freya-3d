@@ -92,7 +92,7 @@ namespace core
 		//! Copy constructor. When ownership follows destructive copy semantics (same as std::auto_ptr does) the value of \a rhs could possibly be modified
 		smart_ptr( copy_arg_t& rhs ) : storage_policy_t(rhs), ownership_policy_t(rhs), checking_policy_t(rhs)
 		{
-			getRef() = clone(rhs.getRef());
+			StoragePolicy<T>::getRef() = ownership_policy_t::clone(rhs.getRef());
 		}
 		//! Copy constructor to allow handling the pointer ownership by the smart pointers with implicitly castable base type
 		template
@@ -104,7 +104,7 @@ namespace core
 		>
 		smart_ptr( const smart_ptr<U, SP, OP, CP>& rhs) : storage_policy_t(rhs), ownership_policy_t(rhs), checking_policy_t(rhs)
 		{
-			getRef() = clone(rhs.getRef());
+			StoragePolicy<T>::getRef() = clone(rhs.getRef());
 		}
 		//! Copy constructor to allow handling the pointer ownership by the smart pointers with implicitly castable base type (version for destructive copy ownership)
 		template
@@ -116,7 +116,7 @@ namespace core
 		>
 		smart_ptr( smart_ptr<U, SP, OP, CP>& rhs) :  storage_policy_t(rhs), ownership_policy_t(rhs), checking_policy_t(rhs)
 		{
-			getRef() = clone(rhs.getRef());
+			StoragePolicy<T>::getRef() = ownership_policy_t::clone(rhs.getRef());
 		}
 		//! Swap to smart pointers
 		void	swap(smart_ptr& rhs)
@@ -163,22 +163,22 @@ namespace core
 		//! Reset smart pointer ownership on the object
 		void	reset()
 		{
-			if(release(getRef()))
-				destroy();
-			getRef() = default();
+			if(release(StoragePolicy<T>::getRef()))
+				StoragePolicy<T>::destroy();
+			StoragePolicy<T>::getRef() = StoragePolicy<T>::getDefault();
 		}
 		//! Smart pointer destructor, calling \a reset() for correct ownership managment 
 		~smart_ptr() { reset(); }
 		//! Retrieve the stored pointer
-		pointer_type_t	operator -> () { check(getRef()); return get(); }
+		pointer_type_t	operator -> () { check(StoragePolicy<T>::getRef()); return StoragePolicy<T>::get(); }
 		//! Retrieve constant version of the stored pointer
-		const_pointer_type_t operator -> () const { check(getRef());  return get(); }
+		const_pointer_type_t operator -> () const { check(StoragePolicy<T>::getRef());  return StoragePolicy<T>::get(); }
 		//! Dereference operator
-		reference_type_t operator * () { check(getRef()); return *get(); }
+		reference_type_t operator * () { check(StoragePolicy<T>::getRef()); return *StoragePolicy<T>::get(); }
 		//! Constant dereference operator
-		const_reference_type_t operator * () const { check(getRef()); return *get(); }
+		const_reference_type_t operator * () const { check(StoragePolicy<T>::getRef()); return *StoragePolicy<T>::get(); }
 		//! Enables \a if(!sp)
-		bool	operator! () const { return get() == default(); }
+		bool	operator! () const { return StoragePolicy<T>::get() == StoragePolicy<T>::getDefault(); }
 		//! Equality operator
 		template
 		<
@@ -187,7 +187,7 @@ namespace core
 			template<class> class OP,
 			template<class> class CP
 		>
-		bool	operator == (const smart_ptr<U,SP,OP,CP>& rhs) const { return get() == rhs.get(); }
+		bool	operator == (const smart_ptr<U,SP,OP,CP>& rhs) const { return StoragePolicy<T>::get() == rhs.get(); }
 		//! Inequality operator
 		template
 		<
@@ -196,9 +196,9 @@ namespace core
 			template<class> class OP,
 			template<class> class CP
 		>
-		bool	operator != (const smart_ptr<U,SP,OP,CP>& rhs) const { return get() != rhs.get(); }
+		bool	operator != (const smart_ptr<U,SP,OP,CP>& rhs) const { return StoragePolicy<T>::get() != rhs.get(); }
 		//! Enables if(sp)
-		operator unspecified_boolean_t () const { return get() == default() ? NULL : &never_matched::foo; }
+		operator unspecified_boolean_t () const { return StoragePolicy<T>::get() == StoragePolicy<T>::getDefault() ? NULL : &never_matched::foo; }
 	};
 }
 

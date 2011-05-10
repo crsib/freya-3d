@@ -11,6 +11,7 @@
 
 #include "core/string.h"
 #include <iostream>
+#include <cstdio>
 
 #ifdef _MSC_VER
 #include <windows.h>

@@ -10,6 +10,7 @@
 
 #include "FreyaSupportInternal.h"
 #include "core/multithreading/details/platform.h"
+#include "date_time/details/system_clock.h"
  
 namespace core
 {
@@ -43,7 +44,7 @@ namespace core
 			 * the thread will wakeup.
 			 * \param sync Mutex object to be unlocked.
 			 * \return Boolean value. True if variable is signaled, false if waiting time had been elapsed. */
-			inline bool wait(mutex* sync, const unsigned timeout);
+			inline bool wait(mutex* sync, const date_time::system_clock::duration_t timeout);
 			
 			/// \brief Wake up all the threads waiting on this condition.
 			inline void broadcast();
