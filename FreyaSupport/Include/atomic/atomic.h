@@ -13,6 +13,11 @@
 #if defined(__clang__) // Supported arch x86-64, ARMv7 instruction based.
 	#include "atomic/details/atomic-clang.h"
 #elif defined(__GNUC__) // Supported arch x86-64, ARMv7 instruction based.
+
+#ifndef _GLIBCXX_ATOMIC_BUILTINS
+//#error "It looks like your compiler does not support atomic builtins for target platform, or you have not provided -march=* option(for x86-64: i486 or newer)."
+#endif
+
 	#if ( ((__GNUC__ * 10) + __GNUC_MINOR__) >= 41 )
 		//atomic builtins supported by gcc starting with 4.1.0
 		#include "atomic/details/atomic-gcc-4.1.0+.h"

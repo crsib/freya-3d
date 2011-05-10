@@ -55,6 +55,9 @@ string(COMPARE EQUAL "${FREYA_TARGET_PLATFORM}" "x86" FREYA_TARGET_PLATFORM_X86)
 
 if( FREYA_TARGET_PLATFORM_X86 )
 	message( STATUS "Configuring for x86")
+        if( CMAKE_COMPILER_IS_GNUCC )
+            set( CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -march=i486 )
+        endif()
 endif()
 
 # Enable SSE2 usage
@@ -136,10 +139,14 @@ else()
 endif()
 
 # Determine threading platform
-if( WIN32 )
+if( MSVC )
+	message( STATUS "Multithreading Model: win32.")
 	add_definitions(-DPLATFORM_WIN_THREADS)
-elseif( UNIX )
+	set(PLATFORM_WIN_THREADS 1)
+else() 
+	message( STATUS "Multithreading Model: pthreads.")
 	add_definitions(-DPLATFORM_POSIX_THREADS)
+	set(PLATFORM_POSIX_THREADS 1)
 endif()
 
 # Libraries

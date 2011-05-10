@@ -41,7 +41,7 @@ namespace core
 					// we should try to avoid frequent system bus lock.
 					while(m_lock.load() != 0)
 						PAUSE;
-					if(m_lock.bit_test_and_set(lock_bit) == 0)
+					if(m_lock.bit_test_and_set(lock_bit)==0)
 						return;
 				}
 			}
@@ -59,7 +59,7 @@ namespace core
 							PAUSE;
 						else
 							return false;
-					if(m_lock.bit_test_and_set(lock_bit))
+					if(m_lock.bit_test_and_set(lock_bit)==0)
 						return true;
 				}
 			}

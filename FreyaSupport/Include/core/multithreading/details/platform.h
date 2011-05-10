@@ -14,15 +14,48 @@
 #endif
 
 #ifdef PLATFORM_WIN_THREADS
-#	include <Windows.h>
+        #include <Windows.h>
 #elif defined(PLATFORM_POSIX_THREADS)
-	#error core::multithreading library for posix platform is not implemented yet.
 	#include <pthread.h>
 #endif
 
 #include "FreyaSupportInternal.h"
 
-#if defined(PLATFORM_WIN_THREADS)
+#if defined(PLATFORM_POSIX_THREADS)
+namespace core
+{
+    namespace multithreading
+    {
+        namespace details
+        {
+            ///\cond
+            struct FREYA_SUPPORT_EXPORT thread_rep
+            {
+                pthread_t m_handle;
+            };
+            
+            struct FREYA_SUPPORT_EXPORT mutex_rep
+            {
+                pthread_mutex_t m_mutex;
+            };
+            
+            struct FREYA_SUPPORT_EXPORT condition_variable_rep
+            {
+                pthread_cond_t m_var;
+            };
+            
+            struct thread_local_rep
+            {
+                pthread_key_t m_key;
+            };
+            
+            
+            ///\endcond
+        }//namespace details
+    }//namespace multithreading
+}//namespace core
+
+#elif defined(PLATFORM_WIN_THREADS)
 namespace core
 {
 	namespace multithreading
@@ -32,7 +65,7 @@ namespace core
 			///\cond
 			struct FREYA_SUPPORT_EXPORT thread_rep
 			{
-				__forceinline thread_rep(HANDLE handle = NULL, DWORD id = 0)
+				FREYA_SUPPORT_FORCE_INLINE thread_rep(HANDLE handle = NULL, DWORD id = 0)
 					: m_handle(handle), m_id(id)
 				{
 				}
@@ -46,7 +79,7 @@ namespace core
 				typedef LPVOID tls_data_t;//type of tls cell
 				typedef DWORD  tls_index_t;//type of index of tls cell
 
-				__forceinline thread_local_rep(DWORD index)
+				FREYA_SUPPORT_FORCE_INLINE thread_local_rep(DWORD index)
 					: m_tls_index(index)
 				{
 				}
@@ -63,7 +96,7 @@ namespace core
 				 * It will return the underlying CRITICAL_SECTION into "normal, 
 				 * first time locked" state, to provide behaviour more like 
 				 * non-recursive mutex. */
-				__forceinline bool twice_lock_protect()
+				FREYA_SUPPORT_FORCE_INLINE bool twice_lock_protect()
 				{
 					if(m_critical_section.RecursionCount == 1)
 						return true;
@@ -84,7 +117,6 @@ namespace core
 		}//namespace details
 	}//namespace multithreading
 }//namespace core
-#elif defined(PLATFORM_POSIX_THREADS)
-#endif
+#endif//PLATFORM_WIN_THREADS
 
 #endif//FREYA_THREADS_PLATFORM_H_

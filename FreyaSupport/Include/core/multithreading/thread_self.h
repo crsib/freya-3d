@@ -14,6 +14,7 @@
 #if defined(PLATFORM_WIN_THREADS)
 	#include "core/multithreading/win32/thread_self.h"
 #elif defined(PLATFORM_POSIX_THREADS)
+        #include "core/multithreading/posix/thread_self.h"
 #endif
 
 #endif//FREYA_MULTITHREADING_THREAD_SELF_H_

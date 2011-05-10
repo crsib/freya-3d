@@ -10,6 +10,7 @@
 
 #include "core/multithreading/details/platform.h"
 #include "core/multithreading/details/condition_variable.h"
+#include "date_time/details/system_clock.h"
 
 namespace core
 {
@@ -32,7 +33,7 @@ namespace core
 			SleepConditionVariableCS(&(condition_variable_rep::m_cond_var), cs, INFINITE);
 		}
 
-		inline bool condition_variable::wait(mutex* sync, const unsigned timeout)
+		inline bool condition_variable::wait(mutex* sync, const date_time::system_clock::duration_t timeout)
 		{
 			PCRITICAL_SECTION cs = &(reinterpret_cast<details::mutex_rep*>(sync)->m_critical_section);
 			return (SleepConditionVariableCS(&(condition_variable_rep::m_cond_var), cs, static_cast<DWORD>(timeout)) != 0);

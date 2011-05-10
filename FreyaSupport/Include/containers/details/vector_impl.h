@@ -7,6 +7,7 @@
 #ifndef Containers_vector_impl_h__
 #define Containers_vector_impl_h__
 
+#include <memory.h>
 #include "integer.h"
 
 #ifndef Containers_vector_h__
@@ -154,16 +155,16 @@ namespace containers
 
 	template<typename T, template<class> class MAP, class LP, class SRP>
 	vector<T,MAP,LP,SRP>::vector(iterator _begin, iterator _end) 
-		: m_AllocatedCount(get_vector_size(_end - _begin, 0)), m_Begin(allocate(m_AllocatedCount))
+		: m_AllocatedCount(SRP::get_vector_size(_end - _begin, 0)), m_Begin(MAP<T>::allocate(m_AllocatedCount))
 	{
 		m_End = details::__vector_impl_copy_unintialized_helper(_begin,_end, m_Begin,eastl::has_trivial_copy<T>());
 	}
 
-	template<typename T, template<class> class MAP, class LP, class SRP>
-	vector<T,MAP, LP, SRP>::~vector() 
+	template<typename Iter, template<class> class MAP, class LP, class SRP>
+	vector<Iter,MAP, LP, SRP>::~vector() 
 	{
 		if( m_Begin != m_End )
-			details::__vector_impl_destructor_helper(m_Begin, m_End, eastl::has_trivial_destructor<T>());
+			details::__vector_impl_destructor_helper(m_Begin, m_End, eastl::has_trivial_destructor<Iter>());
 		// deallocate is expected to act as free
 		deallocate( m_Begin );
 		m_Begin = m_End = NULL;
@@ -199,7 +200,7 @@ namespace containers
 	{
 		if(m_Begin == m_End || first >= m_End || first == last) // Nothing to do
 			return;
-		lock();
+		LockPolicy::lock();
 		// Correct iterators
 		if(first < m_Begin)
 			first = m_Begin;
@@ -217,7 +218,7 @@ namespace containers
 
 		m_End = ptr;
 
-		unlock();
+		LockPolicy::unlock();
 	} // void containers::vector<T, MemoryAllocationPolicy, LockPolicy, StorageResizePolicy>::erase( iterator first, iterator last )
 
 	template
@@ -246,21 +247,21 @@ namespace containers
 
 		if(elem_count == 0) //Nothing to insert?
 			return; //Boil out
-		lock();
+		LockPolicy::lock();
 
 		if(!m_Begin) // Whoops, no memory is allocated
 		{
-			m_AllocatedCount = get_vector_size(elem_count, 0);
-			m_Begin = allocate(m_AllocatedCount);
+			m_AllocatedCount = StorageResizePolicy::get_vector_size(elem_count, 0);
+			m_Begin = MemoryAllocationPolicy<T>::allocate(m_AllocatedCount);
 			//All the space is unitialized...
 			m_End = details::__vector_impl_copy_unintialized_helper( first, last, m_Begin, eastl::has_trivial_copy<T>());
 		}
 		else if( (m_End - m_Begin) > static_cast<ptrdiff_t>(m_AllocatedCount - elem_count) ) //Reallocation needed
 		{
 			const size_t current_size = m_End - m_Begin;
-			const size_t new_size = get_vector_size(current_size + elem_count, m_AllocatedCount);
+			const size_t new_size = StorageResizePolicy::get_vector_size(current_size + elem_count, m_AllocatedCount);
 
-			T*	new_memory_ptr = allocate(new_size);
+			T*	new_memory_ptr = MemoryAllocationPolicy<T>::allocate(new_size);
 			if(position <= m_Begin) // Copy [first, last), then [m_Begin, m_End)
 			{
 				details::__vector_impl_copy_unintialized_helper( first, last, new_memory_ptr,  eastl::has_trivial_copy<T>());
@@ -310,7 +311,7 @@ namespace containers
 				m_End = ptr;
 			}
 		}
-		unlock();
+		LockPolicy::unlock();
 	} //void containers::vector<T, MemoryAllocationPolicy, LockPolicy, StorageResizePolicy>::insert( iterator position, const_iterator first, const_iterator last )
 
 	template
@@ -324,18 +325,18 @@ namespace containers
 	{
 		if(n == 0)
 			return;
-		lock();
+		LockPolicy::lock();
 		if(!m_Begin)
 		{
-			m_AllocatedCount = get_vector_size(n, 0);
-			m_Begin = allocate(m_AllocatedCount);
+			m_AllocatedCount = StorageResizePolicy::get_vector_size(n, 0);
+			m_Begin = MemoryAllocationPolicy<T>::allocate(m_AllocatedCount);
 			m_End = details::__vector_impl_uninitialized_fill_helper(m_Begin, obj, n, eastl::has_trivial_copy<T>());
 		}
 		else if( (m_End - m_Begin) > static_cast<ptrdiff_t>(m_AllocatedCount - n) )
 		{
 			const size_t current_size = m_End - m_Begin;
-			const size_t new_size = get_vector_size(current_size + n, m_AllocatedCount);
-			T*	new_memory_ptr = allocate(new_size);
+			const size_t new_size = StorageResizePolicy::get_vector_size(current_size + n, m_AllocatedCount);
+			T*	new_memory_ptr = MemoryAllocationPolicy<T>::allocate(new_size);
 			if(position <= m_Begin)
 			{
 				details::__vector_impl_uninitialized_fill_helper(new_memory_ptr, obj, n, eastl::has_trivial_copy<T>());
@@ -384,7 +385,7 @@ namespace containers
 				m_End = ptr;
 			}
 		}
-		unlock();
+		LockPolicy::unlock();
 	} //void containers::vector<T, MemoryAllocationPolicy, LockPolicy, StorageResizePolicy>::insert( iterator position, size_t n, constant_refernce obj )
 
 
@@ -409,13 +410,13 @@ namespace containers
 		>
 	void vector<T, MemoryAllocationPolicy, LockPolicy, StorageResizePolicy>::pop_back()
 	{
-		lock();
+		LockPolicy::lock();
 		if(m_Begin && m_Begin < m_End)
 		{
 			details::__vector_impl_destructor_helper(m_End - 1, m_End, eastl::has_trivial_destructor<T>());
 			--m_End;
 		}
-		unlock();
+		LockPolicy::unlock();
 	}
 
 	template
@@ -427,29 +428,29 @@ namespace containers
 		>
 	void vector<T, MemoryAllocationPolicy, LockPolicy, StorageResizePolicy>::push_back( constant_refernce obj )
 	{
-		lock();
+		LockPolicy::lock();
 		if(!m_Begin)
 		{
-			m_AllocatedCount = get_vector_size(1, 0);
-			m_Begin = allocate(m_AllocatedCount);
+			m_AllocatedCount = StorageResizePolicy::get_vector_size(1, 0);
+			m_Begin = MemoryAllocationPolicy<T>::allocate(m_AllocatedCount);
 			m_End = m_Begin;
 		}
 		else if( (m_End - m_Begin) == m_AllocatedCount )
 		{
 			//Wtf, copying...
 			const size_t current_size = m_End - m_Begin;
-			const size_t new_size = get_vector_size(current_size + 1, m_AllocatedCount);
-			T*	new_memory_ptr = allocate(new_size);
+			const size_t new_size = StorageResizePolicy::get_vector_size(current_size + 1, m_AllocatedCount);
+			T*	new_memory_ptr = MemoryAllocationPolicy<T>::allocate(new_size);
 			m_End = details::__vector_impl_copy_unintialized_helper(m_Begin, m_End, new_memory_ptr, eastl::has_trivial_copy<T>());
 			details::__vector_impl_destructor_helper(m_Begin, m_Begin + current_size, eastl::has_trivial_destructor<T>());
-			deallocate(m_Begin);
+			MemoryAllocationPolicy<T>::deallocate(m_Begin);
 			m_Begin = new_memory_ptr;
 			m_AllocatedCount = new_size;
 		}
 
 		m_End = details::__vector_impl_copy_unintialized_helper(m_End, obj, eastl::has_trivial_copy<T>());
 
-		unlock();
+		LockPolicy::unlock();
 	}
 
 	template
@@ -463,23 +464,23 @@ namespace containers
 	{
 		if(m_Begin == NULL) //Trivial case
 		{
-			m_AllocatedCount = get_vector_size(count, 0);
-			m_Begin = m_End = allocate(m_AllocatedCount);
+			m_AllocatedCount = StorageResizePolicy::get_vector_size(count, 0);
+			m_Begin = m_End = MemoryAllocationPolicy<T>::allocate(m_AllocatedCount);
 		}
 		else if( count > m_AllocatedCount )
 		{
 			if(m_Begin == m_End)
 			{
-				m_AllocatedCount = get_vector_size(count, 0);
-				m_End = allocate(m_AllocatedCount);
-				deallocate(m_Begin);
+				m_AllocatedCount = StorageResizePolicy::get_vector_size(count, 0);
+				m_End = MemoryAllocationPolicy<T>::allocate(m_AllocatedCount);
+				MemoryAllocationPolicy<T>::deallocate(m_Begin);
 				m_Begin = m_End;
 			}
 			else
 			{
 				const size_t current_size = m_End - m_Begin;
-				const size_t new_size = get_vector_size(count,m_AllocatedCount);
-				T* memptr = allocate(new_size);
+				const size_t new_size = StorageResizePolicy::get_vector_size(count,m_AllocatedCount);
+				T* memptr = MemoryAllocationPolicy<T>::allocate(new_size);
 
 				m_End = details::__vector_impl_copy_unintialized_helper(m_Begin, m_End, memptr,eastl::has_trivial_copy<T>());
 				details::__vector_impl_destructor_helper(m_Begin, m_Begin + current_size, eastl::has_trivial_destructor<T>());

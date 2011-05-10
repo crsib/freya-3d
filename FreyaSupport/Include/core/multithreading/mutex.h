@@ -13,6 +13,7 @@
 #if defined(PLATFORM_WIN_THREADS)
 	#include "core/multithreading/win32/mutex.h"
 #elif defined(PLATFORM_POSIX_THREADS)
+        #include "core/multithreading/posix/mutex.h"
 #endif
 
 #endif//FREYA_MULTITHREADING_MUTEX_H_

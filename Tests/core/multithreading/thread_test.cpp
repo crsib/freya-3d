@@ -2,6 +2,11 @@
 #include <time.h>
 #include <core/multithreading/thread_self.h>
 #include <core/multithreading/thread.h>
+#include <date_time/system_clock.h>
+
+#ifndef _MSC_VER
+# 	define system(x)
+#endif
 
 using namespace core::multithreading;
 
@@ -68,14 +73,14 @@ namespace core
 			bool thread_self_sleep(void)
 			{
 				std::cout << "thread_self::sleep(): ";
-				const unsigned time_to_sleep = 10;//ms
+				const date_time::system_clock::duration_t time_to_sleep = 500;//ms
 	
-				clock_t start = clock();
+				date_time::system_clock start;
 				thread_self::sleep(time_to_sleep);
-				clock_t end = clock();
-				const long time_diff = static_cast<long>(end) - static_cast<long>(start);
+				date_time::system_clock end;
+				date_time::system_clock::duration_t time_diff = end - start;
 				std::cout << time_diff;
-				if( (time_diff * 1000) >= (static_cast<long>(time_to_sleep) * CLOCKS_PER_SEC) )
+				if( time_diff >= time_to_sleep )
 				{
 					std::cout << "passed.\n";
 					return true;
@@ -106,11 +111,12 @@ namespace core
 					std::cout << " failed(unable to create thread).\n";
 					return false;
 				}
-				const int check_times = 10;
+				const int check_times = 100;
 				int checks = 0;
 				while((!sr->is_ok()) && checks < check_times )
 				{
 					while(!thread_self::yield());
+                                        thread_self::sleep(10);
 					checks++;
 				}
 				if(!sr->is_ok())
@@ -142,7 +148,6 @@ namespace core
 
 			bool thread_timed_join(void)
 			{
-
 				const unsigned timeout = 50;
 				std::cout << "thread::join(timeout): ";
 				if(!thread_ptr)
@@ -176,6 +181,7 @@ namespace core
 				}
 				delete thread_ptr;
 				simple_runable::destroy_instance();
+                                std::cout << "passed.\n";
 				return true;
 			}
 		}//namespace tests
@@ -187,7 +193,7 @@ int main(void)
 {
 	using namespace core::multithreading;
 
-	std::cout<<"Running multithreading test... ";
+	std::cout<<"Running multithreading test... \n";
 	if(!tests::thread_self_sleep())
 	{
 		system("PAUSE");
@@ -218,4 +224,5 @@ int main(void)
 		system("PAUSE");
 		return 0;
 	}
+        std::cout << "Completed!";
 }
