@@ -10,8 +10,7 @@
 
 #include "FreyaSupportInternal.h"
 
-#if defined(_WIN32)
-
+#if defined(_WIN32) && defined(_MSC_VER)
 #include <Windows.h>
 
 namespace date_time
@@ -28,7 +27,30 @@ namespace date_time
 	}//namespace details
 	/// \endcond
 }//namespace date_time
+#elif defined(__unix__) || defined (__unix) || defined (__MINGW32__)
+#include <time.h>
+#include <sys/time.h>
 
-#endif//win32
+namespace date_time
+{
+    /// \cond
+    namespace details
+    {
+
+        struct FREYA_SUPPORT_EXPORT clock_rep
+        {
+            typedef clock_t clock_diff_t;
+#if defined(_POSIX_TIMERS) && defined(_POSIX_MONOTONIC_CLOCK)
+        #define FREYA_DATE_TIME_HAVE_HIRES_CLOCK
+            timespec m_time_data;
+#else //fallback
+            timeval m_time_data;
+#endif
+        };
+    }//namespace details
+    /// \endcond
+
+}//namespace date_time
+#endif
 
 #endif//FREYA_DATE_TIME_DETAILS_PLATFORM_H_

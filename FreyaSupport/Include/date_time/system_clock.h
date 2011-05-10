@@ -10,10 +10,10 @@
 
 #include "date_time/details/system_clock.h"
 
-#if defined(_WIN32)
+#if defined(_WIN32) && defined(_MSC_VER)
 	#include "date_time/win32/system_clock.h"
-#elif (defined(__unix__) || defined(__unix))
-	#error ERROR: date_time::system_clock for your platform not implemented yet.
+#elif (defined(__unix__) || defined(__unix) || defined(__MINGW32__))
+        #include "date_time/posix/system_clock.h"
 #elif (defined(__APPLE__) && defined(__MACH__))
 	#error ERROR: date_time::system_clock for your platform not implemented yet.
 #endif
