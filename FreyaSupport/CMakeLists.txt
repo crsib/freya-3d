@@ -1,3 +1,5 @@
+# FREYA_SUPPORT_DEPENDENCIES - libraries names to link with FreyaSupport.
+
 message ( STATUS " Generating build dependencies for FreyaSupport" )
 
 # includes
@@ -95,6 +97,7 @@ source_group("Include\\core\\multithreading\\details" FILES
 )
 
 if( MSVC )
+	#atomics implementation
 	set( FREYA_SUPPORT_INCLUDES ${FREYA_SUPPORT_INCLUDES} 
 									Include/atomic/details/atomic-msvc.h 
 	)
@@ -103,37 +106,62 @@ if( MSVC )
 	)
 endif()
 
-if( WIN32 )
-	if( MSVC OR MINGW )
-		# multithreading implementation
-		add_definitions(-DPLATFORM_WIN_THREADS)
-		set( FREYA_SUPPORT_INCLUDES ${FREYA_SUPPORT_INCLUDES}
-									Include/core/multithreading/win32/thread.h
-									Include/core/multithreading/win32/thread_local.h
-									Include/core/multithreading/win32/mutex.h
-									Include/core/multithreading/win32/condition_variable.h
-									Include/core/multithreading/win32/thread_self.h
-		)
-		source_group("Include\\core\\multithreading\\win32" FILES
-						Include/core/multithreading/win32/thread.h
-						Include/core/multithreading/win32/thread_local.h
-						Include/core/multithreading/win32/mutex.h
-						Include/core/multithreading/win32/condition_variable.h
-						Include/core/multithreading/win32/thread_self.h
-		)
-		#date_time implmenetation
-		set( FREYA_SUPPORT_INCLUDES ${FREYA_SUPPORT_INCLUDES}
-									Include/date_time/win32/system_clock.h
-		)
-		source_group("Include\\date_time\\win32" FILES
-						Include/date_time/win32/system_clock.h
-		)
-		#
-		set( FREYA_USE_WINMM 1 )
-		set( WINMM_LIBRARY winmm.lib )
-		
-	endif( MSVC OR MINGW )
-elseif( UNIX OR APPLE )
+if( PLATFORM_WIN_THREADS )
+	# multithreading implementation
+	set( FREYA_SUPPORT_INCLUDES ${FREYA_SUPPORT_INCLUDES}
+								Include/core/multithreading/win32/thread.h
+								Include/core/multithreading/win32/thread_local.h
+								Include/core/multithreading/win32/mutex.h
+								Include/core/multithreading/win32/condition_variable.h
+								Include/core/multithreading/win32/thread_self.h
+	)
+	source_group("Include\\core\\multithreading\\win32" FILES
+					Include/core/multithreading/win32/thread.h
+					Include/core/multithreading/win32/thread_local.h
+					Include/core/multithreading/win32/mutex.h
+					Include/core/multithreading/win32/condition_variable.h
+					Include/core/multithreading/win32/thread_self.h
+	)
+	#date_time implmenetation
+	set( FREYA_SUPPORT_INCLUDES ${FREYA_SUPPORT_INCLUDES}
+								Include/date_time/win32/system_clock.h
+	)
+	source_group("Include\\date_time\\win32" FILES
+					Include/date_time/win32/system_clock.h
+	)
+
+	if( MSVC )
+		set( FREYA_SUPPORT_DEPENDENCIES ${FREYA_SUPPORT_DEPENDENCIES} winmm.lib )
+	endif( MSVC )
+endif()
+if( PLATFORM_POSIX_THREADS )
+	# core/multithreading
+    set( FREYA_SUPPORT_INCLUDES ${FREYA_SUPPORT_INCLUDES}
+                                            Include/core/multithreading/posix/thread.h
+                                            Include/core/multithreading/posix/thread_local.h
+                                            Include/core/multithreading/posix/mutex.h
+                                            Include/core/multithreading/posix/thread_self.h
+                                            Include/core/multithreading/posix/condition_variable.h
+    )
+    source_group("Include\\core\\multithreading\\posix" FILES
+                                            Include/core/multithreading/posix/thread.h
+                                            Include/core/multithreading/posix/thread_local.h
+                                            Include/core/multithreading/posix/mutex.h
+                                            Include/core/multithreading/posix/thread_self.h
+                                            Include/core/multithreading/posix/condition_variable.h
+    )
+	# core/date_time
+    set( FREYA_SUPPORT_INCLUDES ${FREYA_SUPPORT_INCLUDES}
+                                            Include/date_time/posix/system_clock.h
+    )
+
+    source_group("Include\\date_time\\posix" FILES
+                                            Include/date_time/posix/system_clock.h
+    )
+
+    if( MINGW OR MSYS )
+        set( FREYA_SUPPORT_DEPENDENCIES ${FREYA_SUPPORT_DEPENDENCIES} pthread.dll ) 
+    endif( MINGW OR MSYS )
 endif()
 
 # sources
@@ -181,11 +209,11 @@ if( FREYA_BUILD_SHARED )
 	if(FREYA_USE_ICU)
 		target_link_libraries( FreyaSupport ${ICU_LIBRARIES})
 	endif()
-	if(FREYA_USE_WINMM)
-		target_link_libraries( FreyaSupport ${WINMM_LIBRARY})
+	if(FREYA_SUPPORT_DEPENDENCIES)
+            target_link_libraries( FreyaSupport ${FREYA_SUPPORT_DEPENDENCIES})
 	endif()
 else()
-	add_library( FreyaSupport STATIC ${FREYA_SUPPORT_INCLUDES} ${FREYA_SUPPORT_SOURCES} )
+	add_library( FreyaSupport STATIC ${FREYA_SUPPORT_INCLUDES} ${FREYA_SUPPORT_SOURCES})
 endif()
 
 set_target_properties ( FreyaSupport PROPERTIES FOLDER "Core Libraries" )
