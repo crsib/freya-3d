@@ -50,6 +50,16 @@ namespace core
 
 			/// \brief Same as implicit cast to base type.
 			inline Type get() const;
+                private:
+                    FREYA_SUPPORT_FORCE_INLINE details::thread_local_rep* super()
+                    {
+                        return static_cast<details::thread_local_rep*>(this);
+                    }
+                    
+                    FREYA_SUPPORT_FORCE_INLINE const details::thread_local_rep* super() const
+                    {
+                        return static_cast<const details::thread_local_rep*>(this);
+                    }
 		};
 
 	}//namespace multithreading

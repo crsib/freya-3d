@@ -13,6 +13,7 @@
 #if defined(PLATFORM_WIN_THREADS)
 	#include "core/multithreading/win32/thread.h"
 #elif defined(PLATFORM_POSIX_THREADS)
+        #include "core/multithreading/posix/thread.h"
 #endif
 
 #endif//FREYA_MULTITHREADING_THREAD_H_

@@ -23,7 +23,6 @@ namespace core
 		class FREYA_SUPPORT_EXPORT mutex : private details::mutex_rep
 		{
 		public:
-			typedef mutex lockable_type_t;
 
 			/// \brief Creates mutex object.
 			inline mutex();

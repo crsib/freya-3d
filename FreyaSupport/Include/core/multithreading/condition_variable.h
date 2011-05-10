@@ -13,6 +13,7 @@
 #if defined(PLATFORM_WIN_THREADS)
 	#include "core/multithreading/win32/condition_variable.h"
 #elif defined(PLATFORM_POSIX_THREADS)
+        #include "core/multithreading/posix/condition_variable.h"
 #endif
  
  #endif//FREYA_MULTITHREADING_CONDITION_VARIABLE_H_
