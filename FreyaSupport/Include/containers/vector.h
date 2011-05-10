@@ -84,7 +84,7 @@ namespace containers
 			typedef I type;
 			typedef random_access_iterator_tag iterator_type;
 			//! Create a reverse iterator starting at ptr
-			explicit reverse_iterator_impl(T* ptr) { m_Ptr = ptr; }
+			explicit reverse_iterator_impl(I* ptr) { m_Ptr = ptr; }
 			//! Copy constructor, provided for convenience
 			reverse_iterator_impl(const reverse_iterator_impl& other) : m_Ptr(other.m_Ptr) {}
 			//! Copy constructor, allowing to construct constant iterators from non constant ones
