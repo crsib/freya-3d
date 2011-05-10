@@ -56,7 +56,9 @@ namespace core
 					date_time::system_clock start;
 					while(m_lock.load() != 0)
 						if((date_time::system_clock::current() - start) <= timeout)
+						{
 							PAUSE;
+						}
 						else
 							return false;
 					if(m_lock.bit_test_and_set(lock_bit)==0)

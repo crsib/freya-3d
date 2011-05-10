@@ -19,6 +19,7 @@
 
 #include <utf8.h>
 
+#include <cstdio>
 
 namespace core
 {
