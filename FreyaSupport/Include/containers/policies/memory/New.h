@@ -8,6 +8,7 @@
 #ifndef Containers_Policies_New_h__
 #define Containers_Policies_New_h__
 
+#include <new>
 #include "integer.h"
 
 namespace containers
@@ -29,7 +30,7 @@ namespace containers
 				 * \tparam T is a type
 				 * \return pointer to a newly allocated memory block
 				 */
-				T* allocate(size_t count) throw() { return reinterpret_cast<T*>(new(nothrow) uint8_t[sizeof(T)*count]); }
+				T* allocate(size_t count) throw() { return reinterpret_cast<T*>(new(std::nothrow) uint8_t[sizeof(T)*count]); }
 				//! Free previously allocate memory
 				/*!
 				 * Free the memory, allocated by calling New::allocate

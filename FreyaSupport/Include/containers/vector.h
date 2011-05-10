@@ -47,25 +47,25 @@ namespace containers
 	//! \ingroup grpContainers
 	template
 	<
-		typename T,
+		typename Iter,
 		template<class> class MemoryAllocationPolicy = policies::memory::FreyaAllocator,
 		class LockPolicy = policies::multithreading::NoLock,
 		class StorageResizePolicy = policies::storage::Exponential
 	>
 	class vector 
-		: private MemoryAllocationPolicy<T>, private LockPolicy, private StorageResizePolicy
+		: private MemoryAllocationPolicy<Iter>, private LockPolicy, private StorageResizePolicy
 	{
 	public:
 		//! Vector iterator type
-		typedef T*		iterator;
+		typedef Iter*		iterator;
 		//! Vector const iterator type
-		typedef typename const_pointer<T>::type const_iterator;
+		typedef typename const_pointer<Iter>::type const_iterator;
 		//! Vector base type
-		typedef T		type;
+		typedef Iter		type;
 		//! Reference to base type
-		typedef T&		reference;
+		typedef Iter&		reference;
 		//! Constant reference type
-		typedef typename const_reference<T>::type constant_refernce;
+		typedef typename const_reference<Iter>::type constant_refernce;
 		//! Reverse iterator implementation
 		/*!
 		 * This is a wrapper around an vector iterator, which allows reverse iteration through the container.
@@ -129,16 +129,16 @@ namespace containers
 
 		};
 		//! Reverse iterator
-		typedef reverse_iterator_impl<T>	reverse_iterator;
+		typedef reverse_iterator_impl<Iter>	reverse_iterator;
 		//! Constant reverse iterator
-		typedef reverse_iterator_impl<typename constant<T>::type> const_reverse_iterator;
+		typedef reverse_iterator_impl<typename constant<Iter>::type> const_reverse_iterator;
 		//! Destroy a vector
 		~vector();
 		//! Constructs an empty vector
 		vector() : m_AllocatedCount(0),  m_Begin(NULL), m_End(NULL) {}
 		//! Construct an empty vector with reserved storage
 		vector(size_t reserve_count) 
-			: m_AllocatedCount(get_vector_size(reserve_count, 0)), m_Begin(allocate(reserve_count)), m_End(m_Begin) {}
+			: m_AllocatedCount(StorageResizePolicy::get_vector_size(reserve_count, 0)), m_Begin(MemoryAllocationPolicy<Iter>::allocate(reserve_count)), m_End(m_Begin) {}
 		//! Construct a vector initialized with [_begin, _end)
 		vector(iterator _begin, iterator _end); 
 
@@ -185,7 +185,7 @@ namespace containers
 		//! Get reserved space size
 		size_t	capacity() const { return m_AllocatedCount; }
 		//! Get reserved space size in bytes
-		size_t	storage_size() const { return m_AllocatedCount * sizeof(T); }
+		size_t	storage_size() const { return m_AllocatedCount * sizeof(Iter); }
 		//! Check, if vector is empty
 		bool	empty() const { return m_Begin == m_End; }
 		//! Get the number of elements in the vector.
@@ -225,8 +225,8 @@ namespace containers
 		void	reserve(size_t count); 
 	private:
 		size_t	m_AllocatedCount;
-		T*	   m_Begin;
-		T*	   m_End;
+		Iter*	   m_Begin;
+		Iter*	   m_End;
 
 		//Have no idea, why would someone create a deep copy of an vector itself, 
 		//especially considering problem of copying vector with different policies

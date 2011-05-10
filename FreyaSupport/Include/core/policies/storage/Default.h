@@ -33,7 +33,7 @@ namespace core
 				//! Constant reference to the base type
 				typedef typename containers::const_reference<T>::type const_reference_type_t;
 				//! Initialize the pointer to the default value 
-				Default() : m_Pointee(default()) {}
+				Default() : m_Pointee(defaultPtr()) {}
 				//! Fake copy constructor. Data is initialized by ownership policy
 				Default(const Default& ) : m_Pointee(NULL) {}
 				//! Overloaded version of copy constructor to support storing the pointers, which are implicitly castable to stored type
@@ -60,7 +60,7 @@ namespace core
 				void	destroy()
 				{ delete m_Pointee;	}
 				//! Default value for the pointer
-				pointer_type_t default() const
+				pointer_type_t defaultPtr() const
 				{ return NULL; }
 			private:
 				pointer_type_t m_Pointee;
