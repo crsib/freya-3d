@@ -126,14 +126,14 @@ namespace containers
 				
 				//! Prefix ++ operator
 				iterator_impl&	operator++ () { incr(); return *this; }
-				iterator_impl	operator++ (int) { iterator temp(*this); incr(); return it; }
+				iterator_impl	operator++ (int) { iterator temp(*this); incr(); return temp; }
 
 				V&			operator * () { FREYA_SUPPORT_ASSERT(m_Node, "Invalid node"); return m_Node->value; }
 				typename const_reference<V>::type
 					operator * () const { FREYA_SUPPORT_ASSERT(m_Node, "Invalid node"); return m_Node->value; }
 
 				V*			operator-> () { return &m_Node->value; }
-				typename const_pointer<V> operator -> () const { return &m_Node->value; }
+				const_pointer<V> operator -> () const { return &m_Node->value; }
 
 				bool		operator == (const iterator_impl& rhs) const { return m_Node == rhs.m_Node; } // 
 				bool		operator != (const iterator_impl& rhs) const { return m_Node != rhs.m_Node; } // 
@@ -275,7 +275,7 @@ namespace containers
 			if( bucket_count > m_NumBuckets )
 			{
 				HashNode**	new_buckets = m_BucketAllocator.allocate(bucket_count);
-				memset(new_buckets, NULL, sizeof(HashNode*)*bucket_count);
+				memset(new_buckets, static_cast<int>(NULL), sizeof(HashNode*)*bucket_count);
 				if(m_Buckets)
 				{
 					for( size_t i = 0; i < m_NumBuckets; ++i )
@@ -372,8 +372,8 @@ namespace containers
 		HashTable<Key, Value, Hash, Compare, ExtractKey, MemoryAllocationPolicy, ThreadSafetyPolicy, RehashPolicy>::insert( value_const_reference v )
 		{
 			m_LockPolicy.lock();
-			if( rehash_needed( m_NumElements + 1, m_NumBuckets ) )
-				rehash( get_bucket_count( m_NumElements + 1, m_NumBuckets ) );
+			if( RehashPolicy::rehash_needed( m_NumElements + 1, m_NumBuckets ) )
+				rehash( RehashPolicy::get_bucket_count( m_NumElements + 1, m_NumBuckets ) );
 
 			//Create a node
 			HashNode* node = m_NodeAllocator.allocate( 1 );
