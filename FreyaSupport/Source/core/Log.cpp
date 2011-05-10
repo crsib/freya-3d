@@ -21,7 +21,8 @@ namespace core
 		public:
 			void	writeBuffer(const uint8_t * p, size_t num_bytes)
 			{
-				fwrite( p, sizeof(uint8_t), num_bytes, stdout);
+				if(!m_Suppressed)
+					fwrite( p, sizeof(uint8_t), num_bytes, stdout);
 			}
 		};
 
@@ -50,7 +51,11 @@ namespace core
 
 	Log::Log()
 	{
+#ifdef NDEBUG
+		m_CurrentLogLevel = Error;
+#else
 		m_CurrentLogLevel = Info;
+#endif
 		m_CurrentBuffer = 0;
 
 		m_OutputStreams.push_back(LogOutputStreamPtr(new details::StdOutOutputStream));
