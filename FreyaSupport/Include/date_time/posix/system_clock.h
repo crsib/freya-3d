@@ -11,7 +11,7 @@
 #include "date_time/details/platform.h"
 #include "date_time/details/system_clock.h"
 
-#if defined(FREYA_DATE_TIME_HAVE_HIRES_CLOCK)
+#if 0 && defined(FREYA_DATE_TIME_HAVE_HIRES_CLOCK)
 #else// fallback
 
 namespace date_time

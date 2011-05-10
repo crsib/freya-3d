@@ -27,7 +27,7 @@ namespace date_time
 	}//namespace details
 	/// \endcond
 }//namespace date_time
-#elif defined(__unix__) || defined (__unix) || defined (__MINGW32__)
+#elif defined(__unix__) || defined (__unix) || defined (__MINGW32__) || defined(__linux__) || defined(__linux)
 #include <time.h>
 #include <sys/time.h>
 
@@ -40,12 +40,12 @@ namespace date_time
         struct FREYA_SUPPORT_EXPORT clock_rep
         {
             typedef clock_t clock_diff_t;
-#if defined(_POSIX_TIMERS) && defined(_POSIX_MONOTONIC_CLOCK)
-        #define FREYA_DATE_TIME_HAVE_HIRES_CLOCK
-            timespec m_time_data;
-#else //fallback
+//#if defined(_POSIX_TIMERS) && defined(_POSIX_MONOTONIC_CLOCK)
+//        #define FREYA_DATE_TIME_HAVE_HIRES_CLOCK
+//            timespec m_time_data;
+//#else //fallback
             timeval m_time_data;
-#endif
+//#endif
         };
     }//namespace details
     /// \endcond

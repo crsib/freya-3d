@@ -4,6 +4,10 @@
 #include <core/multithreading/thread.h>
 #include <date_time/system_clock.h>
 
+#ifndef _MSC_VER
+# 	define system(x)
+#endif
+
 using namespace core::multithreading;
 
 namespace core
