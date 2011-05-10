@@ -24,6 +24,14 @@
 #	endif
 #endif
 
+#ifndef FREYA_SUPPORT_FORCE_INLINE
+#       if defined(_MSC_VER)
+#               define FREYA_SUPPORT_FORCE_INLINE __forceinline
+#       else//GCC or CLANG
+#               define FREYA_SUPPORT_FORCE_INLINE __attribute__((always_inline))
+#       endif
+#endif
+
 #ifndef NDEBUG
 #include <assert.h>
 #define FREYA_SUPPORT_ASSERT(x,msg) assert(x && msg)
