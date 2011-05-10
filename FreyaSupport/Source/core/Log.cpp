@@ -24,6 +24,28 @@ namespace core
 				fwrite( p, sizeof(uint8_t), num_bytes, stdout);
 			}
 		};
+
+		class	RotatedStringStream : public LogOutputStream
+		{
+		public:
+			RotatedStringStream()
+			{
+				m_StringBuffer = reinterpret_cast<char*>(::malloc(4096));
+				::memset(m_StringBuffer, 0, 4096);
+			}
+
+			~RotatedStringStream()
+			{
+				::free(m_StringBuffer);
+			}
+
+			void	writeBuffer()
+			{
+				//::memmove();
+			}
+		private:
+			char*		m_StringBuffer;
+		};
 	}
 
 	Log::Log()
@@ -119,7 +141,7 @@ namespace core
 				level_str += "Error:";
 				break;
 			case Critical:
-				level_str += "Critical:";
+				level_str += "CRITICAL:";
 				break;
 			}
 
@@ -129,8 +151,9 @@ namespace core
 
 	Log::LogStream::LogStream( const LogStream& rhs )
 	{
-		FREYA_SUPPORT_ASSERT(m_RefCounter, "Copying flushed stream");
+		
 		m_RefCounter = rhs.m_RefCounter;
+		FREYA_SUPPORT_ASSERT(m_RefCounter, "Copying flushed stream");
 		++*m_RefCounter;
 		m_Parent = rhs.m_Parent;
 		m_LogLevel = rhs.m_LogLevel;
@@ -158,8 +181,8 @@ namespace core
 
 	Log::LogStream& Log::LogStream::operator= ( const LogStream& rhs )
 	{
-		FREYA_SUPPORT_ASSERT(m_RefCounter, "Copying flushed stream");
 		m_RefCounter = rhs.m_RefCounter;
+		FREYA_SUPPORT_ASSERT(m_RefCounter, "Copying flushed stream");
 		++*m_RefCounter;
 		m_LogLevel = rhs.m_LogLevel;
 		m_Parent = rhs.m_Parent;

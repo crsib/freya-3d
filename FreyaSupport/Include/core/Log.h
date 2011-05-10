@@ -73,11 +73,12 @@ namespace core
 
 		void	flush();
 
-		LogStream	getStream(LogLevel level, const char* file,  unsigned int line, const char* function, const char* fmt, ...);
+		LogStream	getStream(LogLevel level, const char* file,  unsigned int line, const char* function, const char* fmt = "", ...);
 
 		void	setLogLevel(LogLevel level) { m_CurrentLogLevel = level; }
 		LogLevel getLogLevel() const { return m_CurrentLogLevel; }
 
+		void	 addOutputStream(const LogOutputStreamPtr& stream) { m_OutputStreams.push_back(stream); }
 	private:
 		LogLevel	m_CurrentLogLevel;
 
@@ -87,7 +88,7 @@ namespace core
 			uint32_t	first_not_flushed;
 			uint32_t	current_position;
 
-			static const uint32_t	buffer_size = 2048 * 1024 - 1; //2 Kb per buffer
+			static const uint32_t	buffer_size = 2048 - 1; //2 Kb per buffer
 
 			buffer_storage();
 			~buffer_storage();
@@ -107,6 +108,17 @@ namespace core
 	};
 
 	FREYA_SUPPORT_EXPORT inline Log::LogStream& operator << (Log::LogStream& stream, const core::string& str) { stream.append(str); return stream; }
+	FREYA_SUPPORT_EXPORT inline Log::LogStream& operator << (Log::LogStream& stream, int val) { stream.append(string::withFormat("%i",val)); return stream; }
+	FREYA_SUPPORT_EXPORT inline Log::LogStream& operator << (Log::LogStream& stream, unsigned val) { stream.append(string::withFormat("%u",val)); return stream; }
+	FREYA_SUPPORT_EXPORT inline Log::LogStream& operator << (Log::LogStream& stream, long val) { stream.append(string::withFormat("%li",val)); return stream; }
+	FREYA_SUPPORT_EXPORT inline Log::LogStream& operator << (Log::LogStream& stream, unsigned long val) { stream.append(string::withFormat("%lu",val)); return stream; }
+	FREYA_SUPPORT_EXPORT inline Log::LogStream& operator << (Log::LogStream& stream, long long val) { stream.append(string::withFormat("%lli",val)); return stream; }
+	FREYA_SUPPORT_EXPORT inline Log::LogStream& operator << (Log::LogStream& stream, unsigned long long val) { stream.append(string::withFormat("%llu",val)); return stream; }
+	FREYA_SUPPORT_EXPORT inline Log::LogStream& operator << (Log::LogStream& stream, void* val) { stream.append(string::withFormat("0x%X",val)); return stream; }
+	FREYA_SUPPORT_EXPORT inline Log::LogStream& operator << (Log::LogStream& stream, char* val) { stream.append(string::withFormat("%s",val)); return stream; }
+	FREYA_SUPPORT_EXPORT inline Log::LogStream& operator << (Log::LogStream& stream, const char* val) { stream.append(string::withFormat("%s",val)); return stream; }
+	FREYA_SUPPORT_EXPORT inline Log::LogStream& operator << (Log::LogStream& stream, float val) { stream.append(string::withFormat("%f",val)); return stream; }
+	FREYA_SUPPORT_EXPORT inline Log::LogStream& operator << (Log::LogStream& stream, double val) { stream.append(string::withFormat("%lf",val)); return stream; }
 }
 
 #if defined(__func__)
@@ -115,9 +127,9 @@ namespace core
 #	define __freya_func__ __FUNCTION__
 #endif
 
-//#define	InfoLog() core::Log::getInstance().getStream(core::Log::Info, __FILE__, __LINE__, __freya_func__, "")
 #define	InfoLog(...) core::Log::getInstance().getStream(core::Log::Info, __FILE__, __LINE__, __freya_func__, __VA_ARGS__)
 #define	DebugLog(...) core::Log::getInstance().getStream(core::Log::Debug, __FILE__, __LINE__, __freya_func__, __VA_ARGS__)
 #define	ErrorLog(...) core::Log::getInstance().getStream(core::Log::Error, __FILE__, __LINE__, __freya_func__, __VA_ARGS__)
 #define	CriticalLog(...) core::Log::getInstance().getStream(core::Log::Critical, __FILE__, __LINE__, __freya_func__, __VA_ARGS__)
+
 #endif // Core_Log_h__
