@@ -92,7 +92,7 @@ namespace core
 		//! Copy constructor. When ownership follows destructive copy semantics (same as std::auto_ptr does) the value of \a rhs could possibly be modified
 		smart_ptr( copy_arg_t& rhs ) : storage_policy_t(rhs), ownership_policy_t(rhs), checking_policy_t(rhs)
 		{
-			StoragePolicy<T>::getRef() = clone(rhs.getRef());
+			StoragePolicy<T>::getRef() = ownership_policy_t::clone(rhs.getRef());
 		}
 		//! Copy constructor to allow handling the pointer ownership by the smart pointers with implicitly castable base type
 		template
@@ -116,7 +116,7 @@ namespace core
 		>
 		smart_ptr( smart_ptr<U, SP, OP, CP>& rhs) :  storage_policy_t(rhs), ownership_policy_t(rhs), checking_policy_t(rhs)
 		{
-			StoragePolicy<T>::getRef() = clone(rhs.getRef());
+			StoragePolicy<T>::getRef() = ownership_policy_t::clone(rhs.getRef());
 		}
 		//! Swap to smart pointers
 		void	swap(smart_ptr& rhs)
@@ -165,7 +165,7 @@ namespace core
 		{
 			if(release(StoragePolicy<T>::getRef()))
 				StoragePolicy<T>::destroy();
-			StoragePolicy<T>::getRef() = StoragePolicy<T>::defaultPtr();
+			StoragePolicy<T>::getRef() = StoragePolicy<T>::getDefault();
 		}
 		//! Smart pointer destructor, calling \a reset() for correct ownership managment 
 		~smart_ptr() { reset(); }
@@ -178,7 +178,7 @@ namespace core
 		//! Constant dereference operator
 		const_reference_type_t operator * () const { check(StoragePolicy<T>::getRef()); return *StoragePolicy<T>::get(); }
 		//! Enables \a if(!sp)
-		bool	operator! () const { return StoragePolicy<T>::get() == StoragePolicy<T>::defaultPtr(); }
+		bool	operator! () const { return StoragePolicy<T>::get() == StoragePolicy<T>::getDefault(); }
 		//! Equality operator
 		template
 		<
@@ -198,7 +198,7 @@ namespace core
 		>
 		bool	operator != (const smart_ptr<U,SP,OP,CP>& rhs) const { return StoragePolicy<T>::get() != rhs.get(); }
 		//! Enables if(sp)
-		operator unspecified_boolean_t () const { return StoragePolicy<T>::get() == StoragePolicy<T>::defaultPtr() ? NULL : &never_matched::foo; }
+		operator unspecified_boolean_t () const { return StoragePolicy<T>::get() == StoragePolicy<T>::getDefault() ? NULL : &never_matched::foo; }
 	};
 }
 

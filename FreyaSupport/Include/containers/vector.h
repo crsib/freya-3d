@@ -11,6 +11,7 @@
 #include "containers/type_utils.h"
 #include "FreyaSupportInternal.h"
 #include "containers/iterator.h"
+#include <cstddef>
 
 namespace containers
 {

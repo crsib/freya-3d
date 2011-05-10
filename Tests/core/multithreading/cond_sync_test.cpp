@@ -5,6 +5,10 @@
 #include <core/multithreading/condition_variable.h>
 #include <core/multithreading/synchronize.h>
 
+#ifndef _MSC_VER
+# 	define system(x)
+#endif
+
 class cond_sync
 {
 	core::multithreading::mutex					*m_mutex;

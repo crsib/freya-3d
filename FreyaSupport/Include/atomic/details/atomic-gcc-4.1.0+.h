@@ -29,7 +29,7 @@ namespace atomic
         {
             __asm__
             (
-                "lock   xchg      %0, %1" : "=m"(dest) : "r"(src) : "memory"
+                "lock; xchg      %0, %1" : "=m"(*dest) : "r"(src), "m"(*dest) : "memory"
             );
         }
 #elif defined(__clang__)
