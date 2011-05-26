@@ -57,10 +57,10 @@ int main(int argc, char* argv[])
 		smart_ptr<int> int_ptr;
 		assert(!int_ptr);
 
-		smart_ptr<Object> obj_ptr;
-		assert(!obj_ptr);
-		obj_ptr = basic_test;
-		assert(obj_ptr);
+		//smart_ptr<Object> obj_ptr;
+		//assert(!obj_ptr);
+		//obj_ptr = basic_test;
+		//assert(obj_ptr);
 
 		smart_ptr<const int> const_int_ptr;
 		int_ptr = smart_ptr<int>(new int);

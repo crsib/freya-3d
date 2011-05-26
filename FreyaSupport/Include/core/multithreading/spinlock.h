@@ -13,6 +13,11 @@
 #include "date_time/details/system_clock.h" //interface only
 #include "core/multithreading/thread_self.h"
 
+#ifdef _MSC_VER
+#	pragma warning( push )
+#	pragma warning( disable : 4800 )
+#endif
+
 namespace core
 {
 	namespace multithreading
@@ -82,5 +87,9 @@ namespace core
 }//namespace core
 
 //#include "core/multithreading/details/spinlock.h"
+
+#ifdef _MSC_VER
+#	pragma warning( pop )
+#endif
 
 #endif//FREYA_MULTITHREADING_SPINLOCK_H_

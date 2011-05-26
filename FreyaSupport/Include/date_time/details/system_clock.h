@@ -9,6 +9,12 @@
 #define FREYA_DATE_TIME_DETAILS_SYSTEM_CLOCK_H_
 
 #include "FreyaSupportInternal.h"
+
+#ifdef _MSC_VER
+#	pragma warning( push )
+#	pragma warning( disable : 4506 )
+#endif
+
 #include "date_time/details/platform.h"
 
 #include "date_time/TimeUnit.h"
@@ -44,5 +50,9 @@ namespace date_time
 		inline static system_clock current();
 	};
 }//namespace date_time
+
+#ifdef _MSC_VER
+#	pragma warning( pop )
+#endif
 
 #endif//FREYA_DATE_TIME_DETAILS_SYSTEM_CLOCK_H_
