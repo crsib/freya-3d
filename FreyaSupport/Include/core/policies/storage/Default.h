@@ -8,6 +8,11 @@
 #ifndef SmartPtr_Default_h__
 #define SmartPtr_Default_h__
 
+#ifdef _MSC_VER
+#	pragma warning( push )
+#	pragma warning( disable : 4506 )
+#endif
+
 #include "containers/type_utils.h"
 
 namespace core
@@ -68,5 +73,9 @@ namespace core
 		}
 	}
 }
+
+#ifdef _MSC_VER
+#	pragma warning( pop )
+#endif
 
 #endif // Default_h__

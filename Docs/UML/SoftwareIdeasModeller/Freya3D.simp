@@ -1,0 +1,579 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sim-project version="4.88">
+  <meta>
+    <name>Freya 3D Engine</name>
+    <authors>Freya 3D Team</authors>
+    <description>Cross platform 3D engine</description>
+  </meta>
+  <management>
+    <persons />
+    <tasks />
+    <requirements />
+    <issues />
+    <to-dos />
+  </management>
+  <types>
+    <type-sets>
+      <type-set file="UmlTypes.xml" />
+      <type-set file="UmlTypes.xml" />
+      <type-set file="UmlTypes.xml" />
+    </type-sets>
+    <custom-types>
+      <type id="ReflectionDatabase" name="ReflectionDatabase" description="" />
+      <type id="Namespace" name="Namespace" description="" />
+      <type id="Uml.String" name="Uml.String" description="" />
+      <type id="unsigned" name="unsigned" description="" />
+      <type id="bool" name="bool" description="" />
+      <type id="Class" name="Class" description="" />
+      <type id="typename T" name="typename T" description="" />
+    </custom-types>
+  </types>
+  <items>
+    <item id="di828720023699460336" cid="C001" type="class" name="ReflectionDatabase" style-class="" is-abstract="false">
+      <stereotypes />
+      <tagged-values />
+      <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+      <associated-diagrams />
+      <owned-items />
+      <style class="default" />
+      <attributes />
+      <operations>
+        <operation id="" name="ReflectionDatabase" type="" type-id="" visibility="public" abstract="false" virtual="false" static="false">
+          <parameters />
+          <stereotypes>
+            <stereotype>create</stereotype>
+          </stereotypes>
+          <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}{\f1\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\lang1033\f0\fs17 Retrieve an instance of FreyaReflect\lang1049\f1\par
+}
+</documentation>
+        </operation>
+        <operation id="" name="getInstance" type="ReflectionDatabase" type-id="ReflectionDatabase" visibility="public" abstract="false" virtual="false" static="true">
+          <parameters />
+          <stereotypes>
+            <stereotype>singleton</stereotype>
+          </stereotypes>
+          <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}{\f1\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\lang1033\f0\fs17 Retrieve an instance of FreyaReflect\lang1049\f1\par
+}
+</documentation>
+        </operation>
+        <operation id="" name="getNamespace" type="Namespace" type-id="Namespace" visibility="public" abstract="false" virtual="false" static="false">
+          <parameters>
+            <parameter id="" name="name" type="String" type-id="Uml.String" default-value="">
+              <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+            </parameter>
+          </parameters>
+          <stereotypes />
+          <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+        </operation>
+      </operations>
+      <template-parameters />
+    </item>
+    <item id="di936035447400639611" cid="C002" type="class" name="Class2" style-class="" is-abstract="false">
+      <stereotypes />
+      <tagged-values />
+      <documentation />
+      <associated-diagrams />
+      <owned-items />
+      <style class="default" />
+      <attributes />
+      <operations />
+      <template-parameters />
+    </item>
+    <item id="di328798707824092439" cid="C003" type="class" name="Class3" style-class="" is-abstract="false">
+      <stereotypes />
+      <tagged-values />
+      <documentation />
+      <associated-diagrams />
+      <owned-items />
+      <style class="default" />
+      <attributes />
+      <operations />
+      <template-parameters />
+    </item>
+    <item id="di822691512298261484" cid="C004" type="class" name="Class4" style-class="" is-abstract="false">
+      <stereotypes />
+      <tagged-values />
+      <documentation />
+      <associated-diagrams />
+      <owned-items />
+      <style class="default" />
+      <attributes />
+      <operations />
+      <template-parameters />
+    </item>
+    <item id="di273137027128513430" cid="C005" type="class" name="Class5" style-class="" is-abstract="false">
+      <stereotypes />
+      <tagged-values />
+      <documentation />
+      <associated-diagrams />
+      <owned-items />
+      <style class="default" />
+      <attributes />
+      <operations />
+      <template-parameters />
+    </item>
+    <item id="di568760053650065750" cid="IFC001" type="uml-interface" name="Interface1" style-class="" is-abstract="false">
+      <stereotypes />
+      <tagged-values />
+      <documentation />
+      <associated-diagrams />
+      <owned-items />
+      <style class="default" />
+    </item>
+    <item id="di145682173893570427" cid="REL001" type="relationship" name="" style-class="" is-abstract="false">
+      <stereotypes />
+      <tagged-values />
+      <documentation />
+      <associated-diagrams />
+      <owned-items />
+      <style class="default" />
+      <relation from="di828720023699460336" to="di568760053650065750">
+        <start-role id="" name="" multiplicity="" navigability="" association-type="association" visibility="private" />
+        <end-role id="" name="" multiplicity="" navigability="" association-type="association" visibility="private" />
+      </relation>
+    </item>
+    <item id="di291385888748753339" cid="C006" type="class" name="Scope" style-class="" is-abstract="false">
+      <stereotypes />
+      <tagged-values />
+      <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+      <associated-diagrams />
+      <owned-items />
+      <style class="default" />
+      <attributes />
+      <operations>
+        <operation id="" name="getChildCount" type="" type-id="" visibility="public" abstract="false" virtual="false" static="false">
+          <parameters />
+          <stereotypes />
+          <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+        </operation>
+        <operation id="" name="getChild" type="" type-id="" visibility="public" abstract="false" virtual="false" static="false">
+          <parameters />
+          <stereotypes />
+          <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+        </operation>
+        <operation id="" name="isClass" type="" type-id="" visibility="public" abstract="false" virtual="false" static="false">
+          <parameters />
+          <stereotypes />
+          <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+        </operation>
+      </operations>
+      <template-parameters />
+    </item>
+    <item id="di956172098291377606" cid="C007" type="class" name="Namespace" style-class="" is-abstract="false">
+      <stereotypes />
+      <tagged-values />
+      <documentation />
+      <associated-diagrams />
+      <owned-items />
+      <style class="default" />
+      <attributes />
+      <operations />
+      <template-parameters />
+    </item>
+    <item id="di808913840652528943" cid="GNR001" type="generalization" name="" style-class="" is-abstract="false">
+      <stereotypes />
+      <tagged-values />
+      <documentation />
+      <associated-diagrams />
+      <owned-items />
+      <style class="default" />
+    </item>
+    <item id="di346738591339332480" cid="C008" type="class" name="Class" style-class="" is-abstract="false">
+      <stereotypes />
+      <tagged-values />
+      <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+      <associated-diagrams />
+      <owned-items />
+      <style class="default" />
+      <attributes />
+      <operations>
+        <operation id="" name="getClassName" type="" type-id="" visibility="public" abstract="false" virtual="false" static="false">
+          <parameters />
+          <stereotypes />
+          <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+        </operation>
+        <operation id="" name="getMethod" type="" type-id="" visibility="public" abstract="false" virtual="false" static="false">
+          <parameters />
+          <stereotypes />
+          <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+        </operation>
+        <operation id="" name="getProperty" type="" type-id="" visibility="public" abstract="false" virtual="false" static="false">
+          <parameters />
+          <stereotypes />
+          <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+        </operation>
+        <operation id="" name="getBaseCount" type="" type-id="" visibility="public" abstract="false" virtual="false" static="false">
+          <parameters />
+          <stereotypes />
+          <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+        </operation>
+        <operation id="" name="getBase" type="" type-id="" visibility="public" abstract="false" virtual="false" static="false">
+          <parameters />
+          <stereotypes />
+          <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+        </operation>
+        <operation id="" name="isCreatable" type="" type-id="" visibility="public" abstract="false" virtual="false" static="false">
+          <parameters />
+          <stereotypes />
+          <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+        </operation>
+        <operation id="" name="create" type="" type-id="" visibility="public" abstract="false" virtual="false" static="false">
+          <parameters />
+          <stereotypes />
+          <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+        </operation>
+      </operations>
+      <template-parameters />
+    </item>
+    <item id="di183947758416188867" cid="GNR002" type="generalization" name="" style-class="" is-abstract="false">
+      <stereotypes />
+      <tagged-values />
+      <documentation />
+      <associated-diagrams />
+      <owned-items />
+      <style class="default" />
+    </item>
+    <item id="di382175882116053271" cid="C009" type="class" name="Method" style-class="" is-abstract="false">
+      <stereotypes />
+      <tagged-values />
+      <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+      <associated-diagrams />
+      <owned-items />
+      <style class="default" />
+      <attributes>
+        <attribute id="" name="m_IsMethod" type="bool" type-id="bool" visibility="private" abstract="false" virtual="false" default-value="">
+          <stereotypes />
+          <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+        </attribute>
+      </attributes>
+      <operations>
+        <operation id="" name="isMethod" type="bool" type-id="bool" visibility="public" abstract="false" virtual="false" static="false">
+          <parameters />
+          <stereotypes />
+          <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+        </operation>
+        <operation id="" name="call" type="" type-id="" visibility="public" abstract="false" virtual="false" static="false">
+          <parameters />
+          <stereotypes />
+          <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+        </operation>
+        <operation id="" name="getPrototypeString" type="" type-id="" visibility="public" abstract="false" virtual="false" static="false">
+          <parameters />
+          <stereotypes />
+          <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+        </operation>
+      </operations>
+      <template-parameters />
+    </item>
+    <item id="di715122242509292901" cid="C010" type="class" name="Property" style-class="" is-abstract="false">
+      <stereotypes />
+      <tagged-values />
+      <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+      <associated-diagrams />
+      <owned-items />
+      <style class="default" />
+      <attributes />
+      <operations>
+        <operation id="" name="set" type="" type-id="" visibility="public" abstract="false" virtual="false" static="false">
+          <parameters>
+            <parameter id="" name="typename T" type="" type-id="" default-value="">
+              <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+            </parameter>
+          </parameters>
+          <stereotypes />
+          <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+        </operation>
+        <operation id="" name="get" type="typename T" type-id="typename T" visibility="public" abstract="false" virtual="false" static="false">
+          <parameters />
+          <stereotypes />
+          <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+        </operation>
+      </operations>
+      <template-parameters />
+    </item>
+    <item id="di832550735257667068" cid="C011" type="class" name="ReflectionObject" style-class="" is-abstract="false">
+      <stereotypes />
+      <tagged-values />
+      <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+      <associated-diagrams />
+      <owned-items />
+      <style class="default" />
+      <attributes />
+      <operations>
+        <operation id="" name="classID" type="unsigned" type-id="unsigned" visibility="public" abstract="true" virtual="true" static="false">
+          <parameters />
+          <stereotypes />
+          <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+        </operation>
+        <operation id="" name="getClassID" type="unsigned" type-id="unsigned" visibility="public" abstract="false" virtual="false" static="true">
+          <parameters />
+          <stereotypes />
+          <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+        </operation>
+        <operation id="" name="classOf" type="bool" type-id="bool" visibility="public" abstract="false" virtual="false" static="false">
+          <parameters>
+            <parameter id="" name="class_id" type="unsigned" type-id="unsigned" default-value="">
+              <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}{\f1\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\lang1033\f0\fs17 Check, if the object is of class class_id\lang1049\f1\par
+}
+</documentation>
+            </parameter>
+          </parameters>
+          <stereotypes />
+          <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}{\f1\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\lang1033\f0\fs17 Check, if the object is of class class_id\lang1049\f1\par
+}
+</documentation>
+        </operation>
+        <operation id="" name="isCastableTo" type="bool" type-id="bool" visibility="public" abstract="false" virtual="false" static="false">
+          <parameters>
+            <parameter id="" name="class_id" type="unsigned" type-id="unsigned" default-value="">
+              <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}{\f1\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\lang1033\f0\fs17 Check, if we could cast the object to class_id. This possibly will require check of the whole class hierarchy\lang1049\f1\par
+}
+</documentation>
+            </parameter>
+          </parameters>
+          <stereotypes />
+          <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}{\f1\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\lang1033\f0\fs17 Check, if we could cast the object to class_id. This possibly will require check of the whole class hierarchy\lang1049\f1\par
+}
+</documentation>
+        </operation>
+        <operation id="" name="getClass" type="Class" type-id="Class" visibility="public" abstract="false" virtual="false" static="false">
+          <parameters />
+          <stereotypes />
+          <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+        </operation>
+      </operations>
+      <template-parameters />
+    </item>
+    <item id="di128907422190459075" cid="C012" type="class" name="Class12" style-class="" is-abstract="false">
+      <stereotypes />
+      <tagged-values />
+      <documentation />
+      <associated-diagrams />
+      <owned-items />
+      <style class="default" />
+      <attributes />
+      <operations />
+      <template-parameters />
+    </item>
+    <item id="di720398267984238427" cid="C013" type="class" name="Class13" style-class="" is-abstract="false">
+      <stereotypes />
+      <tagged-values />
+      <documentation />
+      <associated-diagrams />
+      <owned-items />
+      <style class="default" />
+      <attributes />
+      <operations />
+      <template-parameters />
+    </item>
+    <item id="di649493857162912916" cid="C014" type="class" name="Class14" style-class="" is-abstract="false">
+      <stereotypes />
+      <tagged-values />
+      <documentation />
+      <associated-diagrams />
+      <owned-items />
+      <style class="default" />
+      <attributes />
+      <operations />
+      <template-parameters />
+    </item>
+    <item id="di604633433201209751" cid="C001" type="class" name="ReflectionModule" style-class="" is-abstract="false">
+      <stereotypes />
+      <tagged-values />
+      <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+      <associated-diagrams />
+      <owned-items />
+      <style class="default" />
+      <attributes />
+      <operations>
+        <operation id="" name="getReflectDestinationCount" type="" type-id="" visibility="public" abstract="false" virtual="false" static="false">
+          <parameters />
+          <stereotypes />
+          <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+        </operation>
+        <operation id="" name="isReflectedTo" type="" type-id="" visibility="public" abstract="false" virtual="false" static="false">
+          <parameters />
+          <stereotypes />
+          <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+        </operation>
+        <operation id="" name="reflectTo" type="" type-id="" visibility="public" abstract="false" virtual="false" static="false">
+          <parameters />
+          <stereotypes />
+          <documentation>{\rtf1\ansi\ansicpg1251\deff0\deflang1049{\fonttbl{\f0\fnil\fcharset204 Microsoft Sans Serif;}}
+\viewkind4\uc1\pard\f0\fs17\par
+}
+</documentation>
+        </operation>
+      </operations>
+      <template-parameters />
+    </item>
+  </items>
+  <models>
+    <model id="p151882348540489829" name="Core Libraries" type="model" namespace="">
+      <documentation />
+      <sub-models />
+      <diagram type="uml-class" id="p237452697406460707" name="FreyaReflect">
+        <meta>
+          <authors />
+          <description />
+          <creation-date>05/11/2011 01:00:30</creation-date>
+          <change-date>05/14/2011 14:42:36</change-date>
+          <revision-count>0</revision-count>
+          <version />
+        </meta>
+        <documentation />
+        <layer name="Default" visible="true" enabled="true" locked="false">
+          <item id="di828720023699460336" show-cid="false" show-parent-name="false" show-stereotypes="true" show-tagged-values="false" type="entity">
+            <layout ax="10" ay="10" awidth="238" aheight="170" x="10" y="10" width="238" height="0" />
+            <class />
+          </item>
+          <item id="di956172098291377606" show-cid="false" show-parent-name="false" show-stereotypes="true" show-tagged-values="false" type="entity">
+            <layout ax="319.5" ay="450" awidth="150" aheight="170" x="319.5" y="450" width="0" height="0" />
+            <class />
+          </item>
+          <item id="di808913840652528943" show-cid="false" show-parent-name="false" show-stereotypes="true" show-tagged-values="false" type="relation">
+            <layout line-style="oblique" lock-start-point="false" lock-end-point="false" name-position="10,-10" x1="394" y1="450" x2="394" y2="300">
+              <points>
+                <point x="394" y="450" />
+                <point x="394" y="300" />
+              </points>
+            </layout>
+            <relation from="di956172098291377606" to="di291385888748753339" />
+          </item>
+          <item id="di291385888748753339" show-cid="false" show-parent-name="false" show-stereotypes="true" show-tagged-values="false" type="entity">
+            <layout ax="330" ay="190" awidth="129" aheight="110" x="330" y="190" width="129" height="110" />
+            <class />
+          </item>
+          <item id="di346738591339332480" show-cid="false" show-parent-name="false" show-stereotypes="true" show-tagged-values="false" type="entity">
+            <layout ax="529.5" ay="450" awidth="150" aheight="170" x="529.5" y="450" width="0" height="0" />
+            <class />
+          </item>
+          <item id="di183947758416188867" show-cid="false" show-parent-name="false" show-stereotypes="true" show-tagged-values="false" type="relation">
+            <layout line-style="oblique" lock-start-point="false" lock-end-point="false" name-position="10,-10" x1="542" y1="450" x2="434" y2="300">
+              <points>
+                <point x="542" y="450" />
+                <point x="434" y="300" />
+              </points>
+            </layout>
+            <relation from="di346738591339332480" to="di291385888748753339" />
+          </item>
+          <item id="di382175882116053271" show-cid="false" show-parent-name="false" show-stereotypes="true" show-tagged-values="false" type="entity">
+            <layout ax="258" ay="10" awidth="300" aheight="116" x="258" y="10" width="300" height="116" />
+            <class />
+          </item>
+          <item id="di715122242509292901" show-cid="false" show-parent-name="false" show-stereotypes="true" show-tagged-values="false" type="entity">
+            <layout ax="568" ay="10" awidth="150" aheight="76" x="568" y="10" width="0" height="76" />
+            <class />
+          </item>
+          <item id="di832550735257667068" show-cid="false" show-parent-name="false" show-stereotypes="true" show-tagged-values="false" type="entity">
+            <layout ax="728" ay="10" awidth="262" aheight="139" x="728" y="10" width="262" height="139" />
+            <class />
+          </item>
+          <item id="di604633433201209751" show-cid="false" show-parent-name="false" show-stereotypes="true" show-tagged-values="false" type="entity">
+            <layout ax="10" ay="217" awidth="219" aheight="177" x="10" y="217" width="219" height="177" />
+            <class />
+          </item>
+        </layer>
+      </diagram>
+    </model>
+  </models>
+</sim-project>

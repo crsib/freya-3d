@@ -24,11 +24,18 @@ namespace core
 namespace core
 {
 	//! This class is a base class for all Freya 3D Engine classes, that should be allocated in the CLASS_POOL
+	/*!
+	 * This class overrides operators new and delete to use MemoryArena as allocator. 
+	 * This class does not generate vtable and should never be constructed or destructed explicitly.
+	 */
 	class FREYA_SUPPORT_EXPORT Object
 	{
+	protected:
+		//! Forbid the explicit construction
+		Object() {}
+		//! Forbid the explicit destruction
+		~Object() {}
 	public:
-		virtual ~Object() {}
-	
 		static void* operator new(size_t sz) { return memory::alloc(sz,core::memory::CLASS_POOL); }
 		static void* operator new [] (size_t sz) { return memory::alloc(sz,memory::CLASS_POOL); }
 
