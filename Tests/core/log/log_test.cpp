@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
 			Runnable _1,_2,_3,_4;
 		}
 
-		core::Log::getInstance().setLogLevel(core::Log::Error);
+		core::Log::GetInstance().setLogLevel(core::Log::Error);
 
 		InfoLog("Info");
 		DebugLog("Debug");
@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
 		ErrorLog() << 10.0f;
 	}
 
-	core::Log::getInstance().flush();
+	core::Log::GetInstance().flush();
 
 	std::cout << "allocs: " << core::memory::allocation_count << "\ndeallocs: " << core::memory::deallocation_count
 		<< "\nleaked: " << core::memory::memory_allocated << std::endl;

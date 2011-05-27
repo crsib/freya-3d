@@ -87,7 +87,7 @@ namespace core
 		~Log();
 	public:
 		//! Retrieve the Log instance
-		static Log&    getInstance() { static Log __; return __; }
+		static Log&    GetInstance() { static Log __; return __; }
 
 		//! Log levels
 		enum	LogLevel
@@ -195,9 +195,9 @@ namespace core
 #	define __freya_func__ __FUNCTION__
 #endif
 
-#define	InfoLog(...) core::Log::getInstance().getStream(core::Log::Info, __FILE__, __LINE__, __freya_func__, ##__VA_ARGS__).getRef()
-#define	DebugLog(...) core::Log::getInstance().getStream(core::Log::Debug, __FILE__, __LINE__, __freya_func__, ##__VA_ARGS__).getRef()
-#define	ErrorLog(...) core::Log::getInstance().getStream(core::Log::Error, __FILE__, __LINE__, __freya_func__, ##__VA_ARGS__).getRef()
-#define	CriticalLog(...) core::Log::getInstance().getStream(core::Log::Critical, __FILE__, __LINE__, __freya_func__, ##__VA_ARGS__).getRef()
+#define	InfoLog(...) core::Log::GetInstance().getStream(core::Log::Info, __FILE__, __LINE__, __freya_func__, ##__VA_ARGS__).getRef()
+#define	DebugLog(...) core::Log::GetInstance().getStream(core::Log::Debug, __FILE__, __LINE__, __freya_func__, ##__VA_ARGS__).getRef()
+#define	ErrorLog(...) core::Log::GetInstance().getStream(core::Log::Error, __FILE__, __LINE__, __freya_func__, ##__VA_ARGS__).getRef()
+#define	CriticalLog(...) core::Log::GetInstance().getStream(core::Log::Critical, __FILE__, __LINE__, __freya_func__, ##__VA_ARGS__).getRef()
 //! \endcond
 #endif // Core_Log_h__
