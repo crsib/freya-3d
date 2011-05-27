@@ -10,6 +10,11 @@
 
 #include "FreyaReflectInternal.h"
 
+#include "containers/policies/Policies.h"
+#include "containers/hash_map.h"
+
+#include "Scope.h"
+
 namespace reflect
 {
 	class FREYA_REFLECT_EXPORT ReflectionDatabase
@@ -17,7 +22,11 @@ namespace reflect
 		ReflectionDatabase();
 		~ReflectionDatabase();
 	public:
-		static ReflectionDatabase&		getInstance() { static ReflectionDatabase __db; return __db; }
+		static ReflectionDatabase&		GetInstance() { static ReflectionDatabase __db; return __db; }
+
+		scope_ptr_t      getScope(const core::string& name) const { return m_RootScope->getChild(name); }
+	private:
+		scope_ptr_t                     m_RootScope;
 	}; // class ReflectionDatabase
 } // namespace reflect
 

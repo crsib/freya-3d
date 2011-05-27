@@ -967,7 +967,7 @@ MemoryArena::~MemoryArena()
 	//DebugLog("Allocs: %u, deallocs: %u, total leaked: %u", allocation_count, deallocation_count, memory_allocated);
 }
 
-MemoryArena*	MemoryArena::instance()
+MemoryArena*	MemoryArena::GetInstance()
 {
 	return &__internal::arena_inst;
 }
@@ -992,13 +992,13 @@ void		MemoryArena::free(void* p,unsigned pool)
 
 FREYA_SUPPORT_EXPORT void* alloc( size_t size, unsigned pool /*= GENERIC_POOL*/ ) throw()
 {
-	return MemoryArena::instance()->allocate(size,pool);
+	return MemoryArena::GetInstance()->allocate(size,pool);
 }
 
 
 FREYA_SUPPORT_EXPORT void dealloc( void* p, unsigned pool /*= GENERIC_POOL*/ ) throw()
 {
-	MemoryArena::instance()->free(p,pool);
+	MemoryArena::GetInstance()->free(p,pool);
 }
 
 }//memory

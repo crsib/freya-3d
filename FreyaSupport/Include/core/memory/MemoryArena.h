@@ -70,7 +70,7 @@ class FREYA_SUPPORT_EXPORT MemoryArena
 {
 public:
 	//! \brief Retrieve the current instance of memory arena
-	static MemoryArena*		instance();
+	static MemoryArena*		GetInstance();
 	MemoryArena();
 	virtual ~MemoryArena();
 public:

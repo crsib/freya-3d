@@ -33,7 +33,7 @@ namespace core
 				void	swap(Assert&) {}
 			protected:
 				//! Check the pointer correctness
-				void	check(P val)
+				static void	check(P val)
 				{
 					FREYA_SUPPORT_ASSERT(val,"NULL pointer dereferencing"); (void) val;
 				}

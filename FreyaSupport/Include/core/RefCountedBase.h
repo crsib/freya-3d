@@ -11,6 +11,7 @@
 #include "atomic/atomic.h"
 #include "core/Object.h"
 #include "FreyaSupportInternal.h"
+#include "integer.h"
 
 namespace core
 {
