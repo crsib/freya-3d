@@ -175,7 +175,10 @@ namespace core
 			FREYA_SUPPORT_ASSERT(r.length() <= m_BufferPtr.get_range().length(),"Invalid range");
 
 			string out(*this);
-			out.m_BufferPtr.set_range(range(r.begin() + m_BufferPtr.get_range().begin(), r.end() + m_BufferPtr.get_range().begin()));
+			size_t range_end = r.end() + m_BufferPtr.get_range().begin();
+			if(range_end > m_BufferPtr.get_range().end())
+				range_end = m_BufferPtr.get_range().end();
+			out.m_BufferPtr.set_range(range(r.begin() + m_BufferPtr.get_range().begin(), range_end));
 			return out;
 		}
 		//! Get a substring of string starting from idx
@@ -424,7 +427,7 @@ namespace core
 				data_buffer* new_buffer = new data_buffer(r.length() + 1);
 
 				size_t copy_size;
-				if(data_ptr + buffer_size >= data_ptr + r.end())
+				if(!buffer_size || (data_ptr + buffer_size >= data_ptr + r.end()))
 					copy_size = r.length();
 				else
 					copy_size = buffer_size - r.begin();

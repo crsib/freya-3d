@@ -19,6 +19,8 @@
 namespace reflect
 {
 	class Scope;
+	class Namespace;
+	class Class;
 
 	typedef core::smart_ptr<Scope, core::policies::ownership::Intrusive> scope_ptr_t;
 
@@ -37,8 +39,8 @@ namespace reflect
 		typedef  child_storage_t::iterator	         child_iterator_t;
 		typedef	 child_storage_t::const_iterator     const_child_iterator_t;
 
-		const core::string&      getScopeName() const { return m_ScopeName; }
-		core::string			 getFullScopeName() const;
+		const core::string&      getName() const { return m_ScopeName; }
+		core::string			 getScopedName() const;
 
 		ScopeType                getScopeType() const { return m_ScopeType; }
 
@@ -56,12 +58,17 @@ namespace reflect
 	protected:
 		Scope(ScopeType scope_type, const core::string& scope_name, Scope* parent) 
 			: m_ScopeName(scope_name), m_ScopeType(scope_type), m_Parent(parent) {}	
+
+		void					addChild(const scope_ptr_t& child) { m_Children[child->getName()] = child; }
 	private:
 		core::string				m_ScopeName;
 		ScopeType                   m_ScopeType;
 
 		Scope*						m_Parent;
 		child_storage_t             m_Children;
+
+		friend class Namespace;
+		friend class Class;
 	};
 } // namespace reflect
 

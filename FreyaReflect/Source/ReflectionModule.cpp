@@ -9,5 +9,5 @@
 
 namespace reflect
 {
-
+	uint32_t ReflectionConsumer::reflection_consumer_idx = 0;
 } // namespace reflect

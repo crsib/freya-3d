@@ -12,14 +12,15 @@
 #include "core/Object.h"
 #include "FreyaSupportInternal.h"
 #include "integer.h"
+#include "core/smart_ptr.h"
 
 namespace core
 {
-	//! This class is a default base to be used by refcounted objects
+	//! This class is a default base to be used by ref counted objects
 	/*!
 	 * This class follows the interface, required by core::policies::ownership::Intrusive and implements base
 	 * features, required by classes with intrusive reference counting.
-	 * This class uses atomical operations to ensure, that the counter has the same value accross the all threads.
+	 * This class uses atomic operations to ensure, that the counter has the same value across the all threads.
 	 * Still, release() method is probably not completely threadsafe
 	 * \sa core::policies::ownership::Intrusive, core::policies::ownership::RefCounted
 	 */
