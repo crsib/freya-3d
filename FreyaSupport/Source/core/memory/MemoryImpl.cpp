@@ -965,6 +965,7 @@ MemoryArena::~MemoryArena()
 	for(size_t i = m_Pools.size() ; i > 0; --i)
 		delete m_Pools[ i - 1 ];
 	//DebugLog("Allocs: %u, deallocs: %u, total leaked: %u", allocation_count, deallocation_count, memory_allocated);
+	FREYA_SUPPORT_ASSERT(!(allocation_count - deallocation_count), "Memory leak detected");
 }
 
 MemoryArena*	MemoryArena::GetInstance()

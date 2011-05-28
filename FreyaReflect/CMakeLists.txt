@@ -9,6 +9,8 @@ set( FREYA_REFLECT_INCLUDES
 	Include/reflect/ReflectionDatabase.h
 	Include/reflect/ReflectionModule.h
 	Include/reflect/ReflectionObject.h
+	Include/reflect/ReflectionConsumer.h
+	Include/reflect/reflect_cast.h
 	Include/reflect/Scope.h
 )
 

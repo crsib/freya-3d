@@ -9,8 +9,6 @@
 
 namespace reflect
 {
-
-
 	scope_ptr_t Scope::getChild( const core::string& name, bool recursive /*= true*/ ) const
 	{
 		// Try to find a name, as a local name
@@ -28,6 +26,9 @@ namespace reflect
 		// Remove {m_ScopeName}::
 		core::string child_name = m_Parent ? name.substr(r.begin() + 2) : name;
 
+		if(!m_Parent && (name.substr(0,2) == "::"))
+			child_name = child_name.substr(2);
+
 		it = m_Children.find(child_name);
 		//Scope found
 		if(it != m_Children.end())
@@ -38,6 +39,7 @@ namespace reflect
 			//Actually, we will note use recursion))
 			core::string current_child_name = child_name;
 			// Const cast is safe here, as only reference counter will be modified
+			const_cast<Scope*>(this)->retain();
 			scope_ptr_t	 current_child = scope_ptr_t(const_cast<Scope*>(this));
 
 			while(true)
@@ -45,6 +47,8 @@ namespace reflect
 				r = current_child_name.find("::");
 				
 				core::string local_name = !r.empty() ? current_child_name.substr(0,r.begin()) : current_child_name;
+
+				//std::cout << local_name.c_str() << std::endl;
 
 				child_storage_t& child_storage = current_child->m_Children;
 				it = child_storage.find(local_name);
@@ -67,12 +71,12 @@ namespace reflect
 		return scope_ptr_t();
 	}
 
-	core::string Scope::getFullScopeName() const
+	core::string Scope::getScopedName() const
 	{
-		if(m_Parent)
-			return m_Parent->getFullScopeName() + m_ScopeName;
+		if(m_Parent && m_Parent->m_Parent)
+			return m_Parent->getScopedName() + "::" + m_ScopeName;
 		// Root node. Return nothing, abort recursion
-		return core::string();
+		return m_ScopeName;
 	}
 
 } // namespace reflect

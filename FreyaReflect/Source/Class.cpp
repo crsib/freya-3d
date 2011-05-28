@@ -9,5 +9,7 @@
 
 namespace reflect
 {
+	uint32_t Class::reflection_class_idx = 0;
+
 
 } // namespace reflect

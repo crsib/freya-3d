@@ -87,7 +87,7 @@ namespace core
 		typedef void (never_matched::*unspecified_boolean_t)();
 		//! Default constructor. Policies are in charge of correct initialization
 		smart_ptr() {}
-		//! Constructor, initializing smart pointer with specific raw pointer. Ownership over the pointer is aquired accordin to ownership policy
+		//! Constructor, initializing smart pointer with specific raw pointer. Ownership over the pointer is aquired according to ownership policy
 		explicit smart_ptr(const pointer_type_t& val) : storage_policy_t(val) {}
 		//! Copy constructor. When ownership follows destructive copy semantics (same as std::auto_ptr does) the value of \a rhs could possibly be modified
 		smart_ptr( copy_arg_t& rhs ) : storage_policy_t(rhs), ownership_policy_t(rhs), checking_policy_t(rhs)
