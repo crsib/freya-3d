@@ -8,6 +8,7 @@
 #ifndef Object_h__
 #define Object_h__
 
+#include <stdlib.h>
 #include "FreyaSupportInternal.h"
 
 #include "core/memory/MemoryPools.h"
