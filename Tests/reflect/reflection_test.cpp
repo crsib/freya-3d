@@ -15,6 +15,8 @@
 #include "reflection_test.h"
 #include "core/Log.h"
 
+#include "reflect/Value.h"
+
 #ifdef _MSC_VER
 #include <windows.h>
 #endif
@@ -24,6 +26,7 @@ int main(int argc, char* argv[])
 #ifdef _MSC_VER
 	SetConsoleOutputCP(65001); //Set utf-8 encoding
 #endif	
+	// Basic tests
 	assert(reflect::ReflectionDatabase::GetInstance().getModulesCount() > 0);
 	assert(reflect::ReflectionObject::GetClass());
 	assert(reflect::ReflectionObject::GetClass()->getName() == "ReflectionObject");
@@ -36,6 +39,30 @@ int main(int argc, char* argv[])
 	assert(reflect::ReflectionDatabase::GetInstance().getScope("::reflect::ReflectionObject"));
 	std::cout << "Id of " << reflect::ReflectionObject::GetClass()->getScopedName().c_str() << " is " << reflect::ReflectionObject::GetClass()->getClassID() << std::endl;
 	std::cout << "Base class ID " << reflect::Class::GetClassID() << std::endl;
+
+	//Value test
+	int tmp = 2;
+	reflect::Value val, val2(tmp);
+	val = val2;
+	assert(val.get<int>() == 2);
+	assert(val2.get<int>() == 2);
+	val = &tmp;
+	assert(*val.get<int*>() == 2);
+	assert(val2.get<int>() == 2);
+
+	val2 = core::string("test");
+	assert(val2.get<core::string>() == "test");
+
+	reflect::ReflectionObject temp_obj;
+	val = &temp_obj;
+	assert(val.isReflectionObject());
+	assert(!val2.isReflectionObject());
+
+	assert(reflect::Value().isEmpty());
+	assert(val2.getReflectionObject() == NULL);
+
+	assert(val.getReflectionObject()->getClass() == reflect::ReflectionObject::GetClass());
+
 	core::Log::GetInstance().flush();
 #ifdef _MSC_VER
 	system("pause");

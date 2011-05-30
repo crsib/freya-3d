@@ -39,6 +39,7 @@ namespace core
 					v = NULL;
 					return temp;
 				}
+
 				//! Release the ownership of the object an let the storage policy to destroy it
 				bool release(const P& ){ return true;}
 				//! This policy follows destructive copy semantics
