@@ -28,7 +28,9 @@ namespace reflect
 	public:
 		REFLECTION_CONSUMER();
 
-		typedef containers::vector<reflection_module_ptr_t,containers::policies::memory::FreyaAllocator, containers::policies::multithreading::AtomicLock> reflection_modules_t;
+		typedef containers::vector<reflection_module_ptr_t,
+			containers::policies::memory::FreyaAllocator,
+			containers::policies::multithreading::AtomicLock> reflection_modules_t;
 		typedef reflection_modules_t::iterator reflection_module_iterator_t;
 
 		static ReflectionDatabase&		GetInstance() { static ReflectionDatabase __db; return __db; }

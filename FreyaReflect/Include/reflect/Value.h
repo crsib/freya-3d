@@ -40,6 +40,11 @@ namespace reflect
 
 		template<typename T>
 		T get() { FREYA_REFLECT_ASSERT(!isEmpty(), "Trying to get an inexistant object"); return *reinterpret_cast<T*>(m_StoredValue->getOpaquePtr()); }
+		
+		template<typename T>
+		typename containers::constant<T>::type 
+			get() const { FREYA_REFLECT_ASSERT(!isEmpty(), "Trying to get an inexistant object"); return *reinterpret_cast<T const*>(m_StoredValue->getOpaquePtr()); }
+
 	private:
 		class FREYA_REFLECT_EXPORT ValueBase : public core::Object
 		{
@@ -50,8 +55,11 @@ namespace reflect
 			virtual ~ValueBase() {}
 			virtual ValueBase* clone() const = 0;
 			virtual void*      getOpaquePtr() = 0;
+			virtual const void*getOpaquePtr() const = 0;
 			ReflectionObject*  getReflectionObject() 
 			{ return m_IsReflectionObject ? *reinterpret_cast<ReflectionObject**>(getOpaquePtr()) : NULL; }
+			const ReflectionObject*  getReflectionObject() const
+			{ return m_IsReflectionObject ? *reinterpret_cast<ReflectionObject* const *>(getOpaquePtr()) : NULL; }
 			bool               isReflectionObject() const { return m_IsReflectionObject; }
 		};//ValueBase
 
@@ -69,6 +77,7 @@ namespace reflect
 			}
 
 			void*         getOpaquePtr() { return reinterpret_cast<void*>(&m_StoredValue); }
+			const void*   getOpaquePtr() const { return reinterpret_cast<const void*>(&m_StoredValue); }
 		};
 
 		template<>
@@ -85,6 +94,7 @@ namespace reflect
 			}
 
 			void*         getOpaquePtr() { return reinterpret_cast<void*>(&m_StoredValue); }
+			const void*   getOpaquePtr() const { return reinterpret_cast<const void*>(&m_StoredValue); }
 		}; //
 
 		core::smart_ptr<ValueBase,core::policies::ownership::Scoped>  m_StoredValue;

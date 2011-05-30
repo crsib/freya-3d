@@ -63,6 +63,11 @@ int main(int argc, char* argv[])
 
 	assert(val.getReflectionObject()->getClass() == reflect::ReflectionObject::GetClass());
 
+	// ReflectionObject property
+	assert(reflect::ReflectionObject::GetClass()->getPropertiesCount());
+	assert(reflect::ReflectionObject::GetClass()->getProperty("class"));
+	assert(reflect::ReflectionObject::GetClass()->getProperty("class")->get(&temp_obj).get<reflect::Class*>() == reflect::ReflectionObject::GetClass());
+
 	core::Log::GetInstance().flush();
 #ifdef _MSC_VER
 	system("pause");
