@@ -19,9 +19,12 @@ namespace reflect
 		{
 		public:
 			REFLECTION_CLASS();
-			ReflectionObject_metaclass(scope_ptr_t reflection_namespace) : Class("ReflectionObject", reflection_namespace) {}
-
-
+			ReflectionObject_metaclass(scope_ptr_t reflection_namespace) : Class("ReflectionObject", reflection_namespace) 
+			{
+				//Add getClass property
+				property_ptr_t get_class_prop = property_ptr_t(new PropertyImpl<Class*,ReflectionObject>("class",&ReflectionObject::getClass));
+				m_Properties["class"] = get_class_prop;
+			}
 		};
 
 		class ReflectNamespace_metaclass : public Namespace
@@ -58,7 +61,6 @@ namespace reflect
 					scope_ptr_t reflection_object_class = reflect_namespace->getChild("ReflectionObject", false);
 					if(!reflection_object_class)
 						reflection_object_class = scope_ptr_t(new ReflectionObject_metaclass(reflect_namespace));
-
 
 					return true;
 				}

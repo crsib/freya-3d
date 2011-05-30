@@ -11,5 +11,12 @@ namespace reflect
 {
 	uint32_t Class::reflection_class_idx = 0;
 
+	reflect::property_ptr_t Class::getProperty( const core::string& name ) const
+	{
+		property_iterator_t it = m_Properties.find(name);
+		if(it != m_Properties.end())
+			return it->second;
+		return property_ptr_t();
+	}
 
 } // namespace reflect
