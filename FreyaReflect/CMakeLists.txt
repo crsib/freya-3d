@@ -12,6 +12,7 @@ set( FREYA_REFLECT_INCLUDES
 	Include/reflect/ReflectionConsumer.h
 	Include/reflect/reflect_cast.h
 	Include/reflect/Scope.h
+	Include/reflect/Value.h
 )
 
 set( FREYA_REFLECT_SOURCES
@@ -23,6 +24,7 @@ set( FREYA_REFLECT_SOURCES
 	Source/ReflectionModule.cpp
 	Source/ReflectionObject.cpp
 	Source/Scope.cpp
+	Source/Value.cpp
 )
 
 if( FREYA_BUILD_SHARED )
