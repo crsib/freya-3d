@@ -19,4 +19,12 @@ namespace reflect
 		return property_ptr_t();
 	}
 
+	reflect::method_ptr_t Class::getMethod( const core::string& name ) const
+	{
+		method_iterator_t it =  m_Methods.find(name);
+		if(it != m_Methods.end())
+			return it->second;
+		return method_ptr_t();
+	}
+
 } // namespace reflect

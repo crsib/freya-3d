@@ -10,11 +10,35 @@
 #include "reflect/Namespace.h"
 #include "reflect/ReflectionModule.h"
 #include "reflect/ReflectionDatabase.h"
+#include "reflect/Method.h"
 
 namespace reflect
 {
 	namespace 
 	{
+		class ReflectionObject_getClass_metamethod : public Method
+		{
+		public:
+			ReflectionObject_getClass_metamethod() : Method("getClass() const",false,true) {}
+
+			Value call(method_this_ptr_t ptr, ...)
+			{
+				return Value(reinterpret_cast<ReflectionObject*>(ptr)->getClass());
+			}
+		};
+
+		class ReflectionObject_GetClass_metamethod : public Method
+		{
+		public:
+			ReflectionObject_GetClass_metamethod() : Method("GetClass()",true,false) {}
+
+			Value call(method_this_ptr_t ptr, ...)
+			{
+				(void) ptr;
+				return Value(ReflectionObject::GetClass());
+			}
+		};
+
 		class ReflectionObject_metaclass : public Class
 		{
 		public:
@@ -24,6 +48,16 @@ namespace reflect
 				//Add getClass property
 				property_ptr_t get_class_prop = property_ptr_t(new PropertyImpl<Class*,ReflectionObject>("class",&ReflectionObject::getClass));
 				m_Properties["class"] = get_class_prop;
+
+				{
+					method_ptr_t method = method_ptr_t(new ReflectionObject_getClass_metamethod);
+					m_Methods[method->getMethodSignature()] = method;
+				}
+
+				{
+					method_ptr_t method = method_ptr_t(new ReflectionObject_GetClass_metamethod);
+					m_Methods[method->getMethodSignature()] = method;
+				}
 			}
 		};
 
