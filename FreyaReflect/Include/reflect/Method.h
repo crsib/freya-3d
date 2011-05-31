@@ -15,11 +15,35 @@
 
 #include "core/smart_ptr.h"
 
+#include "core/string.h"
+
+#include "reflect/Value.h"
+
 namespace reflect
 {
+	typedef void*	method_this_ptr_t;
+
 	class FREYA_REFLECT_EXPORT Method : public core::Object, public core::RefCountedBase
 	{
+	public:
+		Method(const core::string& signature, bool static_member, bool virtual_member) 
+			: m_Signature(signature), m_IsStatic(static_member), m_IsVirtual(virtual_member) {}
+		virtual ~Method() {}
 
+		const core::string& getMethodSignature() const { return m_Signature; }
+		bool  isStatic() const { return m_IsStatic; }
+		bool  isVirtual() const { return m_IsVirtual; }
+
+		virtual Value call(method_this_ptr_t ptr = NULL, ...) = 0;
+
+	private:
+		core::string m_Signature;
+
+		bool	m_IsStatic;
+		bool	m_IsVirtual;
+		//Leave Method as non-copyable
+		Method(const Method&);
+		Method& operator = (const Method&);
 	};
 
 	typedef core::smart_ptr<Method, core::policies::ownership::Intrusive> method_ptr_t;

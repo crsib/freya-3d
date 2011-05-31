@@ -67,7 +67,15 @@ int main(int argc, char* argv[])
 	assert(reflect::ReflectionObject::GetClass()->getPropertiesCount());
 	assert(reflect::ReflectionObject::GetClass()->getProperty("class"));
 	assert(reflect::ReflectionObject::GetClass()->getProperty("class")->get(&temp_obj).get<reflect::Class*>() == reflect::ReflectionObject::GetClass());
-
+	// Basic method tests
+	reflect::Class* refl_obj_class = reflect::ReflectionObject::GetClass();
+	assert(refl_obj_class->getMethodsCount() == 2);
+	assert(refl_obj_class->getMethod("getClass() const"));
+	assert(!refl_obj_class->getMethod("foo()"));
+	assert(refl_obj_class->getMethod("getClass() const")->call(&temp_obj).get<reflect::Class*>() == refl_obj_class);
+	assert(refl_obj_class->getMethod("GetClass()")->call().get<reflect::Class*>() == refl_obj_class);
+	assert(refl_obj_class->getMethod("getClass() const")->isVirtual() && !refl_obj_class->getMethod("getClass() const")->isStatic());
+	assert(!refl_obj_class->getMethod("GetClass()")->isVirtual() && refl_obj_class->getMethod("GetClass()")->isStatic());
 	core::Log::GetInstance().flush();
 #ifdef _MSC_VER
 	system("pause");

@@ -18,7 +18,7 @@
 
 #include "reflect/Scope.h"
 #include "reflect/Property.h"
-
+#include "reflect/Method.h"
 
 namespace reflect
 {
@@ -48,9 +48,21 @@ namespace reflect
 			containers::policies::multithreading::AtomicLock
 			> property_map_t;
 
+		typedef containers::hash_map
+			<
+			core::string, method_ptr_t,
+			containers::hash<const core::string>,
+			containers::equal<const core::string>,
+			containers::policies::rehash::PrimeNumber,
+			containers::policies::memory::FreyaAllocator, 
+			containers::policies::multithreading::AtomicLock
+			> method_map_t;
+
 		property_map_t       m_Properties;
+		method_map_t		 m_Methods;
 	public:
 		typedef property_map_t::const_iterator property_iterator_t;
+		typedef method_map_t::const_iterator method_iterator_t;
 
 		virtual ~Class() {}
 
@@ -63,6 +75,12 @@ namespace reflect
 		property_iterator_t propertiesEnd() const { return m_Properties.end(); }
 
 		property_ptr_t      getProperty(const core::string& name) const;
+
+		size_t              getMethodsCount() const { return m_Methods.size(); }
+		method_iterator_t   methodsBegin() const { return m_Methods.begin(); }
+		method_iterator_t   methodsEnd() const { return m_Methods.end(); }
+
+		method_ptr_t		getMethod(const core::string& signature) const;
 	};
 
 } // namespace reflect

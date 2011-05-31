@@ -19,7 +19,7 @@
 
 namespace reflect
 {
-	typedef void* this_ptr_t;
+	typedef void* property_this_ptr_t;
 
 	class FREYA_REFLECT_EXPORT Property : public core::Object, public core::RefCountedBase
 	{
@@ -30,7 +30,7 @@ namespace reflect
 		const core::string& getName() const { return m_PropertyName; }
 		bool                isReadonly() const { return m_IsReadonly; }
 
-		bool                set( this_ptr_t this_ptr, const Value& value ) const
+		bool                set( property_this_ptr_t this_ptr, const Value& value ) const
 		{
 			if(m_IsReadonly)
 				return false;
@@ -38,11 +38,11 @@ namespace reflect
 			return true;
 		}
 
-		Value               get( this_ptr_t this_ptr ) const { return getValue(this_ptr); } 
+		Value               get( property_this_ptr_t this_ptr ) const { return getValue(this_ptr); } 
 		
 	protected:
-		virtual void	setValue( this_ptr_t this_ptr, const Value& value ) const = 0;
-		virtual Value	getValue( this_ptr_t this_ptr ) const = 0;
+		virtual void	setValue( property_this_ptr_t this_ptr, const Value& value ) const = 0;
+		virtual Value	getValue( property_this_ptr_t this_ptr ) const = 0;
 	private:
 		core::string m_PropertyName;
 		bool		 m_IsReadonly;
@@ -65,9 +65,9 @@ namespace reflect
 		PropertyImpl(const core::string& name,getter_t getter) : Property(name,true), m_Getter(getter), m_Setter(NULL) {}
 		PropertyImpl(const core::string& name,getter_t getter, setter_t setter) : Property(name,false), m_Getter(getter), m_Setter(setter) {}
 	protected:
-		void	setValue( this_ptr_t this_ptr, const Value& value ) const 
+		void	setValue( property_this_ptr_t this_ptr, const Value& value ) const 
 		{ (reinterpret_cast<class_type_t*>(this_ptr)->*m_Setter)(value.get<value_type_t>()); }
-		Value	getValue( this_ptr_t this_ptr ) const
+		Value	getValue( property_this_ptr_t this_ptr ) const
 		{ return Value((reinterpret_cast<class_type_t*>(this_ptr)->*m_Getter)()); }
 	private:
 		getter_t m_Getter;
