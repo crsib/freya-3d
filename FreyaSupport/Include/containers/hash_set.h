@@ -70,7 +70,7 @@ namespace containers
 		//! Type of equality predicate
 		typedef Equal									  compare_type;
 	private:
-		struct fake_extractor	{ value_type* operator() ( const value_type& p ) { return &p; } };
+		struct fake_extractor	{ value_type* operator() ( const value_type& p ) const { return &p; } };
 		typedef details::HashTable
 			< value_type, value_type, hasher_type, compare_type,
 			fake_extractor, MemoryAllocationPolicy, ThreadSafetyPolicy, RehashPolicy > hash_table_t;

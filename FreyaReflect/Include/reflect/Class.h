@@ -14,6 +14,7 @@
 #include "core/string.h"
 
 #include "containers/hash_map.h"
+#include "containers/hash_set.h"
 #include "containers/policies/Policies.h"
 
 #include "reflect/Scope.h"
@@ -30,14 +31,10 @@ namespace reflect
 
 	class FREYA_REFLECT_EXPORT Class : public Scope
 	{
+		friend class ReflectionDatabase;
 	protected:
 		static uint32_t reflection_class_idx;
-		Class(const core::string& name, scope_ptr_t parent_scope) : Scope(ClassScope,name,parent_scope.get())
-		{
-			this->retain(); 
-			parent_scope->addChild(scope_ptr_t(this));
-		}
-
+		
 		typedef containers::hash_map
 			<
 			core::string, property_ptr_t,
@@ -58,11 +55,40 @@ namespace reflect
 			containers::policies::multithreading::AtomicLock
 			> method_map_t;
 
+		typedef containers::hash_set
+			<
+			const Class*,
+			containers::hash<const Class*>,
+			containers::equal<const Class*>,
+			containers::policies::rehash::PrimeNumber,
+			containers::policies::memory::FreyaAllocator, 
+			containers::policies::multithreading::AtomicLock
+			> class_set_t;
+
 		property_map_t       m_Properties;
 		method_map_t		 m_Methods;
+
+		class_set_t          m_Bases;
+		class_set_t          m_Ancesstors;	
+
+		Class(const core::string& name, scope_ptr_t parent_scope) : Scope(ClassScope,name,parent_scope.get()), m_Bases(1.0f), m_Ancesstors(1.0f)
+		{
+			this->retain(); 
+			parent_scope->addChild(scope_ptr_t(this));
+		}
+
+		void	addBase(Class* base)
+		{
+			m_Bases.insert(base);
+			base->m_Ancesstors.insert(this);
+		}
+
+		void	addBase(const core::string& scoped_name);
 	public:
 		typedef property_map_t::const_iterator property_iterator_t;
-		typedef method_map_t::const_iterator method_iterator_t;
+		typedef method_map_t::const_iterator   method_iterator_t;
+
+		typedef class_set_t::const_iterator          class_iterator_t;
 
 		virtual ~Class() {}
 
@@ -81,6 +107,19 @@ namespace reflect
 		method_iterator_t   methodsEnd() const { return m_Methods.end(); }
 
 		method_ptr_t		getMethod(const core::string& signature) const;
+
+		class_iterator_t	basesBegin() const { return m_Bases.begin(); }
+		class_iterator_t    basesEnd() const { return m_Bases.end(); }
+
+		class_iterator_t    ancesstorsBegin() const { return m_Ancesstors.begin(); }
+		class_iterator_t    ancesstorsEnd() const { return m_Ancesstors.end(); }
+
+		bool                isSubClass(const Class* base_class) const;
+		bool                isSuperClass(const Class* ancesstor_class) const;
+
+		bool                canBeCasted(const Class* cast_to) const { return isSuperClass(cast_to) || isSubClass(cast_to); }
+
+		virtual ReflectionObject* create() const { return NULL; }
 	};
 
 } // namespace reflect

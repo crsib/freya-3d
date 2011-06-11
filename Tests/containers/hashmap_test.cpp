@@ -15,6 +15,7 @@
 
 int main(int argc, char* argv[])
 {
+	std::cout << "Starting hash map test" << std::endl;
 	{
 		using namespace containers;
 		using core::string;
@@ -27,7 +28,11 @@ int main(int argc, char* argv[])
 		string_int_lookup_t string_int_lookup;
 		int_lookup_t		int_lookup;
 
+		std::cout << "Basic tests" << std::endl;
+
 		string_lookup["test"] = "foo";
+		std::cout << "Writing data" << std::endl;
+
 		string_int_lookup["foo"]  = 1;
 		int_lookup[1] = 2;
 
@@ -35,6 +40,8 @@ int main(int argc, char* argv[])
 		assert(int_lookup[string_int_lookup[string_lookup["test"]]] == 2);
 
 		assert(int_lookup.find(2) == int_lookup.end());
+
+		std::cout << "Const tests" << std::endl;
 
 		struct test_const_find
 		{

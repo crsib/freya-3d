@@ -17,14 +17,10 @@ set( FREYA_REFLECT_INCLUDES
 
 set( FREYA_REFLECT_SOURCES
 	Source/Class.cpp
-	Source/Method.cpp
-	Source/Namespace.cpp
-	Source/Property.cpp
 	Source/ReflectionDatabase.cpp
 	Source/ReflectionModule.cpp
 	Source/ReflectionObject.cpp
 	Source/Scope.cpp
-	Source/Value.cpp
 )
 
 if( FREYA_BUILD_SHARED )

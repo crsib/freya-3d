@@ -14,8 +14,8 @@ namespace reflect
 {
 
 #define REFLECTION_OBJECT() \
-	static  Class* GetClass(); \
-	virtual Class* getClass() const { return GetClass(); }
+	static  reflect::Class* GetClass(); \
+	virtual reflect::Class* getClass() const { return GetClass(); }
 
 	class Class;
 
