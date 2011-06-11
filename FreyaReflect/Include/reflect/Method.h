@@ -27,14 +27,15 @@ namespace reflect
 	{
 	public:
 		Method(const core::string& signature, bool static_member, bool virtual_member) 
-			: m_Signature(signature), m_IsStatic(static_member), m_IsVirtual(virtual_member) {}
+			: m_Signature(signature), m_IsStatic(static_member), m_IsVirtual(virtual_member) 
+		{ FREYA_REFLECT_ASSERT(!(static_member && virtual_member), "Method could not be both static and virtual"); }
 		virtual ~Method() {}
 
 		const core::string& getMethodSignature() const { return m_Signature; }
 		bool  isStatic() const { return m_IsStatic; }
 		bool  isVirtual() const { return m_IsVirtual; }
 
-		virtual Value call(method_this_ptr_t ptr = NULL, ...) = 0;
+		virtual Value call(method_this_ptr_t ptr = NULL, ...) const = 0;
 
 	private:
 		core::string m_Signature;

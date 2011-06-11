@@ -21,7 +21,7 @@ namespace reflect
 		public:
 			ReflectionObject_getClass_metamethod() : Method("getClass() const",false,true) {}
 
-			Value call(method_this_ptr_t ptr, ...)
+			Value call(method_this_ptr_t ptr, ...) const
 			{
 				return Value(reinterpret_cast<ReflectionObject*>(ptr)->getClass());
 			}
@@ -32,7 +32,7 @@ namespace reflect
 		public:
 			ReflectionObject_GetClass_metamethod() : Method("GetClass()",true,false) {}
 
-			Value call(method_this_ptr_t ptr, ...)
+			Value call(method_this_ptr_t ptr, ...) const
 			{
 				(void) ptr;
 				return Value(ReflectionObject::GetClass());
@@ -59,6 +59,8 @@ namespace reflect
 					m_Methods[method->getMethodSignature()] = method;
 				}
 			}
+
+			ReflectionObject* create() { return new ReflectionObject; }
 		};
 
 		class ReflectNamespace_metaclass : public Namespace
@@ -109,7 +111,6 @@ namespace reflect
 			{
 				reflection_module_ptr_t module = reflection_module_ptr_t(new Reflect_ReflectionModule);
 				ReflectionDatabase::GetInstance().addModule(module);
-				module->reflectTo(&ReflectionDatabase::GetInstance());
 			}
 		};
 

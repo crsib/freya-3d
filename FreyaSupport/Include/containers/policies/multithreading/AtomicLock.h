@@ -21,7 +21,7 @@ namespace containers
 			//! Provides a lock, based on an atomic integer
 			/*!
 			 * Provides a lightweight lock interface. 
-			 * The major drawback of this policy is non-zero CPU utilization for the race condition occurs.
+			 * The major drawback of this policy is non-zero CPU utilization when the race condition occurs.
 			 * Consider using this policy only if you can guarantee, that the lock period is short
 			 */
 			//! \ingroup grpContainers_Policies_MultiThreading

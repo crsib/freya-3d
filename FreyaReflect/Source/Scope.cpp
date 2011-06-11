@@ -24,7 +24,7 @@ namespace reflect
 			return scope_ptr_t();
 
 		// Remove {m_ScopeName}::
-		core::string child_name = m_Parent ? name.substr(r.begin() + 2) : name;
+		core::string child_name = name;// m_Parent ? name.substr(r.begin() + 2) : name;
 
 		if(!m_Parent && (name.substr(0,2) == "::"))
 			child_name = child_name.substr(2);

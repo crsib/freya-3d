@@ -574,6 +574,7 @@ rtAllocator::rtAllocator(MemoryPool* pool)
 	mBlockArray = NULL;
 	mBlockArrayEnd = NULL;
 	mInited = false;
+	m_Lock = 0;
 }
 
 

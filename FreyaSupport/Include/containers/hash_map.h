@@ -245,7 +245,7 @@ namespace containers
 		//! Destroy all the elements within the container without deallocating the buckets structure
 		void		clear() const { return m_Implementation.clear(); }
 		//! Destroy all the elements within the container and deallocates the buckets structure
-		void		reset() const { return m_Implementation.reset(); }
+		void		reset() { return m_Implementation.reset(); }
 		
 		//! Search for the element within the container
 		iterator_range    find( typename const_reference<key_type>::type key )
