@@ -107,8 +107,6 @@ namespace reflect
 		bool                isSubClass(const Class* base_class) const;
 		bool                isSuperClass(const Class* ancesstor_class) const;
 
-		bool                canBeCasted(const Class* cast_to) const { return (cast_to == this) || isSuperClass(cast_to) || isSubClass(cast_to); }
-
 		virtual ReflectionObject* create() const { return NULL; }
 	};
 

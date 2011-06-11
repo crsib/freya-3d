@@ -18,6 +18,8 @@
 
 #include "reflect/Value.h"
 
+#include "reflect/reflect_cast.h"
+
 #ifdef _MSC_VER
 #include <windows.h>
 #endif
@@ -123,7 +125,11 @@ int main(int argc, char* argv[])
 	assert(refl_test_dll->getMethod("sum(int, int) const")->call(test_obj,6,5).get<int>() == test_obj->sum(6,5));
 	//Testing virtual
 	assert(refl_test_dll->getMethod("getClassId() const")->call(dll_test_obj).get<core::string>() == "dll");
-	assert(refl_test_dll->getMethod("dllFn() const"));
+	assert(refl_test_dll->hasMethod("dllFn() const"));
+
+	assert(!reflect::reflect_cast<ReflectionTestBase>(&temp_obj));
+	assert(reflect::reflect_cast<ReflectionTestBase>(dll_test_obj));
+	assert(reflect::reflect_cast<reflect::ReflectionObject>(test_obj));
 	delete test_obj;
 	delete dll_test_obj;
 	core::Log::GetInstance().flush();
