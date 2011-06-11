@@ -77,11 +77,7 @@ namespace reflect
 			parent_scope->addChild(scope_ptr_t(this));
 		}
 
-		void	addBase(Class* base)
-		{
-			m_Bases.insert(base);
-			base->m_Ancesstors.insert(this);
-		}
+		void	addBase(Class* base);
 
 		void	addBase(const core::string& scoped_name);
 	public:
@@ -94,18 +90,12 @@ namespace reflect
 
 		REFLECTION_CLASS();
 
-		bool	isValidClass() const { return getClassID() != Class::GetClassID(); }
+		bool	            isValidClass() const { return getClassID() != Class::GetClassID(); }
 
-		size_t              getPropertiesCount() const { return m_Properties.size(); }
-		property_iterator_t propertiesBegin() const { return m_Properties.begin(); }
-		property_iterator_t propertiesEnd() const { return m_Properties.end(); }
-
+		bool                hasProperty(const core::string& name) const { return !!getProperty(name); }
 		property_ptr_t      getProperty(const core::string& name) const;
 
-		size_t              getMethodsCount() const { return m_Methods.size(); }
-		method_iterator_t   methodsBegin() const { return m_Methods.begin(); }
-		method_iterator_t   methodsEnd() const { return m_Methods.end(); }
-
+		bool                hasMethod(const core::string& name) const { return !!getMethod(name); }
 		method_ptr_t		getMethod(const core::string& signature) const;
 
 		class_iterator_t	basesBegin() const { return m_Bases.begin(); }
@@ -117,7 +107,7 @@ namespace reflect
 		bool                isSubClass(const Class* base_class) const;
 		bool                isSuperClass(const Class* ancesstor_class) const;
 
-		bool                canBeCasted(const Class* cast_to) const { return isSuperClass(cast_to) || isSubClass(cast_to); }
+		bool                canBeCasted(const Class* cast_to) const { return (cast_to == this) || isSuperClass(cast_to) || isSubClass(cast_to); }
 
 		virtual ReflectionObject* create() const { return NULL; }
 	};
