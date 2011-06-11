@@ -18,6 +18,13 @@ namespace reflect
 		property_iterator_t it = m_Properties.find(name);
 		if(it != m_Properties.end())
 			return it->second;
+		// Nope, gotta check the bases
+
+		property_ptr_t prop;
+		for(class_iterator_t it = m_Bases.begin(), end = m_Bases.end(); it != end; ++it)
+			if((prop = (*it)->getProperty(name)))
+				return prop;
+
 		return property_ptr_t();
 	}
 
@@ -26,6 +33,12 @@ namespace reflect
 		method_iterator_t it =  m_Methods.find(name);
 		if(it != m_Methods.end())
 			return it->second;
+
+		method_ptr_t method;
+		for(class_iterator_t it = m_Bases.begin(), end = m_Bases.end(); it != end; ++it)
+			if((method = (*it)->getMethod(name)))
+				return method;
+
 		return method_ptr_t();
 	}
 
@@ -71,6 +84,12 @@ namespace reflect
 		}
 		else
 			addBase(base);
+	}
+
+	void Class::addBase( Class* base )
+	{
+		m_Bases.insert(base);
+		base->m_Ancesstors.insert(this);
 	}
 
 } // namespace reflect
