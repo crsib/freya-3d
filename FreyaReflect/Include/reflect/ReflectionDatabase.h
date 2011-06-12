@@ -22,6 +22,10 @@
 
 #include "integer.h"
 
+//! \defgroup grpFreyaReflect Freya 3D Engines reflection capabilities
+
+//! \brief This namespace contains all the functionality related to Freya 3D Engines reflection capabilities
+//! \ingroup gerFreyaReflect
 namespace reflect
 {
 	class Class;
