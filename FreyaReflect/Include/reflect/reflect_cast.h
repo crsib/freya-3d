@@ -12,6 +12,8 @@
 
 namespace reflect
 {
+	//! \brief Safe cast from one object, implementing relfect::ReflectionObject semantics to another
+	//! \ingroup grpFreyaReflect
 	template<class T, class U>
 	T*     reflect_cast(U* obj) 
 	{
