@@ -1,3 +1,4 @@
 glob:Build/*
 syntax: glob
 Docs/html/*
+CMakeExports/*

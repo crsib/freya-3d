@@ -50,6 +50,9 @@ DRIVER_SOURCES
 
 "${CMAKE_SOURCE_DIR}/Build/Generated/headers_package.cpp"
 )
+if(NOT EXISTS ${CMAKE_SOURCE_DIR}/Build/Generated)
+	file(MAKE_DIRECTORY ${CMAKE_SOURCE_DIR}/Build/Generated)
+endif()
 
 include_directories( "${CMAKE_SOURCE_DIR}/Build/Generated" )
 include_directories( "./" )
@@ -99,3 +102,9 @@ add_custom_command(OUTPUT "${CMAKE_SOURCE_DIR}/Build/Generated/headers_package.c
 ######## Freya reflect
 add_executable( freyareflect ${DRIVER_INCLUDES} ${DRIVER_SOURCES} )
 target_link_libraries( freyareflect ${GLOBAL_LINK_LIBRARIES} ${CLANGFRONTEND_LIBRARIES} zlib ${LIBXML2_LIBRARIES} )
+
+if(EXISTS "${CMAKE_SOURCE_DIR}/../../CMakeExports/freya_reflect.cmake")
+	file(REMOVE "${CMAKE_SOURCE_DIR}/../../CMakeExports/freya_reflect.cmake")
+endif()
+
+export(TARGETS freyareflect FILE "${CMAKE_SOURCE_DIR}/../../CMakeExports/freya_reflect.cmake")
