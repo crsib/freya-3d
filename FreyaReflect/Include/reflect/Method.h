@@ -21,6 +21,7 @@
 
 namespace reflect
 {
+	//! \brief \a this pointer alias for the method
 	typedef void*	method_this_ptr_t;
 	//! This class represents a meta method
 	/*!
@@ -77,8 +78,9 @@ namespace reflect
 		Method(const Method&);
 		Method& operator = (const Method&);
 	};
-
-	typedef core::smart_ptr<Method, core::policies::ownership::Intrusive> method_ptr_t;
+	//! \brief Pointer to the reflect::Method
+	//! \ingroup grpFreyaReflect
+	typedef core::smart_ptr<reflect::Method, core::policies::ownership::Intrusive> method_ptr_t;
 } // namespace reflect
 
 #endif // Reflect_Method_h__

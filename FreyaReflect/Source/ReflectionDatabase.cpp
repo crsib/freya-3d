@@ -62,9 +62,10 @@ namespace reflect
 		{
 			m_ReflectionModules.push_back(module);
 			module->reflectTo(this);
+			DebugLog("Module \"%s\" loaded", module->getModuleName().c_str());
 			if(m_DeferredLookupTable.size())
 			{
-				DebugLog("New module loaded. Attempting to resolve unresolved dependencied.");
+				DebugLog("Attempting to resolve unresolved dependencied.");
 
 				for(deferred_lookup_table_t::iterator it = m_DeferredLookupTable.begin(), end = m_DeferredLookupTable.end(); it != end; ++it)
 				{

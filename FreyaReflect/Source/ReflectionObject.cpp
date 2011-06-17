@@ -5,12 +5,14 @@
  * This file is a part of Freya3D Engine.
  */
 
-#include "reflect/ReflectionObject.h"
+
+#include "reflect/Value.h"
 #include "reflect/Class.h"
 #include "reflect/Namespace.h"
 #include "reflect/ReflectionModule.h"
 #include "reflect/ReflectionDatabase.h"
 #include "reflect/Method.h"
+#include "reflect/ReflectionObject.h"
 
 namespace reflect
 {
@@ -72,6 +74,7 @@ namespace reflect
 		class Reflect_ReflectionModule : public ReflectionModule
 		{
 		public:
+			Reflect_ReflectionModule() : ReflectionModule("Base") {}
 			virtual bool	canReflectTo(const core::string& module) const
 			{
 				return (module == "FreyaReflect");

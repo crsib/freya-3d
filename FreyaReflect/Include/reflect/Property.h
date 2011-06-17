@@ -19,6 +19,7 @@
 
 namespace reflect
 {
+	//! \a this pointer alias for the properties
 	typedef void* property_this_ptr_t;
 	//! \brief High level representation of getters and setters
 	//! \ingroup grpFreyaReflect
@@ -97,9 +98,9 @@ namespace reflect
 		PropertyImpl(const PropertyImpl&);
 		PropertyImpl& operator=(const PropertyImpl&);
 	};
-	//! Pointer to the Property
+	//! \brief Pointer to the Property
 	//! \ingroup grpFreyaReflect
-	typedef core::smart_ptr<Property, core::policies::ownership::Intrusive> property_ptr_t;
+	typedef core::smart_ptr<reflect::Property, core::policies::ownership::Intrusive> property_ptr_t;
 } // namespace reflect
 
 #endif // Reflect_Property_h__
