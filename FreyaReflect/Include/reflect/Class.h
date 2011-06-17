@@ -155,7 +155,7 @@ namespace reflect
 		class_iterator_t    ancesstorsBegin() const { return m_Ancesstors.begin(); }
 		//! Return an iterator, pointing past the last ancestor class
 		class_iterator_t    ancesstorsEnd() const { return m_Ancesstors.end(); }
-		//! Checks, if the class is inherited from \abase_class
+		//! Checks, if the class is inherited from \a base_class
 		bool                isSubClass(const Class* base_class) const;
 		//! Checks, if the class is a base class to \a ancestor_class
 		bool                isSuperClass(const Class* ancestor_class) const;

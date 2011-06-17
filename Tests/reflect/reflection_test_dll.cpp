@@ -59,6 +59,7 @@ namespace
 	class AppReflectionModule : public ReflectionModule
 	{
 	public:
+		AppReflectionModule() : ReflectionModule("DllModule") {}
 		virtual bool	canReflectTo(const core::string& module) const
 		{
 			return (module == "FreyaReflect");
