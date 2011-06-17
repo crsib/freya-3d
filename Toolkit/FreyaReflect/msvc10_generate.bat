@@ -14,16 +14,17 @@
 
 @if not exist Build mkdir Build
 @cd ".\Build"
+
+@if not exist "NMake" mkdir NMake
+@cd "NMake"
+@call cmake.exe -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ..\.. 
+@cd ..
+
 @if not exist "MSVC10" mkdir MSVC10
 @cd "MSVC10"
 @call cmake.exe -G "Visual Studio 10" ..\.. 
-
 @cd ..
-@if not exist "NMake" mkdir NMake
-@cd "NMake"
-@call cmake.exe -G "NMake Makefiles" ..\.. 
 
-@cd ..
 @cd ..
 @goto :end
 :error_not_found
