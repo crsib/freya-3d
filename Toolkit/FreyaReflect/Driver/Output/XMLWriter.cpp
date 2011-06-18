@@ -268,7 +268,7 @@ void XMLWriter::visit( CppNodeClass* n )
 			if((*it)->getAccessType() != CppNode::ACCESS_TYPE_PRIVATE)
 				(*it)->acceptVisitor(*this);
 		m_CurrentDepth--;
-		m_OutputStream << insertTabs() << "</members>";
+		m_OutputStream << insertTabs() << "</members>\n";
 	}
 
 	m_CurrentDepth--;

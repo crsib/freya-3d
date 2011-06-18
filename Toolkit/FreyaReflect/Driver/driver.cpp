@@ -28,6 +28,7 @@
 #include "CppTree/ASTParser.h"
 
 #include "Output/XMLWriter.h"
+#include "Input/XMLReader.h"
 
 #include <memory>
 
@@ -47,18 +48,11 @@ llvm::cl::opt<std::string>	ReflectionOutputFile("refl-output",llvm::cl::desc("Sp
 llvm::cl::opt<std::string>	LuaOutputFile("lua-output",llvm::cl::desc("Specify output filename for Lua bindings file.  Use stdout to redirect output to standard output"), llvm::cl::value_desc("filename"));
 llvm::cl::opt<std::string>  XMLOutputFile("xml-output",llvm::cl::desc("Specify output filename for XML deserialization of AST.  Use stdout to redirect output to standard output"),llvm::cl::value_desc("filename"));
 //Input flags
-llvm::cl::opt<bool>			RecursiveScan("R", llvm::cl::desc("Treat input as a directory and scan it recursively for header files. Supported extensions are (*.h;*.hpp;*.ipp;*.hxx)"));
-//Generators flag
-llvm::cl::opt<bool>			EmitInterfaceImplemetationsToLua("lua-emit-impl-classes",
-	llvm::cl::desc("Generate Lua bindings for classes, that just implement the interface. Will produce larger output."));
-/*llvm::cl::opt<std::string>	UseCustomAllocModel("use-custom-alloc",
-	llvm::cl::desc("Make the output classes to be ancestors of class, which overrides memory management operators. This base class must be reflected."),
-	llvm::cl::value_desc("qualified class name"));
-llvm::cl::opt<bool>			UseLuaJit("use-luajit",
-	llvm::cl::desc("Generate JIT controlling code. Requires LuaJIT 2.0 backend to work"));*/
-//Preprocessor flags
+llvm::cl::list<std::string>	RecursiveScan("R", llvm::cl::desc("Scan the directory recursively for header files. Supported extensions are (*.h;*.hpp;*.ipp;*.hxx)"),llvm::cl::value_desc("directory"),llvm::cl::Prefix);
+llvm::cl::list<std::string> XMLInput("X",llvm::cl::desc("XML files containing data about already reflected nodes"),llvm::cl::value_desc("XML File"), llvm::cl::Prefix);        
+
 llvm::cl::list<std::string> IncludeDirs("I",llvm::cl::desc("Global include directory"),llvm::cl::value_desc("directory"),llvm::cl::Prefix);
-llvm::cl::list<std::string> Definitions("D",llvm::cl::desc("Defines a preprocessor definition. Uses default GCC syntax"),llvm::cl::value_desc("directory"),llvm::cl::Prefix);
+llvm::cl::list<std::string> Definitions("D",llvm::cl::desc("Defines a preprocessor definition. Uses default GCC syntax"),llvm::cl::value_desc("definition"),llvm::cl::Prefix);
 llvm::cl::list<std::string> UnDefinitions("U",llvm::cl::desc("Undefines a preprocessor definition."),llvm::cl::value_desc("directory"),llvm::cl::Prefix);
 
 //Language flags
@@ -78,7 +72,7 @@ llvm::cl::opt<bool>					UseRTTI("rtti",llvm::cl::desc("Enable RTTI support while
 extern llvm::cl::opt<bool>			BeVerbose;
 llvm::cl::opt<bool>					BeVerbose("v",llvm::cl::desc("Verbose mode"));
 
-llvm::cl::list<std::string> InputFilenames(llvm::cl::Positional, llvm::cl::desc("<Input files>"), llvm::cl::OneOrMore);
+llvm::cl::list<std::string> InputFilenames(llvm::cl::Positional, llvm::cl::desc("<Input files>"), llvm::cl::ZeroOrMore);
 
 
 //======================================================================================================
@@ -116,7 +110,7 @@ void	header_files_collector(std::vector<std::string>& path_list, const llvm::sys
 }
 //======================================================================================================
 //================== Write temporary headers ===========================================================
-llvm::sys::Path	write_down_temp_rutime()
+llvm::sys::Path	write_down_temp_runtime()
 {
 	extern const size_t num_files;
 	extern const size_t uncompressed_size;
@@ -209,11 +203,11 @@ int main (int argc, char* argv[])
 	//Gather input files.
 	std::vector<std::string> file_list;
 	//Check, if need to iterate recursively
-	if(RecursiveScan.getValue())
+	if(RecursiveScan.size())
 	{
-		if(InputFilenames.size() == 1)
+		for(std::vector<std::string>::iterator it = RecursiveScan.begin(), end = RecursiveScan.end(); it != end; ++it)
 		{
-			llvm::sys::Path path(InputFilenames.front());
+			llvm::sys::Path path(*it);
 			if(path.isDirectory())
 				header_files_collector(file_list, path);
 			else
@@ -222,25 +216,28 @@ int main (int argc, char* argv[])
 				return 1;
 			}
 		}
-		else
-		{	
-			std::cerr << "-R implies, that there is only one directory" << std::endl;
-			return 1;
-		}
 	}//if(RecursiveScan.getValue())
-	else
+	
+	for(std::vector<std::string>::iterator it = InputFilenames.begin(), end = InputFilenames.end(); it != end; ++it)
+		file_list.push_back(*it);
+
+	if(file_list.empty())
 	{
-		for(std::vector<std::string>::iterator it = InputFilenames.begin(), end = InputFilenames.end(); it != end; ++it)
-			file_list.push_back(*it);
-	} //Just populate the list
+		std::cerr << "No input specified. Please, use `freyareflect -help` to get help on using freyareflect" << std::endl;
+		return -1;
+	}
 	//Write down headers
 	try
 	{
-		llvm::sys::Path path = write_down_temp_rutime();
+		llvm::sys::Path path = write_down_temp_runtime();
 		//Now, start tree populating.
 		CppTreePtr	ast_tree = prepareASTTree(path.str(),file_list,IncludeDirs,Definitions,UnDefinitions);
 
 		path.eraseFromDisk(true);
+
+		// Load input
+		for(std::vector<std::string>::iterator it = XMLInput.begin(), end = XMLInput.end(); it != end; ++it)
+			XMLReader(*it, ast_tree.get());
 
 		//Run generators here
 		if(XMLOutputFile.getValue() != "")
