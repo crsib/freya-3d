@@ -1,3 +1,10 @@
+/* File         : FreyaReflectBinary: CppTree.h
+ * Author       : Dmitry Vedenko
+ * E-Mail       : dmitry.vedenko@freya3d.org
+ *
+ * This file is a part of Freya3D Engine.
+ */
+
 #ifndef CppTree_h__
 #define CppTree_h__
 

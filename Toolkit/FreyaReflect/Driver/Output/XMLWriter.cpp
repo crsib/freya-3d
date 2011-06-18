@@ -1,3 +1,14 @@
+/* File         : FreyaReflectBinary: XMLWriter.cpp
+ * Author       : Dmitry Vedenko
+ * E-Mail       : dmitry.vedenko@freya3d.org
+ *
+ * This file is a part of Freya3D Engine.
+ */
+
+#ifdef _MSC_VER
+#pragma warning( disable : 4005 )
+#endif
+
 #include "Output/XMLWriter.h"
 #include "CppTree/CppTree.h"
 #include "CppTree/CppType.h"

@@ -17,10 +17,21 @@ DRIVER_INCLUDES
 ./CppTree/TreeMarker.h
 
 ####################
-# Output modules   #
+# IO modules       #
 ####################
 ./Output/XMLWriter.h
-
+./Output/FreyaReflectWriter.h
+./Input/XMLReader.h
+####################
+# Base             #
+####################
+./Base/CPP/CppModule.h
+./Base/CPP/CppModuleBody.h
+./Base/CPP/HeaderBlock.h
+./Base/ReflectedClass.h
+./Base/ReflectedScope.h
+./Base/ReflectedEnum.h
+./Base/ReflectionDatabaseGenerator.h
 ####################
 # Generated        #
 ####################
@@ -39,10 +50,21 @@ DRIVER_SOURCES
 ./CppTree/TreeMarker.cpp
 
 ####################
-# Output modules   #
+# IO modules       #
 ####################
 ./Output/XMLWriter.cpp
-
+./Output/FreyaReflectWriter.cpp
+./Input/XMLReader.cpp
+####################
+# Base             #
+####################
+./Base/CPP/CppModule.cpp
+./Base/CPP/CppModuleBody.cpp
+./Base/CPP/HeaderBlock.cpp
+./Base/ReflectedClass.cpp
+./Base/ReflectedScope.cpp
+./Base/ReflectedEnum.cpp
+./Base/ReflectionDatabaseGenerator.cpp
 ####################
 # main executable  #
 ####################
@@ -58,10 +80,44 @@ include_directories( "${CMAKE_SOURCE_DIR}/Build/Generated" )
 include_directories( "./" )
 
 #SET_SOURCE_FILES_PROPERTIES("${CMAKE_SOURCE_DIR}/Build/Generates/SVN_Revision.h" PROPERTIES GENERATED YES)
-SET_SOURCE_FILES_PROPERTIES("${CMAKE_SOURCE_DIR}/Build/Generated/headers_package.cpp" PROPERTIES GENERATED YES )
-SOURCE_GROUP("Generated" FILES "${CMAKE_SOURCE_DIR}/Build/Generated/headers_package.cpp")
+set_source_files_properties("${CMAKE_SOURCE_DIR}/Build/Generated/headers_package.cpp" PROPERTIES GENERATED YES )
 
-SOURCE_GROUP("Output" FILES "./Output/XMLWriter.cpp" "./Output/XMLWriter.h")
+if(MSVC)
+	source_group("Generated" FILES "${CMAKE_SOURCE_DIR}/Build/Generated/headers_package.cpp")
+	source_group("IO" FILES ./Output/XMLWriter.cpp ./Output/XMLWriter.h
+							./Output/FreyaReflectWriter.h ./Output/FreyaReflectWriter.cpp
+							./Input/XMLReader.cpp ./Input/XMLReader.h
+				)
+	source_group("CppTree" FILES 	./CppTree/ASTParser.h
+									./CppTree/ASTTreeWalker.h
+									./CppTree/CppNode.h
+									./CppTree/CppTree.h
+									./CppTree/CppType.h
+									./CppTree/TreeMarker.h
+									./CppTree/ASTParser.cpp
+									./CppTree/ASTTreeWalker.cpp
+									./CppTree/CppNode.cpp
+									./CppTree/CppTree.cpp
+									./CppTree/CppType.cpp
+									./CppTree/TreeMarker.cpp
+				)
+	source_group("Base" FILES 		./Base/CPP/CppModule.h
+									./Base/CPP/CppModuleBody.h
+									./Base/CPP/HeaderBlock.h
+									./Base/ReflectedClass.h
+									./Base/ReflectedScope.h
+									./Base/ReflectedEnum.h
+									./Base/ReflectionDatabaseGenerator.h
+									./Base/CPP/CppModule.cpp
+									./Base/CPP/CppModuleBody.cpp
+									./Base/CPP/HeaderBlock.cpp
+									./Base/ReflectedClass.cpp
+									./Base/ReflectedScope.cpp
+									./Base/ReflectedEnum.cpp
+									./Base/ReflectionDatabaseGenerator.cpp
+				)
+	source_group("App" FILES ./driver.cpp ./version.h)
+endif()
 
 ######## Find Clang Frontend #################
 

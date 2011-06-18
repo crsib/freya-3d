@@ -1,3 +1,10 @@
+/* File         : build_headers: main.cpp
+ * Author       : Dmitry Vedenko
+ * E-Mail       : dmitry.vedenko@freya3d.org
+ *
+ * This file is a part of Freya3D Engine.
+ */
+
 #include <fstream>
 #include <iostream>
 #include <iomanip>
