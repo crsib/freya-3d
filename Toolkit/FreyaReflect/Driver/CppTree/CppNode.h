@@ -156,6 +156,8 @@ public:
 	void				setNodeFlag(NODE_FLAG f) { if( m_NodeFlag == NODE_FLAG_EXTERNAL ) m_NodeFlag = f; }
 	NODE_FLAG			getNodeFlag() const		 { return m_NodeFlag; }
 	
+	void                markDeserialized() { m_NodeFlag = NODE_FLAG_DESERIALIZED; }
+
 	bool				needsReflection() { return (m_NodeFlag == NODE_FLAG_USED || m_NodeFlag == NODE_FLAG_USER_SUPPLIED); }
 
 	template<class T>
