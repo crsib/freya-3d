@@ -1,3 +1,15 @@
+/* File         : FreyaReflectBinary: driver.cpp
+ * Author       : Dmitry Vedenko
+ * E-Mail       : dmitry.vedenko@freya3d.org
+ *
+ * This file is a part of Freya3D Engine.
+ */
+
+
+#ifdef _MSC_VER
+#pragma warning( disable : 4005 )
+#endif
+
 #include "version.h"
 //LLVM includes
 #include <llvm/Support/Path.h>
