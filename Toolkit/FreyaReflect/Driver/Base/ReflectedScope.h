@@ -29,7 +29,7 @@ namespace base
 		REFLECTED_ELEMENT();
 		typedef child_map_t::const_iterator child_const_iterator_t;
 
-		ReflectedScope(const std::string& name) : ReflectedElement(name) {}
+		ReflectedScope(const std::string& name, CppNode* node) : ReflectedElement(name, node) {}
 
 		child_const_iterator_t  begin() const { return m_ChildMap.begin(); }
 		child_const_iterator_t  end()   const { return m_ChildMap.end();   }
