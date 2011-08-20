@@ -17,7 +17,7 @@ namespace base
 	{
 	public:
 		REFLECTED_ELEMENT();
-		ReflectedEnum(CppNodeEnum* enum_) : ReflectedElement(enum_->getNodeName()), m_Enum(enum_) {}
+		ReflectedEnum(CppNodeEnum* enum_) : ReflectedElement(enum_->getNodeName(),enum_), m_Enum(enum_) {}
 		CppNodeEnum*    getEnumNode () { return m_Enum; }
 	private:
 		CppNodeEnum*    m_Enum;

@@ -353,10 +353,13 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 			node = __managed_node->cast_to<CppNodeScope>();
 
 			////Deduce correct namespace
-			parent->addChild(__managed_node);
+			//if( decl->isDefinition()  || specialization_defined )
+			{
+				parent->addChild(__managed_node);
 
-			m_DirectSearchMap[decl] = node;
-			m_ReverseSearchMap[node] = decl;
+				m_DirectSearchMap[decl] = node;
+				m_ReverseSearchMap[node] = decl;
+			}
 
 			if(isDeclFromUserFile(decl->getLocation()))
 				node->setNodeFlag(CppNode::NODE_FLAG_USER_SUPPLIED);
@@ -414,6 +417,11 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 		//Push class on top
 		if( decl->isDefinition()  || specialization_defined ) 
 		{
+// 			parent->addChild(__managed_node);
+// 
+// 			m_DirectSearchMap[decl] = node;
+// 			m_ReverseSearchMap[node] = decl;
+
 			node_stack.push(node);
 			decl_stack.push(decl);
 			if(decl->isDefinition())
