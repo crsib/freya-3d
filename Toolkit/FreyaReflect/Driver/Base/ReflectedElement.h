@@ -13,7 +13,8 @@ namespace base
 	class ReflectedElement;
 	class ReflectedScope;
 
-#define static unsigned getClassID() { static unsigned int = -1}
+#define REFLECTED_ELEMENT() static unsigned GetClassID() { static unsigned int idx = last_class_idx++; return idx; } \
+							virtual unsigned getClassID() const { return  GetClassID(); }
 
 	typedef boost::shared_ptr<ReflectedElement> reflected_element_ptr;
 
@@ -21,7 +22,10 @@ namespace base
 	{
 		ReflectedElement(const ReflectedElement&);
 		ReflectedElement& operator = (const ReflectedElement&);
+	protected:
+		static unsigned		last_class_idx;
 	public:
+		REFLECTED_ELEMENT();
 		ReflectedElement(const std::string& name, ReflectedScope* parent = NULL) : m_Parent(parent), m_Name(name) {}
 		virtual ~ReflectedElement() {}
 

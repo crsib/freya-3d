@@ -6,3 +6,8 @@
  */
 
 #include "Base/ReflectedElement.h"
+
+namespace base
+{
+	unsigned ReflectedElement::last_class_idx = 0;
+}
