@@ -163,8 +163,6 @@ void XMLReader::startElement( void *ctx, const xmlChar *fullname, const xmlChar 
 
 			if(node)
 			{
-				if(BeVerbose)
-					std::clog << "In namespace: " << name << std::endl;
 				reader->m_NeedsProcessing.push(true);
 				reader->m_PopStack.push(true);
 				reader->m_ScopeStack.push(node);
@@ -208,7 +206,6 @@ void XMLReader::startElement( void *ctx, const xmlChar *fullname, const xmlChar 
 		boost::replace_all(_name," > ",">");
 		boost::replace_all(_name," & ","&");
 
-		std::clog << "element: " << _name << std::endl;
 		// Fine, name is extracted, retrieve the node
 		CppNode* node = reader->m_ScopeStack.top()->getChildByName(_name).get();
 

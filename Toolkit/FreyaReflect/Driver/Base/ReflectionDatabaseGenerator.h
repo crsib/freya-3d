@@ -8,5 +8,23 @@
 #ifndef ReflectionDatabaseGenerator_h__
 #define ReflectionDatabaseGenerator_h__
 
+#include "Base/ReflectedScope.h"
+
+class CppTree;
+
+namespace base
+{
+	class ReflectionDatabaseGenerator
+	{
+		ReflectionDatabaseGenerator();
+		ReflectionDatabaseGenerator(const ReflectionDatabaseGenerator&);
+		ReflectionDatabaseGenerator& operator = (const ReflectionDatabaseGenerator&);
+	public:
+		ReflectionDatabaseGenerator(CppTree* tree);
+
+	private:
+		base::reflected_scope_ptr       m_RootScope;
+	};
+}
 
 #endif // ReflectionDatabaseGenerator_h__

@@ -28,6 +28,7 @@ DRIVER_INCLUDES
 ./Base/CPP/CppModule.h
 ./Base/CPP/CppModuleBody.h
 ./Base/CPP/HeaderBlock.h
+./Base/ReflectedElement.h
 ./Base/ReflectedClass.h
 ./Base/ReflectedScope.h
 ./Base/ReflectedEnum.h
@@ -64,6 +65,7 @@ DRIVER_SOURCES
 ./Base/ReflectedClass.cpp
 ./Base/ReflectedScope.cpp
 ./Base/ReflectedEnum.cpp
+./Base/ReflectedElement.cpp
 ./Base/ReflectionDatabaseGenerator.cpp
 ####################
 # main executable  #
@@ -106,6 +108,7 @@ if(MSVC)
 									./Base/CPP/HeaderBlock.h
 									./Base/ReflectedClass.h
 									./Base/ReflectedScope.h
+									./Base/ReflectedElement.h
 									./Base/ReflectedEnum.h
 									./Base/ReflectionDatabaseGenerator.h
 									./Base/CPP/CppModule.cpp
@@ -113,6 +116,7 @@ if(MSVC)
 									./Base/CPP/HeaderBlock.cpp
 									./Base/ReflectedClass.cpp
 									./Base/ReflectedScope.cpp
+									./Base/ReflectedElement.cpp
 									./Base/ReflectedEnum.cpp
 									./Base/ReflectionDatabaseGenerator.cpp
 				)

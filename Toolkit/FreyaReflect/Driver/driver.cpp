@@ -30,6 +30,8 @@
 #include "Output/XMLWriter.h"
 #include "Input/XMLReader.h"
 
+#include "Base/ReflectionDatabaseGenerator.h"
+
 #include <memory>
 
 
@@ -245,6 +247,8 @@ int main (int argc, char* argv[])
 			XMLWriter xml_writer(ast_tree->getRootNode(), XMLOutputFile.getValue());
 			ast_tree->getRootNode()->acceptVisitor(xml_writer);
 		}
+
+		base::ReflectionDatabaseGenerator db_gen(ast_tree.get());
 	}
 	catch (std::exception& e)
 	{
