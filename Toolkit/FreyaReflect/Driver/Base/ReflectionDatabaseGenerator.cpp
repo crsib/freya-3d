@@ -125,7 +125,7 @@ namespace base
 
 			virtual	void	visit(CppNodeClass* n)
 			{
-				if(n->getNodeFlag() > CppNode::NODE_FLAG_USED)
+				if(n->getNodeFlag() > CppNode::NODE_FLAG_USED || !n->isClassWasDefined())
 					return;
 
 				reflected_scope_ptr ptr = reflected_scope_ptr(new ReflectedClass(n));

@@ -259,6 +259,7 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 			//Also, union is not derived from class, as it lacks support of methods
 			//Lets chose the correct base for the node
 			CppNodePtr	__managed_node;
+			bool        add_to_parent = true;
 			if(!clang::ClassTemplateSpecializationDecl::classof(decl))
 			{
 				if(decl->isClass() || decl->isStruct())
@@ -347,13 +348,17 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 					specialization_defined = false;
 				}
 				else
+				{
 					__managed_node = m_TemplateSpecializationLookup[m_TemplateSpecialization->getScopedName()];
+					add_to_parent = false;
+				}
 			} //end node deduction
 
 			node = __managed_node->cast_to<CppNodeScope>();
 
 			////Deduce correct namespace
 			//if( decl->isDefinition()  || specialization_defined )
+			if(add_to_parent)
 			{
 				parent->addChild(__managed_node);
 
@@ -421,7 +426,14 @@ void ASTTreeWalker::visitClass( clang::RecordDecl* decl )
 // 
 // 			m_DirectSearchMap[decl] = node;
 // 			m_ReverseSearchMap[node] = decl;
-
+ 			if( node->getNodeType() & CppNode::NODE_TYPE_CLASS )
+			{
+				if(CXXRecordDecl::classof(decl) && static_cast<CXXRecordDecl*>(decl)->getDescribedClassTemplate())
+					static_cast<CppNodeClass*>(node)->setClassWasDefined(false);
+				else
+					static_cast<CppNodeClass*>(node)->setClassWasDefined(true);
+			}
+			
 			node_stack.push(node);
 			decl_stack.push(decl);
 			if(decl->isDefinition())

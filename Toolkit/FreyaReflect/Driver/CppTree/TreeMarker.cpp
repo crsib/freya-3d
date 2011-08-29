@@ -66,6 +66,12 @@ void TreeMarker::visit( CppNodeTypedef* n )
 
 void TreeMarker::visit( CppNodeClass* n )
 {
+	if(!n->isClassWasDefined())
+	{
+		n->setNodeFlag(CppNode::NODE_FLAG_EXTERNAL);
+		return;
+	}
+	
 	markNode(n);
 
 	//Mark bases

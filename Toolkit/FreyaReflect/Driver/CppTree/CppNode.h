@@ -373,7 +373,7 @@ typedef boost::shared_ptr<CppNodeClassMember> CppNodeClassMemberPtr;
 class CppNodeClass : public CppNodeScope
 {
 public:
-	CppNodeClass(const std::string& name, CppNode* parent = NULL) : CppNodeScope(parent,NODE_TYPE_CLASS,name) {}
+	CppNodeClass(const std::string& name, CppNode* parent = NULL) : CppNodeScope(parent,NODE_TYPE_CLASS,name), m_WasDefined(false) {}
 	virtual void acceptVisitor(CppNodeVisitor& visitor) { visitor.visit(this); }
 
 	//
@@ -422,11 +422,13 @@ public:
 
 	void										addMember(const CppNodeClassMemberPtr& m) { m_Members.push_back(m); }
 
+	bool                                        isClassWasDefined() const { return m_WasDefined; }
+	void                                        setClassWasDefined(bool def) { m_WasDefined = def; }
 protected:
 	base_type_list_t							m_BaseClasses;
 	member_list_t								m_Members;
 	method_list_t								m_Metods;
-
+	bool										m_WasDefined;
 };
 
 class CppNodeClassTemplateSpecialization : public CppNodeClass
