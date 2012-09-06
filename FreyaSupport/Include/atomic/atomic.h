@@ -10,7 +10,11 @@
 
 #include "atomic/atomic-interface.h"
 
-#if defined(__clang__) // Supported arch x86-64, ARMv7 instruction based.
+#if defined(MARMALADE_USED)
+
+#	include "atomic/details/marmalade-atomic.h"
+
+#elif defined(__clang__) // Supported arch x86-64, ARMv7 instruction based.
 	#include "atomic/details/atomic-clang.h"
 #elif defined(__GNUC__) // Supported arch x86-64, ARMv7 instruction based.
 

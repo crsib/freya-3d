@@ -36,7 +36,8 @@ namespace containers
 		 * \param f is a value of first element
 		 * \param s is a value of second element
 		 */
-		pair( typename const_reference<FirstType>::type f,  typename const_reference<SecondType>::type s ) : first(f), second(s) {}
+		pair( typename make_const_reference<FirstType>::type f,  typename make_const_reference<SecondType>::type s ) : first(f), second(s) {}
+		pair() {}
 		//! Copy constructor
 		pair( const pair& other) : first ( other.first ), second (other.second) {}
 		//! Assignment operator
@@ -59,7 +60,7 @@ namespace containers
 	template<typename T>
 	struct equal
 	{
-		bool operator ()  (typename const_reference<T>::type lhs, typename const_reference<T>::type rhs) const
+		bool operator ()  (typename make_const_reference<T>::type lhs, typename make_const_reference<T>::type rhs) const
 		{
 			return lhs == rhs;
 		}
@@ -119,6 +120,9 @@ namespace containers
 
 	template <> struct hash<const long double>
 	{ uint32_t operator()(const long double val) const { return static_cast<const uint32_t>(val); } };
+
+	template <> struct hash<void* const>
+	{ uint32_t operator()(void* const val) const { return reinterpret_cast<const uint32_t>(val); } };
 	//!\endcond
 } // namespace containers
 

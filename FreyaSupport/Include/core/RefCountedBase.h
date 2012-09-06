@@ -35,8 +35,11 @@ namespace core
 		typedef atomic::atomic<uint32_t> counter_type_t;
 		//! Increase ownership level
 		void	retain() { ++m_RefCount; }
+		template<typename T>
+		T*      getRetained() { ++m_RefCount; return static_cast<T*>(this); }
+
 		//! Decrease ownership level and destroy the object if needed
-		void	release() 
+		void	release()
 		{
 			if(!--m_RefCount)
 				delete this;
@@ -45,7 +48,7 @@ namespace core
 		const counter_type_t&	getRetainCount() const { return m_RefCount; }
 
 	private:
-		counter_type_t                 m_RefCount;
+	    counter_type_t                 m_RefCount;
 
 		RefCountedBase(const RefCountedBase& );
 		RefCountedBase& operator = (const RefCountedBase& );

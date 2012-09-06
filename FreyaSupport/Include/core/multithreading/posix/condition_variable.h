@@ -45,7 +45,9 @@ namespace core
 #else
         inline bool condition_variable::wait(mutex* sync, const date_time::system_clock::duration_t timeout)
         {
-#warning "Timed wait implementation for condition variable unavailable."
+//#warning "Timed wait implementation for condition variable unavailable."
+			FREYA_SUPPORT_ASSERT(false,"Timed wait is not available on POSIX platform");
+			return false;
         }
 #endif
     }//namespace multithreading

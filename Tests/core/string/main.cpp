@@ -90,6 +90,8 @@ int main(int argc, char* argv[])
 		assert(r.length() == 5);
 		assert(r.begin() > 20);
 		assert(rfind_test.substr(r) == "sixth");
+		assert(rfind_test.substr(r).c_str()[5] == 0);
+		std::cout << rfind_test.substr(r).c_str() << std::endl;
 		r = rfind_test.rfind("sixth",r.begin());
 		assert(r.length() == 5);
 		assert(r.begin() == 4);

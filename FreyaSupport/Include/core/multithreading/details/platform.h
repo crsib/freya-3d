@@ -9,6 +9,10 @@
 #define FREYA_THREADS_PLATFORM_H_
 
 //Exactly one symbol must be defined.
+#if defined(MARMALADE_USED) && !defined(PLATFORM_POSIX_TREADS)
+#	define PLATFORM_POSIX_THREADS
+#endif
+
 #if !(defined(PLATFORM_WIN_THREADS) ^ defined(PLATFORM_POSIX_THREADS))
 	#error Thread platform section mismatch: only one symbol should be defined.
 #endif

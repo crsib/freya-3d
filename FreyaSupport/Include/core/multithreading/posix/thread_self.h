@@ -8,8 +8,10 @@
 #ifndef FREYA_MULTITHREADING_POSIX_THREAD_SELF_H_
 #define	FREYA_MULTITHREADING_POSIX_THREAD_SELF_H_
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) && !defined(MARMALADE_USED)
         #define PAUSE __asm__ __volatile__ ("pause");
+#elif defined(MARMALADE_USED)
+#	define PAUSE {}
 #endif
 
 #include "core/multithreading/details/platform.h"
@@ -57,10 +59,14 @@ namespace core
             
             inline unsigned get_freya_id()
             {
+#ifndef MARMALADE_USED
                 return static_cast<unsigned>(details::freya_id);
+#else
+				return 0;
+#endif
             }
         }//namespace thread_self
-    }//namespace multithrading
+    }//namespace multithreading
 }//namespace core
 
 #endif/*FREYA_MULTITHREADING_POSIX_THREAD_SELF_H_*/

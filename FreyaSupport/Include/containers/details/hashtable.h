@@ -8,6 +8,7 @@
 #ifndef Containers_hashtable_h__
 #define Containers_hashtable_h__
 
+#include <new>
 #include "integer.h"
 #include "FreyaSupportInternal.h"
 #include "containers/utils.h"
@@ -42,11 +43,11 @@ namespace containers
 		public:
 			typedef Key		  key_type;
 			typedef Key&      key_reference_type;
-			typedef typename  const_reference<Key>::type key_const_reference_type;
+			typedef typename  make_const_reference<Key>::type key_const_reference_type;
 			typedef Value     value_type;
 			typedef	Value*    value_pointer_type;
 			typedef Value&	  value_reference;
-			typedef typename  const_reference<Value>::type value_const_reference;
+			typedef typename  make_const_reference<Value>::type value_const_reference;
 
 			template<typename V, bool is_constant> //V is provided to create both const and non const version of iterators
 			class iterator_impl
@@ -126,10 +127,10 @@ namespace containers
 				
 				//! Prefix ++ operator
 				iterator_impl&	operator++ () { incr(); return *this; }
-				iterator_impl	operator++ (int) { iterator temp(*this); incr(); return temp; }
+				iterator_impl	operator++ (int) { iterator_impl temp(*this); incr(); return temp; }
 
 				V&			operator * () { FREYA_SUPPORT_ASSERT(m_Node, "Invalid node"); return m_Node->value; }
-				typename const_reference<V>::type
+				typename make_const_reference<V>::type
 					operator * () const { FREYA_SUPPORT_ASSERT(m_Node, "Invalid node"); return m_Node->value; }
 
 				V*			operator-> () { return &m_Node->value; }
@@ -180,6 +181,8 @@ namespace containers
 
 			size_t			get_elements_count() const { return m_NumElements; }
 			size_t			get_buckets_count() const { return m_NumBuckets; }
+
+                        float           load_factor() const { return RehashPolicy::getLoadFactor(); }
 		private:
 			HashNode**		m_Buckets;
 			size_t			m_NumBuckets;
@@ -196,15 +199,15 @@ namespace containers
 			static void destroy_node_data(HashNode* node, eastl::false_type){ node->value.~Value(); } //
 			static void destroy_node_data(HashNode* node) { destroy_node_data(node, eastl::has_trivial_destructor<Value>()); }
 
-			static void set_value(HashNode* node, typename const_reference<Value>::type val, eastl::true_type) 
+			static void set_value(HashNode* node, typename make_const_reference<Value>::type val, eastl::true_type) 
 			{
-				memcpy( reinterpret_cast<void*>(const_cast<typename drop_const<Value>::type*>(&node->value)), &val, sizeof(Value));
+				MEMCPY( reinterpret_cast<void*>(const_cast<typename drop_const<Value>::type*>(&node->value)), &val, sizeof(Value));
 			}
-			static void set_value(HashNode* node, typename const_reference<Value>::type val, eastl::false_type) 
+			static void set_value(HashNode* node, typename make_const_reference<Value>::type val, eastl::false_type) 
 			{
 				::new(reinterpret_cast<void*>(const_cast<typename drop_const<Value>::type*>(&node->value))) Value(val);
 			}
-			static void set_value(HashNode* node, typename const_reference<Value>::type val) { set_value(node, val, eastl::has_trivial_copy<Value>()); }
+			static void set_value(HashNode* node, typename make_const_reference<Value>::type val) { set_value(node, val, eastl::has_trivial_copy<Value>()); }
 
 			iterator insert_hash_node(HashNode* node, HashNode** buckets, size_t buckets_count);
 
@@ -275,7 +278,7 @@ namespace containers
 			if( bucket_count > m_NumBuckets )
 			{
 				HashNode**	new_buckets = m_BucketAllocator.allocate(bucket_count);
-				memset(new_buckets, static_cast<int>(NULL), sizeof(HashNode*)*bucket_count);
+				MEMSET(new_buckets, static_cast<int>(NULL), sizeof(HashNode*)*bucket_count);
 				if(m_Buckets)
 				{
 					for( size_t i = 0; i < m_NumBuckets; ++i )
@@ -349,6 +352,7 @@ namespace containers
 						node = next;
 					}
 					destroy_node_data(node);
+					m_Buckets[i] = NULL;
 					m_NodeAllocator.deallocate(node);
 				}
 			}
@@ -630,8 +634,9 @@ namespace containers
 		void HashTable<Key, Value, Hash, Compare, ExtractKey, MemoryAllocationPolicy, ThreadSafetyPolicy, RehashPolicy>::erase( const iterator& first, const iterator& last )
 		{
 			m_LockPolicy.lock();
-			for( iterator it = first; it != last; ++it )
+			for( iterator it = first; it != last;  )
 			{
+				iterator next = it; ++next;
 				if( m_NumElements && it != end() )
 				{
 					const uint32_t bucket_idx = m_Hasher( *m_ExtractKey( *it )) % m_NumBuckets;
@@ -658,6 +663,7 @@ namespace containers
 						node = node->next;
 					}
 				}
+				it = next;
 			}
 			m_LockPolicy.unlock();
 		} // erase range

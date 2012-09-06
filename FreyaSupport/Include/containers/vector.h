@@ -63,10 +63,16 @@ namespace containers
 		typedef typename const_pointer<Iter>::type const_iterator;
 		//! Vector base type
 		typedef Iter		type;
+
+		typedef Iter        value_type;
 		//! Reference to base type
 		typedef Iter&		reference;
 		//! Constant reference type
-		typedef typename const_reference<Iter>::type constant_refernce;
+		typedef typename make_const_reference<Iter>::type constant_reference;
+
+		typedef typename make_const_reference<Iter>::type const_reference;
+		//! size_type
+		typedef size_t size_type;
 		//! Reverse iterator implementation
 		/*!
 		 * This is a wrapper around an vector iterator, which allows reverse iteration through the container.
@@ -114,7 +120,7 @@ namespace containers
 			//! Retrieve the reference to the type
 			I&	operator * () { return *m_Ptr; }
 			//! Retrieve the const reference to the type
-			typename const_reference<I>::type
+			typename make_const_reference<I>::type
 				operator * () const { return *m_Ptr; }
 			//! Provide pointer semantics
 			I*	operator -> () { return m_Ptr; }
@@ -141,7 +147,7 @@ namespace containers
 		vector(size_t reserve_count) 
 			: m_AllocatedCount(StorageResizePolicy::get_vector_size(reserve_count, 0)), m_Begin(MemoryAllocationPolicy<Iter>::allocate(reserve_count)), m_End(m_Begin) {}
 		//! Construct a vector initialized with [_begin, _end)
-		vector(iterator _begin, iterator _end); 
+		vector(const_iterator _begin, const_iterator _end); 
 
 		//Accessing vector data
 		//! Overloaded operator []
@@ -152,7 +158,7 @@ namespace containers
 			return *(m_Begin + idx);
 		}
 		//! Overloaded operator [] (const version)
-		constant_refernce operator [] (size_t idx) const
+		constant_reference operator [] (size_t idx) const
 		{
 			FREYA_SUPPORT_ASSERT(m_Begin, "Empty vector");
 			FREYA_SUPPORT_ASSERT(idx < static_cast<size_t>(m_End - m_Begin), "Out of range");
@@ -180,9 +186,9 @@ namespace containers
 		//! Return the reference to the last element
 		reference			   back()  { FREYA_SUPPORT_ASSERT(m_Begin < m_End,"Empty vector"); return *(m_End-1); }	
 		//! Return constant reference to the first element
-		constant_refernce	   front() const { FREYA_SUPPORT_ASSERT(m_Begin < m_End,"Empty vector"); return *m_Begin; }
+		constant_reference	   front() const { FREYA_SUPPORT_ASSERT(m_Begin < m_End,"Empty vector"); return *m_Begin; }
 		//! Return constant reverence to the last element
-		constant_refernce	   back() const { FREYA_SUPPORT_ASSERT(m_Begin < m_End,"Empty vector"); return *(m_End-1); }	
+		constant_reference	   back() const { FREYA_SUPPORT_ASSERT(m_Begin < m_End,"Empty vector"); return *(m_End-1); }	
 		//! Get reserved space size
 		size_t	capacity() const { return m_AllocatedCount; }
 		//! Get reserved space size in bytes
@@ -194,14 +200,14 @@ namespace containers
 
 		// Manipulating the vector
 		//! Push an item to vector
-		void	push_back(constant_refernce	obj);
+		void	push_back(constant_reference	obj);
 		//!Pop an item  from the vector
 		void	pop_back();
 
 		//! Insert an item into vector
-		void	insert(iterator	position, constant_refernce	obj );
+		void	insert(iterator	position, constant_reference	obj );
 		//! Insert n copies of item into vector
-		void	insert(iterator	position, size_t n, constant_refernce	obj );
+		void	insert(iterator	position, size_t n, constant_reference	obj );
 		//! Insert range of items into the vector
 		void	insert(iterator	position, const_iterator first, const_iterator last);
 
@@ -224,15 +230,23 @@ namespace containers
 
 		//! Reserve the storage space in vector
 		void	reserve(size_t count); 
+
+		vector(const vector& v) : m_AllocatedCount(0), m_Begin(NULL), m_End(NULL)
+		{
+			insert(begin(), v.begin(), v.end());
+		}
+
+		vector& operator = (const vector& v)
+		{
+			clear();
+			insert(begin(), v.begin(), v.end());
+			return *this;
+		}
+
 	private:
 		size_t	m_AllocatedCount;
 		Iter*	   m_Begin;
 		Iter*	   m_End;
-
-		//Have no idea, why would someone create a deep copy of an vector itself, 
-		//especially considering problem of copying vector with different policies
-		vector(const vector& v);
-		vector& operator = (const vector& v);
 	};
 }
 

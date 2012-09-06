@@ -62,6 +62,9 @@ namespace core
 				//! Decrease ownership level
 				bool    release(const P&)
 				{
+					if(!m_RefCount)
+						return false;
+
 					if(!--*m_RefCount)
 					{
 						core::memory::dealloc(m_RefCount, core::memory::STL_POOL);
