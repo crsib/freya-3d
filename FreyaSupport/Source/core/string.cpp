@@ -17,6 +17,10 @@
 #include <unicode/ustring.h>
 #endif
 
+#if USES_QT
+#include <QtCore>
+#endif
+
 #include <utf8.h>
 
 #include <cstdio>
@@ -25,6 +29,7 @@ namespace core
 {
 	core::string string::to_upper() const
 	{
+#ifndef MARMALADE_USED
 		size_t length = this->length();
 		if(length == 0)
 			return *this;
@@ -36,8 +41,9 @@ namespace core
 		for(size_t i = 0; i < length; ++i)
 #if FREYA_USE_ICU
 			utf32_str[i] = u_toupper(utf32_str[i]);
-#else
+#elif defined(USES_QT)
 		{}
+		return core::string::fromQString(toQString().toUpper());
 #endif
 
 		string out(m_BufferPtr.get_range().length());
@@ -48,10 +54,18 @@ namespace core
 
 		memory::dealloc(utf32_str);
 		return out;
+#else
+		uint32_t length = this->length();
+		string out(m_BufferPtr.get_range().length());
+		for(uint32_t i = 0; i < length; ++i)
+			const_cast<char*>(out.m_BufferPtr.ptr())[i] = toupper(m_BufferPtr.ptr()[i]);
+		return out;
+#endif
 	}
 
 	core::string string::to_lower() const
 	{
+#ifndef MARMALADE_USED
 		size_t length = this->length();
 		if(length == 0)
 			return *this;
@@ -63,8 +77,10 @@ namespace core
 		for(size_t i = 0; i < length; ++i)
 #if FREYA_USE_ICU
 			utf32_str[i] = u_tolower(utf32_str[i]);
-#else
+#elif defined(USES_QT)
 		{}
+
+		return core::string::fromQString(toQString().toLower());
 #endif
 		string out(m_BufferPtr.get_range().length());
 
@@ -74,6 +90,13 @@ namespace core
 
 		memory::dealloc(utf32_str);
 		return out;
+#else
+		uint32_t length = this->length();
+		string out(m_BufferPtr.get_range().length());
+		for(uint32_t i = 0; i < length; ++i)
+			const_cast<char*>(out.m_BufferPtr.ptr())[i] = tolower(m_BufferPtr.ptr()[i]);
+		return out;
+#endif
 	}
 
 	core::string string::replace( const range& r, const string& str ) const
@@ -131,6 +154,25 @@ namespace core
 		return out;
 	}
 
+	string string::fromByteBuffer( const char* buf, size_t l )
+	{
+		if(!buf)
+			return core::string();
+
+		if(!l)
+			l = strlen(buf);
+		string out(l);
+		MEMCPY(const_cast<char*>(out.m_BufferPtr.ptr()), buf, l);
+		return out;
+	}
+
+#ifdef USES_QT
+	string string::fromQString(const QString& str)
+	{
+		QByteArray buf = str.toUtf8();
+		return fromByteBuffer(buf.data());
+	}
+#endif
 
 
 } // namespace core

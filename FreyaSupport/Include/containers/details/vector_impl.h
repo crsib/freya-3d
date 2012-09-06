@@ -18,6 +18,7 @@
 #	include "EASTL/type_traits.h"
 #endif // FREYA_USE_EASTL_TYPE_TRAITS
 
+#include "core/memory/MemoryDebug.h"
 
 namespace containers
 {
@@ -44,7 +45,7 @@ namespace containers
 		inline
 		T*	__vector_impl_copy_unintialized_helper(I* first, I* last, T* result, eastl::true_type)
 		{
-			::memcpy(result, first, (last - first) * sizeof(T));
+			MEMCPY(result, first, (last - first) * sizeof(T));
 			return result + (last - first);
 		}
 
@@ -59,15 +60,15 @@ namespace containers
 
 		template<typename T>
 		inline
-			T*	__vector_impl_copy_unintialized_helper( T* result, typename const_reference<T>::type obj, eastl::true_type)
+			T*	__vector_impl_copy_unintialized_helper( T* result, typename make_const_reference<T>::type obj, eastl::true_type)
 		{
-			::memcpy(result, &obj, sizeof(T));
+			MEMCPY(result, &obj, sizeof(T));
 			return result + 1;
 		}
 
 		template<typename T>
 		inline 
-			T* __vector_impl_copy_unintialized_helper(T* result, typename const_reference<T>::type obj, eastl::false_type)
+			T* __vector_impl_copy_unintialized_helper(T* result, typename make_const_reference<T>::type obj, eastl::false_type)
 		{
 			::new(result) T(obj);
 			return result + 1;
@@ -77,7 +78,7 @@ namespace containers
 		inline
 			T*	__vector_impl_copy_helper(I* first, I* last, T* result, eastl::true_type)
 		{
-			::memmove(result, first, (last - first) * sizeof(T));
+			MEMMOVE(result, first, (last - first) * sizeof(T));
 			return result + (last - first);
 		}
 
@@ -92,15 +93,15 @@ namespace containers
 
 		template<typename T>
 		inline
-			T*	__vector_impl_copy_helper( T* result, typename const_reference<T>::type obj, eastl::true_type)
+			T*	__vector_impl_copy_helper( T* result, typename make_const_reference<T>::type obj, eastl::true_type)
 		{
-			::memmove(result, &obj, sizeof(T));
+			MEMMOVE(result, &obj, sizeof(T));
 			return result + 1;
 		}
 
 		template<typename T>
 		inline 
-			T* __vector_impl_copy_helper(T* result, typename const_reference<T>::type obj, eastl::false_type)
+			T* __vector_impl_copy_helper(T* result, typename make_const_reference<T>::type obj, eastl::false_type)
 		{
 			*result = *obj;
 			return result + 1;
@@ -110,7 +111,7 @@ namespace containers
 		inline
 			T*	__vector_impl_copy_backward_helper(I* first, I* last, T* result, eastl::true_type)
 		{
-			::memmove(result, first, (last - first) * sizeof(T));
+			MEMMOVE(result, first, (last - first) * sizeof(T));
 			return result + (last - first);
 		}
 
@@ -127,7 +128,7 @@ namespace containers
 
 		template<typename T>
 		inline
-			T*	__vector_impl_uninitialized_fill_helper( T* result, typename const_reference<T>::type obj, size_t n, eastl::true_type)
+			T*	__vector_impl_uninitialized_fill_helper( T* result, typename make_const_reference<T>::type obj, size_t n, eastl::true_type)
 		{
 			for(size_t i = 0; i < n; ++i, ++result)
 				*result = obj;
@@ -136,7 +137,7 @@ namespace containers
 
 		template<typename T>
 		inline 
-			T* __vector_impl_uninitialized_fill_helper(T* result, typename const_reference<T>::type obj, size_t n, eastl::false_type)
+			T* __vector_impl_uninitialized_fill_helper(T* result, typename make_const_reference<T>::type obj, size_t n, eastl::false_type)
 		{
 			for(size_t i = 0; i < n; ++i)
 				::new(result++) T(obj);
@@ -145,7 +146,7 @@ namespace containers
 
 		template<typename T>
 		inline
-			T*	__vector_impl_fill_helper( T* result, typename const_reference<T>::type obj, size_t n)
+			T*	__vector_impl_fill_helper( T* result, typename make_const_reference<T>::type obj, size_t n)
 		{
 			for(size_t i = 0; i < n; ++i, ++result)
 				*result = obj;
@@ -154,7 +155,7 @@ namespace containers
 	}
 
 	template<typename T, template<class> class MAP, class LP, class SRP>
-	vector<T,MAP,LP,SRP>::vector(iterator _begin, iterator _end) 
+	vector<T,MAP,LP,SRP>::vector(const_iterator _begin, const_iterator _end) 
 		: m_AllocatedCount(SRP::get_vector_size(_end - _begin, 0)), m_Begin(MAP<T>::allocate(m_AllocatedCount))
 	{
 		m_End = details::__vector_impl_copy_unintialized_helper(_begin,_end, m_Begin,eastl::has_trivial_copy<T>());
@@ -321,7 +322,7 @@ namespace containers
 	class LockPolicy,
 	class StorageResizePolicy
 		>
-	void vector<T, MemoryAllocationPolicy, LockPolicy, StorageResizePolicy>::insert( iterator position, size_t n, constant_refernce obj )
+	void vector<T, MemoryAllocationPolicy, LockPolicy, StorageResizePolicy>::insert( iterator position, size_t n, constant_reference obj )
 	{
 		if(n == 0)
 			return;
@@ -396,7 +397,7 @@ namespace containers
 		class LockPolicy,
 		class StorageResizePolicy
 		>
-	void vector<T, MemoryAllocationPolicy, LockPolicy, StorageResizePolicy>::insert( iterator position, constant_refernce obj )
+	void vector<T, MemoryAllocationPolicy, LockPolicy, StorageResizePolicy>::insert( iterator position, constant_reference obj )
 	{
 		insert(position, &obj, &obj + 1);
 	} // void containers::vector<T, MemoryAllocationPolicy, LockPolicy, StorageResizePolicy>::insert( iterator position, constant_refernce obj )
@@ -426,7 +427,7 @@ namespace containers
 		class LockPolicy,
 		class StorageResizePolicy
 		>
-	void vector<T, MemoryAllocationPolicy, LockPolicy, StorageResizePolicy>::push_back( constant_refernce obj )
+	void vector<T, MemoryAllocationPolicy, LockPolicy, StorageResizePolicy>::push_back( constant_reference obj )
 	{
 		LockPolicy::lock();
 		if(!m_Begin)
@@ -435,7 +436,7 @@ namespace containers
 			m_Begin = MemoryAllocationPolicy<T>::allocate(m_AllocatedCount);
 			m_End = m_Begin;
 		}
-		else if( (m_End - m_Begin) == m_AllocatedCount )
+		else if( (m_End - m_Begin) == static_cast<ptrdiff_t>(m_AllocatedCount) )
 		{
 			//Wtf, copying...
 			const size_t current_size = m_End - m_Begin;

@@ -73,8 +73,8 @@ namespace containers
 		//! Type of equality predicate
 		typedef Equal									  compare_type;
 	private:
-		hash_map(const hash_map& );
-		hash_map& operator = (const hash_map&);
+		//hash_map(const hash_map& );
+		
 		struct pair_extractor { key_type*	operator()(const value_type& p) const  { return &p.first; } };
 		typedef details::HashTable
 			< key_type, value_type, hasher_type, compare_type,
@@ -88,6 +88,17 @@ namespace containers
 		
 		//! Default construct. Allows to specify the load factor of the hash table
 		hash_map( float load_factor = 0.75 ) : m_Implementation(0.75) {}	
+
+		hash_map( const hash_map& rhs ) : m_Implementation(rhs.m_Implementation.load_factor())
+		{ insert( rhs.begin(), rhs.end() ); }
+
+		hash_map& operator = (const hash_map& rhs)
+		{
+			clear();
+			insert( rhs.begin(), rhs.end() );
+			return *this;
+		}
+
 		//! Retrieve the iterator to the first stored element
 		iterator	begin() { return m_Implementation.begin(); }
 		//! Retrieve the iterator to the one-past-end element
@@ -101,11 +112,11 @@ namespace containers
 		//! Get the number of elements stored in the container
 		size_t		size() const { return m_Implementation.get_elements_count(); }
 		//! Destroy all the elements within the container without deallocating the buckets structure
-		void		clear() const { return m_Implementation.clear(); }
+		void		clear() { return m_Implementation.clear(); }
 		//! Destroy all the elements within the container and deallocates the buckets structure
-		void		reset() const { return m_Implementation.reset(); }
+		void		reset() { return m_Implementation.reset(); }
 		//! Retrieve an element inside the container. If element does not exists - create it
-		mapped_type&	operator [] (typename const_reference<key_type>::type key )
+		mapped_type&	operator [] (typename make_const_reference<key_type>::type key )
 		{
 			iterator it = m_Implementation.find_first(key);
 			if( it != m_Implementation.end() )
@@ -115,10 +126,10 @@ namespace containers
 			return m_Implementation.insert(val)->second;
 		}
 		//! Search for the element within the container
-		iterator    find( typename const_reference<key_type>::type key )
+		iterator    find( typename make_const_reference<key_type>::type key )
 		{ return m_Implementation.find_first(key); }
 		//! Search for the element within the container (const version)
-		const_iterator    find( typename const_reference<key_type>::type key ) const
+		const_iterator    find( typename make_const_reference<key_type>::type key ) const
 		{ return m_Implementation.find_first(key); }
 		//! Insert an element into the container
 		/*! 
@@ -127,7 +138,7 @@ namespace containers
 		 * \return iterator to the newly inserted or to the already contained element in first, true in second
 		 *          if the insertion has actually occurred, false otherwise
 		 */
-		pair<iterator, bool> insert( typename const_reference<value_type>::type value )
+		pair<iterator, bool> insert( typename make_const_reference<value_type>::type value )
 		{
 			iterator it = m_Implementation.find_first(value.first);
 			if( it != m_Implementation.end() )
@@ -143,7 +154,7 @@ namespace containers
 				insert(*first);
 		}
 		//! Erase an element by its key
-		void	erase( typename const_reference<key_type>::type key )
+		void	erase( typename make_const_reference<key_type>::type key )
 		{ m_Implementation.erase( m_Implementation.find_first(key) ); }
 		//! Erase an element at iterator position
 		void	erase( const iterator& position )
@@ -243,18 +254,18 @@ namespace containers
 		//! Get the number of elements stored in the container
 		size_t		size() const { return m_Implementation.get_elements_count(); }
 		//! Destroy all the elements within the container without deallocating the buckets structure
-		void		clear() const { return m_Implementation.clear(); }
+		void		clear() { return m_Implementation.clear(); }
 		//! Destroy all the elements within the container and deallocates the buckets structure
 		void		reset() { return m_Implementation.reset(); }
 		
 		//! Search for the element within the container
-		iterator_range    find( typename const_reference<key_type>::type key )
+		iterator_range    find( typename make_const_reference<key_type>::type key )
 		{ return m_Implementation.find(key); }
 		//! Search for the element within the container (const version)
-		const_iterator_range    find( typename const_reference<key_type>::type key ) const
+		const_iterator_range    find( typename make_const_reference<key_type>::type key ) const
 		{ return m_Implementation.find(key); }
 		//! Insert an element into the container
-		iterator insert( typename const_reference<value_type>::type value )
+		iterator insert( typename make_const_reference<value_type>::type value )
 		{
 			return m_Implementation.insert( value );
 		}
@@ -266,7 +277,7 @@ namespace containers
 				insert(*first);
 		}
 		//! Erase all elements with key \a key
-		void	erase( typename const_reference<key_type>::type key )
+		void	erase( typename make_const_reference<key_type>::type key )
 		{ m_Implementation.erase( m_Implementation.find(key) ); }
 		//! Erase an element at iterator position
 		void	erase( const iterator& position )

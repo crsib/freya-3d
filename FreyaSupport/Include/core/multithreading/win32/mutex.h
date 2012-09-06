@@ -50,7 +50,7 @@ namespace core
 
 		inline bool mutex::try_lock()
 		{
-			if(TryEnterCriticalSection(&(mutex_rep::m_critical_section)) == TRUE)
+			if(TryEnterCriticalSection(&(mutex_rep::m_critical_section)) == true)
 				return mutex_rep::twice_lock_protect();
 			return false;
 		}

@@ -31,7 +31,7 @@ namespace core
 				//! Reference to the base type
 				typedef T& reference_type_t;
 				//! Constant reference to the base type
-				typedef typename containers::const_reference<T>::type const_reference_type_t;
+				typedef typename containers::make_const_reference<T>::type const_reference_type_t;
 				//! Initialize the pointer to the default value 
 				Array() : m_Pointee(getDefault()) {}
 				//! Fake copy constructor. Data is initialized by ownership policy

@@ -18,6 +18,8 @@
 #include "containers/policies/multithreading/AtomicLock.h"
 #include "containers/policies/storage/Greedy.h"
 
+#include "core/memory/MemoryDebug.h"
+
 namespace core
 {
 namespace memory
@@ -100,6 +102,10 @@ public:
 	 * \throw MemoryException if a block is not found inside the pool
 	 */
 	void		free(void* p,unsigned pool = 0);
+
+#ifdef MEMORY_DEBUGGING_ENABLED
+	int         getOwner(void* p);
+#endif
 private:
 	//std::vector<__internal::MemoryPool*>		m_Pools;
 	typedef containers::vector<__internal::MemoryPool*, 
@@ -111,4 +117,5 @@ private:
 
 } //Namespace memory
 } //Namespace core
+
 #endif /* MEMORYARENA_H_ */

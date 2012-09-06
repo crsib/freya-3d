@@ -12,14 +12,14 @@ namespace containers
 {
 	//! Make a constant reference type
 	template<class T> 
-	struct	const_reference { typedef const T& type; };
+	struct	make_const_reference { typedef  T const & type; };
 	//!\cond
 	template<class  T>
-	struct const_reference<const T> { typedef const T& type;	};
+	struct make_const_reference<const T> { typedef T const & type;	};
 	template<class  T>
-	struct const_reference<const T&> { typedef const T& type; };
+	struct make_const_reference<const T&> { typedef T const & type; };
 	template<class  T>
-	struct const_reference<T&> { typedef const T& type; };
+	struct make_const_reference<T&> { typedef T const & type; };
 	//!\endcond
 	template<class T> 
 	struct	const_pointer { typedef const T* type; };

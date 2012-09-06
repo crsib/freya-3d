@@ -49,6 +49,8 @@ namespace containers
 
 				//! Reset the policy to the initial state
 				void	reset() { m_NextRehashSize = 0; }
+
+				float   getLoadFactor() const { return m_LoadFactor; }
 			};
 		}
 	}

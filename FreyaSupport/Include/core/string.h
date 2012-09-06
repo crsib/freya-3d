@@ -14,6 +14,10 @@
 
 #include <stdarg.h>
 
+#ifdef USES_QT
+#include <QString>
+#endif
+
 namespace core
 {
 	//! This class encapsulates futures, required for easy and efficient manipulation with string data
@@ -56,7 +60,8 @@ namespace core
 			 * \param begin is a first index of the range
 			 * \param end is an one-past-last index of the range
 			 */
-			range(size_t begin, size_t end) throw() : m_Begin(begin), m_End(end) { FREYA_SUPPORT_ASSERT(begin < end || (begin == 0 && end == 0),"wrong parameters list"); }
+
+			range(size_t begin, size_t end) throw() : m_Begin(begin), m_End(end) { FREYA_SUPPORT_ASSERT((begin < end) || (begin == 0 && end == 0),"wrong parameters list"); }
 			//! Copy constructor
 			range(const range& rhs) throw() : m_Begin(rhs.m_Begin), m_End(rhs.m_End) {}
 			//! operator =
@@ -98,6 +103,14 @@ namespace core
 		string(const char* c_str) : m_BufferPtr(data_buffer_ptr(c_str)) {}
 		//! Construct from a C-string with a given hash value
 		string(const char* c_str, uint32_t hash_value) : m_BufferPtr(data_buffer_ptr(c_str, hash_value)) {}
+
+		static string fromByteBuffer(const char* buf, size_t l = 0);
+
+#ifdef USES_QT
+		static string fromQString(const QString& str);
+		QString       toQString() const { return QString::fromUtf8(data(), least_storage_size()); }
+#endif
+
 		string& operator = (const string& rhs) { m_BufferPtr = rhs.m_BufferPtr; return *this;}
 
 		//! Get the corresponding data. (Possibly not 0 terminated)
@@ -111,7 +124,7 @@ namespace core
 			if(m_BufferPtr.get_range().length() == 0)
 				return l;
 			for( size_t i = m_BufferPtr.get_range().begin(); i < m_BufferPtr.get_range().end(); ++i )
-				if( (m_BufferPtr[i] & 0xC0) != 0x80 )
+				if( (m_BufferPtr[i - m_BufferPtr.get_range().begin()] & 0xC0) != 0x80 )
 					++l;
 			return l; 
 		}
@@ -178,14 +191,18 @@ namespace core
 			size_t range_end = r.end() + m_BufferPtr.get_range().begin();
 			if(range_end > m_BufferPtr.get_range().end())
 				range_end = m_BufferPtr.get_range().end();
-			out.m_BufferPtr.set_range(range(r.begin() + m_BufferPtr.get_range().begin(), range_end));
+			size_t range_start = r.begin() + m_BufferPtr.get_range().begin();
+			if(range_start == range_end)
+				return core::string();
+			out.m_BufferPtr.set_range(range(range_start, range_end));
 			return out;
 		}
 		//! Get a substring of string starting from idx
 		string			substr(size_t idx) const 
 		{
-			FREYA_SUPPORT_ASSERT(idx < m_BufferPtr.get_range().end() - m_BufferPtr.get_range().begin(), "Invalid idx");
-			return substr(range(idx, m_BufferPtr.get_range().end()));
+			FREYA_SUPPORT_ASSERT(idx < (m_BufferPtr.get_range().end() - m_BufferPtr.get_range().begin()), "Invalid idx");
+			FREYA_SUPPORT_ASSERT(m_BufferPtr.get_range().end() > m_BufferPtr.get_range().begin(), "Invalid buffer state");
+			return substr(range(idx, m_BufferPtr.get_range().end() - m_BufferPtr.get_range().begin()));
 		}
 		//! Get a substring of string
 		string			substr(size_t s, size_t e) const
@@ -332,10 +349,11 @@ namespace core
 		static void	 operator delete(void* p) { memory::dealloc(p, memory::CLASS_POOL); }
 		//! Overloaded delete [] operator
 		static void  operator delete[] (void* p) { memory::dealloc(p, memory::CLASS_POOL); }
+		
 	private:
 		string(size_t sz) : m_BufferPtr(sz) {}
 
-		static uint32_t		calculate_hash(const uint8_t* str, size_t max_l, size_t& l)
+		static uint32_t		calculate_hash(const uint8_t* str, uint32_t max_l, uint32_t& l)
 		{
 			l = 0;
 			//Seed value is taken from Sergey Makeyevs reflection source code
@@ -386,7 +404,7 @@ namespace core
 					memory::dealloc(data_ptr, memory::STL_POOL);
 					data_ptr = NULL;
 					buffer_size = 0;
-					use_count = 0;
+					//use_count = 0;
 				}
 			}
 
@@ -414,25 +432,28 @@ namespace core
 				FREYA_SUPPORT_ASSERT(use_count == 1, "source is not uniquely owned");
 				if(sz == 0)
 					return;
-				memcpy(data_ptr + offset, source, sz);
+				MEMCPY(data_ptr + offset, source, sz);
 				hash = 0; //mark to rehash
 			}
 
 			data_buffer* clone_and_resize(const range& r)
 			{
 				FREYA_SUPPORT_ASSERT(buffer_size == 0 || use_count.load() > 1, "Could not clone uniquely owned buffer");
-				FREYA_SUPPORT_ASSERT(buffer_size <= r.begin(), "Invalid range");
+				//FREYA_SUPPORT_ASSERT(buffer_size > r.begin(), "Invalid range");
 				FREYA_SUPPORT_ASSERT(r.length(), "Empty range");
 			
 				data_buffer* new_buffer = new data_buffer(r.length() + 1);
 
 				size_t copy_size;
-				if(!buffer_size || (data_ptr + buffer_size >= data_ptr + r.end()))
+				if(!buffer_size || (buffer_size >= r.end()))
 					copy_size = r.length();
 				else
 					copy_size = buffer_size - r.begin();
 
-				memcpy(new_buffer->data_ptr, data_ptr + r.begin(), copy_size);
+				FREYA_SUPPORT_ASSERT( r.length() >=  copy_size, "Invalid copy size");
+
+				MEMCPY(new_buffer->data_ptr, data_ptr + r.begin(), copy_size);
+				new_buffer->data_ptr[copy_size] = 0;
 
 				if(r.begin() == 0 && buffer_size <= r.length())
 					new_buffer->hash = hash;
@@ -534,7 +555,7 @@ namespace core
 				{
 					if(buffer && buffer->data_ptr && r.length())
 					{
-						size_t tmp;
+						uint32_t tmp;
 						if(r.begin() == 0 && r.length() == buffer->hashed_length)
 							return (hash_value = buffer->get_hash());
 						else if(hash_value == 0)
@@ -565,14 +586,19 @@ namespace core
 			{
 				if(buffer && buffer->data_ptr )
 				{
-					if( buffer->data_ptr[r.end()] == 0 )
+					size_t idx = r.end();
+
+					if(buffer->buffer_size && (r.end() >= buffer->buffer_size))
+						idx = buffer->buffer_size - 1;
+
+					if( buffer->data_ptr[idx] == 0 )
 						return reinterpret_cast<char*>(buffer->data_ptr + r.begin());
 					else
-					{	
+					{
 						//This looks bad, but we do not actually change the string
 						//We just create a deep copy of it internal representation
 						const_cast<data_buffer_ptr*>(this)->clone_and_resize(r); //This will zero terminate the string without actually changing it
-						return reinterpret_cast<char*>(buffer->data_ptr + r.begin());
+						return reinterpret_cast<char*>(buffer->data_ptr);// + r.begin());
 					}
 				}
 				return ptr();
@@ -629,7 +655,7 @@ namespace core
 					return range();
 				
 				if(other.r.length() == r.length() && starting_from == 0) //Strings are equal
-					return equals(other) ? r : range();
+					return equals(other) ? range(0,r.length()) : range();
 
 				FREYA_SUPPORT_ASSERT(starting_from < r.length(), "Invalid search start position");
 				
@@ -647,7 +673,7 @@ namespace core
 					{
 						++it1; ++it2;
 						if(it2 == last2)
-							return range(first1 - start_it, it1 - start_it);
+							return range(first1 - start_it + starting_from, it1 - start_it + starting_from);
 					}
 					++first1;
 				}
@@ -660,13 +686,13 @@ namespace core
 					return range();
 
 				if(other.r.length() == r.length() && starting_from == 0) //Strings are equal
-					return equals(other) ? r : range();
+					return equals(other) ? range(0,r.length()) : range();
 
 				FREYA_SUPPORT_ASSERT(starting_from < r.length(), "Invalid search start position");
 
 				
 
-				const uint8_t* first1 = buffer->data_ptr + r.end() - starting_from - 1 - other.r.length(); 
+				const uint8_t* first1 = buffer->data_ptr + r.end() - starting_from - other.r.length(); 
 				//const uint8_t* start_it = first1;
 				const uint8_t* last1  = buffer->data_ptr + r.begin();
 
