@@ -147,7 +147,7 @@ namespace core
 		//! Check, if string differs from given c-string
 		bool			operator != (const char* rhs) const { return * this != string(rhs); }
 		//! Check, if the first string is lexicographically less, then a second string
-		bool			operator < (const string& rhs) const { return m_BufferPtr.compare(rhs.m_BufferPtr) == -1; }
+		bool			operator < (const string& rhs) const { return m_BufferPtr.compare(rhs.m_BufferPtr) < 0; }
 		//! Check, if the string is lexicographically less, then a c-string
 		bool			operator < (const char* rhs) const { return *this < string(rhs); }
 		//! Check, if the first string is lexicographically greater, then the second
@@ -156,7 +156,7 @@ namespace core
 		bool			operator > (const char* rhs ) const { return string(rhs) < *this; }
 
 		//! Check, if the first string is lexicographically not less, then a second string
-		bool			operator <= (const string& rhs) const { return m_BufferPtr.compare(rhs.m_BufferPtr) != 1; }
+		bool			operator <= (const string& rhs) const { return m_BufferPtr.compare(rhs.m_BufferPtr) <= 0; }
 		//! Check, if the string is lexicographically not less, then a c-string
 		bool			operator <= (const char* rhs) const { return *this <= string(rhs); }
 		//! Check, if the first string is lexicographically not greater, then the second
@@ -350,8 +350,9 @@ namespace core
 		//! Overloaded delete [] operator
 		static void  operator delete[] (void* p) { memory::dealloc(p, memory::CLASS_POOL); }
 		
+		static void* operator new(size_t , void* p ) { return p; }
 	private:
-		string(size_t sz) : m_BufferPtr(sz) {}
+		explicit string(size_t sz) : m_BufferPtr(sz) {}
 
 		static uint32_t		calculate_hash(const uint8_t* str, uint32_t max_l, uint32_t& l)
 		{
@@ -488,20 +489,22 @@ namespace core
 			}
 			data_buffer_ptr& operator = (const data_buffer_ptr& rhs)
 			{
-				if(buffer)
-				{
-					--buffer->use_count;
-					if(buffer->use_count == 0)
-						delete buffer;
-				}
-
+				data_buffer* lhs_buffer = buffer;
+				
 				buffer = rhs.buffer;
 				r = rhs.r;
 				hash_value = rhs.hash_value;
+
 				if(buffer)
-				{
 					++buffer->use_count;
+
+				if(lhs_buffer)
+				{
+					--lhs_buffer->use_count;
+					if(lhs_buffer->use_count == 0)
+						delete lhs_buffer;
 				}
+
 				return *this;
 			}
 
@@ -640,10 +643,13 @@ namespace core
 				else if((buffer == NULL || buffer->data_ptr == NULL) && (rhs.buffer && rhs.buffer->data_ptr && rhs.r.length())) //Lhs is empty
 					return -1;
 				else if(buffer && buffer->data_ptr && rhs.buffer && rhs.buffer->data_ptr) //Neither are empty
-					return strncmp(
-					reinterpret_cast<char*>(buffer->data_ptr + r.begin()),
-					reinterpret_cast<char*>(rhs.buffer->data_ptr + rhs.r.begin()),
-					r.length() < rhs.r.length() ? r.length() : rhs.r.length());
+				{	
+					int comp = strncmp(
+						reinterpret_cast<char*>(buffer->data_ptr + r.begin()),
+						reinterpret_cast<char*>(rhs.buffer->data_ptr + rhs.r.begin()),
+						r.length() < rhs.r.length() ? r.length() : rhs.r.length());
+					return comp ? comp : r.length() - rhs.r.length();
+				}
 				else //Rhs is empty
 					return 1;
 
@@ -717,6 +723,12 @@ namespace core
 		data_buffer_ptr	m_BufferPtr;
 	};
 } // namespace core
+
+inline core::string operator + ( const char* lhs, const core::string& rhs )
+{
+	return core::string(lhs) + rhs;
+}
+
 //!\cond
 namespace containers
 {
